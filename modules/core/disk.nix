@@ -1,0 +1,62 @@
+{
+  inputs,
+  ...
+}:
+{
+  flake.nixosModules.disk =
+    {
+      config,
+      ...
+    }:
+    {
+      imports = [
+        inputs.disko.nixosModules.disko
+      ];
+
+      config = {
+        fileSystems."/persist".neededForBoot = true;
+        networking.hostId = builtins.substring 0 8 (builtins.hashString "md5" config.networking.hostName);
+
+        boot = {
+          supportedFilesystems = [ "zfs" ];
+
+          zfs = {
+            devNodes = "/dev/disk/by-id/";
+            forceImportAll = true;
+            requestEncryptionCredentials = true;
+          };
+
+          kernelParams =
+            let
+              facterReport = config.facter.report;
+              memoryBytes = (builtins.head (builtins.head facterReport.hardware.memory).resources).range;
+              arcMaxBytes = memoryBytes / 4;
+            in
+            [
+              "nohibernate"
+              "zfs.zfs_arc_max=${toString arcMaxBytes}"
+            ];
+        };
+
+        disko.devices =
+          let
+            facterReport = config.facter.report;
+            diskInfo = builtins.head facterReport.hardware.disk;
+            diskDevice = builtins.head diskInfo.unix_device_names;
+            diskSizeResource = builtins.head (builtins.filter (r: r.type == "size") diskInfo.resources);
+            diskSizeGB = builtins.floor (
+              (diskSizeResource.value_1 * diskSizeResource.value_2) / (1024 * 1024 * 1024)
+            );
+          in
+          inputs.self.lib.mkDisks {
+            device = diskDevice;
+            diskSize = diskSizeGB;
+          };
+
+        services.zfs = {
+          autoScrub.enable = true;
+          trim.enable = true;
+        };
+      };
+    };
+}

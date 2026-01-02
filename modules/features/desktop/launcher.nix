@@ -1,0 +1,55 @@
+{
+  lib,
+  ...
+}:
+{
+  flake.nixosModules.launcher =
+    {
+      config,
+      ...
+    }:
+    let
+      cfg = config.features.launcher;
+    in
+    {
+      options.features.launcher = {
+        enable = lib.mkEnableOption "application launcher";
+      };
+
+      config = lib.mkIf cfg.enable {
+        # Assertion: app-launch must be enabled for app2unit command
+        assertions = [
+          {
+            assertion = config.features.app-launch.enable or false;
+            message = "features.launcher requires features.app-launch to be enabled (for app2unit)";
+          }
+        ];
+
+        home-manager.sharedModules = [
+          {
+            home.sessionVariables.LAUNCHER = "fuzzel";
+
+            programs.fuzzel = {
+              enable = true;
+              settings = {
+                border.width = 3;
+                border.radius = 8;
+
+                main = {
+                  launch-prefix = "app2unit --fuzzel-compat -s a --";
+                  width = 48;
+                  lines = 12;
+                  horizontal-pad = 24;
+                  vertical-pad = 32;
+                  inner-pad = 24;
+                  line-height = 32;
+                  layer = "overlay";
+                  terminal = "$TERMINAL -e";
+                };
+              };
+            };
+          }
+        ];
+      };
+    };
+}

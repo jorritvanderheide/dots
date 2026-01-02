@@ -1,0 +1,12 @@
+keys:
+  - &testhost age1qh696pjjqdm82f3xl03j70t86xvm5x4aeprvvsqwf79paw4g6fqs55dmxa
+  - &huginn age1kkumauymwhnajm66k9la5x6xnkv5m3cps9qykerwcxus6zjmtp8st6p237
+  - &jorrit age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
+
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - *testhost
+          - *huginn
+          - *jorrit

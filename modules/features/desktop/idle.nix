@@ -1,0 +1,93 @@
+{
+  lib,
+  ...
+}:
+{
+  flake.nixosModules.idle =
+    {
+      config,
+      pkgs,
+      ...
+    }:
+    let
+      cfg = config.features.idle;
+    in
+    {
+      options.features.idle = {
+        enable = lib.mkEnableOption "idle timeout management";
+
+        lockCommand = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Command to run when locking screen (should be set to lockscreen.command if using lockscreen feature)";
+        };
+
+        lockTimeout = lib.mkOption {
+          type = lib.types.nullOr lib.types.int;
+          default = 300;
+          description = "Seconds of inactivity before locking the screen (null = no lock on idle)";
+        };
+
+        displayTimeout = lib.mkOption {
+          type = lib.types.int;
+          default = 600;
+          description = "Seconds of inactivity before turning off displays";
+        };
+
+        suspendTimeout = lib.mkOption {
+          type = lib.types.nullOr lib.types.int;
+          default = null;
+          description = "Seconds of inactivity before suspending (null = never suspend on idle)";
+        };
+      };
+
+      config = lib.mkIf cfg.enable {
+        # Assertion: if lockTimeout is set, lockCommand must be provided
+        assertions = [
+          {
+            assertion = (cfg.lockTimeout == null) || (cfg.lockCommand != null);
+            message = "features.idle.lockCommand must be set when features.idle.lockTimeout is enabled";
+          }
+        ];
+
+        # Configure swayidle via home-manager for all users
+        home-manager.sharedModules = [
+          {
+            services.swayidle = {
+              enable = true;
+              systemdTarget = "graphical-session.target";
+
+              timeouts =
+                lib.optionals (cfg.lockTimeout != null && cfg.lockCommand != null) [
+                  # Lock screen after idle timeout
+                  {
+                    timeout = cfg.lockTimeout;
+                    command = cfg.lockCommand;
+                  }
+                ]
+                ++ [
+                  # Turn off displays (niri-specific)
+                  {
+                    timeout = cfg.displayTimeout;
+                    command = "${pkgs.niri}/bin/niri msg action power-off-monitors";
+                    resumeCommand = "${pkgs.niri}/bin/niri msg action power-on-monitors";
+                  }
+                ]
+                ++ lib.optionals (cfg.suspendTimeout != null) [
+                  # Suspend after timeout
+                  {
+                    timeout = cfg.suspendTimeout;
+                    command = "${pkgs.systemd}/bin/systemctl suspend";
+                  }
+                ];
+
+              events = lib.mkIf (cfg.lockCommand != null) {
+                before-sleep = cfg.lockCommand;
+                lock = cfg.lockCommand;
+              };
+            };
+          }
+        ];
+      };
+    };
+}
