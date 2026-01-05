@@ -55,6 +55,11 @@
               "192.168.1.33"
             ];
           };
+
+          # Persist fingerprints
+          impermanence.systemDirectories = [
+            "/var/lib/fprint"
+          ];
         };
       };
   };

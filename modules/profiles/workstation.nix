@@ -37,6 +37,7 @@
         theming
 
         # Dev
+        direnv
         git
         nix
 
@@ -81,6 +82,7 @@
         theming.enable = true;
 
         # Dev
+        direnv.enable = true;
         git.enable = true;
         nix.enable = true;
 

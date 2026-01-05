@@ -6,10 +6,6 @@
 {
   flake.nixosModules.boot =
     { config, ... }:
-    let
-      # Only enable secure boot if sbctl keys actually exist
-      secureBootEnabled = builtins.pathExists "/var/lib/sbctl/keys/db/db.key";
-    in
     {
       imports = [
         inputs.lanzaboote.nixosModules.lanzaboote
@@ -30,7 +26,7 @@
         };
 
         lanzaboote = {
-          enable = secureBootEnabled;
+          enable = true;
           pkiBundle = "/var/lib/sbctl";
         };
 
@@ -39,7 +35,7 @@
           efi.canTouchEfiVariables = true;
 
           systemd-boot = {
-            enable = lib.mkForce (!secureBootEnabled);
+            enable = lib.mkForce false;
             configurationLimit = 64;
           };
         };

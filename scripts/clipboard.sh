@@ -19,7 +19,7 @@ main() {
     pkill fuzzel
   else
     cliphist list \
-      | app2unit a: -- fuzzel -d \
+      | app2unit -s a -- fuzzel -d \
       | cliphist decode \
       | wl-copy
   fi

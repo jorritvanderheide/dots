@@ -42,6 +42,22 @@
                   ''
                   ''zoxide init fish | source''
                 ];
+                
+                shellAliases = {
+                  # General
+                  "c" = "clear";
+
+                  # Nix
+                  "nboot" = "pushd /persist/etc/nixos && sudo nixos-rebuild boot --flake .#(hostname) --no-reexec && popd";
+                  "nbuild" = "pushd /persist/etc/nixos && sudo nixos-rebuild build --flake .#(hostname) --no-reexec && popd";
+                  "ncheck" = "pushd /persist/etc/nixos && nix flake check && popd";
+                  "nclean" = "nix-collect-garbage -d";
+                  "nformat" = "pushd /persist/etc/nixos && nix fmt /persist/etc/nixos && popd";
+                  "nrollback" = "sudo nixos-rebuild switch --no-reexec --rollback";
+                  "nswitch" = "pushd /persist/etc/nixos && sudo nixos-rebuild switch --flake .#(hostname) --no-reexec && popd";
+                  "ntest" = "pushd /persist/etc/nixos && sudo nixos-rebuild test --flake .#(hostname) --no-reexec && popd";
+                  "nupdate" = "pushd /etc/nixos && sudo nix flake update && popd";
+                };
               };
 
               fzf = {

@@ -106,7 +106,11 @@
                   "nix.serverSettings" = {
                     "nixd" = {
                       "formatting" = {
-                        "command" = [ "nixfmt" ];
+                        "command" = [
+                          "nix"
+                          "fmt"
+                          "--"
+                        ];
                       };
                     };
                   };
@@ -123,7 +127,13 @@
               };
             };
 
-            home.sessionVariables.EDITOR = "code";
+            home = {
+              sessionVariables.EDITOR = "code";
+
+              packages = with pkgs; [
+                nixd
+              ];
+            };
           }
         ];
       };

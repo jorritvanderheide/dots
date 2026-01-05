@@ -16,6 +16,7 @@
         secrets
 
         # Dev
+        direnv
         nix
 
         # Shell
@@ -36,6 +37,7 @@
 
       features = {
         # Dev
+        direnv.enable = true;
         nix.enable = true;
 
         # Shell

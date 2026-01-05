@@ -17,7 +17,10 @@
       };
 
       config = lib.mkIf cfg.enable {
-        security.sudo.execWheelOnly = true;
+        security.sudo = {
+          execWheelOnly = true;
+          wheelNeedsPassword = false;
+        };
       };
     };
 }

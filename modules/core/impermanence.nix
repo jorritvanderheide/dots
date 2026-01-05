@@ -63,6 +63,7 @@
           hideMounts = true;
 
           directories = [
+            "/etc/nixos"
             "/etc/ssh"
             "/var/log"
             "/var/lib/nixos"

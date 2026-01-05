@@ -254,7 +254,10 @@ in
               ];
             };
 
-            services.system76-scheduler-niri.enable = true;
+            services = {
+              gnome-keyring.enable = lib.mkForce false;
+              system76-scheduler-niri.enable = true;
+            };
           }
         ];
       };

@@ -214,6 +214,9 @@
           owner = "wpa_supplicant";
         };
 
+        # Disable systemd-resolved when using dnscrypt-proxy (NixOS best practice)
+        services.resolved.enable = lib.mkIf (cfg.DOHServers != null) false;
+
         services.dnscrypt-proxy = lib.mkIf (cfg.DOHServers != null) {
           enable = true;
           settings = {
@@ -240,15 +243,7 @@
           };
         };
 
-        # Persist dnscrypt-proxy cache for impermanence
-        features.impermanence.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
-          "/var/lib/dnscrypt-proxy"
-        ];
-
-        systemd.services = {
-          dnscrypt-proxy2.serviceConfig.StateDirectory = lib.mkIf (cfg.DOHServers != null) "dnscrypt-proxy";
-        }
-        // lib.optionalAttrs (cfg.wireless != null) {
+        systemd.services = lib.optionalAttrs (cfg.wireless != null) {
           # Ensure wpa_supplicant waits for sops template
           "wpa_supplicant-${cfg.wireless.interface}" = {
             after = [ "sops-install-secrets.service" ];
