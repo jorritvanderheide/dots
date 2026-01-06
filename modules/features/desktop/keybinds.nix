@@ -62,7 +62,10 @@
                   action = spawn "app2unit" "-s" "a" "--" "ghostty";
                   repeat = false;
                 };
-
+                "Mod+Backspace" = {
+                  action = spawn "app2unit" "-s" "a" "--" "hyprlock";
+                  repeat = false;
+                };
                 "Mod+Tab" = {
                   action = toggle-overview;
                   repeat = false;

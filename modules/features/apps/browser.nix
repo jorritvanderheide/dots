@@ -18,6 +18,14 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Assertion: impermanence must be enabled for persistent data
+        assertions = [
+          {
+            assertion = config.features.impermanence ? systemDirectories;
+            message = "features.browser requires features.impermanence to be enabled";
+          }
+        ];
+
         home-manager.sharedModules = [
           inputs.zen-browser.homeModules.beta
           (
@@ -301,6 +309,11 @@
 
               # Fix for missing profile warning
               stylix.targets.zen-browser.profileNames = [ "default" ];
+
+              # Persist browser data across reboots
+              features.impermanence.homeDirectories = [
+                ".zen"
+              ];
             }
           )
         ];

@@ -103,6 +103,15 @@ in
                     "${cfg.wallpaper}"
                   ];
                 }
+                # {
+                #   command = [
+                #     "app2unit"
+                #     "-s"
+                #     "a"
+                #     "--"
+                #     "hyprlock"
+                #   ];
+                # }
                 {
                   command = [
                     "app2unit"

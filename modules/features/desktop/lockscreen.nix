@@ -39,15 +39,17 @@
                 auth.fingerprint.enabled = true;
 
                 general = {
-                  disable_loading_bar = true;
                   hide_cursor = true;
                   immediate_render = true;
                 };
 
-                background = {
-                  blur_passes = 2;
-                  blur_strength = 1;
-                };
+                background = lib.mkForce [
+                  {
+                    blur_passes = 2;
+                    blur_size = 1;
+                    path = config.features.compositor.wallpaper;
+                  }
+                ];
 
                 label = {
                   text = "";
@@ -60,7 +62,6 @@
 
                 input-field = {
                   size = "250, 75";
-                  font_size = 20;
                   outline_thickness = 5;
                   inner_color = lib.mkForce "rgba(35, 33, 54, 0.8)"; # TODO: Use Stylix
                   outer_color = lib.mkForce "rgba(196, 167, 231, 0.6)";

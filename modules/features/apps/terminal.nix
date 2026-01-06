@@ -33,6 +33,8 @@
                 gtk-titlebar = false;
                 window-padding-x = 32;
                 window-padding-y = 32;
+                window-inherit-working-directory = false;
+                working-directory = "home";
               };
             };
 
