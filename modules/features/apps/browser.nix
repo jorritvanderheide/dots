@@ -195,7 +195,7 @@
                         Alias = "@np";
                       }
                       {
-                        Name = "Nix functions";
+                        Name = "Noogle";
                         URLTemplate = "https://noogle.dev/q?term={searchTerms}";
                         IconURL = "https://noogle.dev/favicon.ico";
                         Alias = "@ng";

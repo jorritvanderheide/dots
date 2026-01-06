@@ -88,7 +88,7 @@
 
                  # Create SSH allowedSigners file for commit verification
                 home.file.".ssh/allowedSigners".text = ''
-                  ${cfg.userEmail} ${cfg.signingKey}
+                  ${cfg.signingKey}
                 '';
 
                 features.impermanence.homeDirectories = [
