@@ -58,11 +58,13 @@
                         email = cfg.userEmail;
                       };
 
-                      signing = {
-                        sign-all = true;
-                        backend = "ssh";
-                        key = cfg.signingKey;
-                      };
+                      # TODO: Enable commit signing when jujutsu supports getting the priva key from the Bitwarden ssh-agent
+                      # signing = {
+                      #   backend = "ssh";
+                      #   backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
+                      #   behavior = "own";
+                      #   key = cfg.signingKey;
+                      # };
                     };
                   };
 
@@ -94,7 +96,7 @@
                   };
                 };
 
-                 # Create SSH allowedSigners file for commit verification
+                # Create SSH allowedSigners file for commit verification
                 home.file.".ssh/allowedSigners".text = ''
                   ${cfg.userEmail} ${cfg.signingKey}
                 '';

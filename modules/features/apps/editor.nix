@@ -72,6 +72,7 @@
                   # Git
                   "git.autofetch" = true;
                   "git.confirmSync" = false;
+                  "git.enableCommitSigning" = true;
                   "git.openRepositoryInParentFolders" = "always";
                   "git.suggestSmartCommit" = false;
 
