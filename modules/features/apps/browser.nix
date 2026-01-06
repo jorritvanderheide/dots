@@ -174,43 +174,41 @@
 
                     Add = [
                       {
-                        Name = "Kagi";
-                        URLTemplate = "https://kagi.com/search?q={searchTerms}";
-                        IconURL = "https://kagi.com/favicon.ico";
                         Alias = "@kg";
-                        Description = "Better search results with no ads.";
+                        Name = "Kagi";
+                        IconURL = "https://kagi.com/favicon.ico";
                         SuggestURLTemplate = "https://kagi.com/api/autosuggest?q={searchTerms}";
+                        URLTemplate = "https://kagi.com/search?q={searchTerms}";
                       }
                       {
+                        Alias = "@ai";
                         Name = "Perplexity AI";
                         URLTemplate = "https://perplexity.ai/search?q={searchTerms}&copilot=false";
                         IconURL = "https://perplexity.ai/favicon.ico";
-                        Alias = "@ai";
-                        Description = "Perplexity is your AI-powered Swiss Army knife for information discovery and curiosity.";
                       }
                       {
-                        Name = "Nix packages";
-                        URLTemplate = "https://search.nixos.org/packages?channel=unstable&query={searchTerms}";
-                        IconURL = "https://wiki.nixos.org/favicon.ico";
                         Alias = "@np";
-                      }
-                      {
-                        Name = "Noogle";
-                        URLTemplate = "https://noogle.dev/q?term={searchTerms}";
-                        IconURL = "https://noogle.dev/favicon.ico";
-                        Alias = "@ng";
-                      }
-                      {
-                        Name = "NixOS Wiki";
-                        URLTemplate = "https://wiki.nixos.org/w/index.php?search={searchTerms}";
+                        Name = "Nix packages";
                         IconURL = "https://wiki.nixos.org/favicon.ico";
-                        Alias = "@nw";
+                        URLTemplate = "https://search.nixos.org/packages?channel=unstable&query={searchTerms}";
                       }
                       {
-                        Name = "My Nixos";
-                        URLTemplate = "https://mynixos.com/search?q={searchTerms}";
-                        IconURL = "https://mynixos.com/favicon.ico";
+                        Alias = "@ng";
+                        Name = "Noogle";
+                        IconURL = "https://noogle.dev/favicon.ico";
+                        URLTemplate = "https://noogle.dev/q?term={searchTerms}";
+                      }
+                      {
+                        Alias = "@nw";
+                        Name = "NixOS Wiki";
+                        IconURL = "https://wiki.nixos.org/favicon.ico";
+                        URLTemplate = "https://wiki.nixos.org/w/index.php?search={searchTerms}";
+                      }
+                      {
                         Alias = "@mn";
+                        Name = "My Nixos";
+                        IconURL = "https://mynixos.com/favicon.ico";
+                        URLTemplate = "https://mynixos.com/search?q={searchTerms}";
                       }
                     ];
 

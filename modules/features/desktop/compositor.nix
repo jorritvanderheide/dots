@@ -72,6 +72,8 @@ in
           ];
         };
 
+        services.gnome.gnome-keyring.enable = lib.mkForce false;
+
         features.compositor.sessionCommand =
           {
             niri = "niri --session";
@@ -103,15 +105,15 @@ in
                     "${cfg.wallpaper}"
                   ];
                 }
-                # {
-                #   command = [
-                #     "app2unit"
-                #     "-s"
-                #     "a"
-                #     "--"
-                #     "hyprlock"
-                #   ];
-                # }
+                {
+                  command = [
+                    "app2unit"
+                    "-s"
+                    "a"
+                    "--"
+                    "hyprlock"
+                  ];
+                }
                 {
                   command = [
                     "app2unit"
@@ -263,10 +265,7 @@ in
               ];
             };
 
-            services = {
-              gnome-keyring.enable = lib.mkForce false;
-              system76-scheduler-niri.enable = true;
-            };
+            services.system76-scheduler-niri.enable = true;
           }
         ];
       };

@@ -29,7 +29,7 @@
           (
             { inputs, pkgs, ... }:
             let
-              scriptsDirectory = inputs.self + "scripts";
+              scriptsDirectory = inputs.self + "/scripts";
             in
             {
               home.packages = with pkgs; [
@@ -80,7 +80,8 @@
                     "Mod+O" = {
                       action.spawn = [
                         "app2unit"
-                        "a:"
+                        "-s"
+                        "a"
                         "--"
                         "hyprpicker"
                         "-a"

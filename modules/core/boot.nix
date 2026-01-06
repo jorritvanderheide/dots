@@ -46,6 +46,9 @@
         "/var/lib/tpm2-tss"
       ];
 
+      # To re-enroll:
+      # `sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p2`
+      # `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7 /dev/nvme0n1p2`
       security.tpm2 = {
         enable = true;
         tctiEnvironment.enable = true;

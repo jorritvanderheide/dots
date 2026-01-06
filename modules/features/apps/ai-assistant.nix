@@ -31,6 +31,8 @@
               enable = true;
 
               settings = {
+                gitAttribution = false;
+                includeCoAuthoredBy = false;
                 preferredEditor = "code";
                 shellIntegration = true;
 
@@ -45,9 +47,14 @@
               };
             };
 
-            features.impermanence.homeDirectories = [
-              ".claude"
-            ];
+            features.impermanence = {
+              homeDirectories = [
+                ".claude"
+              ];
+              homeFiles = [
+                ".claude.json"
+              ];
+            };
           }
         ];
       };
