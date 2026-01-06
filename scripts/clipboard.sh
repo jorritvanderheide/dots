@@ -12,14 +12,13 @@ main() {
   command -v fuzzel >/dev/null 2>&1 || die "fuzzel is not installed"
   command -v cliphist >/dev/null 2>&1 || die "cliphist is not installed"
   command -v wl-copy >/dev/null 2>&1 || die "wl-copy is not installed"
-  command -v app2unit >/dev/null 2>&1 || die "app2unit is not installed"
 
   # Close fuzzel if already running, otherwise show clipboard history
   if pgrep -x fuzzel >/dev/null; then
     pkill fuzzel
   else
     cliphist list \
-      | app2unit -s a -- fuzzel -d \
+      | fuzzel -d \
       | cliphist decode \
       | wl-copy
   fi

@@ -58,8 +58,6 @@ in
           sessionVariables.NIXOS_OZONE_WL = "1";
 
           systemPackages = with pkgs; [
-            alacritty
-            ghostty
             blueberry
             brightnessctl
             mako
