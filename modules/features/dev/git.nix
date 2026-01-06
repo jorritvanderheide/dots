@@ -41,6 +41,10 @@
                   type = lib.types.str;
                   description = "Git user email";
                 };
+                signingKey = lib.mkOption {
+                  type = lib.types.str;
+                  description = "SSH public key for commit signing (from Bitwarden)";
+                };
               };
 
               config = {
@@ -63,6 +67,7 @@
                     ];
 
                     settings = {
+                      gpg.ssh.allowedSignersFile = "~/.ssh/allowedSigners";
                       init.defaultBranch = "trunk";
                       safe.directory = [ "/etc/nixos" ];
 
@@ -70,9 +75,21 @@
                         name = cfg.userName;
                         email = cfg.userEmail;
                       };
+
+                    };
+
+                    signing = {
+                      format = "ssh";
+                      key = cfg.signingKey;
+                      signByDefault = true;
                     };
                   };
                 };
+
+                 # Create SSH allowedSigners file for commit verification
+                home.file.".ssh/allowedSigners".text = ''
+                  ${cfg.userEmail} ${cfg.signingKey}
+                '';
 
                 features.impermanence.homeDirectories = [
                   "Git"
