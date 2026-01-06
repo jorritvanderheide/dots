@@ -52,9 +52,17 @@
                   jujutsu = {
                     enable = true;
 
-                    settings.user = {
-                      name = cfg.userName;
-                      email = cfg.userEmail;
+                    settings = {
+                      user = {
+                        name = cfg.userName;
+                        email = cfg.userEmail;
+                      };
+
+                      signing = {
+                        sign-all = true;
+                        backend = "ssh";
+                        key = cfg.signingKey;
+                      };
                     };
                   };
 
@@ -88,7 +96,7 @@
 
                  # Create SSH allowedSigners file for commit verification
                 home.file.".ssh/allowedSigners".text = ''
-                  ${cfg.signingKey}
+                  ${cfg.userEmail} ${cfg.signingKey}
                 '';
 
                 features.impermanence.homeDirectories = [
