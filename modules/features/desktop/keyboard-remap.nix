@@ -60,6 +60,12 @@
           # Ensure service starts after devices are available
           after = [ "multi-user.target" ];
 
+          unitConfig = {
+            # Allow a few retries for keyboards to appear during boot
+            StartLimitIntervalSec = 60;
+            StartLimitBurst = 10;
+          };
+
           serviceConfig = {
             SupplementaryGroups = [
               "input"
@@ -69,10 +75,6 @@
             # Restart if Kanata exits (e.g., no keyboards found at boot)
             Restart = "on-failure";
             RestartSec = "2s";
-
-            # Allow a few retries for keyboards to appear during boot
-            StartLimitIntervalSec = 60;
-            StartLimitBurst = 10;
           };
         };
 

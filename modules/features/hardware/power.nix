@@ -37,7 +37,7 @@
             "conservative"
             "schedutil"
           ];
-          default = "schedutil";
+          default = "powersave";
           description = "CPU frequency scaling governor";
         };
 

@@ -22,6 +22,7 @@
       { pkgs, ... }:
       {
         # ─── Hardware ───
+        boot.blacklistedKernelModules = [ "kvm-amd" ];
         boot.initrd.availableKernelModules = [ "tpm_tis" ];
 
         # Intel GPU hardware acceleration
