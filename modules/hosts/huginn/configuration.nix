@@ -47,15 +47,6 @@
             ];
           };
 
-          ssh.knownHosts."testhost" = {
-            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINtRIdAiIoYLRC0kZZwkWM9eYFkjHhj0rFWw82Qe3j+s testhost";
-
-            hostNames = [
-              "testhost"
-              "192.168.1.33"
-            ];
-          };
-
           # Persist fingerprints
           impermanence.systemDirectories = [
             "/var/lib/fprint"

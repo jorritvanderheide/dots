@@ -3,17 +3,17 @@
   ...
 }:
 {
-  flake.nixosModules.bitwarden =
+  flake.nixosModules.password-manager =
     {
       config,
       pkgs,
       ...
     }:
     let
-      cfg = config.features.bitwarden;
+      cfg = config.features.password-manager;
     in
     {
-      options.features.bitwarden = {
+      options.features.password-manager = {
         enable = lib.mkEnableOption "Bitwarden password manager with SSH agent integration";
       };
 
@@ -22,7 +22,7 @@
         assertions = [
           {
             assertion = config.features.impermanence ? systemDirectories;
-            message = "features.bitwarden requires features.impermanence to be enabled";
+            message = "features.password-manager requires features.impermanence to be enabled";
           }
         ];
 

@@ -59,26 +59,24 @@
 
                     ignores = [
                       ".direnv/"
+                      "result/"
                     ];
 
                     settings = {
-                      commit.gpgsign = true;
                       init.defaultBranch = "trunk";
                       safe.directory = [ "/etc/nixos" ];
 
                       user = {
+                        name = cfg.userName;
                         email = cfg.userEmail;
-                        user = cfg.userName;
                       };
                     };
                   };
                 };
 
-                features.impermanence = {
-                  homeDirectories = [
-                    "Git"
-                  ];
-                };
+                features.impermanence.homeDirectories = [
+                  "Git"
+                ];
               };
             }
           )

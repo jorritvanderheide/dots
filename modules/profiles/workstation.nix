@@ -17,11 +17,11 @@
 
         # Apps
         ai-assistant
-        bitwarden
         browser
         editor
         messaging
         notes
+        password-manager
         terminal
 
         # Desktop
@@ -62,11 +62,11 @@
       features = {
         # Apps
         ai-assistant.enable = true;
-        bitwarden.enable = true;
         browser.enable = true;
         editor.enable = true;
         messaging.enable = true;
         notes.enable = true;
+        password-manager.enable = true;
         terminal.enable = true;
 
         # Desktop
