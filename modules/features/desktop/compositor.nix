@@ -130,6 +130,15 @@ in
                     "udiskie"
                   ];
                 }
+                {
+                  command = [
+                    "app2unit"
+                    "-s"
+                    "a"
+                    "--"
+                    "bitwarden"
+                  ];
+                }
               ];
 
               hotkey-overlay = {

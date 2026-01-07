@@ -14,6 +14,9 @@
       ];
 
       config = {
+        # LUKS disk encryption password
+        sops.secrets.luks_password = { };
+
         fileSystems."/persist".neededForBoot = true;
         networking.hostId = builtins.substring 0 8 (builtins.hashString "md5" config.networking.hostName);
 

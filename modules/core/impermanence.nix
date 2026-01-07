@@ -89,10 +89,6 @@
               cfg = config.features.impermanence;
             in
             {
-              imports = [
-                inputs.impermanence.nixosModules.home-manager.impermanence
-              ];
-
               options.features.impermanence = {
                 homeFiles = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
@@ -107,13 +103,10 @@
                 };
               };
 
-              config.home.persistence."/persist/home/${config.home.username}" = {
-                allowOther = true;
-
+              config.home.persistence."/persist" = {
                 directories = [
                   "Downloads"
                   "Documents"
-                  "Git"
                   "Pictures"
                   "Videos"
                 ]

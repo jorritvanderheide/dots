@@ -12,6 +12,7 @@
       "keys" # Sops
       "kvm" # Android
       "plugdev" # Android
+      "sops-users" # SOPS manual editing
       "video"
     ];
 

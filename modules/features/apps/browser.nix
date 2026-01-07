@@ -7,6 +7,7 @@
   flake.nixosModules.browser =
     {
       config,
+      lib,
       ...
     }:
     let
@@ -18,11 +19,15 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Define sops secret for HTTP allowlist IP
+        sops.secrets.httpallowlist_ip = { };
+
         home-manager.sharedModules = [
           inputs.zen-browser.homeModules.beta
           (
             {
               config,
+              osConfig,
               ...
             }:
             {
@@ -51,7 +56,7 @@
                   DisplayBookmarksToolbar = "never";
                   DisplayMenuBar = "default-off";
                   DontCheckDefaultBrowser = true;
-                  # HttpsOnlyMode = "force_enabled";
+                  HttpsOnlyMode = "force_enabled";
                   NewTabPage = true;
                   NoDefaultBookmarks = true;
                   OverrideFirstRunPage = "";
@@ -147,7 +152,7 @@
 
                   HttpAllowlist = [
                     "http://localhost"
-                    # TODO Add secret ip with sops
+                    osConfig.sops.placeholder.httpallowlist_ip
                   ];
 
                   SanitizeOnShutdown = {

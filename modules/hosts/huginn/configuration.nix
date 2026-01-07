@@ -43,6 +43,13 @@
             wireless.interface = "wlp170s0";
 
             firewallPorts = [
+              # 3900 # S3
+              # 5050 # Backend
+              # 6060
+              # 7070
+              # 8001 # Hub services
+              # 8012
+              # 8080 # Frontend
               8188 # Yivi
               8189
             ];
