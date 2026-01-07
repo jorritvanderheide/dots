@@ -16,11 +16,16 @@
       "video"
     ];
 
-    extraHomeConfig.features = {
+    extraHomeConfig.settings = {
       git = {
-        signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8";
+        signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC";
+        userEmail = "jorrit+git@bw20.nl";
         userName = "Jorrit van der Heide";
-        userEmail = "bw20@noreply.codeberg.org";
+
+        allowedSigningKeys = [
+          "codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC" # (verified)
+          "gitlab.science.ru.nl ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA"
+        ];
       };
     };
   };

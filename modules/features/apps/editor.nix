@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.editor;
+      cfg = config.settings.editor;
     in
     {
-      options.features.editor = {
+      options.settings.editor = {
         enable = lib.mkEnableOption "code editor";
       };
 
@@ -148,7 +148,7 @@
             };
 
             # Persist editor data across reboots
-            features.impermanence.homeDirectories = [
+            settings.impermanence.homeDirectories = [
               ".config/Code"
             ];
           }

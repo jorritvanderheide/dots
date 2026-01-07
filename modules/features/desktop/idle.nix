@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.idle;
+      cfg = config.settings.idle;
     in
     {
-      options.features.idle = {
+      options.settings.idle = {
         enable = lib.mkEnableOption "idle timeout management";
 
         lockCommand = lib.mkOption {
@@ -46,7 +46,7 @@
         assertions = [
           {
             assertion = (cfg.lockTimeout == null) || (cfg.lockCommand != null);
-            message = "features.idle.lockCommand must be set when features.idle.lockTimeout is enabled";
+            message = "settings.idle.lockCommand must be set when settings.idle.lockTimeout is enabled";
           }
         ];
 

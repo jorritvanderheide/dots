@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.keybinds;
+      cfg = config.settings.keybinds;
     in
     {
-      options.features.keybinds = {
+      options.settings.keybinds = {
         enable = lib.mkEnableOption "keybindings for compositor and applications";
       };
 
@@ -20,8 +20,8 @@
         # Assertion: app-launch must be enabled for app2unit command
         assertions = [
           {
-            assertion = config.features.app-launch.enable or false;
-            message = "features.keybinds requires features.app-launch to be enabled (for app2unit)";
+            assertion = config.settings.app-launch.enable or false;
+            message = "settings.keybinds requires settings.app-launch to be enabled (for app2unit)";
           }
         ];
 

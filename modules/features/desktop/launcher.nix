@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.launcher;
+      cfg = config.settings.launcher;
     in
     {
-      options.features.launcher = {
+      options.settings.launcher = {
         enable = lib.mkEnableOption "application launcher";
       };
 
@@ -20,8 +20,8 @@
         # Assertion: app-launch must be enabled for app2unit command
         assertions = [
           {
-            assertion = config.features.app-launch.enable or false;
-            message = "features.launcher requires features.app-launch to be enabled (for app2unit)";
+            assertion = config.settings.app-launch.enable or false;
+            message = "settings.launcher requires settings.app-launch to be enabled (for app2unit)";
           }
         ];
 

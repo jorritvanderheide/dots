@@ -9,16 +9,18 @@
       ...
     }:
     let
-      cfg = config.features.terminal;
+      cfg = config.settings.terminal;
     in
     {
-      options.features.terminal = {
+      options.settings.terminal = {
         enable = lib.mkEnableOption "terminal emulator";
       };
 
       config = lib.mkIf cfg.enable {
         home-manager.sharedModules = [
           {
+            home.sessionVariables.TERMINAL = "ghostty";
+
             programs.ghostty = {
               enable = true;
               enableFishIntegration = true;
@@ -37,8 +39,6 @@
                 working-directory = "home";
               };
             };
-
-            home.sessionVariables.TERMINAL = "ghostty";
           }
         ];
       };

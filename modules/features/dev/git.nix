@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.git;
+      cfg = config.settings.git;
     in
     {
-      options.features.git = {
+      options.settings.git = {
         enable = lib.mkEnableOption "Git and Jujutsu";
       };
 
@@ -21,45 +21,33 @@
           (
             { config, ... }:
             let
-              cfg = config.features.git;
+              cfg = config.settings.git;
             in
             {
-              options.features.git = {
-                userName = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Git user name";
+              options.settings.git = {
+                allowedSigningKeys = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  description = "Allowed keys for commit signing";
                 };
+
+                signingKey = lib.mkOption {
+                  type = lib.types.str;
+                  description = "SSH public key for commit signing";
+                };
+
                 userEmail = lib.mkOption {
                   type = lib.types.str;
                   description = "Git user email";
                 };
-                signingKey = lib.mkOption {
+
+                userName = lib.mkOption {
                   type = lib.types.str;
-                  description = "SSH public key for commit signing (from Bitwarden)";
+                  description = "Git user name";
                 };
               };
 
               config = {
                 programs = {
-                  jujutsu = {
-                    enable = true;
-
-                    settings = {
-                      user = {
-                        name = cfg.userName;
-                        email = cfg.userEmail;
-                      };
-
-                      # TODO: Enable commit signing when jujutsu supports getting the priva key from the Bitwarden ssh-agent
-                      # signing = {
-                      #   backend = "ssh";
-                      #   backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
-                      #   behavior = "own";
-                      #   key = cfg.signingKey;
-                      # };
-                    };
-                  };
-
                   git = {
                     enable = true;
 
@@ -77,7 +65,6 @@
                         name = cfg.userName;
                         email = cfg.userEmail;
                       };
-
                     };
 
                     signing = {
@@ -86,16 +73,36 @@
                       signByDefault = true;
                     };
                   };
+
+                  jujutsu = {
+                    enable = true;
+
+                    settings = {
+                      # TODO: Enable commit signing when jujutsu supports getting the priva key from the Bitwarden ssh-agent
+                      # signing = {
+                      #   backend = "ssh";
+                      #   backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
+                      #   behavior = "own";
+                      #   key = cfg.signingKey;
+                      # };
+
+                      user = {
+                        name = cfg.userName;
+                        email = cfg.userEmail;
+                      };
+                    };
+                  };
                 };
+
+                # Persist Git directory
+                settings.impermanence.homeDirectories = [
+                  "Git"
+                ];
 
                 # Create SSH allowedSigners file for commit verification
                 home.file.".ssh/allowedSigners".text = ''
-                  ${cfg.userEmail} ${cfg.signingKey}
+                  ${builtins.concatStringsSep "\n" cfg.allowedSigningKeys}
                 '';
-
-                features.impermanence.homeDirectories = [
-                  "Git"
-                ];
               };
             }
           )

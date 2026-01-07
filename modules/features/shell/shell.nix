@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.shell;
+      cfg = config.settings.shell;
     in
     {
-      options.features.shell = {
+      options.settings.shell = {
         enable = lib.mkEnableOption "Fish shell";
       };
 
@@ -59,7 +59,7 @@
               };
             };
 
-            features.impermanence.homeDirectories = [
+            settings.impermanence.homeDirectories = [
               ".local/share/fish"
             ];
           }

@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.networking;
+      cfg = config.settings.networking;
     in
     {
-      options.features.networking = {
+      options.settings.networking = {
         enable = lib.mkOption {
           type = lib.types.bool;
           default = true;

@@ -3,7 +3,7 @@
   flake.nixosConfigurations.huginn = inputs.self.lib.mkHost {
     name = "huginn";
 
-    withFeatures =
+    withModules =
       with inputs.self.nixosModules;
       [
         # Profiles
@@ -21,7 +21,7 @@
     extraOptions =
       { pkgs, ... }:
       {
-        # ─── Hardware ───
+        # Boot
         boot.blacklistedKernelModules = [ "kvm-amd" ];
         boot.initrd.availableKernelModules = [ "tpm_tis" ];
 
@@ -30,24 +30,17 @@
           intel-media-driver
         ];
 
-        # Framework-specific firmware updates
+        # Firmware updates
         services.fwupd.extraRemotes = [ "lvfs-testing" ];
 
-        # ─── Feature Configuration ───
-        features = {
+        # Feature settings
+        settings = {
           compositor.name = "niri";
           session.autologinuser = "jorrit";
 
-          ssh.knownHosts = {
-            codeberg = {
-              hostNames = [ "codeberg.org" ];
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
-            };
-            gitlab = {
-              hostNames = [ "gitlab.science.ru.nl" ];
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHK205AIRDSe8K13yEQYkDVV1VUnY/MuXWwMk1S2Xpx";
-            };
-          };
+          impermanence.systemDirectories = [
+            "/var/lib/fprint"
+          ];
 
           networking = {
             DOHServers = [ "mullvad-all-doh" ];
@@ -59,10 +52,16 @@
             ];
           };
 
-          # Persist fingerprints
-          impermanence.systemDirectories = [
-            "/var/lib/fprint"
-          ];
+          ssh.knownHosts = {
+            codeberg = {
+              hostNames = [ "codeberg.org" ];
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
+            };
+            gitlab = {
+              hostNames = [ "gitlab.science.ru.nl" ];
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHK205AIRDSe8K13yEQYkDVV1VUnY/MuXWwMk1S2Xpx";
+            };
+          };
         };
       };
   };

@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.app-launch;
+      cfg = config.settings.app-launch;
     in
     {
-      options.features.app-launch = {
+      options.settings.app-launch = {
         enable = lib.mkEnableOption "application launcher with systemd integration";
       };
 

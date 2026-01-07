@@ -11,14 +11,14 @@
       ...
     }:
     let
-      cfg = config.features.theming;
+      cfg = config.settings.theming;
     in
     {
       imports = [
         inputs.stylix.nixosModules.stylix
       ];
 
-      options.features.theming = {
+      options.settings.theming = {
         enable = lib.mkEnableOption "system-wide theming with Stylix";
       };
 

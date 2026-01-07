@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.sound;
+      cfg = config.settings.sound;
     in
     {
-      options.features.sound = {
+      options.settings.sound = {
         enable = lib.mkEnableOption "sound management";
       };
 

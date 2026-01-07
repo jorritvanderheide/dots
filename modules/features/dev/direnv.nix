@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.direnv;
+      cfg = config.settings.direnv;
     in
     {
-      options.features.direnv = {
+      options.settings.direnv = {
         enable = lib.mkEnableOption "direnv with nix-direnv integration";
       };
 
@@ -25,7 +25,7 @@
               silent = true;
             };
 
-            features.impermanence.homeDirectories = [
+            settings.impermanence.homeDirectories = [
               ".local/share/direnv"
             ];
           }

@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.firmware;
+      cfg = config.settings.firmware;
     in
     {
-      options.features.firmware = {
+      options.settings.firmware = {
         enable = lib.mkEnableOption "firmware updates via fwupd";
       };
 

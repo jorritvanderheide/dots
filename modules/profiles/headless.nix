@@ -35,7 +35,7 @@
         sudo
       ];
 
-      features = {
+      settings = {
         # Dev
         direnv.enable = true;
         nix.enable = true;

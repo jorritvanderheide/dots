@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.lockscreen;
+      cfg = config.settings.lockscreen;
     in
     {
-      options.features.lockscreen = {
+      options.settings.lockscreen = {
         enable = lib.mkEnableOption "hyprlock screen locker";
 
         command = lib.mkOption {
@@ -28,7 +28,7 @@
         security.pam.services.hyprlock = { };
 
         # Export lock command for other modules
-        features.lockscreen.command = "${pkgs.hyprlock}/bin/hyprlock";
+        settings.lockscreen.command = "${pkgs.hyprlock}/bin/hyprlock";
 
         # Configure hyprlock via home-manager for all users
         home-manager.sharedModules = [
@@ -47,7 +47,7 @@
                   {
                     blur_passes = 2;
                     blur_size = 1;
-                    path = config.features.compositor.wallpaper;
+                    path = config.settings.compositor.wallpaper;
                   }
                 ];
 

@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.notes;
+      cfg = config.settings.notes;
     in
     {
-      options.features.notes = {
+      options.settings.notes = {
         enable = lib.mkEnableOption "note-taking applications";
       };
 
@@ -26,13 +26,13 @@
 
             # Custom desktop entry to open Obsidian with the vault
             xdg.desktopEntries.obsidian = {
-              name = "Obsidian";
-              genericName = "Note Taking App";
+              categories = [ "Office" ];
               comment = "Knowledge base";
               exec = ''${pkgs.obsidian}/bin/obsidian %U "\\$HOME/Git/obsidian"'';
+              genericName = "Note Taking App";
               icon = "obsidian";
+              name = "Obsidian";
               type = "Application";
-              categories = [ "Office" ];
             };
           }
         ];

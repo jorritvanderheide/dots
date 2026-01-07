@@ -1,10 +1,10 @@
 keys:
-  - &huginn age1f4lajwc59utha2x55qyley82z2534yklq69ehtay69090c895cesjyuv8d
-  - &jorrit age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
+  - &root@huginn age1f4lajwc59utha2x55qyley82z2534yklq69ehtay69090c895cesjyuv8d
+  - &jorrit@huginn age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
 
 creation_rules:
   - path_regex: secrets/.*\.yaml$
     key_groups:
       - age:
-          - *huginn
-          - *jorrit
+          - *root@huginn
+          - *jorrit@huginn

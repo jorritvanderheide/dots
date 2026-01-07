@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.nix;
+      cfg = config.settings.nix;
     in
     {
-      options.features.nix = {
+      options.settings.nix = {
         enable = lib.mkEnableOption "Nix configuration";
       };
 

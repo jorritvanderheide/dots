@@ -9,18 +9,18 @@
       ...
     }:
     let
-      cfg = config.features.ssh-server;
+      cfg = config.settings.ssh-server;
 
       # Collect authorized keys from all home-manager users
       collectAuthorizedKeys = lib.mapAttrs (
         _username: userCfg:
-        lib.optionalAttrs (userCfg.features.ssh-server ? authorizedKeys) {
-          openssh.authorizedKeys.keys = userCfg.features.ssh-server.authorizedKeys;
+        lib.optionalAttrs (userCfg.settings.ssh-server ? authorizedKeys) {
+          openssh.authorizedKeys.keys = userCfg.settings.ssh-server.authorizedKeys;
         }
       ) config.home-manager.users;
     in
     {
-      options.features.ssh-server = {
+      options.settings.ssh-server = {
         enable = lib.mkEnableOption "SSH server";
 
         allowedUsers = lib.mkOption {
@@ -59,7 +59,7 @@
         };
 
         # Persist SSH host keys
-        features.impermanence.systemFiles = [
+        settings.impermanence.systemFiles = [
           "/etc/ssh/ssh_host_ed25519_key"
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
@@ -70,7 +70,7 @@
         # Home-manager module for per-user SSH key configuration
         home-manager.sharedModules = [
           {
-            options.features.ssh-server = {
+            options.settings.ssh-server = {
               authorizedKeys = lib.mkOption {
                 type = lib.types.listOf lib.types.str;
                 default = [ ];

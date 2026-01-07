@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.clipboard;
+      cfg = config.settings.clipboard;
     in
     {
-      options.features.clipboard = {
+      options.settings.clipboard = {
         enable = lib.mkEnableOption "clipboard manager and screenshot tools";
       };
 
@@ -20,8 +20,8 @@
         # Assertion: app-launch must be enabled for app2unit command
         assertions = [
           {
-            assertion = config.features.app-launch.enable or false;
-            message = "features.clipboard requires features.app-launch to be enabled (for app2unit)";
+            assertion = config.settings.app-launch.enable or false;
+            message = "settings.clipboard requires settings.app-launch to be enabled (for app2unit)";
           }
         ];
 

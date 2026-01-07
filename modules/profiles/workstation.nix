@@ -60,7 +60,7 @@
         sudo
       ];
 
-      features = {
+      settings = {
         # Apps
         ai-assistant.enable = true;
         browser.enable = true;
@@ -106,11 +106,11 @@
         sudo.enable = true;
 
         # Wire idle to use lockscreen command
-        idle.lockCommand = config.features.lockscreen.command;
+        idle.lockCommand = config.settings.lockscreen.command;
 
         # Wire session to use compositor config
-        session.compositorName = config.features.compositor.name;
-        session.compositorSessionCommand = config.features.compositor.sessionCommand;
+        session.compositorName = config.settings.compositor.name;
+        session.compositorSessionCommand = config.settings.compositor.sessionCommand;
       };
     };
 }

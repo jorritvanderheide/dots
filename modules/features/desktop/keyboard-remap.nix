@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.keyboard-remap;
+      cfg = config.settings.keyboard-remap;
     in
     {
-      options.features.keyboard-remap = {
+      options.settings.keyboard-remap = {
         enable = lib.mkEnableOption "keyboard remapping with Kanata";
 
         enableHotplugReload = lib.mkOption {

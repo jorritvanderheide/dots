@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.session;
+      cfg = config.settings.session;
     in
     {
-      options.features.session = {
+      options.settings.session = {
         enable = lib.mkEnableOption "session manager";
 
         autologinuser = lib.mkOption {
@@ -39,11 +39,11 @@
         assertions = [
           {
             assertion = cfg.compositorName != null;
-            message = "features.session.compositorName must be set when session is enabled";
+            message = "settings.session.compositorName must be set when session is enabled";
           }
           {
             assertion = cfg.compositorSessionCommand != null;
-            message = "features.session.compositorSessionCommand must be set when session is enabled";
+            message = "settings.session.compositorSessionCommand must be set when session is enabled";
           }
         ];
 
@@ -51,11 +51,11 @@
           enable = true;
 
           waylandCompositors.${cfg.compositorName} = {
+            binPath = "/run/current-system/sw/bin/${cfg.compositorName}";
+            comment = "${cfg.compositorName} compositor managed by UWSM";
             prettyName =
               lib.toUpper (builtins.substring 0 1 cfg.compositorName)
               + builtins.substring 1 (-1) cfg.compositorName;
-            comment = "${cfg.compositorName} compositor managed by UWSM";
-            binPath = "/run/current-system/sw/bin/${cfg.compositorName}";
           };
         };
 
@@ -70,8 +70,8 @@
               default_session.command = sessionCommand;
 
               initial_session = {
-                user = cfg.autologinuser;
                 command = sessionCommand;
+                user = cfg.autologinuser;
               };
             };
         };

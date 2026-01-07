@@ -10,14 +10,14 @@
       ...
     }:
     let
-      cfg = config.features.impermanence;
+      cfg = config.settings.impermanence;
     in
     {
       imports = [
         inputs.impermanence.nixosModules.impermanence
       ];
 
-      options.features.impermanence = {
+      options.settings.impermanence = {
         systemFiles = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -86,10 +86,10 @@
           (
             { config, ... }:
             let
-              cfg = config.features.impermanence;
+              cfg = config.settings.impermanence;
             in
             {
-              options.features.impermanence = {
+              options.settings.impermanence = {
                 homeFiles = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
                   default = [ ];

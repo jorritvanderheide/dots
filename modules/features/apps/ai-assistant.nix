@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.ai-assistant;
+      cfg = config.settings.ai-assistant;
     in
     {
-      options.features.ai-assistant = {
+      options.settings.ai-assistant = {
         enable = lib.mkEnableOption "AI assistant applications";
       };
 
@@ -39,10 +39,11 @@
               };
             };
 
-            features.impermanence = {
+            settings.impermanence = {
               homeDirectories = [
                 ".claude"
               ];
+              
               homeFiles = [
                 ".claude.json"
               ];

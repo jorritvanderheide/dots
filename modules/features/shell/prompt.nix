@@ -11,10 +11,10 @@
       ...
     }:
     let
-      cfg = config.features.prompt;
+      cfg = config.settings.prompt;
     in
     {
-      options.features.prompt = {
+      options.settings.prompt = {
         enable = lib.mkEnableOption "shell prompt (Starship)";
       };
 

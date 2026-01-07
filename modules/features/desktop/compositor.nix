@@ -12,10 +12,10 @@ in
       ...
     }:
     let
-      cfg = config.features.compositor;
+      cfg = config.settings.compositor;
     in
     {
-      options.features.compositor = {
+      options.settings.compositor = {
         enable = lib.mkEnableOption "Wayland compositor";
 
         name = lib.mkOption {
@@ -41,8 +41,8 @@ in
         # Assertion: app-launch must be enabled for app2unit command
         assertions = [
           {
-            assertion = config.features.app-launch.enable or false;
-            message = "features.compositor requires features.app-launch to be enabled (for app2unit)";
+            assertion = config.settings.app-launch.enable or false;
+            message = "settings.compositor requires settings.app-launch to be enabled (for app2unit)";
           }
         ];
 
@@ -72,7 +72,7 @@ in
 
         services.gnome.gnome-keyring.enable = lib.mkForce false;
 
-        features.compositor.sessionCommand =
+        settings.compositor.sessionCommand =
           {
             niri = "niri --session";
           }

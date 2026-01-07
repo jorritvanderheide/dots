@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.bluetooth;
+      cfg = config.settings.bluetooth;
     in
     {
-      options.features.bluetooth = {
+      options.settings.bluetooth = {
         enable = lib.mkEnableOption "Bluetooth support";
       };
 
@@ -29,7 +29,7 @@
         ];
 
         # Persist Bluetooth pairings
-        features.impermanence.systemDirectories = [
+        settings.impermanence.systemDirectories = [
           "/var/lib/bluetooth"
         ];
       };

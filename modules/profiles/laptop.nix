@@ -2,7 +2,7 @@
   flake.nixosModules.laptop =
     { ... }:
     {
-      features.power = {
+      settings.power = {
         enable = true;
         laptop.enable = true;
       };

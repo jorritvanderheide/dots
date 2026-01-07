@@ -6,10 +6,10 @@
       ...
     }:
     let
-      cfg = config.features.locale;
+      cfg = config.settings.locale;
     in
     {
-      options.features.locale = {
+      options.settings.locale = {
         enable = lib.mkEnableOption "locale and timezone configuration";
 
         timezone = lib.mkOption {

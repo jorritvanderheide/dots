@@ -3,7 +3,7 @@
   flake.nixosConfigurations.muninn = inputs.self.lib.mkHost {
     name = "muninn";
 
-    withFeatures = with inputs.self.nixosModules; [
+    withModules = with inputs.self.nixosModules; [
       # Profiles
       headless
 
@@ -11,7 +11,7 @@
       nixos
     ];
 
-    extraOptions.features = {
+    extraOptions.settings = {
       ssh-server.allowedUsers = [ "nixos" ];
 
       networking = {

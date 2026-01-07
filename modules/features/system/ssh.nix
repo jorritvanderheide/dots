@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.ssh;
+      cfg = config.settings.ssh;
     in
     {
-      options.features.ssh = {
+      options.settings.ssh = {
         enable = lib.mkEnableOption "SSH client";
 
         knownHosts = lib.mkOption {
@@ -48,8 +48,20 @@
               enable = true;
               enableDefaultConfig = false;
 
-              # Default host configuration (required)
-              matchBlocks."*" = { };
+              # Host configuration
+              matchBlocks = {
+                "*" = { };
+
+                "codeberg" = {
+                  host = "codeberg.org";
+                  user = "git";
+                };
+
+                "gitlab" = {
+                  host = "gitlab.science.ru.nl";
+                  user = "git";
+                };
+              };
             };
           }
         ];

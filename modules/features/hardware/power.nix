@@ -6,7 +6,7 @@
       ...
     }:
     let
-      cfg = config.features.power;
+      cfg = config.settings.power;
 
       # Auto-detect CPU vendor from facter report
       cpuVendor =
@@ -26,7 +26,7 @@
           null;
     in
     {
-      options.features.power = {
+      options.settings.power = {
         enable = lib.mkEnableOption "power management";
 
         cpuGovernor = lib.mkOption {

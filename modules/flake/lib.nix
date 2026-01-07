@@ -131,7 +131,7 @@
 
     mkHost =
       {
-        withFeatures ? [ ],
+        withModules ? [ ],
         extraOptions ? { },
         name,
       }:
@@ -144,7 +144,7 @@
         hostSystem = facterReport.system;
       in
       inputs.nixpkgs.lib.nixosSystem {
-        modules = withFeatures ++ [
+        modules = withModules ++ [
           inputs.self.nixosModules.overlays
           extraOptions
           {
@@ -159,7 +159,7 @@
       {
         username,
         extraGroups ? [ ],
-        withFeatures ? [ ],
+        withModules ? [ ],
         extraHomeConfig ? { },
         extraUserOptions ? { },
       }:
@@ -172,7 +172,7 @@
 
         home-manager.users.${username} = {
           home.stateVersion = "26.05";
-          imports = withFeatures;
+          imports = withModules;
         }
         // extraHomeConfig;
 

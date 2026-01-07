@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.virtualization;
+      cfg = config.settings.virtualization;
     in
     {
-      options.features.virtualization = {
+      options.settings.virtualization = {
         enable = lib.mkEnableOption "virtualization support";
 
         docker = {
@@ -35,6 +35,7 @@
           enable = true;
           enableOnBoot = true;
           storageDriver = lib.mkIf (cfg.docker.storageDriver != null) cfg.docker.storageDriver;
+
           autoPrune = {
             enable = true;
             dates = "weekly";
@@ -42,7 +43,7 @@
         };
 
         # Persist Docker data
-        features.impermanence.systemDirectories = lib.optionals cfg.docker.enable [
+        settings.impermanence.systemDirectories = lib.optionals cfg.docker.enable [
           "/var/lib/docker"
         ];
       };

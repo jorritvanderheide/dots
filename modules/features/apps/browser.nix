@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.browser;
+      cfg = config.settings.browser;
     in
     {
-      options.features.browser = {
+      options.settings.browser = {
         enable = lib.mkEnableOption "web browser";
       };
 
@@ -303,7 +303,7 @@
               stylix.targets.zen-browser.profileNames = [ "default" ];
 
               # Persist browser data across reboots
-              features.impermanence.homeDirectories = [
+              settings.impermanence.homeDirectories = [
                 ".zen"
               ];
             }

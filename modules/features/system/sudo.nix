@@ -9,10 +9,10 @@
       ...
     }:
     let
-      cfg = config.features.sudo;
+      cfg = config.settings.sudo;
     in
     {
-      options.features.sudo = {
+      options.settings.sudo = {
         enable = lib.mkEnableOption "sudo configuration";
       };
 

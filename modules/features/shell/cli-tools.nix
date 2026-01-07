@@ -10,10 +10,10 @@
       ...
     }:
     let
-      cfg = config.features.cli-tools;
+      cfg = config.settings.cli-tools;
     in
     {
-      options.features.cli-tools = {
+      options.settings.cli-tools = {
         enable = lib.mkEnableOption "CLI tools";
       };
 
@@ -57,7 +57,7 @@
               };
             };
 
-            features.impermanence.homeDirectories = [
+            settings.impermanence.homeDirectories = [
               ".local/share/zoxide"
             ];
           }

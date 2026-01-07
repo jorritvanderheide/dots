@@ -7,14 +7,14 @@
   flake.nixosModules.boot =
     { config, ... }:
     let
-      cfg = config.features.boot;
+      cfg = config.settings.boot;
     in
     {
       imports = [
         inputs.lanzaboote.nixosModules.lanzaboote
       ];
 
-      options.features.boot = {
+      options.settings.boot = {
         secureboot.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
@@ -27,8 +27,8 @@
           # Assertion: impermanence must be enabled for secure boot persistence
           assertions = [
             {
-              assertion = config.features.impermanence ? systemDirectories;
-              message = "boot module requires features.impermanence to be enabled";
+              assertion = config.settings.impermanence ? systemDirectories;
+              message = "boot module requires settings.impermanence to be enabled";
             }
           ];
 
@@ -61,7 +61,7 @@
             loader.systemd-boot.enable = lib.mkForce false;
           };
 
-          features.impermanence.systemDirectories = [
+          settings.impermanence.systemDirectories = [
             "/var/lib/sbctl"
             "/var/lib/tpm2-tss"
           ];

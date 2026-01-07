@@ -10,22 +10,22 @@
       ...
     }:
     let
-      cfg = config.features.messaging;
+      cfg = config.settings.messaging;
     in
     {
-      options.features.messaging = {
+      options.settings.messaging = {
         enable = lib.mkEnableOption "messaging applications";
       };
 
       config = lib.mkIf cfg.enable {
         home-manager.sharedModules = [
           {
-            home.packages = with pkgs; [
-              signal-desktop
+            settings.impermanence.homeDirectories = [
+              ".config/Signal"
             ];
 
-            features.impermanence.homeDirectories = [
-              ".config/Signal"
+            home.packages = with pkgs; [
+              signal-desktop
             ];
           }
         ];
