@@ -40,6 +40,7 @@
         direnv
         git
         nix
+        virtualization
 
         # Hardware
         bluetooth
@@ -85,6 +86,7 @@
         direnv.enable = true;
         git.enable = true;
         nix.enable = true;
+        virtualization.enable = true;
 
         # Hardware
         bluetooth.enable = true;
@@ -110,8 +112,5 @@
         session.compositorName = config.features.compositor.name;
         session.compositorSessionCommand = config.features.compositor.sessionCommand;
       };
-
-      # Disable GNOME gcr-ssh-agent (conflicts with SSH agent)
-      services.gnome.gcr-ssh-agent.enable = false;
     };
 }

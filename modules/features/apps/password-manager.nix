@@ -18,14 +18,6 @@
       };
 
       config = lib.mkIf cfg.enable {
-        # Assertion: impermanence must be enabled for persistent data
-        assertions = [
-          {
-            assertion = config.features.impermanence ? systemDirectories;
-            message = "features.password-manager requires features.impermanence to be enabled";
-          }
-        ];
-
         # Use mkDefault instead of mkForce to allow override if needed
         programs.ssh.startAgent = lib.mkDefault false;
 

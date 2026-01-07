@@ -18,14 +18,6 @@
       };
 
       config = lib.mkIf cfg.enable {
-        # Assertion: impermanence must be enabled for persistent data
-        assertions = [
-          {
-            assertion = config.features.impermanence ? systemDirectories;
-            message = "features.bluetooth requires features.impermanence to be enabled";
-          }
-        ];
-
         hardware.bluetooth = {
           enable = true;
           powerOnBoot = true;

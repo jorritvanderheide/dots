@@ -17,14 +17,6 @@
       };
 
       config = lib.mkIf cfg.enable {
-        # Assertion: impermanence must be enabled for persistent data
-        assertions = [
-          {
-            assertion = config.features.impermanence ? systemDirectories;
-            message = "features.shell requires features.impermanence to be enabled";
-          }
-        ];
-
         programs.fish.enable = true;
 
         home-manager.sharedModules = [

@@ -105,10 +105,6 @@
       config = lib.mkIf cfg.enable {
         assertions = [
           {
-            assertion = config.features.impermanence ? systemDirectories;
-            message = "features.networking requires features.impermanence to be enabled";
-          }
-          {
             assertion =
               (cfg.wireless != null && cfg.staticConfig != null)
               -> cfg.wireless.interface == cfg.staticConfig.interface;
