@@ -38,18 +38,22 @@
           compositor.name = "niri";
           session.autologinuser = "jorrit";
 
+          ssh.knownHosts = {
+            codeberg = {
+              hostNames = [ "codeberg.org" ];
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
+            };
+            gitlab = {
+              hostNames = [ "gitlab.science.ru.nl" ];
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHK205AIRDSe8K13yEQYkDVV1VUnY/MuXWwMk1S2Xpx";
+            };
+          };
+
           networking = {
             DOHServers = [ "mullvad-all-doh" ];
             wireless.interface = "wlp170s0";
 
             firewallPorts = [
-              # 3900 # S3
-              # 5050 # Backend
-              # 6060
-              # 7070
-              # 8001 # Hub services
-              # 8012
-              # 8080 # Frontend
               8188 # Yivi
               8189
             ];

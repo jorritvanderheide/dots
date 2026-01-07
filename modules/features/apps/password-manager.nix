@@ -27,12 +27,17 @@
 
         home-manager.sharedModules = [
           {
+            # Make SSH_AUTH_SOCK available to the shell
             home.sessionVariables = {
               SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
             };
 
+            # Make SSH_AUTH_SOCK available to systemd user services and GUI applications
+            systemd.user.sessionVariables = {
+              SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
+            };
+
             programs.ssh.extraConfig = ''
-              # Use Bitwarden SSH Agent
               IdentityAgent ~/.bitwarden-ssh-agent.sock
             '';
 

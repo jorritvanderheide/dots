@@ -1,6 +1,5 @@
 {
   inputs,
-  lib,
   ...
 }:
 {
@@ -19,15 +18,11 @@
       };
 
       config = lib.mkIf cfg.enable {
-        # Define sops secret for HTTP allowlist IP
-        sops.secrets.httpallowlist_ip = { };
-
         home-manager.sharedModules = [
           inputs.zen-browser.homeModules.beta
           (
             {
               config,
-              osConfig,
               ...
             }:
             {
@@ -152,7 +147,9 @@
 
                   HttpAllowlist = [
                     "http://localhost"
-                    osConfig.sops.placeholder.httpallowlist_ip
+                    "http://localhost:8001"
+                    "http://localhost:8080"
+                    "http://145.116.139.176"
                   ];
 
                   SanitizeOnShutdown = {
