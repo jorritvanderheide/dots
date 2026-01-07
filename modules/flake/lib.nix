@@ -170,9 +170,14 @@
       {
         programs.fish.enable = true;
 
+        home-manager.users.${username} = {
+          home.stateVersion = "26.05";
+          imports = withFeatures;
+        }
+        // extraHomeConfig;
+
         users.users.${username} = {
           extraGroups = [ "wheel" ] ++ extraGroups;
-          hashedPassword = "$6$u0FhHxm4wT.rNyZc$9o3YBm/igNg2jPmwxllzQV1hWfZtzg4yLIsbZPBD.HtF/8FVi/ZUM8ZJWndXEPoyivmeMLbtt7FxhUOZIc/ON1";
           isNormalUser = true;
           shell = pkgs.fish;
         }
@@ -183,11 +188,6 @@
           "d /persist/home/${username} 0700 ${username} users -"
         ];
 
-        home-manager.users.${username} = {
-          home.stateVersion = "26.05";
-          imports = withFeatures;
-        }
-        // extraHomeConfig;
       };
   };
 }

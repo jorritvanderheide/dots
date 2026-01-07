@@ -16,10 +16,10 @@
       ];
 
       home-manager = {
+        backupFileExtension = "old";
         extraSpecialArgs = { inherit inputs; };
         useGlobalPkgs = true;
         useUserPackages = true;
-        backupFileExtension = "old";
       };
     };
 }

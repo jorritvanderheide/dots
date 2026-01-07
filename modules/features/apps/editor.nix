@@ -23,6 +23,18 @@
             programs.vscode = {
               enable = true;
 
+              package = pkgs.symlinkJoin {
+                buildInputs = [ pkgs.makeWrapper ];
+                meta.mainProgram = "code";
+                paths = [ pkgs.vscode ];
+                pname = pkgs.vscode.pname;
+                version = pkgs.vscode.version;
+
+                postBuild = ''
+                  wrapProgram $out/bin/code --add-flags "--disable-chromium-warning-messages 2>/dev/null"
+                '';
+              };
+
               profiles.default = {
                 enableExtensionUpdateCheck = false;
                 enableUpdateCheck = false;
@@ -127,7 +139,7 @@
             };
 
             home = {
-              sessionVariables.EDITOR = "code";
+              sessionVariables.EDITOR = "code --wait";
 
               packages = with pkgs; [
                 nixd

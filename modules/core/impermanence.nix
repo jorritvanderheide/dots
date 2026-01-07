@@ -105,8 +105,8 @@
 
               config.home.persistence."/persist" = {
                 directories = [
-                  "Downloads"
                   "Documents"
+                  "Downloads"
                   "Pictures"
                   "Videos"
                 ]

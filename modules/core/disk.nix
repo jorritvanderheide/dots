@@ -14,11 +14,9 @@
       ];
 
       config = {
-        # LUKS disk encryption password
-        sops.secrets.luks_password = { };
-
         fileSystems."/persist".neededForBoot = true;
         networking.hostId = builtins.substring 0 8 (builtins.hashString "md5" config.networking.hostName);
+        sops.secrets.luks_password = { }; # LUKS disk encryption password
 
         boot = {
           supportedFilesystems = [ "zfs" ];

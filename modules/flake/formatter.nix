@@ -24,7 +24,7 @@
         };
 
         settings = {
-          on-unmatched = lib.mkDefault "warn";
+          on-unmatched = lib.mkDefault "fail";
 
           global.excludes = [
             ".direnv/*"

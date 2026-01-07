@@ -19,6 +19,10 @@
           sops
           ssh-to-age
         ];
+
+        shellHook = ''
+          export PATH="$PWD/scripts:$PATH"
+        '';
       };
     };
 }
