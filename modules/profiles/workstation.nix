@@ -19,6 +19,7 @@
         ai-assistant
         browser
         editor
+        media-player
         messaging
         music-player
         notes
@@ -60,6 +61,7 @@
         networking
         ssh
         sudo
+        vpn
       ];
 
       settings = {
@@ -67,6 +69,7 @@
         ai-assistant.enable = true;
         browser.enable = true;
         editor.enable = true;
+        media-player.enable = true;
         messaging.enable = true;
         music-player.enable = true;
         notes.enable = true;
@@ -108,6 +111,7 @@
         networking.enable = true;
         ssh.enable = true;
         sudo.enable = true;
+        vpn.enable = true;
 
         # Wire idle to use lockscreen command
         idle.lockCommand = config.settings.lockscreen.command;
