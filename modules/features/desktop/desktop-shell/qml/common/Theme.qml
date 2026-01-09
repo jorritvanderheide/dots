@@ -14,7 +14,7 @@ QtObject {
 
     // Dock
     readonly property int dockHeight: 64
-    readonly property int dockIconSize: 40
+    readonly property int dockIconSize: 48
     readonly property int dockSpacing: 8
     readonly property int dockWidth: 256
 

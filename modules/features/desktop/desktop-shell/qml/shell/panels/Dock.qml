@@ -59,11 +59,11 @@ PanelWindow { // qmllint disable uncreatable-type
 
         // Separator
         Rectangle {
-            width: 2
-            height: parent.height * 0.6
+            width: 1
+            height: parent.height * 0.8
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.foregroundColor
-            opacity: 0.3
+            opacity: 0.2
             visible: AppConfig.pinnedApps.length > 0 && dock.unpinnedRunningApps.length > 0
         }
 

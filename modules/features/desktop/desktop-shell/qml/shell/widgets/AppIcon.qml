@@ -28,7 +28,7 @@ Item {
             return "transparent";
         }
         opacity: appIcon.isFocused ? 0.4 : (mouseArea.containsMouse ? 0.2 : 0.1)
-        radius: 8
+        radius: 999
 
         // Running indicator dot
         Rectangle {
@@ -49,20 +49,35 @@ Item {
         border.color: Theme.accentColor
     }
 
-    // App icon or text placeholder
+    // App icon
+    Image {
+        id: iconImage
+        anchors.centerIn: parent
+        width: Theme.dockIconSize * 0.8
+        height: Theme.dockIconSize * 0.8
+        source: "image://icon/" + IconResolver.getIconName(appIcon.appId)
+        sourceSize: Qt.size(width, height)
+        fillMode: Image.PreserveAspectFit
+        smooth: true
+        visible: status === Image.Ready
+
+        // Fallback to text if icon fails to load
+        onStatusChanged: {
+            if (status === Image.Error) {
+                iconText.visible = true;
+            }
+        }
+    }
+
+    // Fallback text when icon not available
     Text {
         id: iconText
         anchors.centerIn: parent
-        text: {
-            // Try to get first letter of app name
-            if (appIcon.appId.length > 0) {
-                return appIcon.appId.charAt(0).toUpperCase();
-            }
-            return "?";
-        }
+        text: IconResolver.getFirstLetter(appIcon.appId)
         color: Theme.foregroundColor
         font.pixelSize: Theme.fontSizeIcon
         font.bold: appIcon.isFocused
+        visible: false
     }
 
     MouseArea {
