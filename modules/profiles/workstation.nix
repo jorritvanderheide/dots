@@ -20,6 +20,7 @@
         browser
         editor
         messaging
+        music-player
         notes
         password-manager
         terminal
@@ -67,6 +68,7 @@
         browser.enable = true;
         editor.enable = true;
         messaging.enable = true;
+        music-player.enable = true;
         notes.enable = true;
         password-manager.enable = true;
         terminal.enable = true;
