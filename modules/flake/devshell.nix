@@ -10,12 +10,9 @@
         name = "dots";
 
         packages = with pkgs; [
-          # Development tools
           config.formatter
-          shellcheck
-
-          # Utilities
           sbctl
+          shellcheck
           sops
           ssh-to-age
         ];

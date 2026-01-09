@@ -43,7 +43,7 @@
               homeDirectories = [
                 ".claude"
               ];
-              
+
               homeFiles = [
                 ".claude.json"
               ];

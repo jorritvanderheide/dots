@@ -131,9 +131,9 @@
 
     mkHost =
       {
-        withModules ? [ ],
         extraOptions ? { },
         name,
+        withModules ? [ ],
       }:
       let
         facterPath = inputs.self + "/modules/hosts/${name}/facter.json";
@@ -157,11 +157,11 @@
 
     mkUser =
       {
-        username,
         extraGroups ? [ ],
-        withModules ? [ ],
         extraHomeConfig ? { },
         extraUserOptions ? { },
+        username,
+        withModules ? [ ],
       }:
       {
         pkgs,
@@ -176,18 +176,17 @@
         }
         // extraHomeConfig;
 
+        # Ensure persistent home directory exists for impermanence
+        systemd.tmpfiles.rules = [
+          "d /persist/home/${username} 0700 ${username} users -"
+        ];
+
         users.users.${username} = {
           extraGroups = [ "wheel" ] ++ extraGroups;
           isNormalUser = true;
           shell = pkgs.fish;
         }
         // extraUserOptions;
-
-        # Ensure persistent home directory exists for impermanence
-        systemd.tmpfiles.rules = [
-          "d /persist/home/${username} 0700 ${username} users -"
-        ];
-
       };
   };
 }

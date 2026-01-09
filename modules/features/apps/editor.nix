@@ -42,12 +42,12 @@
                 extensions =
                   with pkgs.vscode-extensions;
                   [
-                    bradlc.vscode-tailwindcss
-                    esbenp.prettier-vscode
-                    jnoortheen.nix-ide
-                    mkhl.direnv
-                    tal7aouy.icons
-                    vue.volar
+                    bradlc.vscode-tailwindcss # Tailwind
+                    esbenp.prettier-vscode # Prettier
+                    jnoortheen.nix-ide # Nix IDE
+                    mkhl.direnv # Direnv
+                    tal7aouy.icons # Icons
+                    vue.volar # Vue
                   ]
                   ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
                     {
@@ -56,10 +56,22 @@
                       version = "0.8.1";
                       sha256 = "sha256-2JUn6wkWgZKZzhitQy6v9R/rCNLrt7DBtt59707hp6c=";
                     }
+                    {
+                      name = "qt-core";
+                      publisher = "theqtcompany";
+                      version = "1.10.0";
+                      sha256 = "sha256-jMXC9UqvVxlvNSAMoInv3wCKyDwL/1I0TbftYjJphdU=";
+                    }
+                    {
+                      name = "qt-qml";
+                      publisher = "theqtcompany";
+                      version = "1.10.0";
+                      sha256 = "sha256-5k80WTSDwdf3WeePUt2CgTd3dTejj0+fKnbjzNfMXng=";
+                    }
                   ];
 
                 userSettings = {
-                  # AI/Chat
+                  # AI
                   "chat.agent.enabled" = false;
                   "chat.commandCenter.enabled" = false;
 
@@ -119,21 +131,28 @@
                   "nix.serverSettings" = {
                     "nixd" = {
                       "formatting" = {
-                        "command" = [
-                          "nixfmt"
-                        ];
+                        "command" = [ "nixfmt" ];
                       };
                     };
                   };
                   "nix.hiddenLanguageServerErrors" = [
                     "textDocument/definition"
                     "textDocument/documentHighlight"
-                    "textDocument/formatting"
                   ];
 
                   "[nix]" = {
                     "editor.defaultFormatter" = "jnoortheen.nix-ide";
+                    "editor.formatOnSave" = true;
                   };
+
+                  "[qml]" = {
+                    "editor.defaultFormatter" = "theqtcompany.qt-qml";
+                    "editor.formatOnSave" = true;
+                  };
+
+                  # Qt QML formatter settings
+                  "qmlls.qmllint.disable" = false;
+                  "qmlls.qmlformat.enable" = true;
                 };
               };
             };
@@ -144,6 +163,7 @@
               packages = with pkgs; [
                 nixd
                 nixfmt
+                qt6.qtdeclarative # for qmlformat
               ];
             };
 

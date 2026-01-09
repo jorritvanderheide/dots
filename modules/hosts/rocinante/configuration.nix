@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
-  flake.nixosConfigurations.huginn = inputs.self.lib.mkHost {
-    name = "huginn";
+  flake.nixosConfigurations.rocinante = inputs.self.lib.mkHost {
+    name = "rocinante";
 
     withModules =
       with inputs.self.nixosModules;

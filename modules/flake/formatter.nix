@@ -20,11 +20,12 @@
           beautysh.enable = true;
           deadnix.enable = true;
           nixfmt.enable = true;
+          qmlformat.enable = true;
           prettier.enable = true;
         };
 
         settings = {
-          on-unmatched = lib.mkDefault "fail";
+          on-unmatched = lib.mkDefault "warn";
 
           global.excludes = [
             ".direnv/*"
@@ -32,6 +33,7 @@
             "assets/**"
             "secrets/**"
             "**/facter.json"
+            "**/qmldir"
           ];
         };
       };
