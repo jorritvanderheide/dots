@@ -239,11 +239,11 @@ in
                   { proportion = 1.; }
                 ];
 
-                struts = rec {
+                struts = {
                   top = 16.;
-                  right = top;
-                  left = top;
-                  bottom = top;
+                  right = 16.;
+                  left = 16.;
+                  bottom = 0;
                 };
               };
 

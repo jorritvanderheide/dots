@@ -28,6 +28,7 @@
         app-launch
         clipboard
         compositor
+        desktop-shell
         idle
         keybinds
         keyboard-remap
@@ -74,6 +75,7 @@
         app-launch.enable = true;
         clipboard.enable = true;
         compositor.enable = true;
+        desktop-shell.enable = true;
         idle.enable = true;
         keybinds.enable = true;
         keyboard-remap.enable = true;

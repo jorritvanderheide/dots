@@ -1,0 +1,3 @@
+singleton Theme 1.0 Theme.qml
+singleton OverviewMonitor 1.0 OverviewMonitor.qml
+singleton AppConfig 1.0 AppConfig.qml

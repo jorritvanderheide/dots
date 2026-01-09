@@ -128,6 +128,7 @@
                   # Nix IDE
                   "nix.enableLanguageServer" = true;
                   "nix.serverPath" = "nixd";
+
                   "nix.serverSettings" = {
                     "nixd" = {
                       "formatting" = {
@@ -135,6 +136,7 @@
                       };
                     };
                   };
+
                   "nix.hiddenLanguageServerErrors" = [
                     "textDocument/definition"
                     "textDocument/documentHighlight"
@@ -150,9 +152,14 @@
                     "editor.formatOnSave" = true;
                   };
 
-                  # Qt QML formatter settings
-                  "qmlls.qmllint.disable" = false;
-                  "qmlls.qmlformat.enable" = true;
+                  # Qt QML
+                  "qt-qml.doNotAskForQmllsDownload" = true;
+                  "qt-qml.qmlls.customExePath" = "${pkgs.qt6.qtdeclarative}/bin/qmlls";
+
+                  "qt-qml.qmlls.additionalImportPaths" = [
+                    "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml"
+                    "/run/current-system/sw/lib/qt-6/qml"
+                  ];
                 };
               };
             };
@@ -163,13 +170,14 @@
               packages = with pkgs; [
                 nixd
                 nixfmt
-                qt6.qtdeclarative # for qmlformat
+                qt6.qtdeclarative # For qmlformat
               ];
             };
 
             # Persist editor data across reboots
             settings.impermanence.homeDirectories = [
               ".config/Code"
+              # ".vscode" # Extension data and caches
             ];
           }
         ];
