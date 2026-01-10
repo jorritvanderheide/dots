@@ -33,13 +33,18 @@
       config = lib.mkIf cfg.enable {
         virtualisation.docker = lib.mkIf cfg.docker.enable {
           enable = true;
-          enableOnBoot = true;
+          enableOnBoot = false; # Socket-activated for faster boot
           storageDriver = lib.mkIf (cfg.docker.storageDriver != null) cfg.docker.storageDriver;
 
           autoPrune = {
             enable = true;
             dates = "weekly";
           };
+        };
+
+        # Enable Docker socket for on-demand activation
+        systemd.sockets.docker = lib.mkIf cfg.docker.enable {
+          wantedBy = [ "sockets.target" ];
         };
 
         # Persist Docker data

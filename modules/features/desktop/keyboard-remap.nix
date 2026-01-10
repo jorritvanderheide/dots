@@ -57,8 +57,10 @@
 
         # Configure Kanata service with proper permissions and restart policy
         systemd.services.kanata-any = {
-          # Ensure service starts after devices are available
-          after = [ "multi-user.target" ];
+          # Delay startup until after graphical session (compositor/lockscreen)
+          # This saves ~2s from critical boot path
+          after = [ "graphical.target" ];
+          wantedBy = lib.mkForce [ "graphical.target" ];
 
           unitConfig = {
             # Allow a few retries for keyboards to appear during boot

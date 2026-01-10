@@ -1,10 +1,11 @@
 {
   inputs,
+  lib,
   ...
 }:
 {
   flake.nixosModules.home-manager =
-    { ... }:
+    { config, ... }:
     {
       imports = [
         inputs.home-manager.nixosModules.home-manager
@@ -21,5 +22,17 @@
         useGlobalPkgs = true;
         useUserPackages = true;
       };
+
+      # Optimize boot: delay home-manager until after graphical session
+      systemd.services = lib.mkMerge [
+        (lib.mapAttrs' (
+          username: _:
+          lib.nameValuePair "home-manager-${username}" {
+            after = [ "graphical.target" ];
+            wantedBy = lib.mkForce [ "graphical.target" ];
+            before = lib.mkForce [ ];
+          }
+        ) (lib.filterAttrs (_: user: user.isNormalUser) config.users.users))
+      ];
     };
 }

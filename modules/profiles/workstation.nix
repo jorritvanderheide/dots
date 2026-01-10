@@ -59,6 +59,7 @@
         # System
         locale
         networking
+        optimize-boot
         ssh
         sudo
         vpn
@@ -109,6 +110,7 @@
         # System
         locale.enable = true;
         networking.enable = true;
+        optimize-boot.enable = true;
         ssh.enable = true;
         sudo.enable = true;
         vpn.enable = true;
