@@ -46,14 +46,15 @@
                 background = lib.mkForce [
                   {
                     blur_passes = 2;
-                    blur_size = 1;
+                    blur_size = 2;
                     path = config.settings.compositor.wallpaper;
                   }
                 ];
 
                 label = {
-                  text = "";
-                  font_size = 50;
+                  text = "󰈷";
+                  color = lib.mkForce (config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base05 1.0);
+                  font_size = 96;
                   font_family = "JetBrains Mono Nerd Font Mono";
                   position = "0, 0";
                   halign = "center";
@@ -62,10 +63,10 @@
 
                 input-field = {
                   size = "250, 75";
-                  outline_thickness = 5;
-                  inner_color = lib.mkForce "rgba(35, 33, 54, 0.8)"; # TODO: Use Stylix
-                  outer_color = lib.mkForce "rgba(196, 167, 231, 0.6)";
-                  position = "0, -125";
+                  outline_thickness = 4;
+                  inner_color = lib.mkForce (config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base05 0.2);
+                  outer_color = lib.mkForce (config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base05 1.0);
+                  position = "0, -200";
                   halign = "center";
                   valign = "center";
                 };

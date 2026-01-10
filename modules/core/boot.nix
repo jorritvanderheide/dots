@@ -35,7 +35,11 @@
           boot = {
             initrd = {
               compressor = "zstd";
-              systemd.enable = true;
+              systemd = {
+                enable = true;
+                # Reduce udev settle timeout
+                services.systemd-udev-settle.serviceConfig.TimeoutSec = "10s";
+              };
             };
 
             loader = {
@@ -47,6 +51,12 @@
                 configurationLimit = 64;
               };
             };
+          };
+
+          # Optimize systemd timeouts for faster recovery from hung services
+          systemd.settings.Manager = {
+            DefaultTimeoutStartSec = "30s";
+            DefaultTimeoutStopSec = "15s";
           };
         }
 

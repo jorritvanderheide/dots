@@ -32,8 +32,9 @@
             programs.fuzzel = {
               enable = true;
               settings = {
-                border.width = 3;
+                border.width = 4;
                 border.radius = 8;
+                colors.border = lib.mkForce "${config.lib.stylix.colors.base08}ff";
 
                 main = {
                   launch-prefix = "app2unit --fuzzel-compat -s a --";

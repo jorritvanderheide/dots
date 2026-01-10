@@ -227,7 +227,7 @@ in
                 border = {
                   enable = true;
                   width = 4;
-                  active.color = config.lib.stylix.colors.withHashtag.base0E;
+                  active.color = config.lib.stylix.colors.withHashtag.base08;
                   inactive.color = config.lib.stylix.colors.withHashtag.base02;
                 };
 
@@ -253,7 +253,6 @@ in
               window-rules = lib.singleton {
                 draw-border-with-background = false;
                 clip-to-geometry = true;
-                opacity = 0.99;
 
                 geometry-corner-radius = rec {
                   top-left = 8.;

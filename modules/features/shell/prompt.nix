@@ -70,11 +70,10 @@
                       when = "jj root --ignore-working-copy";
                     };
                     git_branch = {
-                      when = "! jj root >/dev/null 2>&1";
-                      command = "starship module git_branch";
+                      when = true;
+                      command = "jj root >/dev/null 2>&1 || starship module git_branch";
                     };
                   };
-
                 };
               };
 
@@ -88,27 +87,28 @@
               };
 
               # Add starship-jj configuration if jujutsu is enabled
-              xdg.configFile."starship-jj.toml" = lib.mkIf config.programs.jujutsu.enable {
+              xdg.configFile."starship-jj/starship-jj.toml" = lib.mkIf config.programs.jujutsu.enable {
                 text = ''
                   module_separator = " "
                   timeout = 1000
 
                   [bookmarks]
-                  search_depth = 100
                   exclude = []
+                  search_depth = 100
 
                   [[module]]
-                  type = "Bookmarks"
-                  separator = " "
+                  symbol = "🌱"
+                  type = "Symbol"
+
+                  [[module]]
                   color = "Green"
+                  surround_with_quotes = false
+                  type = "Bookmarks"
 
                   [[module]]
-                  type = "Commit"
                   max_length = 24
-
-                  [[module]]
-                  type = "State"
-                  separator = " "
+                  surround_with_quotes = false
+                  type = "Commit"
                 '';
               };
             }

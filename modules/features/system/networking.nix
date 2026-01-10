@@ -239,13 +239,25 @@
           };
         };
 
-        systemd.services = lib.optionalAttrs (cfg.wireless != null) {
-          # Ensure wpa_supplicant waits for sops template
-          "wpa_supplicant-${cfg.wireless.interface}" = {
-            after = [ "sops-install-secrets.service" ];
-            wants = [ "sops-install-secrets.service" ];
-          };
-        };
+        systemd.services = lib.mkMerge [
+          (lib.optionalAttrs (cfg.wireless != null) {
+            # Ensure wpa_supplicant waits for sops template
+            "wpa_supplicant-${cfg.wireless.interface}" = {
+              after = [ "sops-install-secrets.service" ];
+              wants = [ "sops-install-secrets.service" ];
+            };
+          })
+          {
+            # Don't wait for network before starting multi-user.target
+            systemd-networkd-wait-online = {
+              wantedBy = lib.mkForce [ ];
+              requiredBy = lib.mkForce [ ];
+            };
+
+            # Disable unnecessary network wait service
+            NetworkManager-wait-online.enable = false;
+          }
+        ];
       };
     };
 }
