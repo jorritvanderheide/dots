@@ -58,19 +58,19 @@
             };
 
             # Launch quickshell via compositor
-            programs.niri.settings.spawn-at-startup = lib.mkIf (config.settings.compositor.name == "niri") [
-              {
-                command = [
-                  "app2unit"
-                  "-s"
-                  "a"
-                  "--"
-                  "${lib.getExe cfg.package}"
-                  "-c"
-                  "${cfg.configPath}"
-                ];
-              }
-            ];
+            # programs.niri.settings.spawn-at-startup = lib.mkIf (config.settings.compositor.name == "niri") [
+            #   {
+            #     command = [
+            #       "app2unit"
+            #       "-s"
+            #       "a"
+            #       "--"
+            #       "${lib.getExe cfg.package}"
+            #       "-c"
+            #       "${cfg.configPath}"
+            #     ];
+            #   }
+            # ];
           }
         ];
       };

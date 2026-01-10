@@ -35,8 +35,12 @@
 
         # Feature settings
         settings = {
-          compositor.name = "niri";
           session.autologinuser = "jorrit";
+
+          compositor = {
+            name = "niri";
+            wallpaper = inputs.self + "/assets/wallpapers/cabin.jpg";
+          };
 
           impermanence.systemDirectories = [
             "/var/lib/fprint"

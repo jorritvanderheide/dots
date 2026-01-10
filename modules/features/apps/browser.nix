@@ -96,10 +96,6 @@
                       installation_mode = "force_installed";
                       install_url = "https://addons.mozilla.org/firefox/downloads/latest/styl-us/latest.xpi";
                     };
-                    "{a07d2d7e-9071-42b3-8179-dceaab34345b}" = {
-                      installation_mode = "force_installed";
-                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/rose-pine-moon-normal/latest.xpi";
-                    };
                     "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
                       default_area = "menupanel";
                       installation_mode = "force_installed";

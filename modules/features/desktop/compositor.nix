@@ -26,7 +26,6 @@ in
 
         wallpaper = lib.mkOption {
           type = lib.types.path;
-          default = inputs.self + "/assets/wallpapers/winter.jpg";
           description = "Path to wallpaper image";
         };
 
@@ -38,11 +37,15 @@ in
       };
 
       config = lib.mkIf cfg.enable {
-        # Assertion: app-launch must be enabled for app2unit command
+        # Assertions: app-launch and theming must be enabled
         assertions = [
           {
             assertion = config.settings.app-launch.enable or false;
             message = "settings.compositor requires settings.app-launch to be enabled (for app2unit)";
+          }
+          {
+            assertion = config.settings.theming.enable or false;
+            message = "settings.compositor requires settings.theming to be enabled (for stylix colors)";
           }
         ];
 
@@ -224,8 +227,8 @@ in
                 border = {
                   enable = true;
                   width = 4;
-                  active.color = "#c4a7e7";
-                  inactive.color = "#393552";
+                  active.color = config.lib.stylix.colors.withHashtag.base0E;
+                  inactive.color = config.lib.stylix.colors.withHashtag.base02;
                 };
 
                 default-column-width = {
@@ -250,6 +253,7 @@ in
               window-rules = lib.singleton {
                 draw-border-with-background = false;
                 clip-to-geometry = true;
+                opacity = 0.99;
 
                 geometry-corner-radius = rec {
                   top-left = 8.;

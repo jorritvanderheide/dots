@@ -26,7 +26,7 @@
         stylix = {
           enable = true;
           autoEnable = true;
-          base16Scheme = "${pkgs.base16-schemes}/share/themes/rose-pine-moon.yaml";
+          base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-medium.yaml";
           polarity = "dark";
 
           cursor = {

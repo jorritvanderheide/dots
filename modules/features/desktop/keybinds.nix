@@ -151,7 +151,6 @@
                   action = move-column-right-or-to-monitor-right;
                   repeat = false;
                 };
-
                 "Mod+Shift+P" = {
                   action.screenshot = {
                     show-pointer = false;
