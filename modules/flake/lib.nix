@@ -160,10 +160,14 @@
         extraGroups ? [ ],
         extraHomeConfig ? { },
         extraUserOptions ? { },
+        hashedPasswordFile ? null,
+        userSecrets ? { },
+        userSecretsFile ? null,
         username,
         withModules ? [ ],
       }:
       {
+        config,
         pkgs,
         ...
       }:
@@ -181,11 +185,33 @@
           "d /persist/home/${username} 0700 ${username} users -"
         ];
 
+        # Configure user-specific sops secrets
+        sops.secrets = lib.mkIf (userSecretsFile != null) (
+          lib.mapAttrs (
+            name: secretConfig:
+            {
+              sopsFile = userSecretsFile;
+              owner = username;
+              group = "users";
+            }
+            // secretConfig
+          ) userSecrets
+        );
+
         users.users.${username} = {
           extraGroups = [ "wheel" ] ++ extraGroups;
           isNormalUser = true;
           shell = pkgs.fish;
         }
+        // (
+          # Use hashedPasswordFile if provided, otherwise use user_password from userSecrets
+          if hashedPasswordFile != null then
+            { hashedPasswordFile = hashedPasswordFile; }
+          else if (userSecrets ? user_password) then
+            { hashedPasswordFile = config.sops.secrets.user_password.path; }
+          else
+            { }
+        )
         // extraUserOptions;
       };
   };

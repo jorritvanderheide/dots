@@ -42,6 +42,12 @@
               };
             };
 
+            kernelParams = [
+              "quiet"
+              "rd.systemd.show_status=auto"
+              "systemd.show_status=1"
+            ];
+
             loader = {
               timeout = 0;
               efi.canTouchEfiVariables = true;

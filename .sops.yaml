@@ -1,10 +1,18 @@
 keys:
-  - &root@rocinante age1f4lajwc59utha2x55qyley82z2534yklq69ehtay69090c895cesjyuv8d
-  - &jorrit@rocinante age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
+  - &root_rocinante age1f4lajwc59utha2x55qyley82z2534yklq69ehtay69090c895cesjyuv8d
+  - &jorrit_rocinante age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
 
 creation_rules:
-  - path_regex: secrets/.*\.yaml$
+  # System-wide secrets (accessible by all users and hosts)
+  - path_regex: secrets/secrets\.yaml$
     key_groups:
       - age:
-          - *root@rocinante
-          - *jorrit@rocinante
+          - *root_rocinante
+          - *jorrit_rocinante
+
+  # User-specific secrets (accessible by specific user and their active hosts)
+  - path_regex: secrets/users/jorrit\.yaml$
+    key_groups:
+      - age:
+          - *jorrit_rocinante
+          - *root_rocinante

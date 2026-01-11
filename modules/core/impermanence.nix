@@ -41,16 +41,17 @@
             enable = true;
 
             services.rollback = {
+              before = [ "sysroot.mount" ];
               description = "Rollback ZFS root subvolume to pristine state";
+              unitConfig.DefaultDependencies = "no";
+              path = [ config.boot.zfs.package ];
+              serviceConfig.Type = "oneshot";
               wantedBy = [ "initrd.target" ];
+
               after = [
                 "systemd-cryptsetup@crypted.service"
                 "zfs-import-zroot.service"
               ];
-              before = [ "sysroot.mount" ];
-              path = [ config.boot.zfs.package ];
-              unitConfig.DefaultDependencies = "no";
-              serviceConfig.Type = "oneshot";
 
               script = ''
                 zfs rollback -r zroot/root@empty

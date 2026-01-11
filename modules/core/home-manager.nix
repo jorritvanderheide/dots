@@ -23,7 +23,7 @@
         useUserPackages = true;
       };
 
-      # Optimize boot: delay home-manager until after graphical session
+      # Delay home-manager until after graphical session
       systemd.services = lib.mkMerge [
         (lib.mapAttrs' (
           username: _:
