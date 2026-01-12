@@ -54,11 +54,19 @@
 
                 "codeberg" = {
                   host = "codeberg.org";
+                  identityFile = "~/.ssh/git@codeberg.org.pub";
+                  user = "git";
+                };
+
+                "github" = {
+                  host = "github.com";
+                  identityFile = "~/.ssh/git@github.com.pub";
                   user = "git";
                 };
 
                 "gitlab" = {
                   host = "gitlab.science.ru.nl";
+                  identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                   user = "git";
                 };
               };

@@ -75,7 +75,6 @@
                 type = lib.types.listOf lib.types.str;
                 default = [ ];
                 description = "Authorized SSH public keys for this user";
-                example = [ "ssh-ed25519 AAAAC3Nza... user@host" ];
               };
             };
           }
