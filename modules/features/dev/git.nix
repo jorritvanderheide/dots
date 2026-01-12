@@ -78,6 +78,8 @@
                     enable = true;
 
                     settings = {
+                      ui.merge-editor = "code --wait";
+
                       signing = {
                         backend = "ssh";
                         backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
