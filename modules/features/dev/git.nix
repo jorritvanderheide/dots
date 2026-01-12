@@ -78,13 +78,14 @@
                     enable = true;
 
                     settings = {
-                      # TODO: Enable commit signing when jujutsu supports getting the priva key from the Bitwarden ssh-agent
-                      # signing = {
-                      #   backend = "ssh";
-                      #   backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
-                      #   behavior = "own";
-                      #   key = cfg.signingKey;
-                      # };
+                      signing = {
+                        backend = "ssh";
+                        backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
+                        behavior = "own";
+                        # Use file path with .pub extension instead of inline key
+                        # This fixes Bitwarden SSH agent compatibility with jj
+                        key = "~/.ssh/signing-key.pub";
+                      };
 
                       user = {
                         name = cfg.userName;
@@ -103,6 +104,10 @@
                 home.file.".ssh/allowedSigners".text = ''
                   ${builtins.concatStringsSep "\n" cfg.allowedSigningKeys}
                 '';
+
+                # Create SSH signing key file with .pub extension for jj compatibility
+                # This is required for Bitwarden SSH agent to work properly with jj
+                home.file.".ssh/signing-key.pub".text = cfg.signingKey;
               };
             }
           )
