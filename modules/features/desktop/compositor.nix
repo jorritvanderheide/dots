@@ -49,6 +49,9 @@ in
           }
         ];
 
+        # Enable Niri overlay
+        nixpkgs.overlays = [ inputs.niri-flake.overlays.niri ];
+
         # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
 

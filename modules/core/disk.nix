@@ -6,6 +6,7 @@
   flake.nixosModules.disk =
     {
       config,
+      pkgs,
       ...
     }:
     {
@@ -14,6 +15,9 @@
       ];
 
       config = {
+        # Enable CachyOS kernel overlay
+        nixpkgs.overlays = [ inputs.cachyos-kernel.overlays.default ];
+
         fileSystems."/persist".neededForBoot = true;
         networking.hostId = builtins.substring 0 8 (builtins.hashString "md5" config.networking.hostName);
         sops.secrets.luks_password = { }; # LUKS disk encryption password
@@ -21,10 +25,14 @@
         boot = {
           supportedFilesystems = [ "zfs" ];
 
+          # Use CachyOS LTS kernel with ZFS support
+          kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-lts;
+
           zfs = {
             devNodes = "/dev/disk/by-id/";
             forceImportAll = true;
             requestEncryptionCredentials = true;
+            package = config.boot.kernelPackages.zfs_cachyos;
           };
 
           kernelParams =
