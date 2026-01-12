@@ -18,7 +18,8 @@
       };
 
       config = lib.mkIf cfg.enable {
-        programs.ssh.startAgent = lib.mkDefault false;
+        # Disable standard ssh-agent in favor of Bitwarden SSH agent
+        programs.ssh.startAgent = lib.mkForce false;
 
         home-manager.sharedModules = [
           {

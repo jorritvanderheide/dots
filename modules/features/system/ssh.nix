@@ -37,6 +37,7 @@
 
       config = lib.mkIf cfg.enable {
         programs.ssh = {
+          # Use mkDefault to allow password-manager module to override this
           startAgent = true;
           knownHosts = cfg.knownHosts;
         };
