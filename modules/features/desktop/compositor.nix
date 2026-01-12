@@ -92,6 +92,15 @@ in
               spawn-at-startup = [
                 {
                   command = [
+                    "app2unit"
+                    "-s"
+                    "a"
+                    "--"
+                    "hyprlock"
+                  ];
+                }
+                {
+                  command = [
                     "uwsm"
                     "finalize"
                   ];
@@ -107,15 +116,6 @@ in
                     "fill"
                     "-i"
                     "${cfg.wallpaper}"
-                  ];
-                }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "a"
-                    "--"
-                    "hyprlock"
                   ];
                 }
                 {
