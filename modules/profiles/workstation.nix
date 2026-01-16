@@ -18,6 +18,7 @@
         # Apps
         ai-assistant
         browser
+        chromium
         editor
         media-player
         messaging
@@ -68,6 +69,7 @@
         # Apps
         ai-assistant.enable = true;
         browser.enable = true;
+        chromium.enable = true;
         editor.enable = true;
         media-player.enable = true;
         messaging.enable = true;

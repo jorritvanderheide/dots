@@ -34,6 +34,11 @@
               name = "Obsidian";
               type = "Application";
             };
+
+            # Persist obsidian data across reboots
+            settings.impermanence.homeDirectories = [
+              ".config/obsidian"
+            ];
           }
         ];
       };

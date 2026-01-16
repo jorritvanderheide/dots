@@ -43,7 +43,7 @@
                   repeat = false;
                 };
                 "Mod+B" = {
-                  action = spawn "sh" "-c" "app2unit -s a -- zen --profile ~/.zen/default";
+                  action = spawn "sh" "-c" "app2unit -s a -- chromium";
                   repeat = false;
                 };
                 "Mod+C" = {

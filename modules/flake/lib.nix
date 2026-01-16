@@ -188,7 +188,7 @@
         # Configure user-specific sops secrets
         sops.secrets = lib.mkIf (userSecretsFile != null) (
           lib.mapAttrs (
-            name: secretConfig:
+            _name: secretConfig:
             {
               sopsFile = userSecretsFile;
               owner = username;

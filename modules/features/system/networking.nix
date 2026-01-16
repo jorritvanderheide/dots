@@ -117,6 +117,17 @@
           }
         ];
 
+        # Persist dnscrypt-proxy cache across reboots
+        # Note: /var/lib/dnscrypt-proxy is a symlink to private/dnscrypt-proxy
+        settings.impermanence.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
+          "/var/lib/private/dnscrypt-proxy"
+        ];
+
+        # Fix permissions for /var/lib/private (systemd requires 0700 for StateDirectory)
+        systemd.tmpfiles.rules = lib.mkIf (cfg.DOHServers != null) [
+          "d /var/lib/private 0700 root root -"
+        ];
+
         # Define sops secrets for wireless networks
         sops.secrets = lib.mkIf (cfg.wireless != null) {
           "wireless/fairphone" = { };
