@@ -56,22 +56,29 @@
                 "codeberg" = {
                   host = "codeberg.org";
                   identityFile = "~/.ssh/git@codeberg.org.pub";
+                  identitiesOnly = true;
                   user = "git";
                 };
 
                 "github" = {
                   host = "github.com";
                   identityFile = "~/.ssh/git@github.com.pub";
+                  identitiesOnly = true;
                   user = "git";
                 };
 
                 "gitlab" = {
                   host = "gitlab.science.ru.nl";
                   identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
+                  identitiesOnly = true;
                   user = "git";
                 };
               };
             };
+
+            settings.impermanence.homeDirectories = [
+              ".ssh"
+            ];
           }
         ];
       };

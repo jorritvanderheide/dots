@@ -28,6 +28,7 @@
         # Intel GPU hardware acceleration
         environment.systemPackages = with pkgs; [
           intel-media-driver
+          freecad-wayland
         ];
 
         # Firmware updates
@@ -56,16 +57,16 @@
             ];
           };
 
-          ssh.knownHosts = {
-            codeberg = {
-              hostNames = [ "codeberg.org" ];
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
-            };
-            gitlab = {
-              hostNames = [ "gitlab.science.ru.nl" ];
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHK205AIRDSe8K13yEQYkDVV1VUnY/MuXWwMk1S2Xpx";
-            };
-          };
+          # ssh.knownHosts = {
+          #   codeberg = {
+          #     hostNames = [ "codeberg.org" ];
+          #     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC";
+          #   };
+          #   gitlab = {
+          #     hostNames = [ "gitlab.science.ru.nl" ];
+          #     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPrp7vNqg2nX7+F1jR1w5X0K8Xk0H9Yw2Kk9v+XQ";
+          #   };
+          # };
         };
       };
   };

@@ -180,8 +180,8 @@ in
                     y = -1720;
                   };
                 };
-                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                  scale = 1.75;
+                "Sharp Corporation SHARP HDMI Unknown" = {
+                  scale = 1.5;
                   position = {
                     x = -1097;
                     y = -613; # 617 - 4px

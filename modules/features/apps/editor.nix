@@ -142,6 +142,12 @@
                     "textDocument/documentHighlight"
                   ];
 
+                  # JavaScript/TypesScript
+                  "javascript.preferences.importModuleSpecifier" = "non-relative";
+                  "typescript.preferences.importModuleSpecifier" = "non-relative";
+                  "typescript.updateImportsOnFileMove.enabled" = "always";
+
+                  # Nix
                   "[nix]" = {
                     "editor.defaultFormatter" = "jnoortheen.nix-ide";
                     "editor.formatOnSave" = true;
@@ -160,6 +166,12 @@
                     "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml"
                     "/run/current-system/sw/lib/qt-6/qml"
                   ];
+
+                  # Vue
+                  "[vue]" = {
+                    "editor.formatOnPaste" = true;
+                    "editor.formatOnSave" = true;
+                  };
                 };
               };
             };

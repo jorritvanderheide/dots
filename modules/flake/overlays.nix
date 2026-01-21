@@ -6,7 +6,7 @@
       nixpkgs.overlays = [
         (_self: super: {
           qobuz-player = super.callPackage (inputs.self + "/packages/qobuz-player.nix") { };
-          ubports-installer = super.callPackage (inputs.self + "/packages/ubports-installer.nix") { };
+          qwen3-tts = super.callPackage (inputs.self + "/packages/qwen3-tts.nix") { };
         })
       ];
     };

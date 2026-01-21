@@ -32,6 +32,7 @@
         clipboard
         compositor
         desktop-shell
+        gaming
         idle
         keybinds
         keyboard-remap
@@ -83,6 +84,7 @@
         clipboard.enable = true;
         compositor.enable = true;
         desktop-shell.enable = true;
+        gaming.enable = true;
         idle.enable = true;
         keybinds.enable = true;
         keyboard-remap.enable = true;
