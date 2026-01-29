@@ -20,6 +20,7 @@
         browser
         chromium
         editor
+        gaming
         media-player
         messaging
         music-player
@@ -32,7 +33,6 @@
         clipboard
         compositor
         desktop-shell
-        gaming
         idle
         keybinds
         keyboard-remap
@@ -72,6 +72,7 @@
         browser.enable = true;
         chromium.enable = true;
         editor.enable = true;
+        gaming.enable = true;
         media-player.enable = true;
         messaging.enable = true;
         music-player.enable = true;
@@ -84,7 +85,6 @@
         clipboard.enable = true;
         compositor.enable = true;
         desktop-shell.enable = true;
-        gaming.enable = true;
         idle.enable = true;
         keybinds.enable = true;
         keyboard-remap.enable = true;

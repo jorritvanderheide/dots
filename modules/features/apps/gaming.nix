@@ -18,6 +18,15 @@
 
       config = lib.mkIf cfg.enable {
         programs.steam.enable = true;
+
+        home-manager.sharedModules = [
+          {
+            settings.impermanence.homeDirectories = [
+              ".local/share/Steam"
+              ".steam"
+            ];
+          }
+        ];
       };
     };
 }
