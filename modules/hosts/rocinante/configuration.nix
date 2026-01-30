@@ -28,7 +28,6 @@
         # Intel GPU hardware acceleration
         environment.systemPackages = with pkgs; [
           intel-media-driver
-          freecad-wayland
         ];
 
         # Firmware updates

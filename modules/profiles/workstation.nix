@@ -18,6 +18,7 @@
         # Apps
         ai-assistant
         browser
+        cad
         chromium
         editor
         gaming
@@ -70,6 +71,7 @@
         # Apps
         ai-assistant.enable = true;
         browser.enable = true;
+        cad.enable = true;
         chromium.enable = true;
         editor.enable = true;
         gaming.enable = true;
