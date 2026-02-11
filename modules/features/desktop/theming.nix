@@ -86,7 +86,7 @@
           {
             home.sessionVariables.XCURSOR_THEME = config.stylix.cursor.name;
 
-            stylix.iconTheme = {
+            stylix.icons = {
               enable = true;
               package = pkgs.tela-circle-icon-theme;
               light = "Tela-circle-light";

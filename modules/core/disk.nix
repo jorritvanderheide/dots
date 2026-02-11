@@ -16,7 +16,7 @@
 
       config = {
         # Enable CachyOS kernel overlay
-        nixpkgs.overlays = [ inputs.cachyos-kernel.overlays.default ];
+        nixpkgs.overlays = [ inputs.cachyos-kernel.overlays.pinned ];
 
         fileSystems."/persist".neededForBoot = true;
         networking.hostId = builtins.substring 0 8 (builtins.hashString "md5" config.networking.hostName);
