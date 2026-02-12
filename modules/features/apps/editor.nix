@@ -39,36 +39,74 @@
                 enableExtensionUpdateCheck = false;
                 enableUpdateCheck = false;
 
-                extensions =
-                  with pkgs.vscode-extensions;
-                  [
-                    bradlc.vscode-tailwindcss # Tailwind
-                    esbenp.prettier-vscode # Prettier
-                    jnoortheen.nix-ide # Nix IDE
-                    mkhl.direnv # Direnv
-                    tal7aouy.icons # Icons
-                    vue.volar # Vue
-                  ]
-                  ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-                    {
-                      name = "jjk";
-                      publisher = "jjk";
-                      version = "0.8.1";
-                      sha256 = "sha256-2JUn6wkWgZKZzhitQy6v9R/rCNLrt7DBtt59707hp6c=";
-                    }
-                    {
-                      name = "qt-core";
-                      publisher = "theqtcompany";
-                      version = "1.10.0";
-                      sha256 = "sha256-jMXC9UqvVxlvNSAMoInv3wCKyDwL/1I0TbftYjJphdU=";
-                    }
-                    {
-                      name = "qt-qml";
-                      publisher = "theqtcompany";
-                      version = "1.10.0";
-                      sha256 = "sha256-5k80WTSDwdf3WeePUt2CgTd3dTejj0+fKnbjzNfMXng=";
-                    }
-                  ];
+                extensions = pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+                  {
+                    name = "direnv";
+                    publisher = "mkhl";
+                    version = "latest";
+                    sha256 = "sha256-9sFcfTMeLBGw2ET1snqQ6Uk//D/vcD9AVsZfnUNrWNg=";
+                  }
+                  {
+                    name = "icons";
+                    publisher = "tal7aouy";
+                    version = "latest";
+                    sha256 = "sha256-PdhNFyVUWcOfli/ZlT+6TmtWrV31fBP1E1Vd4QWOY+A=";
+                  }
+                  {
+                    name = "jjk";
+                    publisher = "jjk";
+                    version = "latest";
+                    sha256 = "sha256-2JUn6wkWgZKZzhitQy6v9R/rCNLrt7DBtt59707hp6c=";
+                  }
+                  {
+                    name = "markdown-preview-enhanced";
+                    publisher = "shd101wyy";
+                    version = "latest";
+                    sha256 = "sha256-+dwLuqtEYirQaw/tuG5m5Ugk0crKQQZM43TmslJsBBc=";
+                  }
+                  {
+                    name = "nix-ide";
+                    publisher = "jnoortheen";
+                    version = "latest";
+                    sha256 = "sha256-epdEMPAkSo0IXsd+ozicI8bjPPquDKIzB3ONRUYWwn8=";
+                  }
+                  {
+                    name = "qt-core";
+                    publisher = "theqtcompany";
+                    version = "latest";
+                    sha256 = "sha256-jMXC9UqvVxlvNSAMoInv3wCKyDwL/1I0TbftYjJphdU=";
+                  }
+                  {
+                    name = "prettier-vscode";
+                    publisher = "esbenp";
+                    version = "latest";
+                    sha256 = "sha256-Zi5ihki/risHm75ERQxUgqhiTbpM6fknHLMCAkXrEVo=";
+                  }
+                  {
+                    name = "qt-qml";
+                    publisher = "theqtcompany";
+                    version = "latest";
+                    sha256 = "sha256-lUXx2VAXK0Av4T3bRW7hXpP0u7zJbDvMbKkpPACT4WE=";
+                  }
+                  {
+                    name = "regionmarker";
+                    publisher = "awwsky";
+                    version = "latest";
+                    sha256 = "sha256-khqL7H3o7Q3KKQsB+CZ7duDQLHgPQzJHspnqL/zEwS5=";
+                  }
+                  {
+                    name = "volar";
+                    publisher = "vue";
+                    version = "latest";
+                    sha256 = "sha256-CCnTlttyoLZq3VO3fG+O5B6K7zsKyW5lU/b2HbSB1vI=";
+                  }
+                  {
+                    name = "vscode-tailwindcss";
+                    publisher = "bradlc";
+                    version = "latest";
+                    sha256 = "sha256-58/yM4xP8ewpegNlVSWnyFIoAmEd7E/CigQgae7OgZY=";
+                  }
+                ];
 
                 userSettings = {
                   # AI
@@ -189,7 +227,6 @@
             # Persist editor data across reboots
             settings.impermanence.homeDirectories = [
               ".config/Code"
-              # ".vscode" # Extension data and caches
             ];
           }
         ];
