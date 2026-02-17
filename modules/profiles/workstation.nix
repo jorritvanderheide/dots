@@ -21,7 +21,6 @@
         cad
         chromium
         editor
-        gaming
         media-player
         messaging
         music-player
@@ -74,7 +73,6 @@
         cad.enable = true;
         chromium.enable = true;
         editor.enable = true;
-        gaming.enable = true;
         media-player.enable = true;
         messaging.enable = true;
         music-player.enable = true;
