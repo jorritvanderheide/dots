@@ -23,6 +23,14 @@
             programs.vscode = {
               enable = true;
 
+              keybindings = [
+                # Toggle Todo-tree
+                {
+                  key = "ctrl+shift+u";
+                  command = "workbench.view.extension.todo-tree-container";
+                }
+              ];
+
               package = pkgs.symlinkJoin {
                 buildInputs = [ pkgs.makeWrapper ];
                 meta.mainProgram = "code";
@@ -93,6 +101,12 @@
                     publisher = "awwsky";
                     version = "latest";
                     sha256 = "sha256-khqL7H3o7Q3KKQsB+CZ7duDQLHgPQzJHspnqL/zEwS5=";
+                  }
+                  {
+                    name = "todo-tree";
+                    publisher = "gruntfuggly";
+                    version = "latest";
+                    sha256 = "sha256-Fj9cw+VJ2jkTGUclB1TLvURhzQsaryFQs/+f2RZOLHs=";
                   }
                   {
                     name = "volar";
