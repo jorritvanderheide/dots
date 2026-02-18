@@ -23,14 +23,6 @@
             programs.vscode = {
               enable = true;
 
-              keybindings = [
-                # Toggle Todo-tree
-                {
-                  key = "ctrl+shift+u";
-                  command = "workbench.view.extension.todo-tree-container";
-                }
-              ];
-
               package = pkgs.symlinkJoin {
                 buildInputs = [ pkgs.makeWrapper ];
                 meta.mainProgram = "code";
@@ -122,10 +114,26 @@
                   }
                 ];
 
+                keybindings = [
+                  # Toggle Todo-tree
+                  {
+                    key = "ctrl+shift+u";
+                    command = "workbench.view.extension.todo-tree-container";
+                  }
+
+                  # Open Claude in sidebar
+                  {
+                    key = "ctrl+alt+i";
+                    command = "claude-vscode.sidebar.open";
+                  }
+                ];
+
                 userSettings = {
                   # AI
                   "chat.agent.enabled" = false;
                   "chat.commandCenter.enabled" = false;
+                  "claudeCode.preferredLocation" = "sidebar";
+                  "claudeCode.claudeProcessWrapper" = "/etc/profiles/per-user/jorrit/bin/claude";
 
                   # Editor
                   "editor.defaultFormatter" = "esbenp.prettier-vscode";

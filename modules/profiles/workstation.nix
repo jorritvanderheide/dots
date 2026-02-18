@@ -21,11 +21,14 @@
         cad
         chromium
         editor
+        email
+        gaming
         media-player
         messaging
         music-player
         notes
         password-manager
+        social
         terminal
 
         # Desktop
@@ -73,11 +76,14 @@
         cad.enable = true;
         chromium.enable = true;
         editor.enable = true;
+        email.enable = true;
+        gaming.enable = true;
         media-player.enable = true;
         messaging.enable = true;
         music-player.enable = true;
         notes.enable = true;
         password-manager.enable = true;
+        social.enable = true;
         terminal.enable = true;
 
         # Desktop
@@ -103,7 +109,7 @@
         bluetooth.enable = true;
         firmware.enable = true;
         power.enable = true;
-        sound.enable = true;
+        sound.enable = false;
 
         # Shell
         cli-tools.enable = true;
