@@ -41,6 +41,12 @@
 
                 extensions = pkgs.vscode-utils.extensionsFromVscodeMarketplace [
                   {
+                    name = "claude-code";
+                    publisher = "anthropic";
+                    version = "latest";
+                    sha256 = "sha256-5T2ul9iuDjC6qZ4D3xj7bpWqPalEvhH8C687QV2mdVg=";
+                  }
+                  {
                     name = "direnv";
                     publisher = "mkhl";
                     version = "latest";
