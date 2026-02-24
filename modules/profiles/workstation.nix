@@ -48,6 +48,7 @@
         direnv
         git
         nix
+        pubhubs
         virtualization
 
         # Hardware
@@ -103,13 +104,14 @@
         direnv.enable = true;
         git.enable = true;
         nix.enable = true;
+        pubhubs.enable = true;
         virtualization.enable = true;
 
         # Hardware
         bluetooth.enable = true;
         firmware.enable = true;
         power.enable = true;
-        sound.enable = false;
+        sound.enable = true;
 
         # Shell
         cli-tools.enable = true;

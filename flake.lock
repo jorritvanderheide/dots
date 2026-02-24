@@ -652,6 +652,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1770197578,
+        "narHash": "sha256-AYqlWrX09+HvGs8zM6ebZ1pwUqjkfpnv8mewYwAo+iM=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "00c21e4c93d963c50d4c0c89bfa84ed6e0694df2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nur": {
       "inputs": {
         "flake-parts": [
@@ -703,6 +719,21 @@
         "type": "github"
       }
     },
+    "pubhubs": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-E9TnVmyKcsr9Au/qRQ4+uP8Lwlw57AqdzR3FUv/BzrI=",
+        "path": "/persist/home/jorrit/Git/pubhubs_canonical",
+        "type": "path"
+      },
+      "original": {
+        "path": "/persist/home/jorrit/Git/pubhubs_canonical",
+        "type": "path"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -736,6 +767,7 @@
         "nixos-facter-modules": "nixos-facter-modules",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "pubhubs": "pubhubs",
         "quickshell": "quickshell",
         "sops-nix": "sops-nix",
         "starship-jj": "starship-jj",
