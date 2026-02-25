@@ -55,7 +55,7 @@
                   text = "󰈷";
                   color = lib.mkForce (config.lib.stylix.mkOpacityHexColor config.lib.stylix.colors.base05 1.0);
                   font_size = 96;
-                  font_family = "JetBrains Mono Nerd Font Mono";
+                  font_family = "JetBrainsMono Nerd Font Mono";
                   position = "0, 0";
                   halign = "center";
                   valign = "center";

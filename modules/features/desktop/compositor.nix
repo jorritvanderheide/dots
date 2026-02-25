@@ -157,6 +157,7 @@ in
               prefer-no-csd = true;
 
               outputs = {
+                # Laptop screen
                 "eDP-1" = {
                   scale = 1.175;
                   position = {
@@ -164,6 +165,8 @@ in
                     y = 0;
                   };
                 };
+
+                # Home monitor
                 "LG Electronics LG HDR 4K 210MAZVRJG93" = {
                   focus-at-startup = true;
                   scale = 1.25;
@@ -172,6 +175,8 @@ in
                     y = -1720;
                   };
                 };
+
+                # Office monitor
                 "LG Electronics LG HDR 4K 0x0004C67F" = {
                   focus-at-startup = true;
                   scale = 1.25;
@@ -180,7 +185,18 @@ in
                     y = -1720;
                   };
                 };
+
+                # Meeting room 18th floor
                 "Sharp Corporation SHARP HDMI Unknown" = {
+                  scale = 1.5;
+                  position = {
+                    x = -1097;
+                    y = -613; # 617 - 4px
+                  };
+                };
+
+                # Corner office 19th floor
+                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
                   scale = 1.5;
                   position = {
                     x = -1097;

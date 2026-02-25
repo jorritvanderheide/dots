@@ -138,6 +138,9 @@
                   # AI
                   "chat.agent.enabled" = false;
                   "chat.commandCenter.enabled" = false;
+                  "chat.disableAIFeatures" = true;
+                  # "chat.fontFamily" = lib.mkForce "JetBrainsMono Nerd Font Mono";
+                  "chat.fontSize" = "15.333333333333334";
                   "claudeCode.preferredLocation" = "sidebar";
                   "claudeCode.claudeProcessWrapper" = "/etc/profiles/per-user/jorrit/bin/claude";
 
@@ -173,7 +176,6 @@
                   "terminal.external.linuxExec" = "ghostty"; # TODO
                   "terminal.integrated.defaultProfile.linux" = "fish";
                   "terminal.integrated.enablePersistentSessions" = false;
-                  "terminal.integrated.fontFamily" = "JetBrains Mono Nerd Font Mono";
                   "terminal.integrated.fontLigatures.enabled" = true;
 
                   # Updates

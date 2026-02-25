@@ -43,7 +43,7 @@
 
             monospace = {
               package = pkgs.nerd-fonts.jetbrains-mono;
-              name = "JetBrains Mono Nerd Font Mono";
+              name = "JetBrainsMono Nerd Font Mono";
             };
 
             sansSerif = {

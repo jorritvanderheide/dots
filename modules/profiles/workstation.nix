@@ -48,7 +48,7 @@
         direnv
         git
         nix
-        pubhubs
+        # pubhubs
         virtualization
 
         # Hardware
@@ -104,7 +104,7 @@
         direnv.enable = true;
         git.enable = true;
         nix.enable = true;
-        pubhubs.enable = true;
+        # pubhubs.enable = false;
         virtualization.enable = true;
 
         # Hardware
