@@ -17,6 +17,10 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".thunderbird"
+        ];
+
         home-manager.sharedModules = [
           {
             programs.thunderbird = {
@@ -26,10 +30,6 @@
                 isDefault = true;
               };
             };
-
-            settings.impermanence.homeDirectories = [
-              ".thunderbird"
-            ];
           }
         ];
       };

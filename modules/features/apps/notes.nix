@@ -18,6 +18,11 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Persist obsidian data across reboots
+        settings.preservation.homeDirectories = [
+          ".config/obsidian"
+        ];
+
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
@@ -35,10 +40,6 @@
               type = "Application";
             };
 
-            # Persist obsidian data across reboots
-            settings.impermanence.homeDirectories = [
-              ".config/obsidian"
-            ];
           }
         ];
       };

@@ -19,6 +19,10 @@
       config = lib.mkIf cfg.enable {
         programs.fish.enable = true;
 
+        settings.preservation.homeDirectories = [
+          ".local/share/fish"
+        ];
+
         home-manager.sharedModules = [
           {
             programs = {
@@ -59,9 +63,6 @@
               };
             };
 
-            settings.impermanence.homeDirectories = [
-              ".local/share/fish"
-            ];
           }
         ];
       };

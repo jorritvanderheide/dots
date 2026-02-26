@@ -18,14 +18,14 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".local/share/qobuz-player"
+        ];
+
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
               qobuz-player
-            ];
-
-            settings.impermanence.homeDirectories = [
-              ".local/share/qobuz-player"
             ];
 
             xdg.desktopEntries.qobuz = {

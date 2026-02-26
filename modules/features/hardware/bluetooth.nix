@@ -29,7 +29,7 @@
         ];
 
         # Persist Bluetooth pairings
-        settings.impermanence.systemDirectories = [
+        settings.preservation.systemDirectories = [
           "/var/lib/bluetooth"
         ];
       };

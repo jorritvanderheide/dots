@@ -35,7 +35,7 @@
         # sops.secrets.pubhubs-macaroon = { };
 
         # Persist hub state across reboots
-        settings.impermanence.systemDirectories = [
+        settings.preservation.systemDirectories = [
           "/var/lib/pubhubs-hub"
         ];
       };

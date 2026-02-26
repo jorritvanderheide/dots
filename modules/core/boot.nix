@@ -24,11 +24,11 @@
 
       config = lib.mkMerge [
         {
-          # Assertion: impermanence must be enabled for secure boot persistence
+          # Assertion: preservation must be enabled for secure boot persistence
           assertions = [
             {
-              assertion = config.settings.impermanence ? systemDirectories;
-              message = "boot module requires settings.impermanence to be enabled";
+              assertion = config.settings.preservation ? systemDirectories;
+              message = "boot module requires settings.preservation to be enabled";
             }
           ];
 
@@ -77,7 +77,7 @@
             loader.systemd-boot.enable = lib.mkForce false;
           };
 
-          settings.impermanence.systemDirectories = [
+          settings.preservation.systemDirectories = [
             "/var/lib/sbctl"
             "/var/lib/tpm2-tss"
           ];

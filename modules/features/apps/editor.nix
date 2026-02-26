@@ -18,6 +18,11 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Persist editor data across reboots
+        settings.preservation.homeDirectories = [
+          ".config/Code"
+        ];
+
         home-manager.sharedModules = [
           {
             programs.vscode = {
@@ -260,10 +265,6 @@
               ];
             };
 
-            # Persist editor data across reboots
-            settings.impermanence.homeDirectories = [
-              ".config/Code"
-            ];
           }
         ];
       };

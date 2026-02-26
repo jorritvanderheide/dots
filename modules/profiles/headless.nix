@@ -12,7 +12,7 @@
         disk
         facter
         home-manager
-        impermanence
+        preservation
         secrets
 
         # Dev

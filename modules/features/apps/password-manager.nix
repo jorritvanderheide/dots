@@ -21,13 +21,13 @@
         # Disable standard ssh-agent in favor of Bitwarden SSH agent
         programs.ssh.startAgent = lib.mkForce false;
 
+        # Persist config directory
+        settings.preservation.homeDirectories = [
+          ".config/Bitwarden"
+        ];
+
         home-manager.sharedModules = [
           {
-            # Persist config directory
-            settings.impermanence.homeDirectories = [
-              ".config/Bitwarden"
-            ];
-
             # Make SSH_AUTH_SOCK available to the shell
             home.sessionVariables = {
               SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";

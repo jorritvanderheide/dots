@@ -18,14 +18,14 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".local/share/dev.geopjr.Tuba"
+        ];
+
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
               tuba
-            ];
-
-            settings.impermanence.homeDirectories = [
-              ".local/share/dev.geopjr.Tuba"
             ];
           }
         ];

@@ -42,7 +42,7 @@
             wallpaper = inputs.self + "/assets/wallpapers/cabin.jpg";
           };
 
-          impermanence.systemDirectories = [
+          preservation.systemDirectories = [
             "/var/lib/fprint"
           ];
 

@@ -3,10 +3,10 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    impermanence.url = "github:nix-community/impermanence";
     import-tree.url = "github:vic/import-tree";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
     cachyos-kernel = {

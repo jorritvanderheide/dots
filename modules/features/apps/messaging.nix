@@ -18,12 +18,12 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".config/Signal"
+        ];
+
         home-manager.sharedModules = [
           {
-            settings.impermanence.homeDirectories = [
-              ".config/Signal"
-            ];
-
             home.packages = with pkgs; [
               signal-desktop
             ];

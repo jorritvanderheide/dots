@@ -36,19 +36,16 @@
           mullvad-vpn
         ];
 
-        # Persist system VPN configuration across reboots
-        settings.impermanence.systemDirectories = [
-          "/var/lib/mullvad-vpn"
-        ];
+        # Persist VPN configuration across reboots
+        settings.preservation = {
+          systemDirectories = [
+            "/var/lib/mullvad-vpn"
+          ];
 
-        # Persist user VPN configuration
-        home-manager.sharedModules = [
-          {
-            settings.impermanence.homeDirectories = [
-              ".config/Mullvad VPN"
-            ];
-          }
-        ];
+          homeDirectories = [
+            ".config/Mullvad VPN"
+          ];
+        };
       };
     };
 }

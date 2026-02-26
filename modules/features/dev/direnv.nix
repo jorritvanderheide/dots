@@ -17,6 +17,10 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".local/share/direnv"
+        ];
+
         home-manager.sharedModules = [
           {
             programs.direnv = {
@@ -24,10 +28,6 @@
               nix-direnv.enable = true;
               silent = true;
             };
-
-            settings.impermanence.homeDirectories = [
-              ".local/share/direnv"
-            ];
           }
         ];
       };

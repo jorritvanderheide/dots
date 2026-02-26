@@ -180,7 +180,7 @@
         }
         // extraHomeConfig;
 
-        # Ensure persistent home directory exists for impermanence
+        # Ensure persistent home directory exists for preservation
         systemd.tmpfiles.rules = [
           "d /persist/home/${username} 0700 ${username} users -"
         ];

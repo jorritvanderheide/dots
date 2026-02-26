@@ -18,6 +18,10 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".local/share/zoxide"
+        ];
+
         environment.systemPackages = with pkgs; [
           bat
           fd
@@ -57,9 +61,6 @@
               };
             };
 
-            settings.impermanence.homeDirectories = [
-              ".local/share/zoxide"
-            ];
           }
         ];
       };

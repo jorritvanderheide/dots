@@ -48,7 +48,7 @@
         };
 
         # Persist Docker data
-        settings.impermanence.systemDirectories = lib.optionals cfg.docker.enable [
+        settings.preservation.systemDirectories = lib.optionals cfg.docker.enable [
           "/var/lib/docker"
         ];
       };

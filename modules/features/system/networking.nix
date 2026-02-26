@@ -119,7 +119,7 @@
 
         # Persist dnscrypt-proxy cache across reboots
         # Note: /var/lib/dnscrypt-proxy is a symlink to private/dnscrypt-proxy
-        settings.impermanence.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
+        settings.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
           "/var/lib/private/dnscrypt-proxy"
         ];
 

@@ -18,14 +18,14 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".config/FreeCAD"
+        ];
+
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
               freecad-wayland
-            ];
-
-            settings.impermanence.homeDirectories = [
-              ".config/FreeCAD"
             ];
           }
         ];

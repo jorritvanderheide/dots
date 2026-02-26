@@ -36,6 +36,10 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation.homeDirectories = [
+          ".ssh"
+        ];
+
         programs.ssh = {
           # Use mkDefault to allow password-manager module to override this
           startAgent = true;
@@ -76,9 +80,6 @@
               };
             };
 
-            settings.impermanence.homeDirectories = [
-              ".ssh"
-            ];
           }
         ];
       };

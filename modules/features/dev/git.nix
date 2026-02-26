@@ -17,6 +17,11 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Persist Git directory
+        settings.preservation.homeDirectories = [
+          "Git"
+        ];
+
         home-manager.sharedModules = [
           (
             { config, ... }:
@@ -96,11 +101,6 @@
                     };
                   };
                 };
-
-                # Persist Git directory
-                settings.impermanence.homeDirectories = [
-                  "Git"
-                ];
 
                 # Create SSH allowedSigners file for commit verification
                 home.file.".ssh/allowedSigners".text = ''

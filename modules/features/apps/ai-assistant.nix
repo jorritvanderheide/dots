@@ -17,6 +17,16 @@
       };
 
       config = lib.mkIf cfg.enable {
+        settings.preservation = {
+          homeDirectories = [
+            ".claude"
+          ];
+
+          homeFiles = [
+            ".claude.json"
+          ];
+        };
+
         home-manager.sharedModules = [
           (
             { pkgs, ... }:
@@ -75,15 +85,6 @@
                 claude = "claude-wrapped";
               };
 
-              settings.impermanence = {
-                homeDirectories = [
-                  ".claude"
-                ];
-
-                homeFiles = [
-                  ".claude.json"
-                ];
-              };
             }
           )
         ];

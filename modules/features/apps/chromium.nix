@@ -133,6 +133,11 @@
           };
         };
 
+        settings.preservation.homeDirectories = [
+          ".config/chromium"
+          ".config/google-chrome"
+        ];
+
         home-manager.sharedModules = [
           (
             {
@@ -176,10 +181,6 @@
                 fi
               '';
 
-              settings.impermanence.homeDirectories = [
-                ".config/chromium"
-                ".config/google-chrome"
-              ];
             }
           )
         ];

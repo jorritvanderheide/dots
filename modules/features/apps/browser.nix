@@ -18,6 +18,11 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Persist browser data across reboots
+        settings.preservation.homeDirectories = [
+          ".zen"
+        ];
+
         home-manager.sharedModules = [
           inputs.zen-browser.homeModules.beta
           (
@@ -285,10 +290,6 @@
               # Fix for missing profile warning
               stylix.targets.zen-browser.profileNames = [ "default" ];
 
-              # Persist browser data across reboots
-              settings.impermanence.homeDirectories = [
-                ".zen"
-              ];
             }
           )
         ];
