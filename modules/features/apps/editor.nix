@@ -202,13 +202,19 @@
                       "formatting" = {
                         "command" = [ "nixfmt" ];
                       };
+                      "nixpkgs" = {
+                        "expr" = "import <nixpkgs> {}";
+                      };
+                      "options" = {
+                        "nixos" = {
+                          "expr" = "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.rocinante.options";
+                        };
+                        "home-manager" = {
+                          "expr" = "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.rocinante.options.home-manager.users.type.getSubOptions []";
+                        };
+                      };
                     };
                   };
-
-                  "nix.hiddenLanguageServerErrors" = [
-                    "textDocument/definition"
-                    "textDocument/documentHighlight"
-                  ];
 
                   # JavaScript/TypesScript
                   "javascript.preferences.importModuleSpecifier" = "non-relative";
