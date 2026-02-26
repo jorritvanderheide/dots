@@ -14,12 +14,12 @@
     in
     {
       options.settings.lockscreen = {
-        enable = lib.mkEnableOption "hyprlock screen locker";
+        enable = lib.mkEnableOption "Hyprlock screen locker";
 
         command = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
-          description = "Lock command (computed automatically)";
+          description = "Command to lock the screen (read-only)";
         };
       };
 

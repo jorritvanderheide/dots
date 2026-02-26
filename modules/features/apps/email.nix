@@ -13,7 +13,7 @@
     in
     {
       options.settings.email = {
-        enable = lib.mkEnableOption "email client";
+        enable = lib.mkEnableOption "Thunderbird email client";
       };
 
       config = lib.mkIf cfg.enable {

@@ -14,7 +14,7 @@
     in
     {
       options.settings.editor = {
-        enable = lib.mkEnableOption "code editor";
+        enable = lib.mkEnableOption "VS Code editor";
       };
 
       config = lib.mkIf cfg.enable {

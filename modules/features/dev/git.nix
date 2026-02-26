@@ -27,22 +27,22 @@
               options.settings.git = {
                 allowedSigningKeys = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
-                  description = "Allowed keys for commit signing";
+                  description = "Allowed SSH public keys for commit signature verification";
                 };
 
                 signingKey = lib.mkOption {
                   type = lib.types.str;
-                  description = "SSH public key for commit signing";
+                  description = "SSH public key used to sign commits";
                 };
 
                 userEmail = lib.mkOption {
                   type = lib.types.str;
-                  description = "Git user email";
+                  description = "Email address for Git commits";
                 };
 
                 userName = lib.mkOption {
                   type = lib.types.str;
-                  description = "Git user name";
+                  description = "Author name for Git commits";
                 };
               };
 

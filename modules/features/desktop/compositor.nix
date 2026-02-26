@@ -16,23 +16,23 @@ in
     in
     {
       options.settings.compositor = {
-        enable = lib.mkEnableOption "Wayland compositor";
+        enable = lib.mkEnableOption "Niri Wayland compositor";
 
         name = lib.mkOption {
           type = lib.types.enum [ "niri" ];
           default = "niri";
-          description = "Wayland compositor to use";
+          description = "Name of the Wayland compositor";
         };
 
         wallpaper = lib.mkOption {
           type = lib.types.path;
-          description = "Path to wallpaper image";
+          description = "Path to the wallpaper image file";
         };
 
         sessionCommand = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
-          description = "Session command for the compositor (computed automatically)";
+          description = "Session startup command for the compositor (read-only)";
         };
       };
 

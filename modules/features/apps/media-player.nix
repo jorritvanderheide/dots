@@ -13,7 +13,7 @@
     in
     {
       options.settings.media-player = {
-        enable = lib.mkEnableOption "the media player";
+        enable = lib.mkEnableOption "VLC media player";
       };
 
       config = lib.mkIf cfg.enable {

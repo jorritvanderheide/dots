@@ -17,18 +17,18 @@
         enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
-          description = "Enable custom networking configuration";
+          description = "Enable networking configuration";
         };
 
         DOHServers = lib.mkOption {
           type = lib.types.nullOr (lib.types.listOf lib.types.str);
-          description = "DNS over HTTPS servers to use";
+          description = "DNS-over-HTTPS server names for dnscrypt-proxy";
           default = null;
         };
 
         hosts = lib.mkOption {
           type = lib.types.attrsOf (lib.types.listOf lib.types.str);
-          description = "Mapping of IP → list of hostnames";
+          description = "Mapping of IP addresses to hostnames";
           example = {
             "192.168.1.1" = [ "hostname" ];
           };
@@ -56,7 +56,7 @@
             }
           );
           default = null;
-          description = "Static network configuration. If null, DHCP will be used.";
+          description = "Static network configuration, or null for DHCP";
         };
 
         wireless = lib.mkOption {
@@ -75,30 +75,30 @@
                         priority = lib.mkOption {
                           type = lib.types.int;
                           default = 5;
-                          description = "Network priority (higher = preferred)";
+                          description = "Network priority, higher values are preferred";
                         };
 
                         psk = lib.mkOption {
                           type = lib.types.str;
-                          description = "Pre-shared key (password)";
+                          description = "Pre-shared key for authentication";
                         };
                       };
                     }
                   );
                   default = { };
-                  description = "Wireless networks to configure";
+                  description = "Wireless networks and their credentials";
                 };
               };
             }
           );
           default = null;
-          description = "Wireless configuration. If null, wireless will be disabled.";
+          description = "Wireless network configuration, or null to disable";
         };
 
         firewallPorts = lib.mkOption {
           type = lib.types.listOf lib.types.port;
           default = [ ];
-          description = "TCP ports to allow through the firewall";
+          description = "TCP ports to open in the firewall";
         };
       };
 

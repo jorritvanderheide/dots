@@ -14,7 +14,7 @@
     in
     {
       options.settings.app-launch = {
-        enable = lib.mkEnableOption "application launcher with systemd integration";
+        enable = lib.mkEnableOption "app2unit application launcher";
       };
 
       config = lib.mkIf cfg.enable {

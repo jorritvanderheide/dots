@@ -14,7 +14,7 @@
     in
     {
       options.settings.social = {
-        enable = lib.mkEnableOption "fediverse client";
+        enable = lib.mkEnableOption "Tuba fediverse client";
       };
 
       config = lib.mkIf cfg.enable {

@@ -13,7 +13,7 @@
     in
     {
       options.settings.direnv = {
-        enable = lib.mkEnableOption "direnv with nix-direnv integration";
+        enable = lib.mkEnableOption "direnv with nix-direnv";
       };
 
       config = lib.mkIf cfg.enable {

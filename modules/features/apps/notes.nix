@@ -14,7 +14,7 @@
     in
     {
       options.settings.notes = {
-        enable = lib.mkEnableOption "note-taking applications";
+        enable = lib.mkEnableOption "Obsidian note-taking";
       };
 
       config = lib.mkIf cfg.enable {

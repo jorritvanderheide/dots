@@ -13,7 +13,7 @@
     in
     {
       options.settings.ai-assistant = {
-        enable = lib.mkEnableOption "AI assistant applications";
+        enable = lib.mkEnableOption "Claude Code AI assistant";
       };
 
       config = lib.mkIf cfg.enable {

@@ -19,25 +19,25 @@
         lockCommand = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "Command to run when locking screen (should be set to lockscreen.command if using lockscreen feature)";
+          description = "Command to run when locking the screen";
         };
 
         lockTimeout = lib.mkOption {
           type = lib.types.nullOr lib.types.int;
           default = 300;
-          description = "Seconds of inactivity before locking the screen (null = no lock on idle)";
+          description = "Seconds of inactivity before locking the screen, or null to disable";
         };
 
         displayTimeout = lib.mkOption {
           type = lib.types.int;
           default = 600;
-          description = "Seconds of inactivity before turning off displays";
+          description = "Seconds of inactivity before turning off the displays";
         };
 
         suspendTimeout = lib.mkOption {
           type = lib.types.nullOr lib.types.int;
           default = null;
-          description = "Seconds of inactivity before suspending (null = never suspend on idle)";
+          description = "Seconds of inactivity before suspending, or null to disable";
         };
       };
 

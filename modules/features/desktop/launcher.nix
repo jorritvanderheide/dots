@@ -13,7 +13,7 @@
     in
     {
       options.settings.launcher = {
-        enable = lib.mkEnableOption "application launcher";
+        enable = lib.mkEnableOption "Fuzzel application launcher";
       };
 
       config = lib.mkIf cfg.enable {

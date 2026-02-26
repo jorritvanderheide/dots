@@ -13,7 +13,7 @@
     in
     {
       options.settings.keybinds = {
-        enable = lib.mkEnableOption "keybindings for compositor and applications";
+        enable = lib.mkEnableOption "compositor keybindings";
       };
 
       config = lib.mkIf cfg.enable {

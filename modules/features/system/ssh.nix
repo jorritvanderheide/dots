@@ -21,17 +21,17 @@
               options = {
                 hostNames = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
-                  description = "List of host names and/or IP addresses";
+                  description = "Hostnames and IP addresses for this host";
                 };
                 publicKey = lib.mkOption {
                   type = lib.types.str;
-                  description = "SSH public host key";
+                  description = "SSH public key of the remote host";
                 };
               };
             }
           );
           default = { };
-          description = "SSH known hosts configuration";
+          description = "Known SSH hosts for strict host key verification";
         };
       };
 

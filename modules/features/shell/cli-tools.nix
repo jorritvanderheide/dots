@@ -14,7 +14,7 @@
     in
     {
       options.settings.cli-tools = {
-        enable = lib.mkEnableOption "CLI tools";
+        enable = lib.mkEnableOption "CLI productivity tools";
       };
 
       config = lib.mkIf cfg.enable {

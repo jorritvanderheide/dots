@@ -19,7 +19,7 @@
         enableExcludedApps = lib.mkOption {
           type = lib.types.bool;
           default = false;
-          description = "Enable support for excluding specific applications from VPN tunnel (split tunneling)";
+          description = "Enable split tunneling to exclude specific applications from the VPN";
         };
       };
 

@@ -13,7 +13,7 @@
     in
     {
       options.settings.terminal = {
-        enable = lib.mkEnableOption "terminal emulator";
+        enable = lib.mkEnableOption "Ghostty terminal emulator";
       };
 
       config = lib.mkIf cfg.enable {

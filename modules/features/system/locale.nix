@@ -15,7 +15,7 @@
         timezone = lib.mkOption {
           type = lib.types.str;
           default = "Europe/Amsterdam";
-          description = "Prefered timezone";
+          description = "Preferred timezone";
         };
       };
 

@@ -14,7 +14,7 @@
     in
     {
       options.settings.browser = {
-        enable = lib.mkEnableOption "web browser";
+        enable = lib.mkEnableOption "Zen web browser";
       };
 
       config = lib.mkIf cfg.enable {

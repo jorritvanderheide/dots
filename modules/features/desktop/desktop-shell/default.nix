@@ -15,18 +15,18 @@
     in
     {
       options.settings.desktop-shell = {
-        enable = lib.mkEnableOption "the desktop shell";
+        enable = lib.mkEnableOption "Quickshell desktop shell";
 
         package = lib.mkOption {
           type = lib.types.package;
           default = quickshellPkg;
-          description = "Quickshell package to use";
+          description = "Quickshell package";
         };
 
         configPath = lib.mkOption {
           type = lib.types.path;
           default = qmlConfigPath;
-          description = "Path to QML configuration directory";
+          description = "Path to the QML configuration directory";
         };
       };
 

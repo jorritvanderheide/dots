@@ -13,7 +13,7 @@
     in
     {
       options.settings.sudo = {
-        enable = lib.mkEnableOption "sudo configuration";
+        enable = lib.mkEnableOption "passwordless sudo for wheel group";
       };
 
       config = lib.mkIf cfg.enable {

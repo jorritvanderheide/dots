@@ -13,7 +13,7 @@
     in
     {
       options.settings.gaming = {
-        enable = lib.mkEnableOption "Steam";
+        enable = lib.mkEnableOption "Steam gaming platform";
       };
 
       config = lib.mkIf cfg.enable {

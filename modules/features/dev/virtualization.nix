@@ -13,7 +13,7 @@
     in
     {
       options.settings.virtualization = {
-        enable = lib.mkEnableOption "virtualization support";
+        enable = lib.mkEnableOption "Docker virtualization";
 
         docker = {
           enable = lib.mkOption {
@@ -25,7 +25,7 @@
           storageDriver = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
             default = "zfs";
-            description = "Storage driver to use";
+            description = "Docker storage driver";
           };
         };
       };

@@ -10,7 +10,7 @@
     in
     {
       options.settings.chromium = {
-        enable = lib.mkEnableOption "chromium browser";
+        enable = lib.mkEnableOption "Chromium browser";
       };
 
       config = lib.mkIf cfg.enable {

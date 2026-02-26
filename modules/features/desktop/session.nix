@@ -14,23 +14,23 @@
     in
     {
       options.settings.session = {
-        enable = lib.mkEnableOption "session manager";
+        enable = lib.mkEnableOption "UWSM session manager";
 
         autologinuser = lib.mkOption {
           type = lib.types.str;
-          description = "User to autologin";
+          description = "Username for automatic login";
         };
 
         compositorName = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "Name of the compositor (should be set to compositor.name if using compositor feature)";
+          description = "Name of the compositor to launch";
         };
 
         compositorSessionCommand = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "Session command for compositor (should be set to compositor.sessionCommand if using compositor feature)";
+          description = "Session startup command for the compositor";
         };
       };
 

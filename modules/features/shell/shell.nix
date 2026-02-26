@@ -26,13 +26,13 @@
                 enable = true;
 
                 interactiveShellInit = builtins.concatStringsSep "\n" [
-                  ''set -g fish_greeting''
+                  "set -g fish_greeting"
                   ''
                     function nshell
                       nix-shell -p $argv --command fish
                     end
                   ''
-                  ''zoxide init fish | source''
+                  "zoxide init fish | source"
                 ];
 
                 shellAliases = {

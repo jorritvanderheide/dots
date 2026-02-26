@@ -15,7 +15,7 @@
     in
     {
       options.settings.prompt = {
-        enable = lib.mkEnableOption "shell prompt (Starship)";
+        enable = lib.mkEnableOption "Starship shell prompt";
       };
 
       config = lib.mkIf cfg.enable {

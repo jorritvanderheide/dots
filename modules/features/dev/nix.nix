@@ -14,7 +14,7 @@
     in
     {
       options.settings.nix = {
-        enable = lib.mkEnableOption "Nix configuration";
+        enable = lib.mkEnableOption "Nix package manager configuration";
       };
 
       config = lib.mkIf cfg.enable {

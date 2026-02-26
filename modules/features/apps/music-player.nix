@@ -14,7 +14,7 @@
     in
     {
       options.settings.music-player = {
-        enable = lib.mkEnableOption "the music player";
+        enable = lib.mkEnableOption "Qobuz music player";
       };
 
       config = lib.mkIf cfg.enable {

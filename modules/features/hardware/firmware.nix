@@ -13,7 +13,7 @@
     in
     {
       options.settings.firmware = {
-        enable = lib.mkEnableOption "firmware updates via fwupd";
+        enable = lib.mkEnableOption "fwupd firmware updates";
       };
 
       config = lib.mkIf cfg.enable {

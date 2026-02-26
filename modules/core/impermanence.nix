@@ -21,13 +21,13 @@
         systemFiles = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Additional system files to persist in /persist";
+          description = "Additional system files to persist across reboots";
         };
 
         systemDirectories = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Additional system directories to persist in /persist";
+          description = "Additional system directories to persist across reboots";
         };
       };
 
@@ -94,13 +94,13 @@
                 homeFiles = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
                   default = [ ];
-                  description = "Additional files to persist in home directory";
+                  description = "Additional home files to persist across reboots";
                 };
 
                 homeDirectories = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
                   default = [ ];
-                  description = "Additional directories to persist in home directory";
+                  description = "Additional home directories to persist across reboots";
                 };
               };
 

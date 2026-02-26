@@ -21,12 +21,12 @@
     in
     {
       options.settings.ssh-server = {
-        enable = lib.mkEnableOption "SSH server";
+        enable = lib.mkEnableOption "OpenSSH server";
 
         allowedUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Users allowed to SSH into this system";
+          description = "Users permitted to connect via SSH";
         };
       };
 
@@ -74,7 +74,7 @@
               authorizedKeys = lib.mkOption {
                 type = lib.types.listOf lib.types.str;
                 default = [ ];
-                description = "Authorized SSH public keys for this user";
+                description = "Authorized SSH public keys for remote login";
               };
             };
           }

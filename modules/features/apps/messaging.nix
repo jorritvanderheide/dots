@@ -14,7 +14,7 @@
     in
     {
       options.settings.messaging = {
-        enable = lib.mkEnableOption "messaging applications";
+        enable = lib.mkEnableOption "Signal messenger";
       };
 
       config = lib.mkIf cfg.enable {

@@ -14,7 +14,7 @@
     in
     {
       options.settings.keyboard-remap = {
-        enable = lib.mkEnableOption "keyboard remapping with Kanata";
+        enable = lib.mkEnableOption "Kanata keyboard remapping";
 
         enableHotplugReload = lib.mkOption {
           type = lib.types.bool;
@@ -28,13 +28,13 @@
         tapTime = lib.mkOption {
           type = lib.types.int;
           default = 200;
-          description = "Tap time in milliseconds for tap-hold keys";
+          description = "Tap timeout in milliseconds for tap-hold keys";
         };
 
         holdTime = lib.mkOption {
           type = lib.types.int;
           default = 250;
-          description = "Hold time in milliseconds for tap-hold keys";
+          description = "Hold timeout in milliseconds for tap-hold keys";
         };
       };
 

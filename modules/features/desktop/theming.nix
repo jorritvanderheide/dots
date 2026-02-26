@@ -19,7 +19,7 @@
       ];
 
       options.settings.theming = {
-        enable = lib.mkEnableOption "system-wide theming with Stylix";
+        enable = lib.mkEnableOption "Stylix system-wide theming";
       };
 
       config = lib.mkIf cfg.enable {

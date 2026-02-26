@@ -14,7 +14,7 @@
     in
     {
       options.settings.sound = {
-        enable = lib.mkEnableOption "sound management";
+        enable = lib.mkEnableOption "PipeWire sound system";
       };
 
       config = lib.mkIf cfg.enable {

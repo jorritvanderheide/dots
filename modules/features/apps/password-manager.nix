@@ -14,7 +14,7 @@
     in
     {
       options.settings.password-manager = {
-        enable = lib.mkEnableOption "Bitwarden password manager with SSH agent integration";
+        enable = lib.mkEnableOption "Bitwarden password manager";
       };
 
       config = lib.mkIf cfg.enable {

@@ -18,7 +18,7 @@
         secureboot.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
-          description = "Enable Secure Boot support using lanzaboote";
+          description = "Enable Lanzaboote Secure Boot";
         };
       };
 
