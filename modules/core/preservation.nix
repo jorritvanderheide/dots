@@ -60,6 +60,7 @@
 
       config = {
         preservation.enable = true;
+        systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ]; # Systemd-machine-id-commit would fail with a bind-mounted machine-id
 
         boot = {
           tmp.cleanOnBoot = lib.mkDefault true;
@@ -86,9 +87,6 @@
             };
           };
         };
-
-        # Systemd-machine-id-commit would fail with a bind-mounted machine-id
-        systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
 
         preservation.preserveAt."/persist/system" = {
           directories = [
@@ -129,11 +127,6 @@
           ++ cfg.systemFiles;
         };
 
-        # Ensure the /persist/home directory exists
-        systemd.tmpfiles.rules = [
-          "d /persist/home 0755 root root -"
-        ];
-
         preservation.preserveAt."/persist" = {
           users = lib.genAttrs normalUsers (_username: {
             directories = [
@@ -150,6 +143,11 @@
             ++ cfg.homeFiles;
           });
         };
+
+        # Ensure the /persist/home directory exists
+        systemd.tmpfiles.rules = [
+          "d /persist/home 0755 root root -"
+        ];
       };
     };
 }
