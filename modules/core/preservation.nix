@@ -90,7 +90,11 @@
 
         preservation.preserveAt."/persist/system" = {
           directories = [
-            "/etc/nixos"
+            {
+              directory = "/etc/nixos";
+              user = "jorrit";
+              group = "users";
+            }
             "/var/log"
             {
               directory = "/var/lib/nixos";
