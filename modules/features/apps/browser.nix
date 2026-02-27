@@ -250,7 +250,7 @@
                   spacesForce = true;
                   spaces =
                     let
-                      containers = config.programs.zen-browser.profiles."default".containers;
+                      inherit (config.programs.zen-browser.profiles."default") containers;
                     in
                     {
                       "Default" = {
@@ -290,7 +290,6 @@
 
               # Fix for missing profile warning
               stylix.targets.zen-browser.profileNames = [ "default" ];
-
             }
           )
         ];

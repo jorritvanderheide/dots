@@ -30,11 +30,10 @@
 
     niri-flake = {
       url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.2.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -51,7 +50,7 @@
     };
 
     starship-jj = {
-      url = "gitlab:lanastara_foss/starship-jj";
+      url = "gitlab:lanastara_foss/starship-jj/0.7.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

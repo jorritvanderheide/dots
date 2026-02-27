@@ -59,7 +59,6 @@
       };
 
       config = {
-        preservation.enable = true;
         systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ]; # Systemd-machine-id-commit would fail with a bind-mounted machine-id
 
         boot = {
@@ -88,64 +87,68 @@
           };
         };
 
-        preservation.preserveAt."/persist/system" = {
-          directories = [
-            {
-              directory = "/etc/nixos";
-              user = "jorrit";
-              group = "users";
-            }
-            "/var/log"
-            {
-              directory = "/var/lib/nixos";
-              how = "symlink";
-              inInitrd = true;
-              configureParent = true;
-            }
-            "/var/lib/systemd/backlight"
-            "/var/lib/systemd/coredump"
-            "/var/lib/systemd/timers"
-            "/var/lib/systemd/timesync"
-          ]
-          ++ cfg.systemDirectories;
+        preservation = {
+          enable = true;
 
-          files = [
-            {
-              file = "/etc/machine-id";
-              how = "symlink";
-              inInitrd = true;
-              configureParent = true;
-            }
-            {
-              file = "/etc/ssh/ssh_host_ed25519_key";
-              how = "symlink";
-              configureParent = true;
-            }
-            {
-              file = "/var/lib/systemd/random-seed";
-              how = "symlink";
-              inInitrd = true;
-              configureParent = true;
-            }
-          ]
-          ++ cfg.systemFiles;
-        };
-
-        preservation.preserveAt."/persist" = {
-          users = lib.genAttrs normalUsers (_username: {
+          preserveAt."/persist/system" = {
             directories = [
-              "Documents"
-              "Downloads"
-              "Pictures"
-              "Videos"
+              {
+                directory = "/etc/nixos";
+                user = "jorrit";
+                group = "users";
+              }
+              "/var/log"
+              {
+                directory = "/var/lib/nixos";
+                how = "symlink";
+                inInitrd = true;
+                configureParent = true;
+              }
+              "/var/lib/systemd/backlight"
+              "/var/lib/systemd/coredump"
+              "/var/lib/systemd/timers"
+              "/var/lib/systemd/timesync"
             ]
-            ++ withParentConfig cfg.homeDirectories;
+            ++ cfg.systemDirectories;
 
             files = [
-              ".screenrc"
+              {
+                file = "/etc/machine-id";
+                how = "symlink";
+                inInitrd = true;
+                configureParent = true;
+              }
+              {
+                file = "/etc/ssh/ssh_host_ed25519_key";
+                how = "symlink";
+                configureParent = true;
+              }
+              {
+                file = "/var/lib/systemd/random-seed";
+                how = "symlink";
+                inInitrd = true;
+                configureParent = true;
+              }
             ]
-            ++ cfg.homeFiles;
-          });
+            ++ cfg.systemFiles;
+          };
+
+          preserveAt."/persist" = {
+            users = lib.genAttrs normalUsers (_username: {
+              directories = [
+                "Documents"
+                "Downloads"
+                "Pictures"
+                "Videos"
+              ]
+              ++ withParentConfig cfg.homeDirectories;
+
+              files = [
+                ".screenrc"
+              ]
+              ++ cfg.homeFiles;
+            });
+          };
         };
 
         # Ensure the /persist/home directory exists

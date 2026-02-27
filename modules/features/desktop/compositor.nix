@@ -246,7 +246,7 @@ in
                 background-color = "transparent";
                 empty-workspace-above-first = true;
                 focus-ring.enable = false;
-                gaps = 64.;
+                gaps = 64.0;
 
                 border = {
                   enable = true;
@@ -256,20 +256,20 @@ in
                 };
 
                 default-column-width = {
-                  proportion = 1.;
+                  proportion = 1.0;
                 };
 
                 preset-column-widths = [
-                  { proportion = 1. / 2.; }
-                  { proportion = 1. / 3.; }
-                  { proportion = 2. / 3.; }
-                  { proportion = 1.; }
+                  { proportion = 1.0 / 2.0; }
+                  { proportion = 1.0 / 3.0; }
+                  { proportion = 2.0 / 3.0; }
+                  { proportion = 1.0; }
                 ];
 
                 struts = {
-                  top = 16.;
-                  right = 16.;
-                  left = 16.;
+                  top = 16.0;
+                  right = 16.0;
+                  left = 16.0;
                   bottom = 0;
                 };
               };
@@ -279,7 +279,7 @@ in
                 clip-to-geometry = true;
 
                 geometry-corner-radius = rec {
-                  top-left = 8.;
+                  top-left = 8.0;
                   top-right = top-left;
                   bottom-right = top-left;
                   bottom-left = top-left;

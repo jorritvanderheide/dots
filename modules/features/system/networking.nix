@@ -146,7 +146,7 @@
 
           defaultGateway = lib.mkIf (cfg.staticConfig != null) {
             address = cfg.staticConfig.gateway;
-            interface = cfg.staticConfig.interface;
+            inherit (cfg.staticConfig) interface;
           };
 
           firewall = {
@@ -157,7 +157,7 @@
           interfaces = lib.mkIf (cfg.staticConfig != null) {
             ${cfg.staticConfig.interface}.ipv4.addresses = [
               {
-                address = cfg.staticConfig.address;
+                inherit (cfg.staticConfig) address;
                 prefixLength = 24;
               }
             ];

@@ -13,7 +13,7 @@
       }:
       {
         disk.main = {
-          device = device;
+          inherit device;
           type = "disk";
 
           content = {
@@ -41,7 +41,7 @@
 
                 content = {
                   name = "crypted";
-                  passwordFile = passwordFile;
+                  inherit passwordFile;
                   settings.allowDiscards = true;
                   type = "luks";
 
@@ -206,7 +206,7 @@
         // (
           # Use hashedPasswordFile if provided, otherwise use user_password from userSecrets
           if hashedPasswordFile != null then
-            { hashedPasswordFile = hashedPasswordFile; }
+            { inherit hashedPasswordFile; }
           else if (userSecrets ? user_password) then
             { hashedPasswordFile = config.sops.secrets.user_password.path; }
           else

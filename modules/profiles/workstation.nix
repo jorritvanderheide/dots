@@ -74,7 +74,7 @@
         # Apps
         ai-assistant.enable = true;
         browser.enable = true;
-        cad.enable = true;
+        # cad.enable = true; # Disabled: freecad fails to build
         editor.enable = true;
         email.enable = true;
         gaming.enable = true;
@@ -97,8 +97,14 @@
         launcher.enable = true;
         lockscreen.enable = true;
         polkit.enable = true;
-        session.enable = true;
         theming.enable = true;
+
+        session = {
+          enable = true;
+          # Wire session to use compositor config
+          compositorName = config.settings.compositor.name;
+          compositorSessionCommand = config.settings.compositor.sessionCommand;
+        };
 
         # Dev
         direnv.enable = true;
@@ -127,10 +133,6 @@
 
         # Wire idle to use lockscreen command
         idle.lockCommand = config.settings.lockscreen.command;
-
-        # Wire session to use compositor config
-        session.compositorName = config.settings.compositor.name;
-        session.compositorSessionCommand = config.settings.compositor.sessionCommand;
       };
     };
 }

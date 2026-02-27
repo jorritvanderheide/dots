@@ -26,6 +26,8 @@
           settings = {
             allowed-users = [ "@wheel" ];
             auto-optimise-store = true;
+            keep-derivations = true;
+            keep-outputs = true;
             trusted-users = [ "@wheel" ];
             warn-dirty = false;
 

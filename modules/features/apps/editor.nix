@@ -28,8 +28,7 @@
                 buildInputs = [ pkgs.makeWrapper ];
                 meta.mainProgram = "code";
                 paths = [ pkgs.vscode ];
-                pname = pkgs.vscode.pname;
-                version = pkgs.vscode.version;
+                inherit (pkgs.vscode) pname version;
 
                 postBuild = ''
                   wrapProgram $out/bin/code --add-flags "--disable-chromium-warning-messages 2>/dev/null"
@@ -45,7 +44,7 @@
                     name = "claude-code";
                     publisher = "anthropic";
                     version = "latest";
-                    sha256 = "sha256-5T2ul9iuDjC6qZ4D3xj7bpWqPalEvhH8C687QV2mdVg=";
+                    sha256 = "sha256-9/k1hnMpDl6dTlG67e37JuNo7mKtXAsLQpX2E0fbFuM=";
                   }
                   {
                     name = "direnv";
@@ -81,7 +80,7 @@
                     name = "qt-core";
                     publisher = "theqtcompany";
                     version = "latest";
-                    sha256 = "sha256-jMXC9UqvVxlvNSAMoInv3wCKyDwL/1I0TbftYjJphdU=";
+                    sha256 = "sha256-/SAoJmKfOfLtbYn4jvtbAFIa6O7kDouv0xQVhnxFOKM=";
                   }
                   {
                     name = "prettier-vscode";
@@ -93,7 +92,7 @@
                     name = "qt-qml";
                     publisher = "theqtcompany";
                     version = "latest";
-                    sha256 = "sha256-lUXx2VAXK0Av4T3bRW7hXpP0u7zJbDvMbKkpPACT4WE=";
+                    sha256 = "sha256-WPzierXLQM+HdVb0XAx80f4Fdd34Vf7WbFzFapr5VHE=";
                   }
                   {
                     name = "regionmarker";
@@ -111,7 +110,7 @@
                     name = "volar";
                     publisher = "vue";
                     version = "latest";
-                    sha256 = "sha256-CCnTlttyoLZq3VO3fG+O5B6K7zsKyW5lU/b2HbSB1vI=";
+                    sha256 = "sha256-69r7DOwCORy1KFqVOT3HPKwhFgrTahbYqc3e3XorouM=";
                   }
                   {
                     name = "vscode-tailwindcss";

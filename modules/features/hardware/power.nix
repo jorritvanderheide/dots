@@ -61,7 +61,7 @@
             powerManagement.powertop.enable = true;
 
             services = {
-              thermald.enable = (cpuVendor == "intel"); # Thermald is Intel-specific
+              thermald.enable = cpuVendor == "intel"; # Thermald is Intel-specific
               upower.enable = true;
 
               system76-scheduler = {

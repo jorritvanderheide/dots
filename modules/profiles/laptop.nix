@@ -1,10 +1,8 @@
 {
-  flake.nixosModules.laptop =
-    { ... }:
-    {
-      settings.power = {
-        enable = true;
-        laptop.enable = true;
-      };
+  flake.nixosModules.laptop = _: {
+    settings.power = {
+      enable = true;
+      laptop.enable = true;
     };
+  };
 }
