@@ -18,10 +18,6 @@
       };
 
       config = lib.mkIf cfg.enable {
-        # Persist editor data across reboots
-        settings.preservation.homeDirectories = [
-          ".config/Code"
-        ];
 
         home-manager.sharedModules = [
           {
@@ -137,6 +133,16 @@
                     key = "ctrl+alt+i";
                     command = "claude-vscode.sidebar.open";
                   }
+
+                  # Toggle sidebars
+                  {
+                    key = "ctrl+[";
+                    command = "workbench.action.toggleSidebarVisibility";
+                  }
+                  {
+                    key = "ctrl+]";
+                    command = "workbench.action.toggleAuxiliaryBar";
+                  }
                 ];
 
                 userSettings = {
@@ -144,7 +150,6 @@
                   "chat.agent.enabled" = false;
                   "chat.commandCenter.enabled" = false;
                   "chat.disableAIFeatures" = true;
-                  # "chat.fontFamily" = lib.mkForce "JetBrainsMono Nerd Font Mono";
                   "chat.fontSize" = "15.333333333333334";
                   "claudeCode.preferredLocation" = "sidebar";
                   "claudeCode.claudeProcessWrapper" = "/etc/profiles/per-user/jorrit/bin/claude";
@@ -215,7 +220,8 @@
                           "expr" = "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.rocinante.options";
                         };
                         "home-manager" = {
-                          "expr" = "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.rocinante.options.home-manager.users.type.getSubOptions []";
+                          "expr" =
+                            "(builtins.getFlake \"/etc/nixos\").nixosConfigurations.rocinante.options.home-manager.users.type.getSubOptions []";
                         };
                       };
                     };
@@ -264,8 +270,12 @@
                 qt6.qtdeclarative # For qmlformat
               ];
             };
-
           }
+        ];
+
+        # Persist editor data across reboots
+        settings.preservation.homeDirectories = [
+          ".config/Code"
         ];
       };
     };
