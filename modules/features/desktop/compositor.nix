@@ -95,21 +95,6 @@ in
                   command = [
                     "app2unit"
                     "-s"
-                    "a"
-                    "--"
-                    "hyprlock"
-                  ];
-                }
-                {
-                  command = [
-                    "uwsm"
-                    "finalize"
-                  ];
-                }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
                     "b"
                     "--"
                     "swaybg"
@@ -135,15 +120,6 @@ in
                     "b"
                     "--"
                     "udiskie"
-                  ];
-                }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "a"
-                    "--"
-                    "bitwarden"
                   ];
                 }
               ];

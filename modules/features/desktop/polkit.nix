@@ -21,6 +21,10 @@
         # Assertion: app-launch must be enabled for app2unit command
         assertions = [
           {
+            assertion = config.settings.compositor.enable or false;
+            message = "settings.polkit requires settings.compositor to be enabled (for niri spawn-at-startup)";
+          }
+          {
             assertion = config.settings.app-launch.enable or false;
             message = "settings.polkit requires settings.app-launch to be enabled (for app2unit)";
           }

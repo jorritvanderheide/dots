@@ -24,6 +24,18 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # Assertion: app-launch must be enabled for app2unit command
+        assertions = [
+          {
+            assertion = config.settings.compositor.enable or false;
+            message = "settings.lockscreen requires settings.compositor to be enabled (for niri spawn-at-startup)";
+          }
+          {
+            assertion = config.settings.app-launch.enable or false;
+            message = "settings.lockscreen requires settings.app-launch to be enabled (for app2unit)";
+          }
+        ];
+
         # Required: Enable PAM for hyprlock authentication
         security.pam.services.hyprlock = { };
 
@@ -32,6 +44,22 @@
 
         # Configure hyprlock via home-manager for all users
         home-manager.sharedModules = [
+          {
+            programs.niri = {
+              enable = true;
+              settings.spawn-at-startup = [
+                {
+                  command = [
+                    "app2unit"
+                    "-s"
+                    "a"
+                    "--"
+                    "hyprlock"
+                  ];
+                }
+              ];
+            };
+          }
           {
             programs.hyprlock = {
               enable = true;

@@ -59,6 +59,22 @@
           };
         };
 
+        home-manager.sharedModules = [
+          {
+            programs.niri = {
+              enable = true;
+              settings.spawn-at-startup = [
+                {
+                  command = [
+                    "uwsm"
+                    "finalize"
+                  ];
+                }
+              ];
+            };
+          }
+        ];
+
         services.greetd = {
           enable = true;
 
