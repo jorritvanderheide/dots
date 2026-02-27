@@ -14,6 +14,7 @@ PanelWindow { // qmllint disable uncreatable-type
 
     implicitHeight: Theme.dockHeight
     implicitWidth: Theme.dockWidth
+    exclusiveZone: 0
     color: Theme.panelBackground
 
     // Visibility controlled by overview state and focused monitor
