@@ -20,7 +20,7 @@
       config = lib.mkIf cfg.enable {
         # Persist browser data across reboots
         settings.preservation.homeDirectories = [
-          ".zen"
+          ".config/zen"
         ];
 
         home-manager.sharedModules = [
@@ -33,6 +33,7 @@
             {
               programs.zen-browser = {
                 enable = true;
+                suppressXdgMigrationWarning = true;
 
                 policies = {
                   AutofillAddressEnabled = false;

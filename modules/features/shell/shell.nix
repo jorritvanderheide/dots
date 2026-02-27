@@ -44,15 +44,15 @@
                   "c" = "clear";
 
                   # Nix
-                  "nboot" = "pushd /etc/nixos && sudo nixos-rebuild boot --flake .#(hostname) --no-reexec && popd";
-                  "nbuild" = "pushd /etc/nixos && sudo nixos-rebuild build --flake .#(hostname) --no-reexec && popd";
-                  "ncheck" = "pushd /etc/nixos && nix flake check && popd";
-                  "nclean" = "nix-collect-garbage -d";
+                  "nboot" = "nh os boot /etc/nixos -H (hostname) --no-nom";
+                  "nbuild" = "nh os build /etc/nixos -H (hostname) --no-nom";
+                  "ncheck" = "pushd /etc/nixos && nixos-rebuild check --flake .#(hostname) --no-reexec && popd";
+                  "nclean" = "nh clean all -k 16 --ask";
                   "nformat" = "pushd /etc/nixos && nix fmt . && popd";
-                  "nrollback" = "sudo nixos-rebuild switch --no-reexec --rollback";
-                  "nswitch" =
-                    "pushd /etc/nixos && sudo nixos-rebuild switch --flake .#(hostname) --no-reexec && popd";
-                  "ntest" = "pushd /etc/nixos && sudo nixos-rebuild test --flake .#(hostname) --no-reexec && popd";
+                  "nrollback" = "nh os rollback";
+                  "nsearch" = "nh search";
+                  "nswitch" = "nh os switch /etc/nixos -H (hostname) --no-nom";
+                  "ntest" = "nh os switch /etc/nixos -d -H (hostname) --no-nom";
                   "nupdate" = "pushd /etc/nixos && sudo nix flake update && popd";
                 };
               };

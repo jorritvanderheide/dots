@@ -1,5 +1,6 @@
 {
   lib,
+  self,
   ...
 }:
 {
@@ -32,6 +33,7 @@
           {
             programs = {
               bat.enable = true;
+              nh.enable = true;
 
               eza = {
                 enable = true;

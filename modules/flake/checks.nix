@@ -1,11 +1,17 @@
 { inputs, ... }:
 {
   perSystem =
-    { system, ... }:
+    { system, pkgs, ... }:
     {
       checks = {
         # Formatting
         formatting = inputs.self.formatter.${system};
+
+        # Linting
+        statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
+          statix check ${inputs.self}
+          touch $out
+        '';
 
         # Systems
         rocinante-system = inputs.self.nixosConfigurations.rocinante.config.system.build.toplevel;
