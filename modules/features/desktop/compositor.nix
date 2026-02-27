@@ -60,6 +60,16 @@ in
           package = pkgs.niri-unstable;
         };
 
+        # Niri auto-enables gnome-keyring at system level, which also pulls in
+        # gcr-ssh-agent that overrides SSH_AUTH_SOCK (breaking Bitwarden SSH agent).
+        # We disable the system-level service and run gnome-keyring-daemon via
+        # home-manager with only secrets+pkcs11 components instead.
+        services.gnome.gnome-keyring.enable = lib.mkForce false;
+
+        settings.preservation.homeDirectories = [
+          ".local/share/keyrings"
+        ];
+
         environment = {
           sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -77,8 +87,6 @@ in
           ];
         };
 
-        services.gnome.gnome-keyring.enable = lib.mkForce false;
-
         settings.compositor.sessionCommand =
           {
             niri = "niri --session";
@@ -88,6 +96,17 @@ in
         home-manager.sharedModules = [
           niriHomeModule
           system76SchedulerModule
+          {
+            # Override gnome-keyring to exclude ssh component (conflicts with Bitwarden SSH agent)
+            systemd.user.services.gnome-keyring.Service.ExecStart =
+              lib.mkForce "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --start --foreground --components=secrets,pkcs11";
+
+            # Mask gcr-ssh-agent to prevent it from overriding SSH_AUTH_SOCK
+            xdg.configFile."systemd/user/gcr-ssh-agent.socket".source =
+              builtins.toFile "gcr-ssh-agent.socket" "";
+            xdg.configFile."systemd/user/gcr-ssh-agent.service".source =
+              builtins.toFile "gcr-ssh-agent.service" "";
+          }
           {
             programs.niri.settings = {
               spawn-at-startup = [
@@ -111,6 +130,15 @@ in
                     "b"
                     "--"
                     "mako"
+                  ];
+                }
+                {
+                  command = [
+                    "app2unit"
+                    "-s"
+                    "b"
+                    "--"
+                    "batsignal"
                   ];
                 }
                 {
