@@ -59,10 +59,10 @@
 
               timeouts =
                 lib.optionals (cfg.lockTimeout != null && cfg.lockCommand != null) [
-                  # Lock screen after idle timeout
+                  # Lock screen after idle timeout (use loginctl to properly track session lock state)
                   {
                     timeout = cfg.lockTimeout;
-                    command = cfg.lockCommand;
+                    command = "${pkgs.systemd}/bin/loginctl lock-session";
                   }
                 ]
                 ++ [
@@ -82,8 +82,8 @@
                 ];
 
               events = lib.mkIf (cfg.lockCommand != null) {
-                before-sleep = cfg.lockCommand;
-                lock = cfg.lockCommand;
+                before-sleep = "${pkgs.systemd}/bin/loginctl lock-session";
+                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || ${cfg.lockCommand}";
               };
             };
           }
