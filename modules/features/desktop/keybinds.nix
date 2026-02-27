@@ -43,7 +43,7 @@
                   repeat = false;
                 };
                 "Mod+B" = {
-                  action = spawn "sh" "-c" "app2unit -s a -- chromium";
+                  action = spawn "sh" "-c" "app2unit -s a -- zen-beta";
                   repeat = false;
                 };
                 "Mod+C" = {

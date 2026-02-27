@@ -19,7 +19,6 @@
         ai-assistant
         browser
         cad
-        chromium
         editor
         email
         gaming
@@ -75,7 +74,6 @@
         ai-assistant.enable = true;
         browser.enable = true;
         cad.enable = true;
-        chromium.enable = true;
         editor.enable = true;
         email.enable = true;
         gaming.enable = true;
