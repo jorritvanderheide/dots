@@ -40,6 +40,7 @@
         keyboard-remap
         launcher
         lockscreen
+        polkit
         session
         theming
 
@@ -95,6 +96,7 @@
         keyboard-remap.enable = true;
         launcher.enable = true;
         lockscreen.enable = true;
+        polkit.enable = true;
         session.enable = true;
         theming.enable = true;
 
