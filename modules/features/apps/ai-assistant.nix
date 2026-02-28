@@ -28,65 +28,90 @@
         };
 
         home-manager.sharedModules = [
-          (
-            { pkgs, ... }:
-            {
-              programs.claude-code = {
-                enable = true;
+          {
+            home.file = {
+              ".claude/CLAUDE.md".text = ''
+                # Global Claude Instructions
 
-                settings = {
-                  gitAttribution = false;
-                  includeCoAuthoredBy = false;
-                  preferredEditor = "code";
-                  shellIntegration = true;
+                ## Obsidian Knowledge Vault
 
-                  experimental = {
-                    enableParallelToolUse = true;
-                  };
+                You have permanent read and write access to `/home/jorrit/Git/obsidian/`.
 
-                  ui = {
-                    theme = "auto";
-                    compactMode = false;
-                  };
+                Programming notes go in `/home/jorrit/Git/obsidian/Coding/`.
+
+                When writing atomic notes (via `/note` or when asked), use this format:
+
+                ```markdown
+                ---
+                tags: [programming, <specific-topic>]
+                date: <YYYY-MM-DD>
+                ---
+                # <Concept Name>
+
+                <One sentence: what this is.>
+
+                ## Why it matters
+
+                <2-3 sentences on when/why you'd reach for this.>
+
+                ## Example
+
+                <Minimal concrete code example or illustration.>
+
+                ## Related
+
+                - [[Related Concept]]
+                ```
+
+                Rules for atomic notes:
+                - One concept per file, filename = concept name (e.g. `Nix Derivations.md`)
+                - Prefer linking to existing notes with `[[WikiLinks]]` over repeating content
+                - Do not create a note for every interaction — only when a genuinely reusable concept was encountered
+              '';
+
+              ".claude/commands/note.md".text = ''
+                Look at what we discussed in this conversation and identify any programming concepts worth capturing as permanent knowledge.
+
+                For each reusable concept (not task-specific details), create an atomic note in `/home/jorrit/Git/obsidian/Coding/` following the format in CLAUDE.md:
+                - One concept per file
+                - Filename = concept name (e.g. `Nix Flake Outputs.md`)
+                - Use frontmatter with tags and date
+                - Link to related existing notes using [[WikiLinks]] where relevant
+
+                First list the existing notes in `/home/jorrit/Git/obsidian/Coding/` so you can link to them and avoid duplicates. Then write only notes for concepts that are genuinely reusable and not already covered.
+
+                Tell me which notes you created and why each concept was worth capturing.
+              '';
+            };
+
+            programs.claude-code = {
+              enable = true;
+
+              settings = {
+                experimental.enableParallelToolUse = true;
+                gitAttribution = false;
+                includeCoAuthoredBy = false;
+                preferredEditor = "code";
+                shellIntegration = true;
+
+                ui = {
+                  theme = "auto";
+                  compactMode = false;
                 };
+
+                hooks.SessionStart = [
+                  {
+                    hooks = [
+                      {
+                        type = "command";
+                        command = "/home/jorrit/.claude/plugins/marketplaces/claude-plugins-official/plugins/learning-output-style/hooks-handlers/session-start.sh";
+                      }
+                    ];
+                  }
+                ];
               };
-
-              # Wrapper for claude that fixes the native host shebang after running --chrome
-              home.packages = [
-                pkgs.nodejs_24 # Required for Claude in Chrome MCP server
-
-                (pkgs.writeShellScriptBin "claude-wrapped" ''
-                  # Get the real claude binary from programs.claude-code
-                  CLAUDE_BIN="${pkgs.claude-code}/bin/claude"
-
-                  # Run the original claude command with all arguments
-                  "$CLAUDE_BIN" "$@"
-                  EXIT_CODE=$?
-
-                  # If --chrome flag was used, fix the native host shebang
-                  if [[ " $* " == *" --chrome"* ]]; then
-                    NATIVE_HOST="$HOME/.claude/chrome/chrome-native-host"
-                    if [ -f "$NATIVE_HOST" ]; then
-                      # Check if the shebang is the problematic #!/bin/bash
-                      if head -1 "$NATIVE_HOST" | grep -q '^#!/bin/bash$'; then
-                        echo "Fixing Claude native host shebang for NixOS..."
-                        sed -i '1s|^#!/bin/bash$|#!/usr/bin/env bash|' "$NATIVE_HOST"
-                        chmod +x "$NATIVE_HOST"
-                      fi
-                    fi
-                  fi
-
-                  exit $EXIT_CODE
-                '')
-              ];
-
-              # Create an alias so 'claude' uses the wrapper
-              home.shellAliases = {
-                claude = "claude-wrapped";
-              };
-
-            }
-          )
+            };
+          }
         ];
       };
     };
