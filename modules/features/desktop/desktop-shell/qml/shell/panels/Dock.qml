@@ -13,91 +13,167 @@ PanelWindow { // qmllint disable uncreatable-type
     anchors.bottom: true
 
     implicitHeight: Theme.dockHeight
-    implicitWidth: Theme.dockWidth
+    implicitWidth: dockContent.width + Theme.dockPadding * 4
     exclusiveZone: 0
-    color: Theme.panelBackground
+    color: "transparent"
 
-    // Visibility controlled by overview state and focused monitor
-    visible: OverviewMonitor.isOverviewActive && screenData.name === OverviewMonitor.focusedOutputName
+    visible: NiriState.isOverviewActive && screenData.name === NiriState.focusedOutputName
 
-    // Calculate unpinned apps once
-    property var unpinnedRunningApps: {
-        var unpinnedApps = [];
-        for (var i = 0; i < OverviewMonitor.runningWindows.length; i++) {
-            var window = OverviewMonitor.runningWindows[i];
-            var appId = window.app_id || "";
-            if (AppConfig.pinnedApps.indexOf(appId) === -1) {
-                unpinnedApps.push(window);
-            }
-        }
-        return unpinnedApps;
+    ListModel {
+        id: windowsModel
     }
 
-    // Dock content
-    Row {
+    Connections {
+        target: NiriState
+        function onWindowsChanged() {
+            dock._sync();
+        }
+    }
+
+    Component.onCompleted: _sync()
+    onVisibleChanged: if (visible)
+        _sync()
+
+    function _sync() {
+        var windows = NiriState.windows;
+
+        // Build target list with sort key from column position
+        var target = [];
+        for (var i = 0; i < windows.length; i++) {
+            var win = windows[i];
+            if (!win.app_id)
+                continue;
+            var col = 999;
+            if (win.layout && win.layout.pos_in_scrolling_layout)
+                col = win.layout.pos_in_scrolling_layout[0];
+            target.push({
+                windowId: win.id,
+                appId: win.app_id,
+                title: win.title || "",
+                isFocused: win.is_focused || false,
+                col: col
+            });
+        }
+        target.sort(function (a, b) {
+            return a.col - b.col;
+        });
+
+        // Remove closed windows (iterate backwards)
+        for (var i = windowsModel.count - 1; i >= 0; i--) {
+            var wid = windowsModel.get(i).windowId;
+            var found = false;
+            for (var j = 0; j < target.length; j++) {
+                if (target[j].windowId === wid) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                windowsModel.remove(i);
+        }
+
+        // Insert new and reorder to match niri column order
+        for (var i = 0; i < target.length; i++) {
+            var t = target[i];
+            var currentIdx = -1;
+            for (var j = i; j < windowsModel.count; j++) {
+                if (windowsModel.get(j).windowId === t.windowId) {
+                    currentIdx = j;
+                    break;
+                }
+            }
+
+            if (currentIdx === -1) {
+                windowsModel.insert(i, t);
+            } else if (currentIdx !== i) {
+                windowsModel.move(currentIdx, i, 1);
+                windowsModel.set(i, t);
+            } else {
+                windowsModel.set(i, t);
+            }
+        }
+    }
+
+    // Pill background
+    Rectangle {
+        anchors.centerIn: parent
+        width: dockContent.width + Theme.dockPadding * 4
+        height: Theme.dockIconSize + Theme.dockPadding * 2
+        radius: Theme.dockRadius
+        color: Theme.panelBackground
+
+        Behavior on width {
+            NumberAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+            }
+        }
+    }
+
+    ListView {
         id: dockContent
-        anchors {
-            verticalCenter: parent.verticalCenter
-            horizontalCenter: parent.horizontalCenter
-        }
+        anchors.centerIn: parent
+        orientation: ListView.Horizontal
+        width: contentWidth
+        height: Theme.dockIconSize
         spacing: Theme.dockSpacing
+        interactive: false
 
-        // Running applications that are not pinned
-        Repeater {
-            id: runningAppsList
-            model: dock.unpinnedRunningApps
+        model: windowsModel
 
-            delegate: AppIcon {
-                required property var modelData
-
-                appId: modelData.app_id || ""
-                title: modelData.title || ""
-                isFocused: modelData.is_focused || false
-                isRunning: true
-                isPinned: false
+        move: Transition {
+            NumberAnimation {
+                properties: "x"
+                duration: 250
+                easing.type: Easing.OutCubic
+            }
+        }
+        moveDisplaced: Transition {
+            NumberAnimation {
+                properties: "x"
+                duration: 250
+                easing.type: Easing.OutCubic
+            }
+        }
+        add: Transition {
+            NumberAnimation {
+                properties: "opacity"
+                from: 0
+                to: 1
+                duration: 150
+                easing.type: Easing.OutCubic
+            }
+        }
+        addDisplaced: Transition {
+            NumberAnimation {
+                properties: "x"
+                duration: 250
+                easing.type: Easing.OutCubic
+            }
+        }
+        remove: Transition {
+            NumberAnimation {
+                properties: "opacity"
+                to: 0
+                duration: 150
+                easing.type: Easing.OutCubic
+            }
+        }
+        removeDisplaced: Transition {
+            NumberAnimation {
+                properties: "x"
+                duration: 250
+                easing.type: Easing.OutCubic
             }
         }
 
-        // Separator
-        Rectangle {
-            width: 1
-            height: parent.height * 0.8
-            anchors.verticalCenter: parent.verticalCenter
-            color: Theme.foregroundColor
-            opacity: 0.2
-            visible: AppConfig.pinnedApps.length > 0 && dock.unpinnedRunningApps.length > 0
-        }
-
-        // Pinned applications
-        Repeater {
-            id: pinnedAppsList
-            model: AppConfig.pinnedApps
-
-            delegate: AppIcon {
-                required property var modelData
-
-                appId: modelData
-                isPinned: true
-                isRunning: {
-                    // Check if this pinned app is in running windows
-                    for (var i = 0; i < OverviewMonitor.runningWindows.length; i++) {
-                        if (OverviewMonitor.runningWindows[i].app_id === modelData) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                isFocused: {
-                    // Check if this pinned app is focused
-                    for (var i = 0; i < OverviewMonitor.runningWindows.length; i++) {
-                        var window = OverviewMonitor.runningWindows[i];
-                        if (window.app_id === modelData && window.is_focused) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            }
+        delegate: AppIcon {
+            appId: model.appId // qmllint disable unqualified
+            title: model.title // qmllint disable unqualified
+            windowId: model.windowId // qmllint disable unqualified
+            isFocused: model.isFocused // qmllint disable unqualified
+            isRunning: true
+            isPinned: false
         }
     }
 }

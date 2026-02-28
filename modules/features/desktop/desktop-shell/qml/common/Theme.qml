@@ -8,15 +8,15 @@ QtObject {
     readonly property color foregroundColor: "#393552"
     readonly property color accentColor: "#393552"
 
-    // Panel
-    readonly property int panelHeight: 32
+    // Shared
     readonly property color panelBackground: backgroundColor
 
     // Dock
-    readonly property int dockHeight: 64
-    readonly property int dockIconSize: 48
-    readonly property int dockSpacing: 8
-    readonly property int dockWidth: 256
+    readonly property int dockHeight: 56
+    readonly property int dockIconSize: 40
+    readonly property int dockSpacing: 6
+    readonly property int dockPadding: 6
+    readonly property int dockRadius: 16
 
     // Typography
     readonly property int fontSizeSmall: 12

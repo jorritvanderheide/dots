@@ -8,64 +8,57 @@ Item {
     width: Theme.dockIconSize
     height: Theme.dockIconSize
 
-    // Properties
     property string appId: ""
     property string title: ""
+    property int windowId: -1
     property bool isFocused: false
     property bool isRunning: false
     property bool isPinned: false
 
     signal clicked
 
-    // Background with running/focused indicator
-    Rectangle {
-        anchors.fill: parent
-        color: {
-            if (appIcon.isFocused)
-                return Theme.accentColor;
-            if (mouseArea.containsMouse)
-                return Theme.foregroundColor;
-            return "transparent";
-        }
-        opacity: appIcon.isFocused ? 0.4 : (mouseArea.containsMouse ? 0.2 : 0.1)
-        radius: 999
-
-        // Running indicator dot
-        Rectangle {
-            visible: appIcon.isRunning
-            width: 4
-            height: 4
-            radius: 2
-            color: Theme.foregroundColor
-            anchors {
-                bottom: parent.bottom
-                bottomMargin: 2
-                horizontalCenter: parent.horizontalCenter
+    // Hover lift
+    transform: Translate {
+        y: mouseArea.containsMouse ? -2 : 0
+        Behavior on y {
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
             }
         }
+    }
 
-        // Border for focused window
-        border.width: appIcon.isFocused ? 2 : 0
-        border.color: Theme.accentColor
+    // Background circle
+    Rectangle {
+        id: bg
+        anchors.fill: parent
+        radius: width / 2
+        color: Theme.foregroundColor
+        opacity: appIcon.isFocused ? 0.25 : (mouseArea.containsMouse ? 0.12 : 0)
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     // App icon
     Image {
         id: iconImage
         anchors.centerIn: parent
-        width: Theme.dockIconSize * 0.8
-        height: Theme.dockIconSize * 0.8
+        width: Theme.dockIconSize * 0.7
+        height: Theme.dockIconSize * 0.7
         source: "image://icon/" + IconResolver.getIconName(appIcon.appId)
         sourceSize: Qt.size(width, height)
         fillMode: Image.PreserveAspectFit
         smooth: true
         visible: status === Image.Ready
 
-        // Fallback to text if icon fails to load
         onStatusChanged: {
-            if (status === Image.Error) {
+            if (status === Image.Error)
                 iconText.visible = true;
-            }
         }
     }
 
@@ -80,6 +73,27 @@ Item {
         visible: false
     }
 
+    // Running indicator dot
+    Rectangle {
+        visible: appIcon.isRunning
+        width: appIcon.isFocused ? 6 : 4
+        height: width
+        radius: width / 2
+        color: Theme.foregroundColor
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: -1
+            horizontalCenter: parent.horizontalCenter
+        }
+
+        Behavior on width {
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
@@ -88,13 +102,16 @@ Item {
         cursorShape: Qt.PointingHandCursor
     }
 
-    // Process for launching apps
+    Process {
+        id: focusProcess
+        running: false
+    }
+
     Process {
         id: launchProcess
         running: false
     }
 
-    // Process for closing overview
     Process {
         id: closeOverviewProcess
         command: ["niri", "msg", "action", "toggle-overview"]
@@ -102,13 +119,14 @@ Item {
     }
 
     onClicked: {
-        if (appIcon.isPinned && !appIcon.isRunning) {
-            // Launch app via app2unit
+        if (appIcon.isRunning && appIcon.windowId !== -1) {
+            focusProcess.command = ["niri", "msg", "action", "focus-window", "--id", String(appIcon.windowId)];
+            focusProcess.running = true;
+        } else if (appIcon.isPinned && !appIcon.isRunning) {
             launchProcess.command = ["app2unit", "-s", "a", "--", appIcon.appId];
             launchProcess.running = true;
         }
 
-        // Always close overview on any click
         closeOverviewProcess.running = true;
     }
 }
