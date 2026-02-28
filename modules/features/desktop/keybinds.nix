@@ -55,7 +55,7 @@
                   repeat = false;
                 };
                 "Mod+N" = {
-                  action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox" "/etc/nixos";
+                  action = spawn "app2unit" "-s" "a" "--" "obsidian";
                   repeat = false;
                 };
                 "Mod+T" = {
@@ -207,6 +207,12 @@
                 "XF86AudioPrev" = {
                   allow-when-locked = true;
                   action = spawn "playerctl" "previous";
+                  repeat = false;
+                };
+
+                # Gear key
+                "XF86AudioMedia" = {
+                  action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox" "/etc/nixos";
                   repeat = false;
                 };
               };

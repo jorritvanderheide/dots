@@ -39,7 +39,7 @@
         # Persist VPN configuration across reboots
         settings.preservation = {
           systemDirectories = [
-            "/var/lib/mullvad-vpn"
+            "/etc/mullvad-vpn"
           ];
 
           homeDirectories = [

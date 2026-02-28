@@ -44,15 +44,15 @@
                   "c" = "clear";
 
                   # Nix
-                  "nboot" = "nh os boot /etc/nixos#(hostname) --no-nom";
-                  "nbuild" = "nh os build /etc/nixos#(hostname) --no-nom";
+                  "nboot" = "nh os boot /etc/nixos --hostname (hostname) --no-nom";
+                  "nbuild" = "nh os build /etc/nixos --hostname (hostname) --no-nom";
                   "ncheck" = "pushd /etc/nixos && nixos-rebuild check --flake .#(hostname) --no-reexec && popd";
                   "nclean" = "nh clean all -k 16 --ask";
                   "nformat" = "pushd /etc/nixos && nix fmt . && popd";
                   "nrollback" = "nh os rollback";
                   "nsearch" = "nh search";
-                  "nswitch" = "nh os switch /etc/nixos#(hostname) --no-nom";
-                  "ntest" = "nh os test /etc/nixos#(hostname) --no-nom";
+                  "nswitch" = "nh os switch /etc/nixos --hostname (hostname) --no-nom";
+                  "ntest" = "nh os test /etc/nixos --hostname (hostname) --no-nom";
                   "nupdate" = "pushd /etc/nixos && sudo nix flake update && popd";
                 };
               };
