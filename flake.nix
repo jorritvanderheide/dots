@@ -24,12 +24,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri-flake = {
+      url = "github:sodiboo/niri-flake";
+    };
+
     nixos-hardware = {
       url = "github:nixos/nixos-hardware";
     };
 
-    niri-flake = {
-      url = "github:sodiboo/niri-flake";
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     quickshell = {
