@@ -27,13 +27,30 @@
 
         home-manager.sharedModules = [
           (
-            { config, inputs, ... }:
+            {
+              config,
+              inputs,
+              pkgs,
+              ...
+            }:
             let
+              mkMenu = pkgs.callPackage inputs.self.lib.mkMenu { };
               scriptsDirectory = inputs.self + "/scripts";
             in
             {
-              # TODO: make keybings general so most work on different compositors, and I can add formats to configure them properly
               programs.niri.settings.binds = with config.lib.niri.actions; {
+                "Mod+U" = {
+                  action = spawn (
+                    pkgs.lib.getExe (mkMenu [
+                      {
+                        key = "f";
+                        desc = "Firefox";
+                        cmd = "firefox";
+                      }
+                    ])
+                  );
+                  repeat = false;
+                };
                 "Mod+Return" = {
                   action = spawn "app2unit" "-s" "a" "--" "ghostty";
                   repeat = false;
@@ -211,7 +228,7 @@
                 };
 
                 # Gear key
-                "XF86AudioMedia" = {
+                "Mod+XF86AudioMedia" = {
                   action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox" "/etc/nixos";
                   repeat = false;
                 };

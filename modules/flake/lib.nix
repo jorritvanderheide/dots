@@ -155,6 +155,26 @@
         ];
       };
 
+    mkMenu =
+      {
+        lib,
+        wlr-which-key,
+        writeShellScriptBin,
+        writeText,
+      }:
+      menu:
+      let
+        configFile = writeText "config.yaml" (
+          lib.generators.toYAML { } {
+            anchor = "bottom-right";
+            inherit menu;
+          }
+        );
+      in
+      writeShellScriptBin "my-menu" ''
+        exec ${lib.getExe wlr-which-key} ${configFile}
+      '';
+
     mkUser =
       {
         extraGroups ? [ ],
