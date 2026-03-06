@@ -39,13 +39,60 @@
             in
             {
               programs.niri.settings.binds = with config.lib.niri.actions; {
-                "Mod+U" = {
+                "Mod+D" = {
                   action = spawn (
                     pkgs.lib.getExe (mkMenu [
                       {
-                        key = "f";
-                        desc = "Firefox";
-                        cmd = "firefox";
+                        key = "b";
+                        desc = "Browser (Zen)";
+                        cmd = "app2unit -s a -- zen-beta";
+                      }
+                      {
+                        key = "c";
+                        desc = "Code";
+                        cmd = "app2unit -s a -- code --no-sandbox";
+                      }
+                      {
+                        key = "e";
+                        desc = "Explorer";
+                        cmd = "app2unit -s a -- nautilus";
+                      }
+                      {
+                        key = "n";
+                        desc = "Notes (Obsidian)";
+                        cmd = "app2unit -s a -- obsidian";
+                      }
+                      {
+                        key = "t";
+                        desc = "Terminal";
+                        cmd = "app2unit -s a -- ghostty";
+                      }
+                    ])
+                  );
+                  repeat = false;
+                };
+                "Mod+Shift+D" = {
+                  action = spawn (
+                    pkgs.lib.getExe (mkMenu [
+                      {
+                        key = "l";
+                        desc = "Lock";
+                        cmd = "app2unit -s a -- hyprlock";
+                      }
+                      {
+                        key = "s";
+                        desc = "Suspend";
+                        cmd = "systemctl suspend";
+                      }
+                      {
+                        key = "r";
+                        desc = "Reboot";
+                        cmd = "systemctl reboot";
+                      }
+                      {
+                        key = "p";
+                        desc = "Power off";
+                        cmd = "systemctl poweroff";
                       }
                     ])
                   );
@@ -57,26 +104,6 @@
                 };
                 "Mod+Space" = {
                   action = spawn "sh" "-c" "pkill fuzzel || app2unit -s a -- fuzzel";
-                  repeat = false;
-                };
-                "Mod+B" = {
-                  action = spawn "sh" "-c" "app2unit -s a -- zen-beta";
-                  repeat = false;
-                };
-                "Mod+C" = {
-                  action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox";
-                  repeat = false;
-                };
-                "Mod+E" = {
-                  action = spawn "app2unit" "-s" "a" "--" "nautilus";
-                  repeat = false;
-                };
-                "Mod+N" = {
-                  action = spawn "app2unit" "-s" "a" "--" "obsidian";
-                  repeat = false;
-                };
-                "Mod+T" = {
-                  action = spawn "app2unit" "-s" "a" "--" "ghostty";
                   repeat = false;
                 };
                 "Mod+Backspace" = {
