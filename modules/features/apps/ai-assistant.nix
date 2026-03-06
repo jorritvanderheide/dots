@@ -88,15 +88,15 @@
                 ".claude/commands/note.md".text = ''
                   Look at what we discussed in this conversation and identify any programming concepts worth capturing as permanent knowledge.
 
-                  First, list the existing notes in `/home/jorrit/Git/obsidian/Coding/` to avoid duplicates and find linking opportunities.
+                  First, list the existing notes in `/home/jorrit/Git/obsidian/Notes/` to avoid duplicates and find linking opportunities.
 
                   Then, identify all reusable concepts from this conversation (not task-specific details). If there are multiple candidates, use the AskUserQuestion tool to present them as a multiselect question — ask "Which concepts should I capture as notes?" with one option per concept, including a brief description of what the note would cover. Only proceed with the concepts the user selects.
 
-                  For each selected concept, create an atomic note in `/home/jorrit/Git/obsidian/Coding/` following the format in CLAUDE.md:
+                  For each selected concept, create an atomic note in `/home/jorrit/Git/obsidian/Notes/` following the format in CLAUDE.md:
                   - One concept per file
-                  - Filename = concept name (e.g. `Nix Flake Outputs.md`)
-                  - Use frontmatter with tags and date
+                  - Filename = concept name in sentence case (e.g. `Nix flake outputs.md`)
                   - Link to related existing notes using [[WikiLinks]] where relevant
+                  - Create the note(s) using Obsidian CLI: `obsidian create path="Notes" name="<Concept name>" template="Capture AI" open`
 
                   Tell me which notes you created and why each concept was worth capturing.
                 '';
