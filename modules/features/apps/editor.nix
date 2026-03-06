@@ -182,7 +182,7 @@
                   "telemetry.telemetryLevel" = "off";
 
                   # Terminal
-                  "terminal.external.linuxExec" = "ghostty"; # TODO
+                  "terminal.external.linuxExec" = "ghostty";
                   "terminal.integrated.defaultProfile.linux" = "fish";
                   "terminal.integrated.enablePersistentSessions" = false;
                   "terminal.integrated.fontLigatures.enabled" = true;
@@ -205,6 +205,10 @@
                   # Nix IDE
                   "nix.enableLanguageServer" = true;
                   "nix.serverPath" = "nixd";
+
+                  "nix.hiddenLanguageServerErrors" = [
+                    "textDocument/definition"
+                  ];
 
                   "nix.serverSettings" = {
                     "nixd" = {
