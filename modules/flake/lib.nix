@@ -166,7 +166,7 @@
       let
         configFile = writeText "config.yaml" (
           lib.generators.toYAML { } {
-            anchor = "bottom-right";
+            anchor = "center";
             inherit menu;
           }
         );

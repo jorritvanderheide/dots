@@ -44,7 +44,7 @@
                     pkgs.lib.getExe (mkMenu [
                       {
                         key = "b";
-                        desc = "Browser (Zen)";
+                        desc = "Browser";
                         cmd = "app2unit -s a -- zen-beta";
                       }
                       {
@@ -59,7 +59,7 @@
                       }
                       {
                         key = "n";
-                        desc = "Notes (Obsidian)";
+                        desc = "Notes";
                         cmd = "app2unit -s a -- obsidian";
                       }
                       {
