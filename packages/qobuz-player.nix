@@ -12,6 +12,8 @@ pkgs.rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-SOh4nTSi6bpbMLez1ufhEt5jS4QduVWk4LpCx1UA8Mo=";
 
+  meta.mainProgram = "qobuz-player";
+
   nativeBuildInputs = with pkgs; [
     dbus
     pkg-config

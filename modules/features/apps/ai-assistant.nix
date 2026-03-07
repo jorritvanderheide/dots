@@ -46,45 +46,6 @@
             in
             {
               home.file = {
-                ".claude/CLAUDE.md".text = ''
-                  # Global Claude Instructions
-
-                  ## Obsidian Knowledge Vault
-
-                  You have permanent read and write access to `/home/jorrit/Git/obsidian/`.
-
-                  Programming notes go in `/home/jorrit/Git/obsidian/Coding/`.
-
-                  When writing atomic notes (via `/note` or when asked), use this format:
-
-                  ```markdown
-                  ---
-                  tags: [programming, <specific-topic>]
-                  date: <YYYY-MM-DD>
-                  ---
-                  # <Concept Name>
-
-                  <One sentence: what this is.>
-
-                  ## Why it matters
-
-                  <2-3 sentences on when/why you'd reach for this.>
-
-                  ## Example
-
-                  <Minimal concrete code example or illustration.>
-
-                  ## Related
-
-                  - [[Related Concept]]
-                  ```
-
-                  Rules for atomic notes:
-                  - One concept per file, filename = concept name (e.g. `Nix Derivations.md`)
-                  - Prefer linking to existing notes with `[[WikiLinks]]` over repeating content
-                  - Do not create a note for every interaction — only when a genuinely reusable concept was encountered
-                '';
-
                 ".claude/commands/note.md".text = ''
                   Look at what we discussed in this conversation and identify any programming concepts worth capturing as permanent knowledge.
 

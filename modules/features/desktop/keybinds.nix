@@ -34,7 +34,7 @@
               ...
             }:
             let
-              mkMenu = pkgs.callPackage inputs.self.lib.mkMenu { };
+              mkMenu = pkgs.callPackage inputs.self.lib.mkMenu { inherit (config.lib.stylix) colors; };
               scriptsDirectory = inputs.self + "/scripts";
             in
             {

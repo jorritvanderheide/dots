@@ -69,8 +69,8 @@
                   # Turn off displays (niri-specific)
                   {
                     timeout = cfg.displayTimeout;
-                    command = "${pkgs.niri}/bin/niri msg action power-off-monitors";
-                    resumeCommand = "${pkgs.niri}/bin/niri msg action power-on-monitors";
+                    command = "${lib.getExe pkgs.niri} msg action power-off-monitors";
+                    resumeCommand = "${lib.getExe pkgs.niri} msg action power-on-monitors";
                   }
                 ]
                 ++ lib.optionals (cfg.suspendTimeout != null) [
@@ -83,7 +83,7 @@
 
               events = lib.mkIf (cfg.lockCommand != null) {
                 before-sleep = "${pkgs.systemd}/bin/loginctl lock-session";
-                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || ${cfg.lockCommand}";
+                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || { ${cfg.lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session; }";
               };
             };
           }

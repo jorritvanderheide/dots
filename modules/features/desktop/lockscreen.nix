@@ -40,7 +40,7 @@
         security.pam.services.hyprlock = { };
 
         # Export lock command for other modules
-        settings.lockscreen.command = "${pkgs.hyprlock}/bin/hyprlock";
+        settings.lockscreen.command = lib.getExe pkgs.hyprlock;
 
         # Configure hyprlock via home-manager for all users
         home-manager.sharedModules = [

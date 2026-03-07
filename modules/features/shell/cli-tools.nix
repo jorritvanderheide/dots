@@ -51,7 +51,7 @@
                 clock24 = true;
                 mouse = true;
                 prefix = "C-a";
-                shell = "${pkgs.fish}/bin/fish";
+                shell = lib.getExe pkgs.fish;
               };
 
               zoxide = {

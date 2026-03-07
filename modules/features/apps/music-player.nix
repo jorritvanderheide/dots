@@ -30,7 +30,7 @@
 
             xdg.desktopEntries.qobuz = {
               comment = "Qobuz player";
-              exec = "${pkgs.ghostty}/bin/ghostty -e ${pkgs.qobuz-player}/bin/qobuz-player";
+              exec = "${lib.getExe pkgs.ghostty} -e ${lib.getExe pkgs.qobuz-player}";
               genericName = "Music player";
               icon = "music-app";
               name = "Qobuz";

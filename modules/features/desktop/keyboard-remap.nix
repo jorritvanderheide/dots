@@ -153,7 +153,7 @@
             Type = "oneshot";
 
             # Only restart if Kanata is actually active
-            ExecCondition = "${pkgs.bash}/bin/bash -c '${pkgs.systemd}/bin/systemctl is-active kanata-any.service'";
+            ExecCondition = "${lib.getExe pkgs.bash} -c '${pkgs.systemd}/bin/systemctl is-active kanata-any.service'";
 
             # Small delay to debounce multiple rapid keyboard connections
             ExecStartPre = "${pkgs.coreutils}/bin/sleep 0.5";

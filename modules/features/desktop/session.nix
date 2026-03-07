@@ -80,7 +80,7 @@
 
           settings =
             let
-              sessionCommand = "${pkgs.uwsm}/bin/uwsm start -F -- ${cfg.compositorSessionCommand}";
+              sessionCommand = "${lib.getExe pkgs.uwsm} start -F -- ${cfg.compositorSessionCommand}";
             in
             {
               default_session.command = sessionCommand;

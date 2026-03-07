@@ -33,7 +33,7 @@
             xdg.desktopEntries.obsidian = {
               categories = [ "Office" ];
               comment = "Knowledge base";
-              exec = ''${pkgs.obsidian}/bin/obsidian %U "\\$HOME/Git/obsidian"'';
+              exec = ''${lib.getExe pkgs.obsidian} %U "\\$HOME/Git/obsidian"'';
               genericName = "Note Taking App";
               icon = "obsidian";
               name = "Obsidian";

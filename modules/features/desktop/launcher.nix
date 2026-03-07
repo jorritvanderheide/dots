@@ -26,30 +26,34 @@
         ];
 
         home-manager.sharedModules = [
-          {
-            home.sessionVariables.LAUNCHER = "fuzzel";
+          (
+            { config, ... }:
+            {
+              home.sessionVariables.LAUNCHER = "fuzzel";
 
-            programs.fuzzel = {
-              enable = true;
-              settings = {
-                border.width = 4;
-                border.radius = 8;
-                colors.border = lib.mkForce "${config.lib.stylix.colors.base08}ff";
+              programs.fuzzel = {
+                enable = true;
+                settings = {
+                  border.width = 4;
+                  border.radius = 8;
+                  colors.border = lib.mkForce "${config.lib.stylix.colors.base08}ff";
 
-                main = {
-                  launch-prefix = "app2unit --fuzzel-compat -s a --";
-                  width = 48;
-                  lines = 12;
-                  horizontal-pad = 24;
-                  vertical-pad = 32;
-                  inner-pad = 24;
-                  line-height = 32;
-                  layer = "overlay";
-                  terminal = "$TERMINAL -e";
+                  main = {
+                    font = lib.mkForce "JetBrainsMono Nerd Font Mono:size=11.5";
+                    horizontal-pad = 24;
+                    inner-pad = 24;
+                    launch-prefix = "app2unit --fuzzel-compat -s a --";
+                    layer = "overlay";
+                    lines = 12;
+                    line-height = 32;
+                    terminal = "$TERMINAL -e";
+                    vertical-pad = 32;
+                    width = 48;
+                  };
                 };
               };
-            };
-          }
+            }
+          )
         ];
       };
     };
