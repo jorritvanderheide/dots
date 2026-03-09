@@ -58,9 +58,24 @@
                         cmd = "app2unit -s a -- nautilus";
                       }
                       {
+                        key = "m";
+                        desc = "Music";
+                        cmd = "app2unit -s a -- qobuz-player";
+                      }
+                      {
                         key = "n";
                         desc = "Notes";
                         cmd = "app2unit -s a -- obsidian";
+                      }
+                      {
+                        key = "p";
+                        desc = "Passwords";
+                        cmd = "app2unit -s a -- bitwarden";
+                      }
+                      {
+                        key = "s";
+                        desc = "Social";
+                        cmd = "app2unit -s a -- tuba";
                       }
                       {
                         key = "t";
@@ -255,7 +270,7 @@
                 };
 
                 # Gear key
-                "Mod+XF86AudioMedia" = {
+                "XF86AudioMedia" = {
                   action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox" "/etc/nixos";
                   repeat = false;
                 };

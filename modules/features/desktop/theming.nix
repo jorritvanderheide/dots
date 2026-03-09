@@ -88,9 +88,9 @@
 
             stylix.icons = {
               enable = true;
-              package = pkgs.tela-circle-icon-theme;
-              light = "Tela-circle-light";
-              dark = "Tela-circle-dark";
+              package = pkgs.numix-icon-theme-circle;
+              light = "Numix-Circle-Light";
+              dark = "Numix-Circle";
             };
           }
         ];
