@@ -269,6 +269,7 @@
               enable = true;
 
               extensions = [
+                "gruvbox-material"
                 "nix"
                 "vue"
               ];
@@ -276,33 +277,19 @@
               userSettings = {
                 auto_update = false;
                 base_keymap = "VSCode";
-                hour_format = "hour24";
                 load_direnv = "shell_hook";
                 vim_mode = false;
 
-                lsp = {
-                  nix = {
-                    binary = {
-                      path_lookup = true;
-                    };
-                  };
-                };
-
-                nix = {
-                  binary = {
-                    path_lookup = true;
-                  };
-                };
-
                 theme = lib.mkForce {
+                  dark = "Gruvbox Matrial";
+                  light = "Gruvbox Matrial";
                   mode = "system";
-                  dark = "Catppuccin";
                 };
               };
             };
 
             home = {
-              sessionVariables.EDITOR = "zed --wait";
+              sessionVariables.EDITOR = "zeditor --wait";
 
               packages = with pkgs; [
                 nixd

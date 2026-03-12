@@ -50,7 +50,7 @@
                       {
                         key = "c";
                         desc = "Code editor";
-                        cmd = "app2unit -s a -- zed";
+                        cmd = "app2unit -s a -- zeditor";
                       }
                       {
                         key = "e";
@@ -271,7 +271,7 @@
 
                 # Gear key
                 "XF86AudioMedia" = {
-                  action = spawn "app2unit" "-s" "a" "--" "zed" "/etc/nixos";
+                  action = spawn "app2unit" "-s" "a" "--" "zeditor" "/etc/nixos";
                   repeat = false;
                 };
               };

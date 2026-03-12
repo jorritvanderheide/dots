@@ -16,7 +16,6 @@
         secrets
 
         # Apps
-        ai-assistant
         browser
         cad
         editor
@@ -45,6 +44,7 @@
         theming
 
         # Dev
+        coding-agent
         direnv
         git
         nix
@@ -72,7 +72,6 @@
 
       settings = {
         # Apps
-        ai-assistant.enable = true;
         browser.enable = true;
         # cad.enable = true; # Disabled: freecad fails to build
         editor.enable = true;
@@ -107,6 +106,7 @@
         };
 
         # Dev
+        coding-agent.enable = true;
         direnv.enable = true;
         git.enable = true;
         nix.enable = true;
