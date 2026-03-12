@@ -18,6 +18,7 @@
       };
 
       config = lib.mkIf cfg.enable {
+        programs.nix-ld.enable = true;
 
         home-manager.sharedModules = [
           {
@@ -264,8 +265,44 @@
               };
             };
 
+            programs.zed-editor = {
+              enable = true;
+
+              extensions = [
+                "nix"
+                "vue"
+              ];
+
+              userSettings = {
+                auto_update = false;
+                base_keymap = "VSCode";
+                hour_format = "hour24";
+                load_direnv = "shell_hook";
+                vim_mode = false;
+
+                lsp = {
+                  nix = {
+                    binary = {
+                      path_lookup = true;
+                    };
+                  };
+                };
+
+                nix = {
+                  binary = {
+                    path_lookup = true;
+                  };
+                };
+
+                theme = lib.mkForce {
+                  mode = "system";
+                  dark = "Catppuccin";
+                };
+              };
+            };
+
             home = {
-              sessionVariables.EDITOR = "code --wait";
+              sessionVariables.EDITOR = "zed --wait";
 
               packages = with pkgs; [
                 nixd
@@ -279,6 +316,8 @@
         # Persist editor data across reboots
         settings.preservation.homeDirectories = [
           ".config/Code"
+          ".config/zed"
+          ".local/share/zed"
         ];
       };
     };

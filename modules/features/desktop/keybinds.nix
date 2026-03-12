@@ -49,8 +49,8 @@
                       }
                       {
                         key = "c";
-                        desc = "Code";
-                        cmd = "app2unit -s a -- code --no-sandbox";
+                        desc = "Code editor";
+                        cmd = "app2unit -s a -- zed";
                       }
                       {
                         key = "e";
@@ -271,7 +271,7 @@
 
                 # Gear key
                 "XF86AudioMedia" = {
-                  action = spawn "app2unit" "-s" "a" "--" "code" "--no-sandbox" "/etc/nixos";
+                  action = spawn "app2unit" "-s" "a" "--" "zed" "/etc/nixos";
                   repeat = false;
                 };
               };
