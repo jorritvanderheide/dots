@@ -270,7 +270,9 @@
 
               extensions = [
                 "gruvbox-material"
+                "mcp-server-context7"
                 "nix"
+                "opencode"
                 "vue"
               ];
 
@@ -281,8 +283,8 @@
                 vim_mode = false;
 
                 theme = lib.mkForce {
-                  dark = "Gruvbox Matrial";
-                  light = "Gruvbox Matrial";
+                  dark = "Gruvbox Material";
+                  light = "Gruvbox Material";
                   mode = "system";
                 };
               };
@@ -292,6 +294,7 @@
               sessionVariables.EDITOR = "zeditor --wait";
 
               packages = with pkgs; [
+                nil
                 nixd
                 nixfmt
                 qt6.qtdeclarative # For qmlformat

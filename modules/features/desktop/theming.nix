@@ -26,12 +26,12 @@
         stylix = {
           enable = true;
           autoEnable = true;
-          base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+          base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-medium.yaml";
           polarity = "dark";
 
           cursor = {
             package = pkgs.capitaine-cursors-themed;
-            name = "Capitaine Cursors (Nord)";
+            name = "Capitaine Cursors (Gruvbox)";
             size = 32;
           };
 

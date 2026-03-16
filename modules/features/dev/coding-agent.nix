@@ -29,104 +29,77 @@
         };
 
         home-manager.sharedModules = [
-          (
-            { pkgs, ... }:
-            let
-              learningHook = pkgs.writeShellScript "claude-learning-hook" ''
-                cat << 'EOF'
-                {
-                  "hookSpecificOutput": {
-                    "hookEventName": "SessionStart",
-                    "additionalContext": "You are in 'learning' output style mode, which combines interactive learning with educational explanations. This mode differs from the original unshipped Learning output style by also incorporating explanatory functionality.\n\n## Learning Mode Philosophy\n\nInstead of implementing everything yourself, identify opportunities where the user can write 5-10 lines of meaningful code that shapes the solution. Focus on business logic, design choices, and implementation strategies where their input truly matters.\n\n## When to Request User Contributions\n\nRequest code contributions for:\n- Business logic with multiple valid approaches\n- Error handling strategies\n- Algorithm implementation choices\n- Data structure decisions\n- User experience decisions\n- Design patterns and architecture choices\n\n## How to Request Contributions\n\nBefore requesting code:\n1. Create the file with surrounding context\n2. Add function signature with clear parameters/return type\n3. Include comments explaining the purpose\n4. Mark the location with TODO or clear placeholder\n\nWhen requesting:\n- Explain what you've built and WHY this decision matters\n- Reference the exact file and prepared location\n- Describe trade-offs to consider, constraints, or approaches\n- Frame it as valuable input that shapes the feature, not busy work\n- Keep requests focused (5-10 lines of code)\n\n## Example Request Pattern\n\nContext: I've set up the authentication middleware. The session timeout behavior is a security vs. UX trade-off - should sessions auto-extend on activity, or have a hard timeout? This affects both security posture and user experience.\n\nRequest: In auth/middleware.ts, implement the handleSessionTimeout() function to define the timeout behavior.\n\nGuidance: Consider: auto-extending improves UX but may leave sessions open longer; hard timeouts are more secure but might frustrate active users.\n\n## Balance\n\nDon't request contributions for:\n- Boilerplate or repetitive code\n- Obvious implementations with no meaningful choices\n- Configuration or setup code\n- Simple CRUD operations\n\nDo request contributions when:\n- There are meaningful trade-offs to consider\n- The decision shapes the feature's behavior\n- Multiple valid approaches exist\n- The user's domain knowledge would improve the solution\n\n## Explanatory Mode\n\nAdditionally, provide educational insights about the codebase as you help with tasks. Be clear and educational, providing helpful explanations while remaining focused on the task. Balance educational content with task completion.\n\n### Insights\nBefore and after writing code, provide brief educational explanations about implementation choices using:\n\n\"`★ Insight ─────────────────────────────────────`\n[2-3 key educational points]\n`─────────────────────────────────────────────`\"\n\nThese insights should be included in the conversation, not in the codebase. Focus on interesting insights specific to the codebase or the code you just wrote, rather than general programming concepts. Provide insights as you write code, not just at the end."
-                }
-                EOF
+          {
+            home.file = {
+              ".claude/commands/note.md".text = ''
+                Look at what we discussed in this conversation and identify any programming concepts worth capturing as permanent knowledge.
 
-                exit 0
+                First, list the existing notes in `/home/jorrit/Git/obsidian/Notes/` to avoid duplicates and find linking opportunities.
+
+                Then, identify all reusable concepts from this conversation (not task-specific details). If there are multiple candidates, use the AskUserQuestion tool to present them as a multiselect question — ask "Which concepts should I capture as notes?" with one option per concept, including a brief description of what the note would cover. Only proceed with the concepts the user selects.
+
+                For each selected concept, create an atomic note in `/home/jorrit/Git/obsidian/Notes/` following the format in CLAUDE.md:
+                - One concept per file
+                - Filename = concept name in sentence case (e.g. `Nix flake outputs.md`)
+                - Link to related existing notes using [[WikiLinks]] where relevant
+                - Create the note(s) using Obsidian CLI: `obsidian create path="Notes" name="<Concept name>" template="Capture AI" open`
+
+                Tell me which notes you created and why each concept was worth capturing.
               '';
-            in
-            {
-              home.file = {
-                ".claude/commands/note.md".text = ''
-                  Look at what we discussed in this conversation and identify any programming concepts worth capturing as permanent knowledge.
+            };
 
-                  First, list the existing notes in `/home/jorrit/Git/obsidian/Notes/` to avoid duplicates and find linking opportunities.
+            programs = {
+              claude-code = {
+                enable = true;
 
-                  Then, identify all reusable concepts from this conversation (not task-specific details). If there are multiple candidates, use the AskUserQuestion tool to present them as a multiselect question — ask "Which concepts should I capture as notes?" with one option per concept, including a brief description of what the note would cover. Only proceed with the concepts the user selects.
+                settings = {
+                  experimental.enableParallelToolUse = true;
+                  gitAttribution = false;
+                  includeCoAuthoredBy = false;
+                  preferredEditor = "zeditor";
+                  shellIntegration = true;
 
-                  For each selected concept, create an atomic note in `/home/jorrit/Git/obsidian/Notes/` following the format in CLAUDE.md:
-                  - One concept per file
-                  - Filename = concept name in sentence case (e.g. `Nix flake outputs.md`)
-                  - Link to related existing notes using [[WikiLinks]] where relevant
-                  - Create the note(s) using Obsidian CLI: `obsidian create path="Notes" name="<Concept name>" template="Capture AI" open`
+                  ui = {
+                    theme = "auto";
+                    compactMode = false;
+                  };
 
-                  Tell me which notes you created and why each concept was worth capturing.
-                '';
+                  permissions.allow = [
+                    "Read(/home/jorrit/Git/obsidian/**)"
+                    "Write(/home/jorrit/Git/obsidian/**)"
+                    "Edit(/home/jorrit/Git/obsidian/**)"
+                    "Bash(ls /home/jorrit/Git/obsidian/**)"
+                    "Glob(/home/jorrit/Git/obsidian/**)"
+                  ];
+                };
               };
 
-              programs = {
-                claude-code = {
-                  enable = true;
+              opencode = {
+                enable = true;
 
-                  settings = {
-                    experimental.enableParallelToolUse = true;
-                    gitAttribution = false;
-                    includeCoAuthoredBy = false;
-                    preferredEditor = "zeditor";
-                    shellIntegration = true;
+                settings = {
+                  "$schema" = "https://opencode.ai/config.json";
+                  theme = "stylix";
 
-                    ui = {
-                      theme = "auto";
-                      compactMode = false;
+                  provider.ollama = {
+                    name = "Ollama (local)";
+                    npm = "@ai-sdk/openai-compatible";
+
+                    models = {
+                      # "qwen3-coder" = {
+                      #   name = "Qwen3-coder 30B";
+                      #   tools = true;
+                      # };
                     };
 
-                    permissions.allow = [
-                      "Read(/home/jorrit/Git/obsidian/**)"
-                      "Write(/home/jorrit/Git/obsidian/**)"
-                      "Edit(/home/jorrit/Git/obsidian/**)"
-                      "Bash(ls /home/jorrit/Git/obsidian/**)"
-                      "Glob(/home/jorrit/Git/obsidian/**)"
-                    ];
-
-                    hooks.SessionStart = [
-                      {
-                        hooks = [
-                          {
-                            type = "command";
-                            command = "${learningHook}";
-                          }
-                        ];
-                      }
-                    ];
-                  };
-                };
-
-                opencode = {
-                  enable = true;
-
-                  settings = {
-                    "$schema" = "https://opencode.ai/config.json";
-                    theme = "stylix";
-
-                    provider.ollama = {
-                      name = "Ollama (local)";
-                      npm = "@ai-sdk/openai-compatible";
-
-                      models = {
-                        "qwen3-coder" = {
-                          name = "Qwen3-coder 30B";
-                          tools = true;
-                        };
-                      };
-
-                      options = {
-                        baseURL = "http://localhost:11434/v1";
-                      };
+                    options = {
+                      baseURL = "http://localhost:11434/v1";
                     };
                   };
                 };
               };
-            }
-          )
+            };
+          }
         ];
       };
     };

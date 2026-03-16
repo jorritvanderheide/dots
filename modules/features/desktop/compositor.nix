@@ -75,7 +75,7 @@ in
 
           systemPackages = with pkgs; [
             batsignal
-            blueberry
+            blueman
             brightnessctl
             mako
             nautilus
