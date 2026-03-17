@@ -48,6 +48,7 @@
         direnv
         git
         nix
+        worktrunk
         # pubhubs
         virtualization
 
@@ -110,6 +111,7 @@
         direnv.enable = true;
         git.enable = true;
         nix.enable = true;
+        worktrunk.enable = true;
         # pubhubs.enable = false;
         virtualization.enable = true;
 
