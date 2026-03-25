@@ -53,11 +53,16 @@
 
               config = {
                 programs = {
+                  gh.enable = true;
+
                   git = {
                     enable = true;
 
                     ignores = [
+                      ".claude/"
                       ".direnv/"
+                      ".envrc"
+                      "CLAUDE.md"
                       "result/"
                     ];
 

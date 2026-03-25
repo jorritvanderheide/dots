@@ -15,6 +15,7 @@
       "plugdev" # Android
       "sops-users" # SOPS manual editing
       "video"
+      "wpa_supplicant" # WiFi (wpa_gui)
     ];
 
     extraHomeConfig = {

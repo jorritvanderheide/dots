@@ -136,9 +136,11 @@
           "wireless/eduroam" = { };
         };
 
-        environment.systemPackages = with pkgs; [
-          wpa_supplicant_gui
-        ];
+        environment.systemPackages = lib.mkIf (cfg.wireless != null) (
+          with pkgs; [
+            wpa_supplicant_gui
+          ]
+        );
 
         networking = {
           useDHCP = lib.mkForce (cfg.staticConfig == null);
@@ -171,7 +173,7 @@
           wireless = lib.mkIf (cfg.wireless != null) {
             enable = true;
             interfaces = [ cfg.wireless.interface ];
-            userControlled = true;
+            userControlled.enable = true;
 
             # Use sops-managed secrets file for WiFi passwords
             secretsFile = config.sops.templates."wireless-secrets".path;

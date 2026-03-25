@@ -191,8 +191,8 @@ in
                 };
 
                 # Meeting room 18th floor
-                "Sharp Corporation SHARP HDMI Unknown" = {
-                  scale = 1.5;
+                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
+                  scale = 2;
                   position = {
                     x = -1097;
                     y = -613; # 617 - 4px
