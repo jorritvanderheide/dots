@@ -137,7 +137,8 @@
         };
 
         environment.systemPackages = lib.mkIf (cfg.wireless != null) (
-          with pkgs; [
+          with pkgs;
+          [
             wpa_supplicant_gui
           ]
         );
@@ -173,7 +174,7 @@
           wireless = lib.mkIf (cfg.wireless != null) {
             enable = true;
             interfaces = [ cfg.wireless.interface ];
-            userControlled.enable = true;
+            userControlled = true;
 
             # Use sops-managed secrets file for WiFi passwords
             secretsFile = config.sops.templates."wireless-secrets".path;
