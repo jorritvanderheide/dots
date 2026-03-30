@@ -8,15 +8,8 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.firmware;
-    in
     {
-      options.settings.firmware = {
-        enable = lib.mkEnableOption "fwupd firmware updates";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         services.fwupd.enable = true;
 
         # Disable auto-refresh timer for faster boot - use `fwupdmgr refresh` manually

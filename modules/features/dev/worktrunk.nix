@@ -9,15 +9,8 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.worktrunk;
-    in
     {
-      options.settings.worktrunk = {
-        enable = lib.mkEnableOption "worktrunk git worktree manager";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         home-manager.sharedModules = [
           inputs.worktrunk.homeModules.default
           {

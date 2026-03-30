@@ -8,18 +8,11 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.shell;
-    in
     {
-      options.settings.shell = {
-        enable = lib.mkEnableOption "Fish shell";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         programs.fish.enable = true;
 
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".local/share/fish"
         ];
 

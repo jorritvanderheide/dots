@@ -10,15 +10,8 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.prompt;
-    in
     {
-      options.settings.prompt = {
-        enable = lib.mkEnableOption "Starship shell prompt";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         home-manager.sharedModules = [
           (
             {

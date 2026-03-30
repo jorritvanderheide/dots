@@ -10,18 +10,11 @@
       ...
     }:
     let
-      cfg = config.settings.idle;
+      cfg = config.my.idle;
+      lockCommand = config.my.lockscreen.command;
     in
     {
-      options.settings.idle = {
-        enable = lib.mkEnableOption "idle timeout management";
-
-        lockCommand = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Command to run when locking the screen";
-        };
-
+      options.my.idle = {
         lockTimeout = lib.mkOption {
           type = lib.types.nullOr lib.types.int;
           default = 300;
@@ -41,32 +34,21 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Assertion: if lockTimeout is set, lockCommand must be provided
-        assertions = [
-          {
-            assertion = (cfg.lockTimeout == null) || (cfg.lockCommand != null);
-            message = "settings.idle.lockCommand must be set when settings.idle.lockTimeout is enabled";
-          }
-        ];
-
-        # Configure swayidle via home-manager for all users
+      config = {
         home-manager.sharedModules = [
           {
             services.swayidle = {
               enable = true;
-              systemdTarget = "graphical-session.target";
+              systemdTargets = [ "graphical-session.target" ];
 
               timeouts =
-                lib.optionals (cfg.lockTimeout != null && cfg.lockCommand != null) [
-                  # Lock screen after idle timeout (use loginctl to properly track session lock state)
+                lib.optionals (cfg.lockTimeout != null) [
                   {
                     timeout = cfg.lockTimeout;
                     command = "${pkgs.systemd}/bin/loginctl lock-session";
                   }
                 ]
                 ++ [
-                  # Turn off displays (niri-specific)
                   {
                     timeout = cfg.displayTimeout;
                     command = "${lib.getExe pkgs.niri} msg action power-off-monitors";
@@ -74,16 +56,15 @@
                   }
                 ]
                 ++ lib.optionals (cfg.suspendTimeout != null) [
-                  # Suspend after timeout
                   {
                     timeout = cfg.suspendTimeout;
                     command = "${pkgs.systemd}/bin/systemctl suspend";
                   }
                 ];
 
-              events = lib.mkIf (cfg.lockCommand != null) {
+              events = {
                 before-sleep = "${pkgs.systemd}/bin/loginctl lock-session";
-                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || { ${cfg.lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session; }";
+                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || { ${lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session; }";
               };
             };
           }

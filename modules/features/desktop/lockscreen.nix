@@ -10,12 +10,10 @@
       ...
     }:
     let
-      cfg = config.settings.lockscreen;
+      cfg = config.my.lockscreen;
     in
     {
-      options.settings.lockscreen = {
-        enable = lib.mkEnableOption "Hyprlock screen locker";
-
+      options.my.lockscreen = {
         command = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
@@ -23,24 +21,12 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Assertion: app-launch must be enabled for app2unit command
-        assertions = [
-          {
-            assertion = config.settings.compositor.enable or false;
-            message = "settings.lockscreen requires settings.compositor to be enabled (for niri spawn-at-startup)";
-          }
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.lockscreen requires settings.app-launch to be enabled (for app2unit)";
-          }
-        ];
-
+      config = {
         # Required: Enable PAM for hyprlock authentication
         security.pam.services.hyprlock = { };
 
         # Export lock command for other modules
-        settings.lockscreen.command = lib.getExe pkgs.hyprlock;
+        my.lockscreen.command = lib.getExe pkgs.hyprlock;
 
         # Configure hyprlock via home-manager for all users
         home-manager.sharedModules = [
@@ -75,7 +61,7 @@
                   {
                     blur_passes = 2;
                     blur_size = 2;
-                    path = config.settings.compositor.wallpaper;
+                    path = config.my.compositor.wallpaper;
                   }
                 ];
 

@@ -8,23 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.keybinds;
-    in
     {
-      options.settings.keybinds = {
-        enable = lib.mkEnableOption "compositor keybindings";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Assertion: app-launch must be enabled for app2unit command
-        assertions = [
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.keybinds requires settings.app-launch to be enabled (for app2unit)";
-          }
-        ];
-
         home-manager.sharedModules = [
           (
             {

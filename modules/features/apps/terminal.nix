@@ -8,15 +8,8 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.terminal;
-    in
     {
-      options.settings.terminal = {
-        enable = lib.mkEnableOption "Ghostty terminal emulator";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         home-manager.sharedModules = [
           {
             home.sessionVariables.TERMINAL = "ghostty";

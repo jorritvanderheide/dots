@@ -5,20 +5,12 @@
 {
   flake.nixosModules.git =
     {
-      config,
       ...
     }:
-    let
-      cfg = config.settings.git;
-    in
     {
-      options.settings.git = {
-        enable = lib.mkEnableOption "Git and Jujutsu";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Persist Git directory
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           "Git"
         ];
 
@@ -26,10 +18,10 @@
           (
             { config, ... }:
             let
-              cfg = config.settings.git;
+              cfg = config.my.git;
             in
             {
-              options.settings.git = {
+              options.my.git = {
                 allowedSigningKeys = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
                   description = "Allowed SSH public keys for commit signature verification";

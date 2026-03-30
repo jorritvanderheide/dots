@@ -9,17 +9,10 @@
       lib,
       ...
     }:
-    let
-      cfg = config.settings.browser;
-    in
     {
-      options.settings.browser = {
-        enable = lib.mkEnableOption "Zen web browser";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Persist browser data across reboots
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".config/zen"
         ];
 

@@ -10,12 +10,10 @@
       ...
     }:
     let
-      cfg = config.settings.keyboard-remap;
+      cfg = config.my.keyboard-remap;
     in
     {
-      options.settings.keyboard-remap = {
-        enable = lib.mkEnableOption "Kanata keyboard remapping";
-
+      options.my.keyboard-remap = {
         enableHotplugReload = lib.mkOption {
           type = lib.types.bool;
           default = false;
@@ -38,7 +36,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         # Enable uinput kernel module
         boot.kernelModules = [ "uinput" ];
         hardware.uinput.enable = true;

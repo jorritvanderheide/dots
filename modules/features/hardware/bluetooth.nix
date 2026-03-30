@@ -9,15 +9,8 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.bluetooth;
-    in
     {
-      options.settings.bluetooth = {
-        enable = lib.mkEnableOption "Bluetooth support";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         hardware.bluetooth = {
           enable = true;
           powerOnBoot = true;
@@ -29,7 +22,7 @@
         ];
 
         # Persist Bluetooth pairings
-        settings.preservation.systemDirectories = [
+        my.preservation.systemDirectories = [
           "/var/lib/bluetooth"
         ];
       };

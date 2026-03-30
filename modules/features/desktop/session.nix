@@ -10,52 +10,27 @@
       ...
     }:
     let
-      cfg = config.settings.session;
+      cfg = config.my.session;
+      compositor = config.my.compositor;
     in
     {
-      options.settings.session = {
-        enable = lib.mkEnableOption "UWSM session manager";
-
+      options.my.session = {
         autologinuser = lib.mkOption {
           type = lib.types.str;
           description = "Username for automatic login";
         };
-
-        compositorName = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Name of the compositor to launch";
-        };
-
-        compositorSessionCommand = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Session startup command for the compositor";
-        };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Assertion: compositor config must be provided
-        assertions = [
-          {
-            assertion = cfg.compositorName != null;
-            message = "settings.session.compositorName must be set when session is enabled";
-          }
-          {
-            assertion = cfg.compositorSessionCommand != null;
-            message = "settings.session.compositorSessionCommand must be set when session is enabled";
-          }
-        ];
-
+      config = {
         programs.uwsm = {
           enable = true;
 
-          waylandCompositors.${cfg.compositorName} = {
-            binPath = "/run/current-system/sw/bin/${cfg.compositorName}";
-            comment = "${cfg.compositorName} compositor managed by UWSM";
+          waylandCompositors.${compositor.name} = {
+            binPath = "/run/current-system/sw/bin/${compositor.name}";
+            comment = "${compositor.name} compositor managed by UWSM";
             prettyName =
-              lib.toUpper (builtins.substring 0 1 cfg.compositorName)
-              + builtins.substring 1 (-1) cfg.compositorName;
+              lib.toUpper (builtins.substring 0 1 compositor.name)
+              + builtins.substring 1 (-1) compositor.name;
           };
         };
 
@@ -80,7 +55,7 @@
 
           settings =
             let
-              sessionCommand = "${lib.getExe pkgs.uwsm} start -F -- ${cfg.compositorSessionCommand}";
+              sessionCommand = "${lib.getExe pkgs.uwsm} start -F -- ${compositor.sessionCommand}";
             in
             {
               default_session.command = sessionCommand;

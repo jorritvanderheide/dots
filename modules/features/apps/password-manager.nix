@@ -9,32 +9,14 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.password-manager;
-    in
     {
-      options.settings.password-manager = {
-        enable = lib.mkEnableOption "Bitwarden password manager";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Assertion: app-launch must be enabled for app2unit command
-        assertions = [
-          {
-            assertion = config.settings.compositor.enable or false;
-            message = "settings.password-manager requires settings.compositor to be enabled (for niri spawn-at-startup)";
-          }
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.password-manager requires settings.app-launch to be enabled (for app2unit)";
-          }
-        ];
-
         # Disable standard ssh-agent in favor of Bitwarden SSH agent
         programs.ssh.startAgent = lib.mkForce false;
 
         # Persist config directory
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".config/Bitwarden"
         ];
 

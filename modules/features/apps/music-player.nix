@@ -9,16 +9,9 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.music-player;
-    in
     {
-      options.settings.music-player = {
-        enable = lib.mkEnableOption "Qobuz music player";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".local/share/qobuz-player"
         ];
 

@@ -6,12 +6,10 @@
       ...
     }:
     let
-      cfg = config.settings.locale;
+      cfg = config.my.locale;
     in
     {
-      options.settings.locale = {
-        enable = lib.mkEnableOption "locale and timezone configuration";
-
+      options.my.locale = {
         timezone = lib.mkOption {
           type = lib.types.str;
           default = "Europe/Amsterdam";
@@ -19,7 +17,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         time.timeZone = cfg.timezone;
       };
     };

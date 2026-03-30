@@ -9,16 +9,9 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.cli-tools;
-    in
     {
-      options.settings.cli-tools = {
-        enable = lib.mkEnableOption "CLI productivity tools";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".local/share/zoxide"
         ];
 

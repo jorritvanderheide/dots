@@ -8,27 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.clipboard;
-    in
     {
-      options.settings.clipboard = {
-        enable = lib.mkEnableOption "clipboard manager and screenshot tools";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Assertion: app-launch must be enabled for app2unit command
-        assertions = [
-          {
-            assertion = config.settings.compositor.enable or false;
-            message = "settings.clipboard requires settings.compositor to be enabled (for niri spawn-at-startup)";
-          }
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.clipboard requires settings.app-launch to be enabled (for app2unit)";
-          }
-        ];
-
         home-manager.sharedModules = [
           (
             { inputs, pkgs, ... }:

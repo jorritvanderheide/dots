@@ -10,12 +10,10 @@
       ...
     }:
     let
-      cfg = config.settings.vpn;
+      cfg = config.my.vpn;
     in
     {
-      options.settings.vpn = {
-        enable = lib.mkEnableOption "Mullvad VPN";
-
+      options.my.vpn = {
         enableExcludedApps = lib.mkOption {
           type = lib.types.bool;
           default = false;
@@ -23,7 +21,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         # Enable Mullvad VPN service
         services.mullvad-vpn = {
           enable = true;
@@ -37,7 +35,7 @@
         ];
 
         # Persist VPN configuration across reboots
-        settings.preservation = {
+        my.preservation = {
           systemDirectories = [
             "/etc/mullvad-vpn"
           ];

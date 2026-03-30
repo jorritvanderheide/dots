@@ -8,15 +8,8 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.media-player;
-    in
     {
-      options.settings.media-player = {
-        enable = lib.mkEnableOption "VLC media player";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         home-manager.sharedModules = [
           (
             { pkgs, ... }:

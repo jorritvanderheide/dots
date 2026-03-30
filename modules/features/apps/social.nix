@@ -9,16 +9,9 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.social;
-    in
     {
-      options.settings.social = {
-        enable = lib.mkEnableOption "Tuba fediverse client";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".local/share/dev.geopjr.Tuba"
         ];
 

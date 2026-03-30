@@ -10,19 +10,11 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.theming;
-    in
     {
       imports = [
         inputs.stylix.nixosModules.stylix
       ];
-
-      options.settings.theming = {
-        enable = lib.mkEnableOption "Stylix system-wide theming";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         stylix = {
           enable = true;
           autoEnable = true;

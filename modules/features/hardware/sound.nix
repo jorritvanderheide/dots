@@ -9,15 +9,8 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.sound;
-    in
     {
-      options.settings.sound = {
-        enable = lib.mkEnableOption "PipeWire sound system";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         environment.systemPackages = with pkgs; [
           pavucontrol
           playerctl

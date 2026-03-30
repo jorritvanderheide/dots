@@ -4,85 +4,69 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
+    niri-flake.url = "github:sodiboo/niri-flake";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
+    nixos-hardware.url = "github:nixos/nixos-hardware";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
-    cachyos-kernel = {
-      url = "github:xddxdd/nix-cachyos-kernel/release";
-    };
-
     disko = {
-      url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/disko";
     };
 
     home-manager = {
+      inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    niri-flake = {
-      url = "github:sodiboo/niri-flake";
-    };
-
-    nixos-hardware = {
-      url = "github:nixos/nixos-hardware";
-    };
-
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.2.1";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.2.1";
     };
 
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v0.4.3";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/lanzaboote/v0.4.3";
     };
 
-    # pubhubs.url = "path:/persist/home/jorrit/Git/pubhubs_canonical";
-
     sops-nix = {
-      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:Mic92/sops-nix";
     };
 
     starship-jj = {
-      url = "gitlab:lanastara_foss/starship-jj/0.7.0";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "gitlab:lanastara_foss/starship-jj/0.7.0";
     };
 
     stylix = {
-      url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:danth/stylix";
     };
 
     system76-scheduler-niri = {
-      url = "github:Kirottu/system76-scheduler-niri";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:Kirottu/system76-scheduler-niri";
     };
 
     treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:numtide/treefmt-nix";
     };
 
     worktrunk = {
-      url = "github:max-sixty/worktrunk";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:max-sixty/worktrunk";
     };
 
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
+
       inputs = {
-        nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs";
       };
     };
   };

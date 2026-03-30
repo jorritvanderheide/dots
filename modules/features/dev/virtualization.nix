@@ -9,12 +9,10 @@
       ...
     }:
     let
-      cfg = config.settings.virtualization;
+      cfg = config.my.virtualization;
     in
     {
-      options.settings.virtualization = {
-        enable = lib.mkEnableOption "Docker virtualization";
-
+      options.my.virtualization = {
         docker = {
           enable = lib.mkOption {
             type = lib.types.bool;
@@ -30,7 +28,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         virtualisation.docker = lib.mkIf cfg.docker.enable {
           enable = true;
           enableOnBoot = false; # Socket-activated for faster boot
@@ -48,7 +46,7 @@
         };
 
         # Persist Docker data
-        settings.preservation.systemDirectories = lib.optionals cfg.docker.enable [
+        my.preservation.systemDirectories = lib.optionals cfg.docker.enable [
           "/var/lib/docker"
         ];
       };

@@ -12,12 +12,10 @@ in
       ...
     }:
     let
-      cfg = config.settings.compositor;
+      cfg = config.my.compositor;
     in
     {
-      options.settings.compositor = {
-        enable = lib.mkEnableOption "Niri Wayland compositor";
-
+      options.my.compositor = {
         name = lib.mkOption {
           type = lib.types.enum [ "niri" ];
           default = "niri";
@@ -36,19 +34,7 @@ in
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Assertions: app-launch and theming must be enabled
-        assertions = [
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.compositor requires settings.app-launch to be enabled (for app2unit)";
-          }
-          {
-            assertion = config.settings.theming.enable or false;
-            message = "settings.compositor requires settings.theming to be enabled (for stylix colors)";
-          }
-        ];
-
+      config = {
         # Enable Niri overlay
         nixpkgs.overlays = [ inputs.niri-flake.overlays.niri ];
 
@@ -66,7 +52,7 @@ in
         # home-manager with only secrets+pkcs11 components instead.
         services.gnome.gnome-keyring.enable = lib.mkForce false;
 
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".local/share/keyrings"
         ];
 
@@ -87,7 +73,7 @@ in
           ];
         };
 
-        settings.compositor.sessionCommand =
+        my.compositor.sessionCommand =
           {
             niri = "niri --session";
           }

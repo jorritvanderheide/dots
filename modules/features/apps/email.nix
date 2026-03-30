@@ -8,16 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.email;
-    in
     {
-      options.settings.email = {
-        enable = lib.mkEnableOption "Thunderbird email client";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".thunderbird"
         ];
 

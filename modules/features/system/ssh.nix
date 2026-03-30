@@ -9,12 +9,10 @@
       ...
     }:
     let
-      cfg = config.settings.ssh;
+      cfg = config.my.ssh;
     in
     {
-      options.settings.ssh = {
-        enable = lib.mkEnableOption "SSH client";
-
+      options.my.ssh = {
         knownHosts = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -35,8 +33,8 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".ssh"
         ];
 

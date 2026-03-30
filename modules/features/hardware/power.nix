@@ -6,7 +6,7 @@
       ...
     }:
     let
-      cfg = config.settings.power;
+      cfg = config.my.power;
 
       # Auto-detect CPU vendor from facter report
       cpuVendor =
@@ -26,9 +26,7 @@
           null;
     in
     {
-      options.settings.power = {
-        enable = lib.mkEnableOption "power management";
-
+      options.my.power = {
         cpuGovernor = lib.mkOption {
           type = lib.types.enum [
             "performance"
@@ -46,41 +44,39 @@
         };
       };
 
-      config = lib.mkIf cfg.enable (
-        lib.mkMerge [
-          {
-            powerManagement = {
+      config = lib.mkMerge [
+        {
+          powerManagement = {
+            enable = true;
+            cpuFreqGovernor = lib.mkDefault cfg.cpuGovernor;
+          };
+        }
+
+        # Laptop-specific settings
+        (lib.mkIf cfg.laptop.enable {
+          hardware.system76.power-daemon.enable = true;
+          powerManagement.powertop.enable = true;
+
+          services = {
+            thermald.enable = cpuVendor == "intel"; # Thermald is Intel-specific
+            upower.enable = true;
+
+            system76-scheduler = {
               enable = true;
-              cpuFreqGovernor = lib.mkDefault cfg.cpuGovernor;
+              settings.cfsProfiles.enable = true;
             };
-          }
+          };
+        })
 
-          # Laptop-specific settings
-          (lib.mkIf cfg.laptop.enable {
-            hardware.system76.power-daemon.enable = true;
-            powerManagement.powertop.enable = true;
+        # AMD-specific optimizations
+        (lib.mkIf (cpuVendor == "amd") {
+          boot.kernelParams = [ "amd_pstate=active" ];
+        })
 
-            services = {
-              thermald.enable = cpuVendor == "intel"; # Thermald is Intel-specific
-              upower.enable = true;
-
-              system76-scheduler = {
-                enable = true;
-                settings.cfsProfiles.enable = true;
-              };
-            };
-          })
-
-          # AMD-specific optimizations
-          (lib.mkIf (cpuVendor == "amd") {
-            boot.kernelParams = [ "amd_pstate=active" ];
-          })
-
-          # Intel-specific optimizations
-          (lib.mkIf (cpuVendor == "intel") {
-            boot.kernelParams = [ "intel_pstate=active" ];
-          })
-        ]
-      );
+        # Intel-specific optimizations
+        (lib.mkIf (cpuVendor == "intel") {
+          boot.kernelParams = [ "intel_pstate=active" ];
+        })
+      ];
     };
 }

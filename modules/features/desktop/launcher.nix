@@ -8,23 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.launcher;
-    in
     {
-      options.settings.launcher = {
-        enable = lib.mkEnableOption "Fuzzel application launcher";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Assertion: app-launch must be enabled for app2unit command
-        assertions = [
-          {
-            assertion = config.settings.app-launch.enable or false;
-            message = "settings.launcher requires settings.app-launch to be enabled (for app2unit)";
-          }
-        ];
-
         home-manager.sharedModules = [
           (
             { config, ... }:

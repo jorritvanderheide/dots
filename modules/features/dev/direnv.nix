@@ -8,16 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.direnv;
-    in
     {
-      options.settings.direnv = {
-        enable = lib.mkEnableOption "direnv with nix-direnv";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".local/share/direnv"
         ];
 

@@ -9,16 +9,9 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.messaging;
-    in
     {
-      options.settings.messaging = {
-        enable = lib.mkEnableOption "Signal messenger";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation.homeDirectories = [
+      config = {
+        my.preservation.homeDirectories = [
           ".config/Signal"
         ];
 

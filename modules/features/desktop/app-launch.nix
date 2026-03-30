@@ -9,15 +9,8 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.app-launch;
-    in
     {
-      options.settings.app-launch = {
-        enable = lib.mkEnableOption "app2unit application launcher";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         environment.systemPackages = with pkgs; [
           app2unit
         ];

@@ -10,16 +10,10 @@
       ...
     }:
     let
-      cfg = config.settings.networking;
+      cfg = config.my.networking;
     in
     {
-      options.settings.networking = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Enable networking configuration";
-        };
-
+      options.my.networking = {
         DOHServers = lib.mkOption {
           type = lib.types.nullOr (lib.types.listOf lib.types.str);
           description = "DNS-over-HTTPS server names for dnscrypt-proxy";
@@ -102,7 +96,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         assertions = [
           {
             assertion =
@@ -119,7 +113,7 @@
 
         # Persist dnscrypt-proxy cache across reboots
         # Note: /var/lib/dnscrypt-proxy is a symlink to private/dnscrypt-proxy
-        settings.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
+        my.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
           "/var/lib/private/dnscrypt-proxy"
         ];
 

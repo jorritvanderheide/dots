@@ -9,17 +9,10 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.notes;
-    in
     {
-      options.settings.notes = {
-        enable = lib.mkEnableOption "Obsidian note-taking";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         # Persist obsidian data across reboots
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".config/obsidian"
         ];
 

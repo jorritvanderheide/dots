@@ -10,7 +10,7 @@
       ...
     }:
     let
-      cfg = config.settings.preservation;
+      cfg = config.my.preservation;
       normalUsers = lib.attrNames (lib.filterAttrs (_: user: user.isNormalUser) config.users.users);
 
       # Enable configureParent for nested paths (those containing a /)
@@ -32,7 +32,7 @@
         inputs.preservation.nixosModules.preservation
       ];
 
-      options.settings.preservation = {
+      options.my.preservation = {
         systemFiles = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];

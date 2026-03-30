@@ -9,15 +9,8 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.settings.editor;
-    in
     {
-      options.settings.editor = {
-        enable = lib.mkEnableOption "VS Code editor";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         programs.nix-ld.enable = true;
 
         home-manager.sharedModules = [
@@ -304,7 +297,7 @@
         ];
 
         # Persist editor data across reboots
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".config/Code"
           ".config/zed"
           ".local/share/zed"

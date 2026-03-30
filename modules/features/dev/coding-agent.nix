@@ -8,16 +8,9 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.coding-agent;
-    in
     {
-      options.settings.coding-agent = {
-        enable = lib.mkEnableOption "OpenCode AI coding agent";
-      };
-
-      config = lib.mkIf cfg.enable {
-        settings.preservation = {
+      config = {
+        my.preservation = {
           homeDirectories = [
             ".claude"
             ".config/opencode"

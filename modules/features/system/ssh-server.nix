@@ -9,20 +9,18 @@
       ...
     }:
     let
-      cfg = config.settings.ssh-server;
+      cfg = config.my.ssh-server;
 
       # Collect authorized keys from all home-manager users
       collectAuthorizedKeys = lib.mapAttrs (
         _username: userCfg:
-        lib.optionalAttrs (userCfg.settings.ssh-server ? authorizedKeys) {
-          openssh.authorizedKeys.keys = userCfg.settings.ssh-server.authorizedKeys;
+        lib.optionalAttrs (userCfg.my.ssh-server ? authorizedKeys) {
+          openssh.authorizedKeys.keys = userCfg.my.ssh-server.authorizedKeys;
         }
       ) config.home-manager.users;
     in
     {
-      options.settings.ssh-server = {
-        enable = lib.mkEnableOption "OpenSSH server";
-
+      options.my.ssh-server = {
         allowedUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -30,7 +28,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         services.openssh = {
           enable = true;
           allowSFTP = false;
@@ -59,7 +57,7 @@
         };
 
         # Persist SSH host keys
-        settings.preservation.systemFiles = [
+        my.preservation.systemFiles = [
           "/etc/ssh/ssh_host_ed25519_key"
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
@@ -70,7 +68,7 @@
         # Home-manager module for per-user SSH key configuration
         home-manager.sharedModules = [
           {
-            options.settings.ssh-server = {
+            options.my.ssh-server = {
               authorizedKeys = lib.mkOption {
                 type = lib.types.listOf lib.types.str;
                 default = [ ];

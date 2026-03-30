@@ -8,15 +8,13 @@
       ...
     }:
     let
-      cfg = config.settings.desktop-shell;
+      cfg = config.my.desktop-shell;
 
       quickshellPkg = inputs.quickshell.packages.${pkgs.system}.default; # Quickshell package
       qmlConfigPath = inputs.self + "/modules/features/desktop/desktop-shell/qml"; # Path to QML configuration files
     in
     {
-      options.settings.desktop-shell = {
-        enable = lib.mkEnableOption "Quickshell desktop shell";
-
+      options.my.desktop-shell = {
         package = lib.mkOption {
           type = lib.types.package;
           default = quickshellPkg;
@@ -30,15 +28,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Assertion: compositor must be enabled
-        assertions = [
-          {
-            assertion = config.settings.compositor.enable or false;
-            message = "settings.desktop-shell requires settings.compositor to be enabled";
-          }
-        ];
-
+      config = {
         environment.systemPackages = [
           cfg.package
           pkgs.kdePackages.qttools
@@ -58,7 +48,7 @@
             };
 
             # Launch quickshell via compositor
-            # programs.niri.settings.spawn-at-startup = lib.mkIf (config.settings.compositor.name == "niri") [
+            # programs.niri.settings.spawn-at-startup = lib.mkIf (config.my.compositor.name == "niri") [
             #   {
             #     command = [
             #       "app2unit"

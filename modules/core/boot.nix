@@ -7,14 +7,14 @@
   flake.nixosModules.boot =
     { config, ... }:
     let
-      cfg = config.settings.boot;
+      cfg = config.my.boot;
     in
     {
       imports = [
         inputs.lanzaboote.nixosModules.lanzaboote
       ];
 
-      options.settings.boot = {
+      options.my.boot = {
         secureboot.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
@@ -27,18 +27,18 @@
           # Assertion: preservation must be enabled for secure boot persistence
           assertions = [
             {
-              assertion = config.settings.preservation ? systemDirectories;
-              message = "boot module requires settings.preservation to be enabled";
+              assertion = config.my.preservation ? systemDirectories;
+              message = "boot module requires my.preservation to be enabled";
             }
           ];
 
           boot = {
             initrd = {
               compressor = "zstd";
+
               systemd = {
                 enable = true;
-                # Reduce udev settle timeout
-                services.systemd-udev-settle.serviceConfig.TimeoutSec = "10s";
+                services.systemd-udev-settle.serviceConfig.TimeoutSec = "10s"; # Reduce udev settle timeout
               };
             };
 
@@ -49,8 +49,8 @@
             ];
 
             loader = {
-              timeout = 0;
               efi.canTouchEfiVariables = true;
+              timeout = 0;
 
               systemd-boot = {
                 enable = lib.mkDefault (!cfg.secureboot.enable);
@@ -69,15 +69,15 @@
         # Secure boot configuration
         (lib.mkIf cfg.secureboot.enable {
           boot = {
+            loader.systemd-boot.enable = lib.mkForce false;
+
             lanzaboote = {
               enable = true;
               pkiBundle = "/var/lib/sbctl";
             };
-
-            loader.systemd-boot.enable = lib.mkForce false;
           };
 
-          settings.preservation.systemDirectories = [
+          my.preservation.systemDirectories = [
             "/var/lib/sbctl"
             "/var/lib/tpm2-tss"
           ];

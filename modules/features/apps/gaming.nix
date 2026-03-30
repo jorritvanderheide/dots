@@ -8,18 +8,11 @@
       config,
       ...
     }:
-    let
-      cfg = config.settings.gaming;
-    in
     {
-      options.settings.gaming = {
-        enable = lib.mkEnableOption "Steam gaming platform";
-      };
-
-      config = lib.mkIf cfg.enable {
+      config = {
         programs.steam.enable = true;
 
-        settings.preservation.homeDirectories = [
+        my.preservation.homeDirectories = [
           ".local/share/Steam"
           ".steam"
         ];
