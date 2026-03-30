@@ -51,10 +51,8 @@
                     enable = true;
 
                     ignores = [
-                      ".claude/"
                       ".direnv/"
                       ".envrc"
-                      "CLAUDE.md"
                       "result/"
                     ];
 
