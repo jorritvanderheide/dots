@@ -130,6 +130,13 @@
           "wireless/eduroam" = { };
         };
 
+        # Ensure wpa_supplicant user exists early enough for sops template ownership
+        users.users.wpa_supplicant = lib.mkIf (cfg.wireless != null) {
+          isSystemUser = true;
+          group = "wpa_supplicant";
+        };
+        users.groups.wpa_supplicant = lib.mkIf (cfg.wireless != null) { };
+
         environment.systemPackages = lib.mkIf (cfg.wireless != null) (
           with pkgs;
           [

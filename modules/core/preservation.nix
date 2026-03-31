@@ -59,6 +59,8 @@
       };
 
       config = {
+        users.groups.nixos = { };
+
         systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ]; # Systemd-machine-id-commit would fail with a bind-mounted machine-id
 
         boot = {
@@ -94,8 +96,8 @@
             directories = [
               {
                 directory = "/etc/nixos";
-                user = "jorrit";
-                group = "users";
+                group = "nixos";
+                mode = "0775";
               }
               "/var/log"
               {
@@ -116,11 +118,6 @@
                 file = "/etc/machine-id";
                 how = "symlink";
                 inInitrd = true;
-                configureParent = true;
-              }
-              {
-                file = "/etc/ssh/ssh_host_ed25519_key";
-                how = "symlink";
                 configureParent = true;
               }
               {

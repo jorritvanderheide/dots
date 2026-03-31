@@ -17,9 +17,9 @@
         defaultSopsFormat = "yaml";
       };
 
-      # Allow sops-users group to read the system SSH host key
+      # Fix SSH host key permissions (sshd requires 0600)
       systemd.tmpfiles.rules = [
-        "z /persist/system/etc/ssh/ssh_host_ed25519_key 0640 root sops-users -"
+        "z /persist/system/etc/ssh/ssh_host_ed25519_key 0600 root root -"
       ];
 
       # Create sops-users group with read access to system SSH key

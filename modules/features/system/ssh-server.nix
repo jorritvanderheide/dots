@@ -56,9 +56,8 @@
           };
         };
 
-        # Persist SSH host keys
+        # Persist SSH host public key (private key is read directly from /persist by sshd)
         my.preservation.systemFiles = [
-          "/etc/ssh/ssh_host_ed25519_key"
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
 
