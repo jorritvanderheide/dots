@@ -25,6 +25,9 @@ in
         sudo
         vpn
 
+        # Services
+        tailscale
+
         # Hardware
         bluetooth
         firmware
@@ -81,7 +84,7 @@ in
 
         # Host configuration
         (
-          { config, pkgs, ... }:
+          { pkgs, ... }:
           {
             ## System
             networking.hostName = "rocinante";
@@ -93,69 +96,6 @@ in
             boot.initrd.availableKernelModules = [ "tpm_tis" ];
             environment.systemPackages = with pkgs; [ intel-media-driver ];
             services.fwupd.extraRemotes = [ "lvfs-testing" ];
-
-            ## Persistence
-            preservation.preserveAt."/persist/system".directories = [
-              {
-                directory = "/etc/nixos";
-                user = "jorrit";
-                group = "users";
-              }
-            ];
-
-            ## WiFi networks
-            sops.secrets = {
-              "wireless/fairphone" = { };
-              "wireless/hackerspace" = { };
-              "wireless/beverweg" = { };
-              "wireless/eduroam" = { };
-            };
-
-            networking.wireless = {
-              secretsFile = config.sops.templates."wireless-secrets".path;
-
-              networks = {
-                "Jorrit's Fairphone" = {
-                  priority = 20;
-                  pskRaw = "ext:FAIRPHONE_PSK";
-                  authProtocols = [ "WPA-PSK" ];
-                };
-                "hackerspace024" = {
-                  priority = 10;
-                  pskRaw = "ext:HACKERSPACE_PSK";
-                  authProtocols = [ "WPA-PSK" ];
-                };
-                "Beverweg 20" = {
-                  priority = 10;
-                  pskRaw = "ext:BEVERWEG_PSK";
-                  authProtocols = [ "WPA-PSK" ];
-                };
-                "eduroam" = {
-                  priority = 10;
-                  authProtocols = [ "WPA-EAP" ];
-                  auth = ''
-                    eap=PEAP
-                    ca_cert="/etc/ssl/certs/ca-bundle.crt"
-                    identity="jorrit.vanderheide@ru.nl"
-                    password=ext:EDUROAM_PSK
-                    altsubject_match="DNS:eduroam.ru.nl"
-                    phase2="auth=MSCHAPV2"
-                    anonymous_identity="anonymous@ru.nl"
-                  '';
-                };
-              };
-            };
-
-            sops.templates."wireless-secrets" = {
-              content = ''
-                FAIRPHONE_PSK=${config.sops.placeholder."wireless/fairphone"}
-                HACKERSPACE_PSK=${config.sops.placeholder."wireless/hackerspace"}
-                BEVERWEG_PSK=${config.sops.placeholder."wireless/beverweg"}
-                EDUROAM_PSK=${config.sops.placeholder."wireless/eduroam"}
-              '';
-              mode = "0400";
-              owner = "wpa_supplicant";
-            };
 
             ## Display outputs
             home-manager.sharedModules = [
@@ -224,6 +164,12 @@ in
             };
 
             my.power.laptop.enable = true;
+            my.tailscale.enable = true;
+
+            my.ssh.knownHosts.dapple = {
+              hostNames = [ "dapple" "100.88.135.27" ];
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
+            };
           }
         )
       ];
