@@ -41,6 +41,9 @@
                     command = "${lib.getExe pkgs.opencode}";
                     args = ["acp"];
                   };
+                  claude-acp = {
+                    type = "registry";
+                  };
                 };
               };
             };
