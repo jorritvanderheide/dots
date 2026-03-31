@@ -55,6 +55,12 @@
               matchBlocks = {
                 "*" = { };
 
+                "dapple" = {
+                  host = "dapple";
+                  hostname = "100.88.135.27";
+                  user = "nixos";
+                };
+
                 "codeberg" = {
                   host = "codeberg.org";
                   identityFile = "~/.ssh/git@codeberg.org.pub";

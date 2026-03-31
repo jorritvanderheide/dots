@@ -35,6 +35,7 @@
       {
         extraGroups ? [ ],
         hashedPasswordFile ? null,
+        initialPassword ? null,
         userSecrets ? { },
         userSecretsFile ? null,
         username,
@@ -82,6 +83,8 @@
             { inherit hashedPasswordFile; }
           else if (userSecrets ? user_password) then
             { hashedPasswordFile = config.sops.secrets.user_password.path; }
+          else if initialPassword != null then
+            { inherit initialPassword; }
           else
             { }
         );
