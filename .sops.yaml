@@ -2,12 +2,14 @@ keys:
   - &root_rocinante age1f4lajwc59utha2x55qyley82z2534yklq69ehtay69090c895cesjyuv8d
   - &jorrit_rocinante age12hanketyv325jg8llm0tedcxred4datv6ysqgmfmzaxcclvuwsnqld5zrl
 
+  - &root_dapple age1s4uky6zn0yjf5sg4sg64vrkq7m0g2hkztr8etruhardx62ss5cpsz2vguj
 creation_rules:
   # System-wide secrets (accessible by all users and hosts)
   - path_regex: secrets/secrets\.yaml$
     key_groups:
       - age:
           - *root_rocinante
+          - *root_dapple
           - *jorrit_rocinante
 
   # User-specific secrets (accessible by specific user and their active hosts)
@@ -16,3 +18,9 @@ creation_rules:
       - age:
           - *jorrit_rocinante
           - *root_rocinante
+
+  - path_regex: secrets/users/nixos\.yaml$
+    key_groups:
+      - age:
+          - *root_rocinante
+          - *root_dapple
