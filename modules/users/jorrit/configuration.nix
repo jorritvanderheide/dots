@@ -11,6 +11,7 @@
       "dialout" # Serial
       "input"
       "keys" # Sops
+      "nixos" # NixOS config editing
       "kvm" # Android
       "plugdev" # Android
       "sops-users" # SOPS manual editing

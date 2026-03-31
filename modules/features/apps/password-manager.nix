@@ -5,7 +5,6 @@
 {
   flake.nixosModules.password-manager =
     {
-      config,
       pkgs,
       ...
     }:
