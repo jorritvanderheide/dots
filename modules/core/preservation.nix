@@ -40,7 +40,7 @@
         };
 
         systemDirectories = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
+          type = lib.types.listOf (lib.types.either lib.types.str lib.types.attrs);
           default = [ ];
           description = "Additional system directories to persist across reboots";
         };

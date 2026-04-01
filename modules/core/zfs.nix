@@ -108,6 +108,19 @@
           };
         };
 
+      # Automated snapshots for /persist (the only stateful dataset, root rolls back on boot)
+      services.sanoid = {
+        enable = true;
+
+        datasets."zroot/persist" = {
+          autoprune = true;
+          autosnap = true;
+          daily = 30;
+          hourly = 24;
+          monthly = 3;
+        };
+      };
+
       services.zfs = {
         autoScrub.enable = true;
         trim.enable = true;

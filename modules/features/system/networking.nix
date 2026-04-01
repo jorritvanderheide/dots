@@ -167,10 +167,6 @@
             ];
           };
 
-          nameservers = lib.mkIf (cfg.DOHServers != null) [
-            "127.0.0.1"
-            "::1"
-          ];
 
           wireless = lib.mkIf (cfg.wireless != null) {
             enable = true;
@@ -225,8 +221,18 @@
           owner = "wpa_supplicant";
         };
 
-        # Disable systemd-resolved when using dnscrypt-proxy (NixOS best practice)
-        services.resolved.enable = lib.mkIf (cfg.DOHServers != null) false;
+        # Use systemd-resolved as DNS orchestrator for split DNS:
+        #   *.ts.net        → Tailscale (automatic via accept-dns)
+        #   everything else → dnscrypt-proxy (DOH)
+        services.resolved = lib.mkIf (cfg.DOHServers != null) {
+          enable = true;
+          settings.Resolve = {
+            DNSSEC = "allow-downgrade";
+            DNS = [ "127.0.0.1:5354" ];
+            DNSStubListener = "yes";
+            FallbackDNS = [ ];
+          };
+        };
 
         services.dnscrypt-proxy = lib.mkIf (cfg.DOHServers != null) {
           enable = true;
@@ -234,9 +240,10 @@
             ipv6_servers = true;
             require_dnssec = true;
 
+            # Listen on 5354 — resolved handles port 53 and routes here (5353 is mDNS)
             listen_addresses = [
-              "127.0.0.1:53"
-              "[::1]:53"
+              "127.0.0.1:5354"
+              "[::1]:5354"
             ];
 
             sources.public-resolvers = {

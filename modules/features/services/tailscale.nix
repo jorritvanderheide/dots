@@ -17,11 +17,15 @@
       };
 
       config = lib.mkIf cfg.enable {
-        services.tailscale.enable = true;
+        sops.secrets.tailscale_auth_key = { };
 
-        networking.firewall = {
-          trustedInterfaces = [ config.services.tailscale.interfaceName ];
-          allowedUDPPorts = [ config.services.tailscale.port ];
+        networking.firewall.trustedInterfaces = [ config.services.tailscale.interfaceName ];
+
+        services.tailscale = {
+          enable = true;
+          authKeyFile = config.sops.secrets.tailscale_auth_key.path;
+          openFirewall = true;
+          permitCertUid = "root";
         };
 
         my.preservation.systemDirectories = [
