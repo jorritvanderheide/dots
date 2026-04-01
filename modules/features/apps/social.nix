@@ -1,11 +1,6 @@
 {
-  lib,
-  ...
-}:
-{
   flake.nixosModules.social =
     {
-      config,
       pkgs,
       ...
     }:

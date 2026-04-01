@@ -9,9 +9,6 @@
       pkgs,
       ...
     }:
-    let
-      cfg = config.my.lockscreen;
-    in
     {
       options.my.lockscreen = {
         command = lib.mkOption {

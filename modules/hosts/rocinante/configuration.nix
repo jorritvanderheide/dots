@@ -1,4 +1,8 @@
-{ inputs, lib, ... }:
+{
+  inputs,
+  lib,
+  ...
+}:
 let
   facterPath = inputs.self + "/modules/hosts/rocinante/facter.json";
   facterReport = lib.importJSON facterPath;
@@ -84,7 +88,10 @@ in
 
         # Host configuration
         (
-          { pkgs, ... }:
+          {
+            pkgs,
+            ...
+          }:
           {
             ## System
             networking.hostName = "rocinante";
@@ -167,7 +174,10 @@ in
             my.tailscale.enable = true;
 
             my.ssh.knownHosts.dapple = {
-              hostNames = [ "dapple" "100.88.135.27" ];
+              hostNames = [
+                "dapple"
+                "100.88.135.27"
+              ];
               publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
             };
           }

@@ -1,7 +1,13 @@
-{ lib, ... }:
+{
+  lib,
+  ...
+}:
 {
   flake.nixosModules.tailscale =
-    { config, ... }:
+    {
+      config,
+      ...
+    }:
     let
       cfg = config.my.tailscale;
     in

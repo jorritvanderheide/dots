@@ -5,7 +5,6 @@
 {
   flake.nixosModules.cli-tools =
     {
-      config,
       pkgs,
       ...
     }:

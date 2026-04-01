@@ -1,21 +1,12 @@
 {
-  lib,
-  ...
-}:
-{
-  flake.nixosModules.gaming =
-    {
-      config,
-      ...
-    }:
-    {
-      config = {
-        programs.steam.enable = true;
+  flake.nixosModules.gaming = {
+    config = {
+      programs.steam.enable = true;
 
-        my.preservation.homeDirectories = [
-          ".local/share/Steam"
-          ".steam"
-        ];
-      };
+      my.preservation.homeDirectories = [
+        ".local/share/Steam"
+        ".steam"
+      ];
     };
+  };
 }

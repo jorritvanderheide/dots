@@ -1,11 +1,6 @@
 {
-  lib,
-  ...
-}:
-{
   flake.nixosModules.app-launch =
     {
-      config,
       pkgs,
       ...
     }:

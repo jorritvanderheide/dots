@@ -1,4 +1,7 @@
-{ inputs, ... }:
+{
+  inputs,
+  ...
+}:
 {
   flake.nixosModules.jorrit = inputs.self.lib.mkUser {
     username = "jorrit";

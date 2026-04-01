@@ -1,7 +1,13 @@
-{ inputs, ... }:
+{
+  inputs,
+  ...
+}:
 {
   perSystem =
-    { pkgs, ... }:
+    {
+      pkgs,
+      ...
+    }:
     let
       install-host = pkgs.writeShellApplication {
         name = "install-host";

@@ -5,7 +5,6 @@
 {
   flake.nixosModules.music-player =
     {
-      config,
       pkgs,
       ...
     }:

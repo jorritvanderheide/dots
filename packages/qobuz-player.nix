@@ -3,7 +3,6 @@
   pkgs,
   ...
 }:
-
 pkgs.rustPlatform.buildRustPackage (finalAttrs: {
   pname = "qobuz-player";
   version = "0.7.2";

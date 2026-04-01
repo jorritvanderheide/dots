@@ -1,7 +1,14 @@
-{ inputs, ... }:
+{
+  inputs,
+  ...
+}:
 {
   perSystem =
-    { system, pkgs, ... }:
+    {
+      system,
+      pkgs,
+      ...
+    }:
     {
       checks = {
         # Formatting

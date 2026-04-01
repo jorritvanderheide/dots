@@ -6,7 +6,6 @@
 {
   flake.nixosModules.prompt =
     {
-      config,
       pkgs,
       ...
     }:

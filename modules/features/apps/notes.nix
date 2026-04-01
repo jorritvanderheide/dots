@@ -5,7 +5,6 @@
 {
   flake.nixosModules.notes =
     {
-      config,
       pkgs,
       ...
     }:

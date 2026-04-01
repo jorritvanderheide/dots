@@ -1,4 +1,7 @@
-{ inputs, ... }:
+{
+  inputs,
+  ...
+}:
 let
   niriHomeModule = inputs.niri-flake.homeModules.niri;
   system76SchedulerModule = inputs.system76-scheduler-niri.homeModules.default;

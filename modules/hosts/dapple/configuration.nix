@@ -1,4 +1,12 @@
-{ inputs, ... }:
+{
+  inputs,
+  lib,
+  ...
+}:
+let
+  facterPath = inputs.self + "/modules/hosts/dapple/facter.json";
+  facterReport = lib.importJSON facterPath;
+in
 {
   flake.nixosConfigurations.dapple = inputs.nixpkgs.lib.nixosSystem {
     modules =
@@ -38,7 +46,7 @@
             ## System
             networking.hostName = "dapple";
             networking.useNetworkd = lib.mkForce false; # Realtek rtw89 driver incompatible with networkd's BPF DHCP client
-            nixpkgs.hostPlatform = "x86_64-linux";
+            nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
 
             ## Boot
