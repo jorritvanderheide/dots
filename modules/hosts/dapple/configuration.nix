@@ -30,6 +30,7 @@ in
         sudo
 
         # Services
+        monitoring
         tailscale
 
         # Dev
@@ -57,6 +58,9 @@ in
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp3s0";
             };
+
+            ## Monitoring
+            my.monitoring.enable = true;
 
             ## Tailscale
             my.tailscale.enable = true;
