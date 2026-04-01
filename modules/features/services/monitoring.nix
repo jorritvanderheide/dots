@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -95,14 +96,24 @@
             };
           };
 
-          provision.datasources.settings.datasources = [
-            {
-              isDefault = true;
-              name = "Prometheus";
-              type = "prometheus";
-              url = "http://127.0.0.1:${toString config.services.prometheus.port}";
-            }
-          ];
+          provision = {
+            datasources.settings.datasources = [
+              {
+                isDefault = true;
+                name = "Prometheus";
+                type = "prometheus";
+                uid = "PBFA97CFB590B2093";
+                url = "http://127.0.0.1:${toString config.services.prometheus.port}";
+              }
+            ];
+
+            dashboards.settings.providers = [
+              {
+                name = "default";
+                options.path = "${inputs.self}/assets/grafana";
+              }
+            ];
+          };
         };
 
         services.prometheus = {
@@ -111,7 +122,11 @@
 
           exporters.node = {
             enable = true;
-            enabledCollectors = [ "systemd" ];
+            enabledCollectors = [
+              "systemd"
+              "textfile"
+            ];
+            extraFlags = [ "--collector.textfile.directory=/var/lib/prometheus-textfile" ];
           };
 
           scrapeConfigs = [
@@ -126,6 +141,10 @@
             }
           ];
         };
+
+        systemd.tmpfiles.rules = [
+          "d /var/lib/prometheus-textfile 0755 root root -"
+        ];
 
         my.preservation.systemDirectories = [
           {

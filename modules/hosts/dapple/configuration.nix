@@ -30,6 +30,7 @@ in
         sudo
 
         # Services
+        backup
         monitoring
         tailscale
 
@@ -57,6 +58,12 @@ in
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp3s0";
+            };
+
+            ## Backup
+            my.backup = {
+              enable = true;
+              usbSerial = "3248831116939333057";
             };
 
             ## Monitoring
