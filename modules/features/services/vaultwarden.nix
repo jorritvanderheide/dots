@@ -10,9 +10,7 @@
     }:
     let
       cfg = config.my.vaultwarden;
-
-      certDir = "/var/lib/tailscale-certs";
-      fqdn = "${config.networking.hostName}.tail2039cf.ts.net";
+      ts = config.my.tailscale;
       httpsPort = 8443;
       port = 8222;
     in
@@ -21,7 +19,7 @@
 
       config = lib.mkIf cfg.enable {
         sops.secrets.vaultwarden_env.owner = "vaultwarden";
-        networking.firewall.allowedTCPPorts = [ httpsPort ];
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ httpsPort ];
 
         services.vaultwarden = {
           enable = true;
@@ -29,11 +27,17 @@
           environmentFile = config.sops.secrets.vaultwarden_env.path;
 
           config = {
-            DOMAIN = "https://${fqdn}:${toString httpsPort}";
+            DOMAIN = "https://${ts.fqdn}:${toString httpsPort}";
             ROCKET_ADDRESS = "127.0.0.1";
             ROCKET_PORT = port;
             SIGNUPS_ALLOWED = false;
           };
+        };
+
+        systemd.services.nginx.after = [ "tailscale-cert.service" ];
+        systemd.services.vaultwarden.serviceConfig = {
+          Restart = "always";
+          RestartSec = "5s";
         };
 
         services.nginx = {
@@ -41,8 +45,8 @@
 
           virtualHosts."vaultwarden" = {
             forceSSL = true;
-            sslCertificate = "${certDir}/${fqdn}.crt";
-            sslCertificateKey = "${certDir}/${fqdn}.key";
+            sslCertificate = "${ts.certDir}/${ts.fqdn}.crt";
+            sslCertificateKey = "${ts.certDir}/${ts.fqdn}.key";
 
             listen = [
               {
@@ -59,6 +63,10 @@
             };
           };
         };
+
+        systemd.tmpfiles.rules = [
+          "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
+        ];
 
         my.preservation.systemDirectories = [
           "/var/lib/vaultwarden"

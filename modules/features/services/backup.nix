@@ -56,6 +56,15 @@
           };
         };
 
+        # Run backup daily if USB drive is connected
+        systemd.timers.syncoid-usb-backup = {
+          timerConfig = {
+            OnCalendar = "daily";
+            Persistent = true;
+          };
+          wantedBy = [ "timers.target" ];
+        };
+
         # Replicate zroot/persist to USB pool using existing sanoid snapshots
         systemd.services.syncoid-usb-backup = {
           after = [ "zfs-import-zbackup.service" ];

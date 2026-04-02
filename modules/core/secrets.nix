@@ -40,8 +40,9 @@
         };
       };
 
-      # Set SOPS_AGE_KEY_FILE so sops finds the derived key automatically
-      environment.variables.SOPS_AGE_KEY_FILE = "/run/sops-age-key";
+      # Set SOPS_AGE_KEY_FILE for interactive shell use only (not globally)
+      programs.bash.interactiveShellInit = ''export SOPS_AGE_KEY_FILE="/run/sops-age-key"'';
+      programs.fish.interactiveShellInit = ''set -gx SOPS_AGE_KEY_FILE "/run/sops-age-key"'';
 
       users.groups.sops-users = { };
     };

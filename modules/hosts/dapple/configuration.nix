@@ -72,6 +72,7 @@ in
 
             ## Tailscale
             my.tailscale.enable = true;
+            my.tailscale.certs.enable = true;
 
             ## Vaultwarden
             my.vaultwarden.enable = true;
