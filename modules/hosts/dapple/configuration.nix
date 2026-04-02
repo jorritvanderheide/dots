@@ -74,7 +74,10 @@ in
 
             ## Tailscale
             my.tailscale.enable = true;
-            my.tailscale.certs.enable = true;
+            my.tailscale.acme = {
+              enable = true;
+              domain = "bw20.nl";
+            };
 
             ## Vaultwarden
             my.vaultwarden.enable = true;

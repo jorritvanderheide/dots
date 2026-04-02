@@ -11,7 +11,7 @@
     }:
     let
       cfg = config.my.monitoring;
-      ts = config.my.tailscale;
+      domain = "monitoring.${config.my.tailscale.acme.domain}";
     in
     {
       options.my.monitoring = {
@@ -21,23 +21,28 @@
       config = lib.mkIf cfg.enable {
         assertions = [
           {
-            assertion = config.my.tailscale.certs.enable;
-            message = "my.monitoring requires my.tailscale.certs.enable for HTTPS certificates";
+            assertion = config.my.tailscale.acme.enable;
+            message = "my.monitoring requires my.tailscale.acme.enable for HTTPS certificates";
           }
         ];
 
         networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
         sops.secrets.grafana_secret_key.owner = "grafana";
 
+        # ACME cert for this subdomain
+        security.acme.certs.${domain} = { };
+
         # Nginx reverse proxy with HTTPS
         systemd.services.nginx = {
-          wants = [ "tailscale-cert.service" ];
-          after = [ "tailscale-cert.service" ];
+          wants = [ "acme-finished-${domain}.target" ];
+          after = [ "acme-finished-${domain}.target" ];
           serviceConfig = {
             Restart = lib.mkForce "always";
             RestartSec = lib.mkForce "5s";
           };
         };
+
+        users.groups.acme.members = [ "nginx" ];
 
         services.nginx = {
           enable = true;
@@ -45,10 +50,9 @@
           recommendedOptimisation = true;
           recommendedGzipSettings = true;
 
-          virtualHosts.${ts.fqdn} = {
+          virtualHosts.${domain} = {
             forceSSL = true;
-            sslCertificate = "${ts.certDir}/${ts.fqdn}.crt";
-            sslCertificateKey = "${ts.certDir}/${ts.fqdn}.key";
+            useACMEHost = domain;
 
             locations."/" = {
               proxyPass = "http://127.0.0.1:${toString config.services.grafana.settings.server.http_port}";
@@ -73,8 +77,8 @@
             server = {
               http_addr = "127.0.0.1";
               http_port = 3000;
-              domain = ts.fqdn;
-              root_url = "https://${ts.fqdn}";
+              domain = domain;
+              root_url = "https://${domain}";
             };
           };
 

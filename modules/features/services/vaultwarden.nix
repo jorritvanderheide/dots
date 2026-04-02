@@ -10,8 +10,7 @@
     }:
     let
       cfg = config.my.vaultwarden;
-      ts = config.my.tailscale;
-      httpsPort = 8443;
+      domain = "passwords.${config.my.tailscale.acme.domain}";
       port = 8222;
     in
     {
@@ -20,13 +19,16 @@
       config = lib.mkIf cfg.enable {
         assertions = [
           {
-            assertion = config.my.tailscale.certs.enable;
-            message = "my.vaultwarden requires my.tailscale.certs.enable for HTTPS certificates";
+            assertion = config.my.tailscale.acme.enable;
+            message = "my.vaultwarden requires my.tailscale.acme.enable for HTTPS certificates";
           }
         ];
 
         sops.secrets.vaultwarden_env.owner = "vaultwarden";
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ httpsPort ];
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
+
+        # ACME cert for this subdomain
+        security.acme.certs.${domain} = { };
 
         services.vaultwarden = {
           enable = true;
@@ -34,7 +36,7 @@
           environmentFile = config.sops.secrets.vaultwarden_env.path;
 
           config = {
-            DOMAIN = "https://${ts.fqdn}:${toString httpsPort}";
+            DOMAIN = "https://${domain}";
             ROCKET_ADDRESS = "127.0.0.1";
             ROCKET_PORT = port;
             SIGNUPS_ALLOWED = false;
@@ -47,25 +49,16 @@
         };
 
         systemd.services.nginx = {
-          wants = [ "tailscale-cert.service" ];
-          after = [ "tailscale-cert.service" ];
+          wants = [ "acme-finished-${domain}.target" ];
+          after = [ "acme-finished-${domain}.target" ];
         };
 
         services.nginx = {
           enable = true;
 
-          virtualHosts."vaultwarden" = {
+          virtualHosts.${domain} = {
             forceSSL = true;
-            sslCertificate = "${ts.certDir}/${ts.fqdn}.crt";
-            sslCertificateKey = "${ts.certDir}/${ts.fqdn}.key";
-
-            listen = [
-              {
-                addr = "0.0.0.0";
-                port = httpsPort;
-                ssl = true;
-              }
-            ];
+            useACMEHost = domain;
 
             locations."/" = {
               proxyPass = "http://127.0.0.1:${toString port}";
