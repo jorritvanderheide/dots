@@ -1,7 +1,7 @@
 {
   flake.nixosModules.coding-agent = {
     config = {
-        home-manager.sharedModules = [
+      home-manager.sharedModules = [
         {
           home.file = {
             ".config/opencode/agents/code-reviewer.md".text = ''
@@ -101,12 +101,16 @@
             };
           };
 
-          programs.claude-code.enable = true;
+          programs.claude-code = {
+            enable = true;
+            settings.includeCoAuthoredBy = false;
+          };
         }
       ];
 
       my.preservation = {
         homeDirectories = [
+          ".claude"
           ".config/opencode"
         ];
       };
