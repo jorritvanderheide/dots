@@ -188,6 +188,20 @@
                       labels.severity = "critical";
                       annotations.summary = "Last backup failed";
                     }
+                    {
+                      alert = "OffsiteBackupStale";
+                      expr = "absent(offsite_backup_last_success_timestamp) or (time() - offsite_backup_last_success_timestamp) > 172800";
+                      for = "1h";
+                      labels.severity = "warning";
+                      annotations.summary = "No successful offsite backup in over 2 days";
+                    }
+                    {
+                      alert = "OffsiteBackupFailed";
+                      expr = "offsite_backup_last_exit_code != 0";
+                      for = "1m";
+                      labels.severity = "critical";
+                      annotations.summary = "Last offsite backup failed";
+                    }
                   ];
                 }
               ];

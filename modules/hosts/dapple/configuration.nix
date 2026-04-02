@@ -34,6 +34,7 @@ in
         backup
         calibre-web
         monitoring
+        offsite-backup
         tailscale
         vaultwarden
 
@@ -85,6 +86,9 @@ in
 
             ## Calibre-Web
             my.calibre-web.enable = true;
+
+            ## Offsite Backup
+            my.offsite-backup.enable = true;
 
             ## SSH
             my.ssh-server.allowedUsers = [ "nixos" ];
