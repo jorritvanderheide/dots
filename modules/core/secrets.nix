@@ -41,7 +41,7 @@
       };
 
       # Set SOPS_AGE_KEY_FILE so sops finds the derived key automatically
-      environment.sessionVariables.SOPS_AGE_KEY_FILE = "/run/sops-age-key";
+      environment.variables.SOPS_AGE_KEY_FILE = "/run/sops-age-key";
 
       users.groups.sops-users = { };
     };

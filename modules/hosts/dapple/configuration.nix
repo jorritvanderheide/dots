@@ -33,6 +33,7 @@ in
         backup
         monitoring
         tailscale
+        vaultwarden
 
         # Dev
         nix
@@ -71,6 +72,9 @@ in
 
             ## Tailscale
             my.tailscale.enable = true;
+
+            ## Vaultwarden
+            my.vaultwarden.enable = true;
 
             ## SSH
             my.ssh-server.allowedUsers = [ "nixos" ];
