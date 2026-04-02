@@ -11,8 +11,9 @@
     }:
     let
       cfg = config.my.monitoring;
-      fqdn = "${config.networking.hostName}.tail2039cf.ts.net";
+
       certDir = "/var/lib/tailscale-certs";
+      fqdn = "${config.networking.hostName}.tail2039cf.ts.net";
     in
     {
       options.my.monitoring = {
@@ -25,14 +26,15 @@
 
         # Fetch and renew Tailscale HTTPS certs
         systemd.services.tailscale-cert = {
-          after = [
-            "tailscaled.service"
-            "network-online.target"
-          ];
           description = "Fetch Tailscale TLS certificate";
           path = [ config.services.tailscale.package ];
           wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
+
+          after = [
+            "tailscaled.service"
+            "network-online.target"
+          ];
 
           script = ''
             mkdir -p ${certDir}
@@ -97,6 +99,13 @@
           };
 
           provision = {
+            dashboards.settings.providers = [
+              {
+                name = "default";
+                options.path = "${inputs.self}/assets/grafana";
+              }
+            ];
+
             datasources.settings.datasources = [
               {
                 isDefault = true;
@@ -104,13 +113,6 @@
                 type = "prometheus";
                 uid = "PBFA97CFB590B2093";
                 url = "http://127.0.0.1:${toString config.services.prometheus.port}";
-              }
-            ];
-
-            dashboards.settings.providers = [
-              {
-                name = "default";
-                options.path = "${inputs.self}/assets/grafana";
               }
             ];
           };
@@ -122,11 +124,12 @@
 
           exporters.node = {
             enable = true;
+            extraFlags = [ "--collector.textfile.directory=/var/lib/prometheus-textfile" ];
+
             enabledCollectors = [
               "systemd"
               "textfile"
             ];
-            extraFlags = [ "--collector.textfile.directory=/var/lib/prometheus-textfile" ];
           };
 
           scrapeConfigs = [

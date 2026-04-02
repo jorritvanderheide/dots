@@ -1,8 +1,3 @@
-# USB ZFS backup via syncoid
-#
-# Prerequisites: create a ZFS pool on the USB drive before first use:
-#   lsblk  # find the USB drive device
-#   sudo zpool create -o ashift=12 -O compression=zstd -O atime=off zbackup /dev/sdX
 {
   lib,
   ...
@@ -21,6 +16,7 @@
       options.my.backup = {
         enable = lib.mkEnableOption "USB drive ZFS backup via syncoid";
 
+        # sudo zpool create -o ashift=12 -O compression=zstd -O atime=off zbackup /dev/sdX
         usbSerial = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
@@ -68,9 +64,9 @@
           serviceConfig.Type = "oneshot";
 
           path = [
+            config.boot.zfs.package
             pkgs.coreutils
             pkgs.sanoid
-            config.boot.zfs.package
           ];
 
           script = ''
