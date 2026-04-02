@@ -227,7 +227,7 @@
         services.resolved = lib.mkIf (cfg.DOHServers != null) {
           enable = true;
           settings.Resolve = {
-            DNSSEC = "allow-downgrade";
+            DNSSEC = "false"; # dnscrypt-proxy handles DNSSEC validation
             DNS = [ "127.0.0.1:5354" ];
             DNSStubListener = "yes";
             FallbackDNS = [ ];

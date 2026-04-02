@@ -32,6 +32,7 @@ in
         # Services
         alerting
         backup
+        calibre-web
         monitoring
         tailscale
         vaultwarden
@@ -81,6 +82,9 @@ in
 
             ## Vaultwarden
             my.vaultwarden.enable = true;
+
+            ## Calibre-Web
+            my.calibre-web.enable = true;
 
             ## SSH
             my.ssh-server.allowedUsers = [ "nixos" ];
