@@ -7,30 +7,11 @@
   flake.nixosModules.monitoring =
     {
       config,
-      pkgs,
       ...
     }:
     let
       cfg = config.my.monitoring;
       ts = config.my.tailscale;
-
-      alertmanager-signal = pkgs.writeShellScript "alertmanager-signal" ''
-        set -euo pipefail
-        SIGNAL_CLI="${pkgs.signal-cli}/bin/signal-cli"
-        ACCOUNT_FILE="/var/lib/signal-cli/data"
-        GROUP_ID="$(<"$SIGNAL_GROUP_ID_FILE")"
-
-        # Read POST body from stdin
-        BODY=$(${pkgs.coreutils}/bin/cat)
-
-        # Extract alert summary
-        MESSAGE=$(echo "$BODY" | ${pkgs.jq}/bin/jq -r '
-          "⚠️ " + .status + " | " + (.alerts | length | tostring) + " alert(s)\n" +
-          (.alerts[] | "• [" + .labels.severity + "] " + .annotations.summary)
-        ')
-
-        $SIGNAL_CLI --config /var/lib/signal-cli send -g "$GROUP_ID" -m "$MESSAGE"
-      '';
     in
     {
       options.my.monitoring = {
@@ -38,26 +19,24 @@
       };
 
       config = lib.mkIf cfg.enable {
+        assertions = [
+          {
+            assertion = config.my.tailscale.certs.enable;
+            message = "my.monitoring requires my.tailscale.certs.enable for HTTPS certificates";
+          }
+        ];
+
         networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
         sops.secrets.grafana_secret_key.owner = "grafana";
 
         # Nginx reverse proxy with HTTPS
-        systemd.services.nginx.after = [ "tailscale-cert.service" ];
-        systemd.services.nginx.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
-        };
-        systemd.services.grafana.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = "5s";
-        };
-        systemd.services.prometheus.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = "5s";
-        };
-        systemd.services.alertmanager.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = "5s";
+        systemd.services.nginx = {
+          wants = [ "tailscale-cert.service" ];
+          after = [ "tailscale-cert.service" ];
+          serviceConfig = {
+            Restart = lib.mkForce "always";
+            RestartSec = lib.mkForce "5s";
+          };
         };
 
         services.nginx = {
@@ -79,6 +58,7 @@
           };
         };
 
+        # Grafana
         services.grafana = {
           enable = true;
 
@@ -118,6 +98,12 @@
           };
         };
 
+        systemd.services.grafana.serviceConfig = {
+          Restart = lib.mkForce "always";
+          RestartSec = "5s";
+        };
+
+        # Prometheus
         services.prometheus = {
           enable = true;
           retentionTime = "30d";
@@ -144,7 +130,7 @@
             }
           ];
 
-          alertmanagers = [
+          alertmanagers = lib.mkIf config.services.prometheus.alertmanager.enable [
             {
               static_configs = [
                 { targets = [ "127.0.0.1:${toString config.services.prometheus.alertmanager.port}" ]; }
@@ -186,7 +172,7 @@
                   rules = [
                     {
                       alert = "BackupStale";
-                      expr = "(time() - backup_last_success_timestamp) > 604800";
+                      expr = "absent(backup_last_success_timestamp) or (time() - backup_last_success_timestamp) > 604800";
                       for = "1h";
                       labels.severity = "warning";
                       annotations.summary = "No successful backup in over 7 days";
@@ -203,62 +189,11 @@
               ];
             })
           ];
-
-          alertmanager = {
-            enable = true;
-            port = 9093;
-
-            configuration = {
-              route = {
-                receiver = "default";
-                group_wait = "30s";
-                group_interval = "5m";
-                repeat_interval = "4h";
-              };
-
-              receivers = [
-                {
-                  name = "default";
-                  webhook_configs = [
-                    { url = "http://127.0.0.1:9095/alert"; }
-                  ];
-                }
-              ];
-            };
-          };
         };
 
-        # Signal alerting webhook
-        sops.secrets.signal_group_id = { };
-
-        systemd.services.alertmanager-signal = {
-          description = "Alertmanager Signal webhook receiver";
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" ];
-
-          environment.SIGNAL_GROUP_ID_FILE = config.sops.secrets.signal_group_id.path;
-
-          path = [
-            pkgs.coreutils
-            pkgs.jq
-            pkgs.signal-cli
-          ];
-
-          script = ''
-            # Minimal HTTP server that receives Alertmanager webhooks and forwards to Signal
-            while true; do
-              echo -e "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK" | \
-                ${pkgs.nmap}/bin/ncat -l -p 9095 -c "${alertmanager-signal}" || true
-              sleep 0.1
-            done
-          '';
-
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "5s";
-            DynamicUser = false;
-            StateDirectory = "signal-cli";
-          };
+        systemd.services.prometheus.serviceConfig = {
+          Restart = lib.mkForce "always";
+          RestartSec = "5s";
         };
 
         systemd.tmpfiles.rules = [
@@ -272,7 +207,6 @@
             group = "grafana";
           }
           "/var/lib/prometheus2"
-          "/var/lib/signal-cli"
         ];
       };
     };

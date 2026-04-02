@@ -67,8 +67,12 @@
                 --cert-file=${cfg.certDir}/${cfg.fqdn}.crt \
                 --key-file=${cfg.certDir}/${cfg.fqdn}.key \
                 ${cfg.fqdn}
-              chown root:nginx ${cfg.certDir}/${cfg.fqdn}.{crt,key}
-              chmod 640 ${cfg.certDir}/${cfg.fqdn}.{crt,key}
+              chmod 644 ${cfg.certDir}/${cfg.fqdn}.crt
+              chmod 640 ${cfg.certDir}/${cfg.fqdn}.key
+              # Allow nginx to read the private key if it is installed
+              if getent group nginx >/dev/null 2>&1; then
+                chgrp nginx ${cfg.certDir}/${cfg.fqdn}.key
+              fi
             '';
 
             serviceConfig = {

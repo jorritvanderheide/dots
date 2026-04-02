@@ -18,6 +18,13 @@
       options.my.vaultwarden.enable = lib.mkEnableOption "Vaultwarden password manager server";
 
       config = lib.mkIf cfg.enable {
+        assertions = [
+          {
+            assertion = config.my.tailscale.certs.enable;
+            message = "my.vaultwarden requires my.tailscale.certs.enable for HTTPS certificates";
+          }
+        ];
+
         sops.secrets.vaultwarden_env.owner = "vaultwarden";
         networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ httpsPort ];
 
@@ -34,10 +41,14 @@
           };
         };
 
-        systemd.services.nginx.after = [ "tailscale-cert.service" ];
         systemd.services.vaultwarden.serviceConfig = {
           Restart = "always";
           RestartSec = "5s";
+        };
+
+        systemd.services.nginx = {
+          wants = [ "tailscale-cert.service" ];
+          after = [ "tailscale-cert.service" ];
         };
 
         services.nginx = {

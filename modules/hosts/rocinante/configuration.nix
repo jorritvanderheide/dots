@@ -172,7 +172,6 @@ in
 
             my.power.laptop.enable = true;
             my.tailscale.enable = true;
-            my.sudo.passwordless = true;
 
             my.ssh.knownHosts.dapple = {
               hostNames = [
