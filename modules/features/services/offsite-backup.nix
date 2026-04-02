@@ -33,7 +33,6 @@
           default = [
             "/var/backup/vaultwarden"
             "/var/lib/calibre-web"
-            "/var/lib/signal-cli"
           ];
           description = "Local paths to back up";
         };
@@ -74,7 +73,7 @@
               syncCommands = lib.concatMapStringsSep "\n" (
                 path:
                 let
-                  dirName = builtins.baseNameOf path;
+                  dirName = baseNameOf path;
                 in
                 ''
                   echo "Syncing ${path} -> protondrive:${cfg.remotePath}/${dirName}"
@@ -102,33 +101,9 @@
                 "otp_secret_key = $PROTON_2FA" \
                 > "$RCLONE_CONFIG"
 
-              METRICS="/var/lib/prometheus-textfile/offsite_backup.prom"
-              START=$(date +%s)
-
-              write_metrics() {
-                printf '%s\n' "$@" > "$METRICS"
-              }
-
               echo "Starting offsite backup to Proton Drive"
-              if (
-                ${syncCommands}
-              ); then
-                END=$(date +%s)
-                write_metrics \
-                  "offsite_backup_last_run_timestamp $END" \
-                  "offsite_backup_last_success_timestamp $END" \
-                  "offsite_backup_last_duration_seconds $((END - START))" \
-                  "offsite_backup_last_exit_code 0"
-                echo "Offsite backup complete in $((END - START))s"
-              else
-                END=$(date +%s)
-                write_metrics \
-                  "offsite_backup_last_run_timestamp $END" \
-                  "offsite_backup_last_duration_seconds $((END - START))" \
-                  "offsite_backup_last_exit_code 1"
-                echo "Offsite backup failed"
-                exit 1
-              fi
+              ${syncCommands}
+              echo "Offsite backup complete"
             '';
         };
       };

@@ -72,41 +72,18 @@
 
           path = [
             config.boot.zfs.package
-            pkgs.coreutils
             pkgs.sanoid
           ];
 
           script = ''
-            METRICS="/var/lib/prometheus-textfile/backup.prom"
-            START=$(date +%s)
-
             if ! zpool status zbackup >/dev/null 2>&1; then
               echo "Pool zbackup is not available, skipping backup"
               exit 0
             fi
 
-            write_metrics() {
-              printf '%s\n' "$@" > "$METRICS"
-            }
-
             echo "Starting backup: zroot/persist -> zbackup/persist"
-            if syncoid --no-sync-snap zroot/persist zbackup/persist; then
-              END=$(date +%s)
-              write_metrics \
-                "backup_last_run_timestamp $END" \
-                "backup_last_success_timestamp $END" \
-                "backup_last_duration_seconds $((END - START))" \
-                "backup_last_exit_code 0"
-              echo "Backup complete in $((END - START))s"
-            else
-              END=$(date +%s)
-              write_metrics \
-                "backup_last_run_timestamp $END" \
-                "backup_last_duration_seconds $((END - START))" \
-                "backup_last_exit_code 1"
-              echo "Backup failed"
-              exit 1
-            fi
+            syncoid --no-sync-snap zroot/persist zbackup/persist
+            echo "Backup complete"
           '';
         };
       };

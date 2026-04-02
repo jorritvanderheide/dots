@@ -30,7 +30,6 @@ in
         sudo
 
         # Services
-        alerting
         backup
         calibre-web
         monitoring
@@ -70,9 +69,8 @@ in
               usbSerial = "3248831116939333057";
             };
 
-            ## Monitoring & Alerting
+            ## Monitoring
             my.monitoring.enable = true;
-            my.alerting.enable = true;
 
             ## Tailscale
             my.tailscale.enable = true;

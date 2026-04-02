@@ -60,6 +60,19 @@
             };
           };
 
+          users.groups.acme.members = [ "nginx" ];
+
+          services.nginx = {
+            recommendedTlsSettings = true;
+            recommendedOptimisation = true;
+            recommendedGzipSettings = true;
+          };
+
+          systemd.services.nginx.serviceConfig = {
+            Restart = lib.mkForce "always";
+            RestartSec = lib.mkForce "5s";
+          };
+
           my.preservation.systemDirectories = [
             "/var/lib/acme"
           ];
