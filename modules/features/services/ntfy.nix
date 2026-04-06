@@ -24,8 +24,6 @@
           }
         ];
 
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-
         # ACME cert for this subdomain
         security.acme.certs.${domain} = { };
 
@@ -39,11 +37,9 @@
           };
         };
 
-        # Override DynamicUser since preservation bind-mounts the state directory
         systemd.services.ntfy-sh.serviceConfig = {
-          DynamicUser = lib.mkForce false;
-          User = "ntfy-sh";
-          Group = "ntfy-sh";
+          Restart = lib.mkForce "always";
+          RestartSec = "5s";
         };
 
         systemd.services.nginx = {
@@ -51,28 +47,17 @@
           after = [ "acme-finished-${domain}.target" ];
         };
 
-        services.nginx = {
-          enable = true;
+        services.nginx.virtualHosts.${domain} = {
+          forceSSL = true;
+          useACMEHost = domain;
 
-          virtualHosts.${domain} = {
-            forceSSL = true;
-            useACMEHost = domain;
-
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:${toString port}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
-            };
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:${toString port}";
+            proxyWebsockets = true;
+            recommendedProxySettings = true;
           };
         };
 
-        my.preservation.systemDirectories = [
-          {
-            directory = "/var/lib/ntfy-sh";
-            user = "ntfy-sh";
-            group = "ntfy-sh";
-          }
-        ];
       };
     };
 }

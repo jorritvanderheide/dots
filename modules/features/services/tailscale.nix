@@ -60,9 +60,11 @@
             };
           };
 
+          networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
           users.groups.acme.members = [ "nginx" ];
 
           services.nginx = {
+            enable = true;
             recommendedTlsSettings = true;
             recommendedOptimisation = true;
             recommendedGzipSettings = true;

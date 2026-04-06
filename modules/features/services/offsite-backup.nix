@@ -36,11 +36,20 @@
 
         paths = lib.mkOption {
           type = lib.types.listOf lib.types.str;
-          default = [
-            "/var/backup/vaultwarden"
-            "/var/lib/calibre-web"
-          ];
+          default = [ ];
           description = "Local paths to back up";
+        };
+
+        healthcheckUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "URL to ping on successful backup (e.g. Uptime Kuma push URL)";
+        };
+
+        failureNotifyUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "ntfy topic URL to notify on backup failure";
         };
       };
 
@@ -62,11 +71,11 @@
           description = "Offsite backup to Storj via rclone";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
+          onFailure = lib.optional (cfg.failureNotifyUrl != null) "offsite-backup-notify-failure.service";
 
           path = [
             pkgs.rclone
-            pkgs.curl
-          ];
+          ] ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl;
 
           serviceConfig = {
             Type = "oneshot";
@@ -109,8 +118,19 @@
               echo "Starting offsite backup to Storj"
               ${syncCommands}
               echo "Offsite backup complete"
-              curl -fsS -o /dev/null "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping="
+              ${lib.optionalString (cfg.healthcheckUrl != null) ''
+                curl -fsS -o /dev/null "${cfg.healthcheckUrl}"
+              ''}
             '';
+        };
+
+        systemd.services.offsite-backup-notify-failure = lib.mkIf (cfg.failureNotifyUrl != null) {
+          description = "Notify on offsite backup failure";
+          serviceConfig.Type = "oneshot";
+          path = [ pkgs.curl ];
+          script = ''
+            curl -fsS -d "Offsite backup to Storj failed" "${cfg.failureNotifyUrl}"
+          '';
         };
       };
     };

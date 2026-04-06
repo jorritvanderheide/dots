@@ -20,7 +20,7 @@
         nixpkgs.overlays = [
           (_final: prev: {
             calibre-web = prev.calibre-web.overridePythonAttrs (old: {
-              dependencies = old.dependencies ++ old.optional-dependencies.kobo or [ ];
+              dependencies = old.dependencies ++ (old.optional-dependencies.kobo or [ ]);
             });
           })
         ];
@@ -30,8 +30,6 @@
             message = "my.calibre-web requires my.tailscale.acme.enable for HTTPS certificates";
           }
         ];
-
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
 
         # ACME cert for this subdomain
         security.acme.certs.${domain} = { };
@@ -63,24 +61,20 @@
           after = [ "acme-finished-${domain}.target" ];
         };
 
-        services.nginx = {
-          enable = true;
+        services.nginx.virtualHosts.${domain} = {
+          forceSSL = true;
+          useACMEHost = domain;
 
-          virtualHosts.${domain} = {
-            forceSSL = true;
-            useACMEHost = domain;
-
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:${toString port}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
-              extraConfig = ''
-                proxy_buffer_size 1024k;
-                proxy_buffers 4 512k;
-                proxy_busy_buffers_size 1024k;
-                proxy_set_header X-Scheme $scheme;
-              '';
-            };
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:${toString port}";
+            proxyWebsockets = true;
+            recommendedProxySettings = true;
+            extraConfig = ''
+              proxy_buffer_size 1024k;
+              proxy_buffers 4 512k;
+              proxy_busy_buffers_size 1024k;
+              proxy_set_header X-Scheme $scheme;
+            '';
           };
         };
 

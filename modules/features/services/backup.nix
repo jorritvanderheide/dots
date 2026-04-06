@@ -68,6 +68,8 @@
         # Replicate zroot/persist to USB pool using existing sanoid snapshots
         systemd.services.syncoid-usb-backup = {
           description = "Replicate zroot/persist to USB pool zbackup";
+          bindsTo = [ "zfs-import-zbackup.service" ];
+          after = [ "zfs-import-zbackup.service" ];
           serviceConfig.Type = "oneshot";
 
           path = [
@@ -76,11 +78,6 @@
           ];
 
           script = ''
-            if ! zpool status zbackup >/dev/null 2>&1; then
-              echo "Pool zbackup is not available, skipping backup"
-              exit 0
-            fi
-
             echo "Starting backup: zroot/persist -> zbackup/persist"
             syncoid --no-sync-snap zroot/persist zbackup/persist
             echo "Backup complete"

@@ -26,8 +26,6 @@
           }
         ];
 
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-
         # ACME cert for this subdomain
         security.acme.certs.${domain} = { };
 
@@ -37,26 +35,22 @@
           after = [ "acme-finished-${domain}.target" ];
         };
 
-        services.nginx = {
-          enable = true;
+        services.nginx.virtualHosts.${domain} = {
+          forceSSL = true;
+          useACMEHost = domain;
 
-          virtualHosts.${domain} = {
-            forceSSL = true;
-            useACMEHost = domain;
+          locations."= /" = {
+            return = "302 /list";
+          };
 
-            locations."= /" = {
-              return = "302 /list";
-            };
-
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:${toString uptimeKumaPort}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
-              extraConfig = ''
-                proxy_read_timeout 300s;
-                proxy_send_timeout 300s;
-              '';
-            };
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:${toString uptimeKumaPort}";
+            proxyWebsockets = true;
+            recommendedProxySettings = true;
+            extraConfig = ''
+              proxy_read_timeout 300s;
+              proxy_send_timeout 300s;
+            '';
           };
         };
 
@@ -81,6 +75,8 @@
           DynamicUser = lib.mkForce false;
           User = "uptime-kuma";
           Group = "uptime-kuma";
+          Restart = lib.mkForce "always";
+          RestartSec = "5s";
         };
 
         my.preservation.systemDirectories = [

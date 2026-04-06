@@ -25,7 +25,6 @@
         ];
 
         sops.secrets.vaultwarden_env.owner = "vaultwarden";
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
 
         # ACME cert for this subdomain
         security.acme.certs.${domain} = { };
@@ -44,8 +43,8 @@
         };
 
         systemd.services.vaultwarden.serviceConfig = {
-          Restart = "always";
-          RestartSec = "5s";
+          Restart = lib.mkForce "always";
+          RestartSec = lib.mkForce "5s";
         };
 
         systemd.services.nginx = {
@@ -53,18 +52,14 @@
           after = [ "acme-finished-${domain}.target" ];
         };
 
-        services.nginx = {
-          enable = true;
+        services.nginx.virtualHosts.${domain} = {
+          forceSSL = true;
+          useACMEHost = domain;
 
-          virtualHosts.${domain} = {
-            forceSSL = true;
-            useACMEHost = domain;
-
-            locations."/" = {
-              proxyPass = "http://127.0.0.1:${toString port}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
-            };
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:${toString port}";
+            proxyWebsockets = true;
+            recommendedProxySettings = true;
           };
         };
 

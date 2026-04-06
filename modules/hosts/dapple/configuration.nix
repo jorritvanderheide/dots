@@ -88,7 +88,14 @@ in
             my.calibre-web.enable = true;
 
             ## Offsite Backup
-            my.offsite-backup.enable = true;
+            my.offsite-backup = {
+              enable = true;
+              paths = [
+                "/var/backup/vaultwarden"
+                "/var/lib/calibre-web"
+              ];
+              healthcheckUrl = "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping=";
+            };
 
             ## SSH
             my.ssh-server.allowedUsers = [ "nixos" ];

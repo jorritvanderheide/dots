@@ -40,7 +40,21 @@
         };
 
         systemDirectories = lib.mkOption {
-          type = lib.types.listOf (lib.types.either lib.types.str lib.types.attrs);
+          type = lib.types.listOf (
+            lib.types.either lib.types.str (
+              lib.types.submodule {
+                options = {
+                  directory = lib.mkOption { type = lib.types.str; };
+                  user = lib.mkOption { type = lib.types.str; default = "root"; };
+                  group = lib.mkOption { type = lib.types.str; default = "root"; };
+                  mode = lib.mkOption { type = lib.types.str; default = "0755"; };
+                  configureParent = lib.mkOption { type = lib.types.bool; default = false; };
+                  how = lib.mkOption { type = lib.types.str; default = "bindmount"; };
+                  inInitrd = lib.mkOption { type = lib.types.bool; default = false; };
+                };
+              }
+            )
+          );
           default = [ ];
           description = "Additional system directories to persist across reboots";
         };
