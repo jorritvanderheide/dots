@@ -4,6 +4,51 @@
 }:
 {
   flake.lib = {
+    mkReverseProxy =
+      {
+        config,
+        subdomain,
+        port,
+        extraLocations ? { },
+        locationExtraConfig ? "",
+      }:
+      let
+        domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+      in
+      {
+        assertions = [
+          {
+            assertion = config.my.tailscale.acme.enable;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
+          }
+        ];
+
+        security.acme.certs.${domain} = { };
+
+        systemd.services.nginx = {
+          wants = [ "acme-finished-${domain}.target" ];
+          after = [ "acme-finished-${domain}.target" ];
+        };
+
+        services.nginx.virtualHosts.${domain} = {
+          forceSSL = true;
+          useACMEHost = domain;
+          locations =
+            {
+              "/" =
+                {
+                  proxyPass = "http://127.0.0.1:${toString port}";
+                  proxyWebsockets = true;
+                  recommendedProxySettings = true;
+                }
+                // lib.optionalAttrs (locationExtraConfig != "") {
+                  extraConfig = locationExtraConfig;
+                };
+            }
+            // extraLocations;
+        };
+      };
+
     mkMenu =
       {
         colors,

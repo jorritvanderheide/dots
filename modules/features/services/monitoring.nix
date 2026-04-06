@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -10,7 +11,7 @@
     }:
     let
       cfg = config.my.monitoring;
-      domain = "status.${config.my.tailscale.acme.domain}";
+      subdomain = "status";
       uptimeKumaPort = 3001;
     in
     {
@@ -18,74 +19,52 @@
         enable = lib.mkEnableOption "Uptime Kuma monitoring";
       };
 
-      config = lib.mkIf cfg.enable {
-        assertions = [
-          {
-            assertion = config.my.tailscale.acme.enable;
-            message = "my.monitoring requires my.tailscale.acme.enable for HTTPS certificates";
-          }
-        ];
+      config = lib.mkIf cfg.enable (lib.mkMerge [
+        (inputs.self.lib.mkReverseProxy {
+          inherit config;
+          inherit subdomain;
+          port = uptimeKumaPort;
+          locationExtraConfig = ''
+            proxy_read_timeout 300s;
+            proxy_send_timeout 300s;
+          '';
+          extraLocations = {
+            "= /" = { return = "302 /list"; };
+          };
+        })
+        {
+          services.uptime-kuma = {
+            enable = true;
 
-        # ACME cert for this subdomain
-        security.acme.certs.${domain} = { };
-
-        # Nginx reverse proxy with HTTPS
-        systemd.services.nginx = {
-          wants = [ "acme-finished-${domain}.target" ];
-          after = [ "acme-finished-${domain}.target" ];
-        };
-
-        services.nginx.virtualHosts.${domain} = {
-          forceSSL = true;
-          useACMEHost = domain;
-
-          locations."= /" = {
-            return = "302 /list";
+            settings = {
+              HOST = "127.0.0.1";
+              PORT = toString uptimeKumaPort;
+            };
           };
 
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:${toString uptimeKumaPort}";
-            proxyWebsockets = true;
-            recommendedProxySettings = true;
-            extraConfig = ''
-              proxy_read_timeout 300s;
-              proxy_send_timeout 300s;
-            '';
-          };
-        };
-
-        # Uptime Kuma
-        services.uptime-kuma = {
-          enable = true;
-
-          settings = {
-            HOST = "127.0.0.1";
-            PORT = toString uptimeKumaPort;
-          };
-        };
-
-        # Static user since preservation bind-mounts the state directory
-        users.users.uptime-kuma = {
-          isSystemUser = true;
-          group = "uptime-kuma";
-        };
-        users.groups.uptime-kuma = { };
-
-        systemd.services.uptime-kuma.serviceConfig = {
-          DynamicUser = lib.mkForce false;
-          User = "uptime-kuma";
-          Group = "uptime-kuma";
-          Restart = lib.mkForce "always";
-          RestartSec = "5s";
-        };
-
-        my.preservation.systemDirectories = [
-          {
-            directory = "/var/lib/uptime-kuma";
-            user = "uptime-kuma";
+          # Static user since preservation bind-mounts the state directory
+          users.users.uptime-kuma = {
+            isSystemUser = true;
             group = "uptime-kuma";
-          }
-        ];
-      };
+          };
+          users.groups.uptime-kuma = { };
+
+          systemd.services.uptime-kuma.serviceConfig = {
+            DynamicUser = lib.mkForce false;
+            User = "uptime-kuma";
+            Group = "uptime-kuma";
+            Restart = lib.mkForce "always";
+            RestartSec = "5s";
+          };
+
+          my.preservation.systemDirectories = [
+            {
+              directory = "/var/lib/uptime-kuma";
+              user = "uptime-kuma";
+              group = "uptime-kuma";
+            }
+          ];
+        }
+      ]);
     };
 }
