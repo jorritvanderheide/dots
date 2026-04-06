@@ -10,7 +10,7 @@
     }:
     let
       cfg = config.my.monitoring;
-      domain = "monitoring.${config.my.tailscale.acme.domain}";
+      domain = "status.${config.my.tailscale.acme.domain}";
       uptimeKumaPort = 3001;
     in
     {
@@ -52,6 +52,10 @@
               proxyPass = "http://127.0.0.1:${toString uptimeKumaPort}";
               proxyWebsockets = true;
               recommendedProxySettings = true;
+              extraConfig = ''
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+              '';
             };
           };
         };

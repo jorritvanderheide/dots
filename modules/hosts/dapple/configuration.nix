@@ -33,6 +33,7 @@ in
         backup
         calibre-web
         monitoring
+        ntfy
         offsite-backup
         tailscale
         vaultwarden
@@ -69,8 +70,9 @@ in
               usbSerial = "3248831116939333057";
             };
 
-            ## Monitoring
+            ## Monitoring & Notifications
             my.monitoring.enable = true;
+            my.ntfy.enable = true;
 
             ## Tailscale
             my.tailscale.enable = true;
