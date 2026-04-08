@@ -46,7 +46,7 @@
               echo "Pool zbackup already imported"
               exit 0
             fi
-            zpool import zbackup
+            zpool import -f zbackup
           '';
 
           serviceConfig = {
@@ -80,7 +80,9 @@
           script = ''
             echo "Starting backup: zroot/persist -> zbackup/persist"
             syncoid --no-sync-snap zroot/persist zbackup/persist
-            echo "Backup complete"
+            echo "Backup complete, exporting pool"
+            zpool export zbackup
+            echo "Pool exported, safe to unplug"
           '';
         };
       };
