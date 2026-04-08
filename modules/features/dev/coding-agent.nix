@@ -92,14 +92,7 @@
             '';
           };
 
-          programs.opencode = {
-            enable = true;
-
-            settings = {
-              "$schema" = "https://opencode.ai/config.json";
-              theme = "stylix";
-            };
-          };
+          programs.opencode.enable = true;
 
           programs.claude-code = {
             enable = true;

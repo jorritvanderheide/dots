@@ -17,7 +17,6 @@ in
         facter
         home-manager
         kernel
-        overlays
         preservation
         secrets
         zfs
