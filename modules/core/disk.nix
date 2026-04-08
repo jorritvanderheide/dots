@@ -51,7 +51,10 @@
                   content = {
                     name = "crypted";
                     passwordFile = "/tmp/secret.key";
-                    settings.allowDiscards = true;
+                    settings = {
+                      allowDiscards = true;
+                      crypttabExtraOpts = [ "tpm2-device=auto" ];
+                    };
                     type = "luks";
 
                     content = {

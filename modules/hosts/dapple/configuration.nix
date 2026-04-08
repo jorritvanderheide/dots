@@ -37,7 +37,6 @@ in
         ntfy
         offsite-backup
         tailscale
-        tangled
         vaultwarden
 
         # Dev
@@ -58,7 +57,7 @@ in
             system.stateVersion = "26.05";
 
             ## Boot
-            my.boot.secureboot.enable = false;
+            my.boot.secureboot.enable = true;
 
             ## Networking
             my.networking = {
@@ -70,6 +69,7 @@ in
             my.backup = {
               enable = true;
               usbSerial = "3248831116939333057";
+              notifyUrl = "https://alerts.bw20.nl/usb-backup";
             };
 
             ## Monitoring & Notifications
@@ -92,12 +92,6 @@ in
             ## Contacts
             my.contacts.enable = true;
 
-            ## Tangled
-            my.tangled = {
-              enable = true;
-              owner = "did:plc:zyucoa5xk7yo2vkuyfl4wxjd";
-            };
-
             ## Offsite Backup
             my.offsite-backup = {
               enable = true;
@@ -105,7 +99,6 @@ in
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
                 "/var/lib/radicale"
-                "/var/lib/tangled"
               ];
               healthcheckUrl = "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping=";
             };

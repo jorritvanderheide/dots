@@ -22,6 +22,12 @@
           default = null;
           description = "USB drive serial number to match (find with: lsblk -o NAME,SERIAL). If null, any USB block device triggers an import attempt.";
         };
+
+        notifyUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "ntfy topic URL to notify on backup completion or failure";
+        };
       };
 
       config = lib.mkIf cfg.enable {
@@ -42,9 +48,15 @@
           path = [
             config.boot.zfs.package
             pkgs.sanoid
-          ];
+          ] ++ lib.optional (cfg.notifyUrl != null) pkgs.curl;
 
           script = ''
+            notify() {
+              ${lib.optionalString (cfg.notifyUrl != null) ''
+                curl -fsS -d "$1" "${cfg.notifyUrl}" || true
+              ''}
+            }
+
             # Import pool if not already imported
             if ! zpool status zbackup >/dev/null 2>&1; then
               echo "Importing zbackup pool"
@@ -53,12 +65,19 @@
 
             # Run backup
             echo "Starting backup: zroot/persist -> zbackup/persist"
-            syncoid --no-sync-snap zroot/persist zbackup/persist
-            echo "Backup complete"
+            if syncoid --no-sync-snap zroot/persist zbackup/persist; then
+              echo "Backup complete"
 
-            # Export pool so drive can be safely unplugged
-            zpool export zbackup
-            echo "Pool exported, safe to unplug"
+              # Export pool so drive can be safely unplugged
+              zpool export zbackup
+              echo "Pool exported, safe to unplug"
+              notify "USB backup complete. Safe to unplug."
+            else
+              echo "Backup failed"
+              notify "USB backup FAILED"
+              zpool export -f zbackup 2>/dev/null || true
+              exit 1
+            fi
           '';
         };
       };

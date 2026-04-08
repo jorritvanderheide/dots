@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "actor-typeahead-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1762835797,
-        "narHash": "sha256-heizoWUKDdar6ymfZTnj3ytcEv/L4d4fzSmtr0HlXsQ=",
-        "ref": "refs/heads/main",
-        "rev": "677fe7f743050a4e7f09d4a6f87bbf1325a06f6b",
-        "revCount": 6,
-        "type": "git",
-        "url": "https://tangled.org/@jakelazaroff.com/actor-typeahead"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://tangled.org/@jakelazaroff.com/actor-typeahead"
-      }
-    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -156,28 +140,6 @@
         "type": "github"
       }
     },
-    "fenix_2": {
-      "inputs": {
-        "nixpkgs": [
-          "tangled",
-          "nixpkgs"
-        ],
-        "rust-analyzer-src": "rust-analyzer-src_2"
-      },
-      "locked": {
-        "lastModified": 1772176312,
-        "narHash": "sha256-Yjo/QCJvY9GUhAzwac/m6Rx3oxvRyEaiT5DQ5o+T6g4=",
-        "owner": "nix-community",
-        "repo": "fenix",
-        "rev": "92d91250c1acd59beabc51208192adc92f31aeb5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "fenix",
-        "type": "github"
-      }
-    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -208,20 +170,6 @@
         "owner": "edolstra",
         "repo": "flake-compat",
         "type": "github"
-      }
-    },
-    "flake-compat_2": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1751685974,
-        "narHash": "sha256-NKw96t+BgHIYzHUjkTK95FqYRVKB8DHpVhefWSz/kTw=",
-        "rev": "549f2762aebeff29a2e5ece7a7dc0f955281a1d1",
-        "type": "tarball",
-        "url": "https://git.lix.systems/api/v1/repos/lix-project/flake-compat/archive/549f2762aebeff29a2e5ece7a7dc0f955281a1d1.tar.gz?rev=549f2762aebeff29a2e5ece7a7dc0f955281a1d1"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://git.lix.systems/lix-project/flake-compat/archive/main.tar.gz"
       }
     },
     "flake-parts": {
@@ -323,24 +271,6 @@
         "type": "github"
       }
     },
-    "flake-utils_3": {
-      "inputs": {
-        "systems": "systems_5"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "fromYaml": {
       "flake": false,
       "locked": {
@@ -398,28 +328,6 @@
         "type": "gitlab"
       }
     },
-    "gomod2nix": {
-      "inputs": {
-        "flake-utils": "flake-utils_2",
-        "nixpkgs": [
-          "tangled",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1763982521,
-        "narHash": "sha256-ur4QIAHwgFc0vXiaxn5No/FuZicxBr2p0gmT54xZkUQ=",
-        "owner": "nix-community",
-        "repo": "gomod2nix",
-        "rev": "02e63a239d6eabd595db56852535992c898eba72",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "gomod2nix",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -440,43 +348,6 @@
         "type": "github"
       }
     },
-    "htmx-src": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-nm6avZuEBg67SSyyZUhjpXVNstHHgUxrtBHqJgowU08=",
-        "type": "file",
-        "url": "https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"
-      }
-    },
-    "htmx-ws-src": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-2fg6KyEJoO24q0fQqbz9RMaYNPQrMwpZh29tkSqdqGY=",
-        "type": "file",
-        "url": "https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.2"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://cdn.jsdelivr.net/npm/htmx-ext-ws@2.0.2"
-      }
-    },
-    "ibm-plex-mono-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1731402384,
-        "narHash": "sha256-OwUmrPfEehLDz0fl2ChYLK8FQM2p0G1+EMrGsYEq+6g=",
-        "type": "tarball",
-        "url": "https://github.com/IBM/plex/releases/download/@ibm/plex-mono@1.1.0/ibm-plex-mono.zip"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://github.com/IBM/plex/releases/download/@ibm/plex-mono@1.1.0/ibm-plex-mono.zip"
-      }
-    },
     "import-tree": {
       "locked": {
         "lastModified": 1773693634,
@@ -490,35 +361,6 @@
         "owner": "vic",
         "repo": "import-tree",
         "type": "github"
-      }
-    },
-    "indigo": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1753693716,
-        "narHash": "sha256-DMIKnCJRODQXEHUxA+7mLzRALmnZhkkbHlFT2rCQYrE=",
-        "owner": "oppiliappan",
-        "repo": "indigo",
-        "rev": "5f170569da9360f57add450a278d73538092d8ca",
-        "type": "github"
-      },
-      "original": {
-        "owner": "oppiliappan",
-        "repo": "indigo",
-        "type": "github"
-      }
-    },
-    "inter-fonts-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1731687360,
-        "narHash": "sha256-5vdKKvHAeZi6igrfpbOdhZlDX2/5+UvzlnCQV6DdqoQ=",
-        "type": "tarball",
-        "url": "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip"
       }
     },
     "lanzaboote": {
@@ -545,31 +387,6 @@
         "ref": "v0.4.3",
         "repo": "lanzaboote",
         "type": "github"
-      }
-    },
-    "lucide-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1754044466,
-        "narHash": "sha256-+exBR2OToB1iv7ZQI2S4B0lXA/QRvC9n6U99UxGpJGs=",
-        "type": "tarball",
-        "url": "https://github.com/lucide-icons/lucide/releases/download/0.536.0/lucide-icons-0.536.0.zip"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://github.com/lucide-icons/lucide/releases/download/0.536.0/lucide-icons-0.536.0.zip"
-      }
-    },
-    "mermaid-src": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-/YOdECG2V5c3kJ1QfGvhziTT6K/Dx/4mOk2mr3Fs/do=",
-        "type": "file",
-        "url": "https://cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"
       }
     },
     "niri-flake": {
@@ -826,7 +643,6 @@
         "stylix": "stylix",
         "system76-scheduler-niri": "system76-scheduler-niri",
         "systems": "systems_3",
-        "tangled": "tangled",
         "treefmt-nix": "treefmt-nix",
         "worktrunk": "worktrunk",
         "zen-browser": "zen-browser"
@@ -840,23 +656,6 @@
         "owner": "rust-lang",
         "repo": "rust-analyzer",
         "rev": "b2a58b8c6eff3c3a2c8b5c70dbf69ead78284194",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rust-lang",
-        "ref": "nightly",
-        "repo": "rust-analyzer",
-        "type": "github"
-      }
-    },
-    "rust-analyzer-src_2": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1772094427,
-        "narHash": "sha256-TiVs6OUBJEvajHdJZ5nIq0KognNJooUWuLGPFfQacSw=",
-        "owner": "rust-lang",
-        "repo": "rust-analyzer",
-        "rev": "56b59a832858329c2f947f9b7bdf1a49da39c981",
         "type": "github"
       },
       "original": {
@@ -926,19 +725,6 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "type": "github"
-      }
-    },
-    "sqlite-lib-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1706631843,
-        "narHash": "sha256-bJoMjirsBjm2Qk9KPiy3yV3+8b/POlYe76/FQbciHro=",
-        "type": "tarball",
-        "url": "https://sqlite.org/2024/sqlite-amalgamation-3450100.zip"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://sqlite.org/2024/sqlite-amalgamation-3450100.zip"
       }
     },
     "starship-jj": {
@@ -1079,53 +865,6 @@
         "type": "github"
       }
     },
-    "systems_5": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "tangled": {
-      "inputs": {
-        "actor-typeahead-src": "actor-typeahead-src",
-        "fenix": "fenix_2",
-        "flake-compat": "flake-compat_2",
-        "gomod2nix": "gomod2nix",
-        "htmx-src": "htmx-src",
-        "htmx-ws-src": "htmx-ws-src",
-        "ibm-plex-mono-src": "ibm-plex-mono-src",
-        "indigo": "indigo",
-        "inter-fonts-src": "inter-fonts-src",
-        "lucide-src": "lucide-src",
-        "mermaid-src": "mermaid-src",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "sqlite-lib-src": "sqlite-lib-src"
-      },
-      "locked": {
-        "lastModified": 1775494178,
-        "narHash": "sha256-fGnzOwWRv1OOA+yjP/6H3z6cLRYLNlfPivKgLJh0iDE=",
-        "ref": "refs/heads/master",
-        "rev": "c184a759339a9a5d934b27e73252ed6d762586d1",
-        "revCount": 2171,
-        "type": "git",
-        "url": "https://tangled.org/tangled.org/core"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://tangled.org/tangled.org/core"
-      }
-    },
     "tinted-foot": {
       "flake": false,
       "locked": {
@@ -1230,7 +969,7 @@
     "worktrunk": {
       "inputs": {
         "crane": "crane_2",
-        "flake-utils": "flake-utils_3",
+        "flake-utils": "flake-utils_2",
         "nixpkgs": [
           "nixpkgs"
         ],

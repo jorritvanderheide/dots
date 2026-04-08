@@ -36,11 +36,6 @@
       url = "github:Mic92/sops-nix";
     };
 
-    tangled = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://tangled.org/tangled.org/core";
-    };
-
     starship-jj = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "gitlab:lanastara_foss/starship-jj/0.7.0";
