@@ -30,6 +30,7 @@ in
 
         # Services
         backup
+        blog
         calibre-web
         contacts
         monitoring
@@ -84,6 +85,9 @@ in
 
             ## Vaultwarden
             my.vaultwarden.enable = true;
+
+            ## Blog
+            my.blog.enable = true;
 
             ## Calibre-Web
             my.calibre-web.enable = true;
