@@ -94,23 +94,35 @@
               (defvar
                 tap-time ${toString cfg.tapTime}
                 hold-time ${toString cfg.holdTime}
+                idle-time 95
+              )
+
+              (defvirtualkeys
+                to-base (layer-switch base)
               )
 
               (defalias
+                ;; Fast typing layer toggle: activates on keypress, deactivates on idle
+                ;; This prevents homerow mods from firing during rapid typing
+                .tp (multi
+                  (one-shot $idle-time (layer-while-held typing))
+                  (on-idle $idle-time tap-vkey to-base)
+                )
+
                 ;; Caps as Escape on tap, Caps Lock on hold
                 esccaps (tap-hold $tap-time $hold-time esc caps)
 
                 ;; Homerow mods - Left hand
-                a (multi f24 (tap-hold $tap-time $hold-time a lmet))
-                s (multi f24 (tap-hold $tap-time $hold-time s lalt))
-                d (multi f24 (tap-hold $tap-time $hold-time d lctl))
-                f (multi f24 (tap-hold $tap-time $hold-time f lsft))
+                a (multi f24 (tap-hold $tap-time $hold-time (multi a @.tp) lmet))
+                s (multi f24 (tap-hold $tap-time $hold-time (multi s @.tp) lalt))
+                d (multi f24 (tap-hold $tap-time $hold-time (multi d @.tp) lctl))
+                f (multi f24 (tap-hold $tap-time $hold-time (multi f @.tp) lsft))
 
                 ;; Homerow mods - Right hand
-                j (multi f24 (tap-hold $tap-time $hold-time j rsft))
-                k (multi f24 (tap-hold $tap-time $hold-time k rctl))
-                l (multi f24 (tap-hold $tap-time $hold-time l ralt))
-                ; (multi f24 (tap-hold $tap-time $hold-time ; rmet))
+                j (multi f24 (tap-hold $tap-time $hold-time (multi j @.tp) rsft))
+                k (multi f24 (tap-hold $tap-time $hold-time (multi k @.tp) rctl))
+                l (multi f24 (tap-hold $tap-time $hold-time (multi l @.tp) ralt))
+                ; (multi f24 (tap-hold $tap-time $hold-time (multi ; @.tp) rmet))
 
                 ;; Space as navigation layer on hold
                 spacenav (tap-hold $tap-time $hold-time spc (layer-while-held nav))
@@ -119,6 +131,13 @@
               (deflayer base
                 @esccaps @a @s @d @f _ @j @k @l @;
                 @spacenav
+              )
+
+              ;; Fast typing layer: all homerow keys pass through as plain keys
+              ;; Active during rapid typing to prevent misfires
+              (deflayer typing
+                _ a s d f _ j k l ;
+                _
               )
 
               (deflayer nav
