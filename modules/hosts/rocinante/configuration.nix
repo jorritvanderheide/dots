@@ -36,6 +36,7 @@ in
         firmware
         power
         sound
+        via
 
         # Desktop
         app-launch
