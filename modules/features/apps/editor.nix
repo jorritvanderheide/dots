@@ -10,6 +10,9 @@
     }:
     {
       config = {
+        # Enable nix-ld for dynamically linked binaries (e.g. Zed language servers)
+        programs.nix-ld.enable = true;
+
         home-manager.sharedModules = [
           {
             programs.zed-editor = {
