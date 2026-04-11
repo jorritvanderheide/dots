@@ -47,7 +47,7 @@
                   enable = true;
 
                   ignores = [
-                    ".claude"
+                    ".claude/"
                     ".direnv/"
                     ".envrc"
                     "CLAUDE.md"
