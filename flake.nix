@@ -8,6 +8,7 @@
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:nixos/nixos-hardware";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    personal-blog.url = "git+ssh://git@codeberg.org/BW20/personal-blog.git";
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
