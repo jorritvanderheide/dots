@@ -37,12 +37,18 @@
                   mode = "system";
                 };
 
+                language_models = {
+                  ollama = {
+                    api_url = "http://localhost:11434";
+                  };
+                };
+
                 agent_servers = {
                   opencode = {
                     type = "custom";
                     name = "opencode";
                     command = "${lib.getExe pkgs.opencode}";
-                    args = ["acp"];
+                    args = [ "acp" ];
                   };
                   claude-acp = {
                     type = "registry";

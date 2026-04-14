@@ -56,58 +56,46 @@ in
             nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
 
-            ## Boot
+            # My modules
             my.boot.secureboot.enable = true;
+            my.blog.enable = true;
+            my.calibre-web.enable = true;
+            my.contacts.enable = true;
+            my.monitoring.enable = true;
+            my.ntfy.enable = true;
+            my.ssh-server.allowedUsers = [ "nixos" ];
+            my.vaultwarden.enable = true;
 
-            ## Networking
-            my.networking = {
-              DOHServers = [ "mullvad-all-doh" ];
-              wireless.interface = "wlp3s0";
-            };
-
-            ## Backup
             my.backup = {
               enable = true;
               usbSerial = "3248831116939333057";
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
             };
 
-            ## Monitoring & Notifications
-            my.monitoring.enable = true;
-            my.ntfy.enable = true;
-
-            ## Tailscale
-            my.tailscale.enable = true;
-            my.tailscale.acme = {
-              enable = true;
-              domain = "bw20.nl";
+            my.networking = {
+              DOHServers = [ "mullvad-all-doh" ];
+              wireless.interface = "wlp3s0";
             };
 
-            ## Vaultwarden
-            my.vaultwarden.enable = true;
-
-            ## Blog
-            my.blog.enable = true;
-
-            ## Calibre-Web
-            my.calibre-web.enable = true;
-
-            ## Contacts
-            my.contacts.enable = true;
-
-            ## Offsite Backup
             my.offsite-backup = {
               enable = true;
+              healthcheckUrl = "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping=";
+
               paths = [
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
                 "/var/lib/radicale"
               ];
-              healthcheckUrl = "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping=";
             };
 
-            ## SSH
-            my.ssh-server.allowedUsers = [ "nixos" ];
+            my.tailscale = {
+              enable = true;
+
+              acme = {
+                enable = true;
+                domain = "bw20.nl";
+              };
+            };
           }
         )
       ];

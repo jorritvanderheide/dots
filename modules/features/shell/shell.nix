@@ -45,7 +45,7 @@
                 "nsearch" = "nh search";
                 "nswitch" = "nh os switch /etc/nixos --hostname (hostname) --no-nom";
                 "ntest" = "nh os test /etc/nixos --hostname (hostname) --no-nom";
-                "nupdate" = "pushd /etc/nixos && sudo nix flake update && popd";
+                "nupdate" = "pushd /etc/nixos && nix flake update && popd";
               };
             };
 

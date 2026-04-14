@@ -149,17 +149,15 @@ in
               }
             ];
 
-            ## Module settings
+            ## My modules
+            my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
+            my.tailscale.enable = true;
 
             my.compositor = {
               name = "niri";
               wallpaper = inputs.self + "/assets/wallpapers/cabin.jpg";
             };
-
-            my.preservation.systemDirectories = [
-              "/var/lib/fprint"
-            ];
 
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
@@ -170,15 +168,17 @@ in
               ];
             };
 
-            my.power.laptop.enable = true;
-            my.tailscale.enable = true;
+            my.preservation.systemDirectories = [
+              "/var/lib/fprint"
+            ];
 
             my.ssh.knownHosts.dapple = {
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
+
               hostNames = [
                 "dapple"
                 "100.88.135.27"
               ];
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
             };
           }
         )
