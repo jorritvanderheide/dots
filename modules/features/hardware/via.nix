@@ -24,7 +24,10 @@
               comment = "Keyboard configurator";
               exec = "${pkgs.chromium}/bin/chromium --app=https://usevia.app";
               icon = "input-keyboard";
-              categories = [ "Utility" "Settings" ];
+              categories = [
+                "Utility"
+                "Settings"
+              ];
             })
           ];
         }

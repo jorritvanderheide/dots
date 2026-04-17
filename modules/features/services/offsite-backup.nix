@@ -75,7 +75,8 @@
 
           path = [
             pkgs.rclone
-          ] ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl;
+          ]
+          ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl;
 
           serviceConfig = {
             Type = "oneshot";

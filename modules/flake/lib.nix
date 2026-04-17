@@ -33,19 +33,17 @@
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
           useACMEHost = domain;
-          locations =
-            {
-              "/" =
-                {
-                  proxyPass = "http://127.0.0.1:${toString port}";
-                  proxyWebsockets = true;
-                  recommendedProxySettings = true;
-                }
-                // lib.optionalAttrs (locationExtraConfig != "") {
-                  extraConfig = locationExtraConfig;
-                };
+          locations = {
+            "/" = {
+              proxyPass = "http://127.0.0.1:${toString port}";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
             }
-            // extraLocations;
+            // lib.optionalAttrs (locationExtraConfig != "") {
+              extraConfig = locationExtraConfig;
+            };
+          }
+          // extraLocations;
         };
       };
 

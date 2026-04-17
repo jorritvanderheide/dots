@@ -29,8 +29,7 @@
             binPath = "/run/current-system/sw/bin/${compositor.name}";
             comment = "${compositor.name} compositor managed by UWSM";
             prettyName =
-              lib.toUpper (builtins.substring 0 1 compositor.name)
-              + builtins.substring 1 (-1) compositor.name;
+              lib.toUpper (builtins.substring 0 1 compositor.name) + builtins.substring 1 (-1) compositor.name;
           };
         };
 

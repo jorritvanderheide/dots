@@ -167,7 +167,6 @@
             ];
           };
 
-
           wireless = lib.mkIf (cfg.wireless != null) {
             enable = true;
             interfaces = [ cfg.wireless.interface ];

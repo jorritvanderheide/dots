@@ -18,28 +18,30 @@
     {
       options.my.ntfy.enable = lib.mkEnableOption "ntfy push notification server";
 
-      config = lib.mkIf cfg.enable (lib.mkMerge [
-        (inputs.self.lib.mkReverseProxy {
-          inherit config;
-          inherit subdomain;
-          inherit port;
-        })
-        {
-          services.ntfy-sh = {
-            enable = true;
+      config = lib.mkIf cfg.enable (
+        lib.mkMerge [
+          (inputs.self.lib.mkReverseProxy {
+            inherit config;
+            inherit subdomain;
+            inherit port;
+          })
+          {
+            services.ntfy-sh = {
+              enable = true;
 
-            settings = {
-              base-url = "https://${domain}";
-              listen-http = "127.0.0.1:${toString port}";
-              behind-proxy = true;
+              settings = {
+                base-url = "https://${domain}";
+                listen-http = "127.0.0.1:${toString port}";
+                behind-proxy = true;
+              };
             };
-          };
 
-          systemd.services.ntfy-sh.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = "5s";
-          };
-        }
-      ]);
+            systemd.services.ntfy-sh.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = "5s";
+            };
+          }
+        ]
+      );
     };
 }

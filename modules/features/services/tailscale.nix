@@ -32,53 +32,55 @@
         };
       };
 
-      config = lib.mkIf cfg.enable (lib.mkMerge [
-        {
-          sops.secrets.tailscale_auth_key = { };
+      config = lib.mkIf cfg.enable (
+        lib.mkMerge [
+          {
+            sops.secrets.tailscale_auth_key = { };
 
-          services.tailscale = {
-            enable = true;
-            authKeyFile = config.sops.secrets.tailscale_auth_key.path;
-            openFirewall = true;
-            permitCertUid = "root";
-          };
-
-          my.preservation.systemDirectories = [
-            "/var/lib/tailscale"
-          ];
-        }
-
-        (lib.mkIf cfg.acme.enable {
-          sops.secrets.cloudflare_dns_env = { };
-
-          security.acme = {
-            acceptTerms = true;
-            defaults = {
-              email = "jorrit+acme@bw20.nl";
-              dnsProvider = "cloudflare";
-              environmentFile = config.sops.secrets.cloudflare_dns_env.path;
+            services.tailscale = {
+              enable = true;
+              authKeyFile = config.sops.secrets.tailscale_auth_key.path;
+              openFirewall = true;
+              permitCertUid = "root";
             };
-          };
 
-          networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-          users.groups.acme.members = [ "nginx" ];
+            my.preservation.systemDirectories = [
+              "/var/lib/tailscale"
+            ];
+          }
 
-          services.nginx = {
-            enable = true;
-            recommendedTlsSettings = true;
-            recommendedOptimisation = true;
-            recommendedGzipSettings = true;
-          };
+          (lib.mkIf cfg.acme.enable {
+            sops.secrets.cloudflare_dns_env = { };
 
-          systemd.services.nginx.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
-          };
+            security.acme = {
+              acceptTerms = true;
+              defaults = {
+                email = "jorrit+acme@bw20.nl";
+                dnsProvider = "cloudflare";
+                environmentFile = config.sops.secrets.cloudflare_dns_env.path;
+              };
+            };
 
-          my.preservation.systemDirectories = [
-            "/var/lib/acme"
-          ];
-        })
-      ]);
+            networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
+            users.groups.acme.members = [ "nginx" ];
+
+            services.nginx = {
+              enable = true;
+              recommendedTlsSettings = true;
+              recommendedOptimisation = true;
+              recommendedGzipSettings = true;
+            };
+
+            systemd.services.nginx.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
+            };
+
+            my.preservation.systemDirectories = [
+              "/var/lib/acme"
+            ];
+          })
+        ]
+      );
     };
 }

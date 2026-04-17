@@ -48,7 +48,8 @@
           path = [
             config.boot.zfs.package
             pkgs.sanoid
-          ] ++ lib.optional (cfg.notifyUrl != null) pkgs.curl;
+          ]
+          ++ lib.optional (cfg.notifyUrl != null) pkgs.curl;
 
           script = ''
             notify() {
