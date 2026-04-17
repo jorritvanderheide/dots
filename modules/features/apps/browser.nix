@@ -20,6 +20,7 @@
           {
             programs.zen-browser = {
               enable = true;
+              setAsDefaultBrowser = true;
 
               policies = {
                 AutofillAddressEnabled = false;
@@ -272,13 +273,6 @@
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
                 };
               };
-            };
-
-            # Set Zen as default browser
-            xdg.mimeApps.defaultApplications = {
-              "x-scheme-handler/http" = "zen-beta.desktop";
-              "x-scheme-handler/https" = "zen-beta.desktop";
-              "text/html" = "zen-beta.desktop";
             };
 
             # Fix for missing profile warning
