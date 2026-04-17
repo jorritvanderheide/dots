@@ -58,7 +58,7 @@
                   {
                     blur_passes = 2;
                     blur_size = 2;
-                    path = config.my.compositor.wallpaper;
+                    path = toString config.my.compositor.wallpaper;
                   }
                 ];
 

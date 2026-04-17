@@ -156,12 +156,13 @@ in
 
             my.compositor = {
               name = "niri";
-              wallpaper = inputs.self + "/assets/wallpapers/cabin.jpg";
+              wallpaper = ./assets/wallpapers/cabin.jpg;
             };
 
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp170s0";
+
               firewallPorts = [
                 8188 # Yivi
                 8189

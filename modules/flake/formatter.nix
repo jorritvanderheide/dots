@@ -33,8 +33,8 @@
           global.excludes = [
             ".direnv/*"
             ".envrc"
-            "assets/**"
             "secrets/**"
+            "**/assets/**"
             "**/facter.json"
             "**/qmldir"
           ];
