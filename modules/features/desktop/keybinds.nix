@@ -222,6 +222,12 @@
                 repeat = false;
               };
 
+              "Mod+M" = {
+                allow-when-locked = true;
+                action = spawn "sh" "${scriptsDirectory}/volume.sh" "mute";
+                repeat = false;
+              };
+
               "XF86AudioPlay" = {
                 allow-when-locked = true;
                 action = spawn "playerctl" "play-pause";
