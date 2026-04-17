@@ -1,25 +1,23 @@
 pragma Singleton
 
 import QtQuick
+import Quickshell
 
 QtObject {
     id: iconResolver
 
-    // Convert app_id to icon name
-    // Most apps follow the convention: app_id matches icon name
+    // Resolve app_id to an icon theme name. Go through the installed desktop
+    // entry so apps whose window app_id differs from their icon name (e.g.
+    // signal → signal-desktop, Code → com.visualstudio.code) still resolve.
     function getIconName(appId) {
         if (!appId)
             return "";
 
-        // Handle common mappings
-        var mappings = {
-            "org.gnome.Nautilus": "org.gnome.Nautilus",
-            "code": "com.visualstudio.code",
-            "zen-beta": "zen-browser",
-            "ghostty": "utilities-terminal"
-        };
+        var entry = DesktopEntries.heuristicLookup(appId.toLowerCase());
+        if (entry && entry.icon)
+            return entry.icon;
 
-        return mappings[appId] || appId;
+        return appId;
     }
 
     // Get first letter fallback for text display

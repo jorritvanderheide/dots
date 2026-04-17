@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 
 import "../../common"
@@ -123,8 +124,16 @@ Item {
             focusProcess.command = ["niri", "msg", "action", "focus-window", "--id", String(appIcon.windowId)];
             focusProcess.running = true;
         } else if (appIcon.isPinned && !appIcon.isRunning) {
-            launchProcess.command = ["app2unit", "-s", "a", "--", appIcon.appId];
-            launchProcess.running = true;
+            // Resolve appId to the real desktop entry so apps like Signal
+            // (app_id "signal", desktop file "signal-desktop.desktop") launch
+            // via the entry's Exec line rather than the raw app_id.
+            var entry = DesktopEntries.heuristicLookup(appIcon.appId);
+            if (entry) {
+                entry.execute();
+            } else {
+                launchProcess.command = ["app2unit", "-s", "a", "--", appIcon.appId];
+                launchProcess.running = true;
+            }
         }
 
         closeOverviewProcess.running = true;

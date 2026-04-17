@@ -65,7 +65,6 @@ QtObject {
                         if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
                             niriState.workspaceSwitched(newIdx > oldIdx ? 1 : -1);
                         }
-
                     } else if (event.WorkspaceActivated) {
                         // Incremental: a workspace was switched to
                         var activated = event.WorkspaceActivated;
@@ -86,7 +85,8 @@ QtObject {
                         var updated = [];
                         for (var i = 0; i < oldWs.length; i++) {
                             var ws = {};
-                            for (var k in oldWs[i]) ws[k] = oldWs[i][k];
+                            for (var k in oldWs[i])
+                                ws[k] = oldWs[i][k];
                             if (ws.output === targetOutput)
                                 ws.is_active = (ws.id === activated.id);
                             if (activated.focused)
@@ -101,11 +101,9 @@ QtObject {
                         if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
                             niriState.workspaceSwitched(newIdx > oldIdx ? 1 : -1);
                         }
-
                     } else if (event.WindowsChanged) {
                         // Full state dump (initial)
                         niriState.windows = event.WindowsChanged.windows || [];
-
                     } else if (event.WindowOpenedOrChanged) {
                         // Incremental: window added or properties changed
                         var changed = event.WindowOpenedOrChanged.window;
@@ -118,9 +116,9 @@ QtObject {
                                 break;
                             }
                         }
-                        if (!found) wins.push(changed);
+                        if (!found)
+                            wins.push(changed);
                         niriState.windows = wins;
-
                     } else if (event.WindowClosed) {
                         // Incremental: window removed
                         var closedId = event.WindowClosed.id;
@@ -130,7 +128,6 @@ QtObject {
                                 wins.push(niriState.windows[i]);
                         }
                         niriState.windows = wins;
-
                     } else if (event.WindowLayoutsChanged) {
                         // Incremental: window positions/sizes changed (column moves)
                         var changes = event.WindowLayoutsChanged.changes || [];
@@ -141,7 +138,8 @@ QtObject {
                             for (var i = 0; i < wins.length; i++) {
                                 if (wins[i].id === wid) {
                                     var w = {};
-                                    for (var k in wins[i]) w[k] = wins[i][k];
+                                    for (var k in wins[i])
+                                        w[k] = wins[i][k];
                                     w.layout = newLayout;
                                     wins[i] = w;
                                     break;
@@ -149,19 +147,18 @@ QtObject {
                             }
                         }
                         niriState.windows = wins;
-
                     } else if (event.WindowFocusChanged) {
                         // Incremental: focus moved to different window
                         var focusedId = event.WindowFocusChanged.id;
                         var wins = niriState.windows.slice();
                         for (var i = 0; i < wins.length; i++) {
                             var w = {};
-                            for (var k in wins[i]) w[k] = wins[i][k];
+                            for (var k in wins[i])
+                                w[k] = wins[i][k];
                             w.is_focused = (w.id === focusedId);
                             wins[i] = w;
                         }
                         niriState.windows = wins;
-
                     } else if (event.OverviewOpenedOrClosed) {
                         niriState.isOverviewActive = event.OverviewOpenedOrClosed.is_open || false;
                     }

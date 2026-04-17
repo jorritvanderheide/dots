@@ -1,3 +1,7 @@
+// NOTE: color properties are overwritten at Nix build time with the active
+// Stylix palette (see default.nix). The defaults below only apply when running
+// quickshell against this source tree for live QML iteration.
+
 pragma Singleton
 
 import QtQuick
