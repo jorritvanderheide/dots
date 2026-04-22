@@ -87,11 +87,13 @@
                     default_area = "menupanel";
                     installation_mode = "force_installed";
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
+                    private_browsing = true;
                   };
                   "uBlock0@raymondhill.net" = {
                     default_area = "menupanel";
                     installation_mode = "force_installed";
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+                    private_browsing = true;
                   };
                 };
 
