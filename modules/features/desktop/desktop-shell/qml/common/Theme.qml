@@ -22,6 +22,13 @@ QtObject {
     readonly property int dockPadding: 6
     readonly property int dockRadius: 16
 
+    // Top bar
+    readonly property int topBarHeight: 32
+    readonly property int topBarPadding: 8
+    readonly property int topBarSpacing: 16
+    readonly property int topBarIconSize: 16
+    readonly property int topBarSideMargin: 16
+
     // Typography
     readonly property int fontSizeSmall: 12
     readonly property int fontSizeNormal: 14
