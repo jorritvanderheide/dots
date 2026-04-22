@@ -10,6 +10,13 @@
       nix = {
         nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
 
+        gc = {
+          automatic = true;
+          dates = "weekly";
+          options = "--delete-older-than 30d";
+          persistent = true;
+        };
+
         settings = {
           allowed-users = [ "@wheel" ];
           auto-optimise-store = true;
