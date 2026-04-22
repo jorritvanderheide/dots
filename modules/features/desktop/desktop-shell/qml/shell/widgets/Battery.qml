@@ -9,7 +9,10 @@ Row {
 
     readonly property var device: UPower.displayDevice
     readonly property bool available: device && device.isPresent
-    readonly property real percentage: available ? device.percentage : 0
+    // Quickshell's UPower exposes `percentage` as a 0..1 fraction, not a
+    // 0..100 number. Multiply here once so every consumer below reads the
+    // human-friendly scale.
+    readonly property real percentage: available ? device.percentage * 100 : 0
     readonly property bool charging: available && device.state === UPowerDeviceState.Charging
     readonly property bool low: percentage > 0 && percentage <= 15 && !charging
 

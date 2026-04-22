@@ -7,10 +7,12 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    // Colors
-    readonly property color backgroundColor: "#c4a7e7"
-    readonly property color foregroundColor: "#393552"
-    readonly property color accentColor: "#393552"
+    // Colors — source-tree fallback matching the active Stylix palette
+    // (gruvbox-material-dark-medium base01/base05/base0D). Overwritten at
+    // Nix build time with config.lib.stylix.colors.
+    readonly property color backgroundColor: "#32302f"
+    readonly property color foregroundColor: "#ddc7a1"
+    readonly property color accentColor: "#7daea3"
 
     // Shared
     readonly property color panelBackground: backgroundColor
