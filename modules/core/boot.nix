@@ -64,6 +64,21 @@
             DefaultTimeoutStartSec = "30s";
             DefaultTimeoutStopSec = "15s";
           };
+
+          # Name each generation by the flake revision so `nixos-rebuild
+          # list-generations` and the systemd-boot menu both point at the
+          # commit that built it. `self.dirtyRev` already carries a "-dirty"
+          # suffix when the working copy isn't committed.
+          system = {
+            configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
+
+            nixos.label =
+              let
+                rev = inputs.self.shortRev or inputs.self.dirtyShortRev or "unknown";
+                date = builtins.substring 0 8 (inputs.self.lastModifiedDate or "");
+              in
+              "${config.system.nixos.release}.${date}-${rev}";
+          };
         }
 
         # Secure boot configuration
