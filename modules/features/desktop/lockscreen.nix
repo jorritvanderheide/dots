@@ -9,12 +9,25 @@
       pkgs,
       ...
     }:
+    let
+      cfg = config.my.lockscreen;
+    in
     {
       options.my.lockscreen = {
         command = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
           description = "Command to lock the screen (read-only)";
+        };
+
+        greetOnStartup = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Spawn the lockscreen at session start as an auth gate before the
+            desktop is exposed. Useful with autologin; redundant on hosts that
+            already authenticate via greetd.
+          '';
         };
       };
 
@@ -30,7 +43,7 @@
           {
             programs.niri = {
               enable = true;
-              settings.spawn-at-startup = [
+              settings.spawn-at-startup = lib.optionals cfg.greetOnStartup [
                 {
                   command = [
                     "app2unit"
