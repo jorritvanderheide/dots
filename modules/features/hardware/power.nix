@@ -24,16 +24,25 @@
           "amd"
         else
           null;
+
+      # Detect whether any device in a facter hardware category uses a given
+      # kernel driver, so modprobe tunables only emit for matching hardware.
+      hasDriver =
+        category: driver:
+        let
+          devices = config.facter.report.hardware.${category} or [ ];
+        in
+        builtins.any (d: (d.driver_module or null) == driver) devices;
     in
     {
       options.my.power = {
         cpuGovernor = lib.mkOption {
+          # intel_pstate=active / amd-pstate=active (set below) only support
+          # these two governors; the legacy ondemand/conservative/schedutil
+          # require acpi-cpufreq, which we don't use on modern CPUs.
           type = lib.types.enum [
             "performance"
             "powersave"
-            "ondemand"
-            "conservative"
-            "schedutil"
           ];
           default = "powersave";
           description = "CPU frequency scaling governor";
@@ -55,9 +64,22 @@
         # Laptop-specific settings
         (lib.mkIf cfg.laptop.enable {
           hardware.system76.power-daemon.enable = true;
-          powerManagement.powertop.enable = true;
+
+          boot.extraModprobeConfig = lib.concatStringsSep "\n" (
+            lib.optionals (hasDriver "network_controller" "iwlwifi") [
+              "options iwlwifi power_save=1"
+              "options iwlmvm power_scheme=3"
+            ]
+            ++ lib.optionals (hasDriver "sound" "snd_hda_intel") [
+              "options snd_hda_intel power_save=1 power_save_controller=Y"
+            ]
+          );
 
           services = {
+            # Disable TLP auto-enabled by nixos-hardware common/pc/laptop;
+            # system76-power-daemon is the chosen power manager.
+            tlp.enable = lib.mkForce false;
+
             thermald.enable = cpuVendor == "intel"; # Thermald is Intel-specific
             upower.enable = true;
 
