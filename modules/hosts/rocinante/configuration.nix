@@ -151,6 +151,8 @@ in
 
             ## My modules
             my.power.laptop.enable = true;
+            my.idle.suspendTimeout = 1800;
+            my.lockscreen.greetOnStartup = true;
             my.session.autologinuser = "jorrit";
             my.tailscale.enable = true;
 
