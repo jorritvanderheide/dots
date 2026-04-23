@@ -69,7 +69,7 @@
                     {
                       key = "l";
                       desc = "Lock";
-                      cmd = "app2unit -s a -- hyprlock";
+                      cmd = "loginctl lock-session";
                     }
                     {
                       key = "s";
@@ -99,7 +99,7 @@
                 repeat = false;
               };
               "Mod+Backspace" = {
-                action = spawn "app2unit" "-s" "a" "--" "hyprlock";
+                action = spawn "loginctl" "lock-session";
                 repeat = false;
               };
               "Mod+Tab" = {

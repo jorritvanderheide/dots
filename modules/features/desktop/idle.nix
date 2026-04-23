@@ -11,7 +11,7 @@
     }:
     let
       cfg = config.my.idle;
-      lockCommand = config.my.lockscreen.command;
+      lockCommand = config.my.lockscreen.command or null;
     in
     {
       options.my.idle = {
@@ -35,6 +35,13 @@
       };
 
       config = {
+        assertions = [
+          {
+            assertion = lockCommand != null;
+            message = "my.idle requires the lockscreen module (provides my.lockscreen.command).";
+          }
+        ];
+
         home-manager.sharedModules = [
           {
             services.swayidle = {
@@ -64,7 +71,7 @@
 
               events = {
                 before-sleep = "${pkgs.systemd}/bin/loginctl lock-session";
-                lock = "${pkgs.procps}/bin/pgrep -x hyprlock || { ${lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session; }";
+                lock = "${lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session";
               };
             };
           }
