@@ -139,16 +139,6 @@ in
                     "udiskie"
                   ];
                 }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "a"
-                    "--"
-                    "signal-desktop"
-                    "--start-in-tray"
-                  ];
-                }
               ];
 
               hotkey-overlay = {
