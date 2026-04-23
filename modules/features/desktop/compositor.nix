@@ -67,7 +67,6 @@ in
             blueman
             brightnessctl
             imv
-            mako
             nautilus
             playerctl
             swaybg
@@ -138,6 +137,16 @@ in
                     "b"
                     "--"
                     "udiskie"
+                  ];
+                }
+                {
+                  command = [
+                    "app2unit"
+                    "-s"
+                    "a"
+                    "--"
+                    "signal-desktop"
+                    "--start-in-tray"
                   ];
                 }
               ];

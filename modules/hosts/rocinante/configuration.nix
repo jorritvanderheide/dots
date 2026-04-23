@@ -36,7 +36,6 @@ in
         firmware
         power
         sound
-        via
 
         # Desktop
         app-launch
@@ -48,6 +47,7 @@ in
         keyboard-remap
         launcher
         lockscreen
+        notifications
         polkit
         session
         theming
