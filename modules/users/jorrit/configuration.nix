@@ -10,7 +10,6 @@
     extraGroups = [
       "adbusers" # Android
       "audio"
-      "docker" # Docker
       "dialout" # Serial
       "input"
       "keys" # Sops
