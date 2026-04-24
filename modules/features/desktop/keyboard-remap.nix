@@ -34,6 +34,17 @@
           default = 250;
           description = "Hold timeout in milliseconds for tap-hold keys";
         };
+
+        idleTime = lib.mkOption {
+          type = lib.types.int;
+          default = 95;
+          description = ''
+            Idle threshold in ms for the typing-layer dampening trick: while
+            keys are pressed within this window, homerow mods are bypassed
+            (plain letters pass through). Tune by feel; lower = faster mod
+            activation, higher = more forgiving for fast typing.
+          '';
+        };
       };
 
       config = {
@@ -84,6 +95,8 @@
           keyboards.any = {
             extraDefCfg = ''
               process-unmapped-keys yes
+              concurrent-tap-hold yes
+              linux-output-device-name "kanata"
             '';
             config = ''
               (defsrc
@@ -94,7 +107,7 @@
               (defvar
                 tap-time ${toString cfg.tapTime}
                 hold-time ${toString cfg.holdTime}
-                idle-time 95
+                idle-time ${toString cfg.idleTime}
               )
 
               (defvirtualkeys
@@ -113,16 +126,19 @@
                 esccaps (tap-hold $tap-time $hold-time esc caps)
 
                 ;; Homerow mods - Left hand
-                a (multi f24 (tap-hold $tap-time $hold-time (multi a @.tp) lmet))
-                s (multi f24 (tap-hold $tap-time $hold-time (multi s @.tp) lalt))
-                d (multi f24 (tap-hold $tap-time $hold-time (multi d @.tp) lctl))
-                f (multi f24 (tap-hold $tap-time $hold-time (multi f @.tp) lsft))
+                ;; tap-hold-release fires the modifier when the next key is RELEASED,
+                ;; making chord rolls (typing 'as') stay as letters and chords
+                ;; (Ctrl+S) trigger the modifier even before hold-time elapses.
+                a (tap-hold-release $tap-time $hold-time (multi a @.tp) lmet)
+                s (tap-hold-release $tap-time $hold-time (multi s @.tp) lalt)
+                d (tap-hold-release $tap-time $hold-time (multi d @.tp) lctl)
+                f (tap-hold-release $tap-time $hold-time (multi f @.tp) lsft)
 
                 ;; Homerow mods - Right hand
-                j (multi f24 (tap-hold $tap-time $hold-time (multi j @.tp) rsft))
-                k (multi f24 (tap-hold $tap-time $hold-time (multi k @.tp) rctl))
-                l (multi f24 (tap-hold $tap-time $hold-time (multi l @.tp) ralt))
-                ; (multi f24 (tap-hold $tap-time $hold-time (multi ; @.tp) rmet))
+                j (tap-hold-release $tap-time $hold-time (multi j @.tp) rsft)
+                k (tap-hold-release $tap-time $hold-time (multi k @.tp) rctl)
+                l (tap-hold-release $tap-time $hold-time (multi l @.tp) ralt)
+                ; (tap-hold-release $tap-time $hold-time (multi ; @.tp) rmet)
 
                 ;; Space as navigation layer on hold
                 spacenav (tap-hold $tap-time $hold-time spc (layer-while-held nav))
@@ -139,6 +155,8 @@
                 _ a s d f _ j k l ;
                 _
               )
+
+              Fast typing layuer all honerow keys pass through as plain keys
 
               (deflayer nav
                 _  _  _  _  _  left  down  up  right  _
@@ -170,7 +188,7 @@
             Type = "oneshot";
 
             # Only restart if Kanata is actually active
-            ExecCondition = "${lib.getExe pkgs.bash} -c '${pkgs.systemd}/bin/systemctl is-active kanata-any.service'";
+            ExecCondition = "${pkgs.systemd}/bin/systemctl is-active kanata-any.service";
 
             # Small delay to debounce multiple rapid keyboard connections
             ExecStartPre = "${pkgs.coreutils}/bin/sleep 0.5";
