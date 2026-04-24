@@ -90,9 +90,19 @@
         };
 
         firewallPorts = lib.mkOption {
-          type = lib.types.listOf lib.types.port;
-          default = [ ];
-          description = "TCP ports to open in the firewall";
+          type = lib.types.attrsOf (lib.types.listOf lib.types.port);
+          default = { };
+          example = {
+            wlp170s0 = [
+              8188
+              8189
+            ];
+          };
+          description = ''
+            TCP ports to open in the firewall, scoped per interface.
+            Use the interface name as key. Per-SSID scoping is not supported;
+            ports open whenever the interface is up.
+          '';
         };
       };
 
@@ -155,7 +165,7 @@
 
           firewall = {
             enable = lib.mkDefault true;
-            allowedTCPPorts = cfg.firewallPorts;
+            interfaces = lib.mapAttrs (_: ports: { allowedTCPPorts = ports; }) cfg.firewallPorts;
           };
 
           interfaces = lib.mkIf (cfg.staticConfig != null) {
