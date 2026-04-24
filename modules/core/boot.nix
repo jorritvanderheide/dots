@@ -65,6 +65,12 @@
             DefaultTimeoutStopSec = "15s";
           };
 
+          # Bound /var/log growth (preserved across reboots).
+          services.journald.extraConfig = ''
+            SystemMaxUse=2G
+            SystemMaxFileSize=100M
+          '';
+
           # Name each generation by the flake revision so `nixos-rebuild
           # list-generations` and the systemd-boot menu both point at the
           # commit that built it. `self.dirtyRev` already carries a "-dirty"
