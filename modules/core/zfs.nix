@@ -16,8 +16,11 @@
 
         zfs = {
           devNodes = "/dev/disk/by-id/";
-          forceImportAll = true;
-          requestEncryptionCredentials = true;
+          # Don't auto-import unknown pools (e.g. a malicious USB drive named "zroot").
+          # The backup pool is imported explicitly by the usb-backup service.
+          forceImportAll = false;
+          # Pool is encrypted at the LUKS layer, no ZFS-native encryption keys to prompt for.
+          requestEncryptionCredentials = false;
         };
 
         kernelParams =
@@ -45,14 +48,18 @@
           type = "zpool";
 
           rootFsOptions = {
+            acltype = "posixacl"; # Required for systemd journal ACLs and many tools
             canmount = "off";
-            checksum = "edonr";
+            # fletcher4 is the ZFS default; LUKS already provides cryptographic block integrity.
+            # edonr was overkill for this stack and ~5x slower per checksum.
+            checksum = "fletcher4";
             compression = "zstd";
             "com.sun:auto-snapshot" = "false";
             dnodesize = "auto";
             mountpoint = "none";
             normalization = "formD";
             relatime = "on";
+            xattr = "sa"; # Inline xattrs for performance (avoids hidden directory)
           };
 
           options = {
@@ -121,9 +128,8 @@
         };
       };
 
-      services.zfs = {
-        autoScrub.enable = true;
-        trim.enable = true;
-      };
+      # autotrim=on (set in pool options) handles TRIM on-the-fly; the periodic
+      # services.zfs.trim service would re-scan and is redundant.
+      services.zfs.autoScrub.enable = true;
     };
 }
