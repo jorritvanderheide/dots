@@ -99,6 +99,7 @@
               ${lib.optionalString (cfg.notifyUrl != null) ''
                 curl -fsS -d "$1" "${cfg.notifyUrl}" || true
               ''}
+              : # ensure non-empty body when notifyUrl is null
             }
 
             luks_close() {
@@ -107,6 +108,7 @@
                   cryptsetup close ${luksName} 2>/dev/null || true
                 fi
               ''}
+              : # ensure non-empty body when luks is null
             }
 
             ${lib.optionalString (cfg.luks != null) ''
