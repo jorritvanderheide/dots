@@ -154,6 +154,7 @@ in
             my.idle.suspendTimeout = 1800;
             my.lockscreen.greetOnStartup = true;
             my.session.autologinuser = "jorrit";
+            my.sudo.fingerprintAuth = true;
             my.tailscale.enable = true;
 
             my.compositor = {
@@ -177,15 +178,11 @@ in
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp170s0";
 
-              firewallPorts = [
-                8188 # Yivi
+              firewallPorts.wlp170s0 = [
+                8188 # Yivi (used on home + Radboud networks)
                 8189
               ];
             };
-
-            my.preservation.systemDirectories = [
-              "/var/lib/fprint"
-            ];
 
             my.ssh.knownHosts.dapple = {
               publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
