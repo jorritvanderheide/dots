@@ -24,14 +24,11 @@ QtObject {
         }
         // Fallback mirrors modules/hosts/rocinante/configuration.nix so the
         // source-tree launch looks like the built one.
-        return [
-            "zen-beta",
-            "zed",
+        return ["zen-beta", "zed",
             {
                 "id": "obsidian",
                 "aliases": ["electron"]
             },
-            "signal"
-        ];
+            "signal"];
     }
 }

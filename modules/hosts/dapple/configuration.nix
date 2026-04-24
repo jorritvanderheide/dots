@@ -48,7 +48,11 @@ in
       ++ [
         # Host configuration
         (
-          { lib, ... }:
+          {
+            config,
+            lib,
+            ...
+          }:
           {
             ## System
             networking.hostName = "dapple";
@@ -70,6 +74,8 @@ in
               enable = true;
               usbSerial = "3248831116939333057";
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
+
+              luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
             };
 
             my.networking = {

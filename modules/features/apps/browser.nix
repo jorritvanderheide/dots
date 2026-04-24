@@ -129,7 +129,7 @@
                   "http://localhost"
                   "http://localhost:8001"
                   "http://localhost:8080"
-                  "http://145.116.139.176"
+                  "http://145.116.138.166"
                 ];
 
                 SanitizeOnShutdown = {

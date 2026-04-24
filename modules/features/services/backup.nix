@@ -34,13 +34,6 @@
           type = lib.types.nullOr (
             lib.types.submodule {
               options = {
-                devicePath = lib.mkOption {
-                  type = lib.types.str;
-                  description = ''
-                    Stable path of the LUKS container on the USB drive
-                    (e.g. /dev/disk/by-id/usb-VENDOR_PRODUCT_SERIAL-0:0-part1).
-                  '';
-                };
                 keyFile = lib.mkOption {
                   type = lib.types.path;
                   description = "Path to the LUKS keyfile (typically a sops secret path).";
@@ -50,9 +43,9 @@
           );
           default = null;
           description = ''
-            If set, the USB drive's LUKS container is opened before the ZFS
-            pool is imported, and closed after export. The pool must live
-            inside the LUKS container.
+            If set, the USB drive's whole-drive LUKS container is opened
+            before the ZFS pool is imported, and closed after export. The
+            device is located via `usbSerial`, which must also be set.
 
             One-time migration to LUKS-backed backups:
               1. Wipe the USB drive.
@@ -69,6 +62,13 @@
       };
 
       config = lib.mkIf cfg.enable {
+        assertions = [
+          {
+            assertion = cfg.luks == null || cfg.usbSerial != null;
+            message = "my.backup.luks requires my.backup.usbSerial to be set (used to locate the LUKS device).";
+          }
+        ];
+
         sops.secrets = lib.mkIf (cfg.luks != null) {
           usb_backup_luks_key = { };
         };
@@ -113,14 +113,25 @@
 
             ${lib.optionalString (cfg.luks != null) ''
               if [ ! -e /dev/mapper/${luksName} ]; then
-                # udev fires on the whole drive before the partition node settles;
-                # wait briefly so cryptsetup open finds the device.
+                # Locate the whole-drive LUKS device by serial. udev may fire
+                # before the device node settles, so retry briefly.
+                shopt -s nullglob
+                DEV=""
                 for _ in 1 2 3 4 5 6 7 8 9 10; do
-                  [ -e ${cfg.luks.devicePath} ] && break
+                  for candidate in /dev/disk/by-id/usb-*_${cfg.usbSerial}-0:0; do
+                    DEV="$candidate"
+                    break
+                  done
+                  [ -n "$DEV" ] && [ -e "$DEV" ] && break
                   sleep 0.5
                 done
-                echo "Opening LUKS container ${cfg.luks.devicePath}"
-                cryptsetup open --key-file ${cfg.luks.keyFile} ${cfg.luks.devicePath} ${luksName}
+                shopt -u nullglob
+                if [ -z "$DEV" ] || [ ! -e "$DEV" ]; then
+                  echo "Could not find LUKS device for serial ${cfg.usbSerial}"
+                  exit 1
+                fi
+                echo "Opening LUKS container $DEV"
+                cryptsetup open --key-file ${cfg.luks.keyFile} "$DEV" ${luksName}
               fi
             ''}
 

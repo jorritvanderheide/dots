@@ -45,6 +45,11 @@
           wantedBy = [ "sockets.target" ];
         };
 
+        # Skip NixOS firewall on the docker bridge so Docker's own iptables
+        # rules govern container traffic. Containers can reach host services;
+        # acceptable since the Docker daemon already runs as root.
+        networking.firewall.trustedInterfaces = lib.mkIf cfg.docker.enable [ "docker0" ];
+
         # Persist Docker data
         my.preservation.systemDirectories = lib.optionals cfg.docker.enable [
           "/var/lib/docker"
