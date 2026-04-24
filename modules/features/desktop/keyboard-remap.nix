@@ -156,8 +156,6 @@
                 _
               )
 
-              Fast typing layuer all honerow keys pass through as plain keys
-
               (deflayer nav
                 _  _  _  _  _  left  down  up  right  _
                 _
