@@ -218,8 +218,6 @@
                   "Bash(hostname:*)"
                   "Bash(which:*)"
                   "Bash(type:*)"
-                  "Bash(env:*)"
-                  "Bash(printenv:*)"
                   "Bash(lsof:*)"
                   "Bash(ss:*)"
 
