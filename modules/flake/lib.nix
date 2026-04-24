@@ -11,6 +11,13 @@
         port,
         extraLocations ? { },
         locationExtraConfig ? "",
+        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
+        # e.g. Vaultwarden's browser extension popup.
+        extraHeaders ? ''
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header Referrer-Policy "no-referrer" always;
+        '',
       }:
       let
         domain = "${subdomain}.${config.my.tailscale.acme.domain}";
@@ -33,6 +40,7 @@
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
           useACMEHost = domain;
+          extraConfig = extraHeaders;
           locations = {
             "/" = {
               proxyPass = "http://127.0.0.1:${toString port}";
