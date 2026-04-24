@@ -103,7 +103,6 @@ PanelWindow { // qmllint disable uncreatable-type
             if (ws.is_active && activeWorkspaceId === -1)
                 activeWorkspaceId = ws.id;
         }
-        console.log("Dock[" + dock.screenData.name + "]: workspaces=" + workspaces.length + " monitor-ws-count=" + Object.keys(monitorWorkspaceIds).length + " activeWorkspaceId=" + activeWorkspaceId);
 
         // Quickshell's heuristicLookup only checks id + StartupWMClass, so we
         // also scan DesktopEntries.applications for matches by Name and by
@@ -197,9 +196,6 @@ PanelWindow { // qmllint disable uncreatable-type
         var pinInfos = [];
         for (var pi = 0; pi < rawPinned.length; pi++) {
             pinInfos.push(resolvePin(rawPinned[pi]));
-            var e = pinInfos[pi].entry;
-            var entryDump = e ? ("id=" + e.id + " name=" + e.name + " wm=" + e.startupClass + " exec=" + JSON.stringify(e.command) + " icon=" + e.icon) : "(none)";
-            console.log("Dock: pin[" + pi + "]=" + JSON.stringify(rawPinned[pi]) + " -> canonical=" + pinInfos[pi].canonicalId + " aliases=" + JSON.stringify(pinInfos[pi].aliases) + " entry=" + entryDump);
         }
 
         function matchPinIndex(winAppId) {
@@ -252,7 +248,6 @@ PanelWindow { // qmllint disable uncreatable-type
 
             var pinIdx = matchPinIndex(win.app_id);
             var canonicalId = pinIdx !== -1 ? pinInfos[pinIdx].canonicalId : fallbackCanonical(win.app_id);
-            console.log("Dock[" + dock.screenData.name + "]: window app_id=" + win.app_id + " -> pinIdx=" + pinIdx + " canonical=" + canonicalId);
 
             running.push({
                 windowId: win.id,
@@ -339,7 +334,6 @@ PanelWindow { // qmllint disable uncreatable-type
         var target = running.concat(pinned);
         dock.runningCount = running.length;
         dock.pinnedCount = pinned.length;
-        console.log("Dock[" + dock.screenData.name + "]: running=" + running.length + " pinned=" + pinned.length + " target=" + target.length + " model=" + windowsModel.count);
 
         // Pre-pass: relabel existing model entries so launching/closing a
         // pinned app reuses the same delegate, letting ListView animate the

@@ -36,17 +36,21 @@ Row {
                 cursorShape: Qt.PointingHandCursor
 
                 onClicked: mouse => {
+                    function showMenu() {
+                        const pt = itemRoot.mapToItem(null, itemRoot.width / 2, itemRoot.height);
+                        itemRoot.modelData.display(itemRoot.QsWindow.window, pt.x, pt.y);
+                    }
+
                     if (mouse.button === Qt.LeftButton) {
                         if (itemRoot.modelData.onlyMenu && itemRoot.modelData.hasMenu)
-                            itemRoot.modelData.display(itemRoot.QsWindow.window, itemRoot.x + itemRoot.width / 2, itemRoot.y + itemRoot.height);
+                            showMenu();
                         else
                             itemRoot.modelData.activate();
                     } else if (mouse.button === Qt.MiddleButton) {
                         itemRoot.modelData.secondaryActivate();
                     } else if (mouse.button === Qt.RightButton) {
-                        console.log("tray right-click:", itemRoot.modelData.id, "hasMenu=", itemRoot.modelData.hasMenu);
                         if (itemRoot.modelData.hasMenu)
-                            itemRoot.modelData.display(itemRoot.QsWindow.window, itemRoot.x + itemRoot.width / 2, itemRoot.y + itemRoot.height);
+                            showMenu();
                     }
                 }
 
