@@ -28,7 +28,10 @@
                   echo "Usage: ndeploy <hostname>"
                   return 1
                 end
-                nixos-rebuild switch --flake /etc/nixos#$argv[1] --target-host nixos@$argv[1] --sudo
+                # --use-substitutes lets the target pull cached paths from
+                # cache.nixos.org directly instead of forcing the full closure
+                # over the SSH/tailscale link.
+                nixos-rebuild switch --flake /etc/nixos#$argv[1] --target-host nixos@$argv[1] --sudo --use-substitutes
               '';
 
               shellAliases = {
