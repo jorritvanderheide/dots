@@ -12,5 +12,10 @@
       # `linuxPackages_latest` should be avoided: it outpaces ZFS releases and
       # breaks the module regularly.
       boot.kernelPackages = pkgs.linuxPackages;
+
+      # Compressed in-RAM swap. Cheap headroom under memory pressure (browsers,
+      # local LLMs) without disk wear; complements the no-disk-swap stance set
+      # by `nohibernate`.
+      zramSwap.enable = true;
     };
 }
