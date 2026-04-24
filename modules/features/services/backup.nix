@@ -64,6 +64,12 @@
               zpool import -f zbackup
             fi
 
+            # Harden mount options (idempotent; persisted on the dataset).
+            # Backup pool only stores data, never executes anything.
+            zfs set setuid=off zbackup
+            zfs set exec=off zbackup
+            zfs set devices=off zbackup
+
             # Run backup
             echo "Starting backup: zroot/persist -> zbackup/persist"
             if syncoid --no-sync-snap zroot/persist zbackup/persist; then
