@@ -61,8 +61,8 @@ in
             system.stateVersion = "26.05";
 
             # My modules
-            my.boot.secureboot.enable = true;
             my.blog.enable = true;
+            my.boot.secureboot.enable = true;
             my.calibre-web.enable = true;
             my.contacts.enable = true;
             my.monitoring.enable = true;
@@ -72,10 +72,9 @@ in
 
             my.backup = {
               enable = true;
-              usbSerial = "3248831116939333057";
-              notifyUrl = "https://alerts.bw20.nl/usb-backup";
-
               luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
+              notifyUrl = "https://alerts.bw20.nl/usb-backup";
+              usbSerial = "3248831116939333057";
             };
 
             my.networking = {

@@ -104,55 +104,10 @@ in
             environment.systemPackages = with pkgs; [ intel-media-driver ];
             services.fwupd.extraRemotes = [ "lvfs-testing" ];
 
-            ## Display outputs
-            home-manager.sharedModules = [
-              {
-                programs.niri.settings.outputs = {
-                  "eDP-1" = {
-                    scale = 1.175;
-                    position = {
-                      x = 0;
-                      y = 0;
-                    };
-                  };
-                  "LG Electronics LG HDR 4K 210MAZVRJG93" = {
-                    focus-at-startup = true;
-                    scale = 1.25;
-                    position = {
-                      x = 1920;
-                      y = -1720;
-                    };
-                  };
-                  "LG Electronics LG HDR 4K 0x0004C67F" = {
-                    focus-at-startup = true;
-                    scale = 1.25;
-                    position = {
-                      x = 1920;
-                      y = -1720;
-                    };
-                  };
-                  "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
-                    scale = 2;
-                    position = {
-                      x = -1097;
-                      y = -613;
-                    };
-                  };
-                  "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                    scale = 1.5;
-                    position = {
-                      x = -1097;
-                      y = -613;
-                    };
-                  };
-                };
-              }
-            ];
-
             ## My modules
-            my.power.laptop.enable = true;
             my.idle.suspendTimeout = 1800;
             my.lockscreen.greetOnStartup = true;
+            my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
             my.sudo.fingerprintAuth = true;
             my.tailscale.enable = true;
@@ -160,6 +115,60 @@ in
             my.compositor = {
               name = "niri";
               wallpaper = ./assets/wallpapers/cabin.jpg;
+
+              outputs = {
+                # Laptop screen
+                "eDP-1" = {
+                  scale = 1.175;
+
+                  position = {
+                    x = 0;
+                    y = 0;
+                  };
+                };
+
+                # Office monitor
+                "LG Electronics LG HDR 4K 0x0004C67F" = {
+                  focus-at-startup = true;
+                  scale = 1.25;
+
+                  position = {
+                    x = 1920;
+                    y = -1720;
+                  };
+                };
+
+                # Home monitor
+                "LG Electronics LG HDR 4K 210MAZVRJG93" = {
+                  focus-at-startup = true;
+                  scale = 1.25;
+
+                  position = {
+                    x = 1920;
+                    y = -1720;
+                  };
+                };
+
+                # Meeting room 18th floor
+                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
+                  scale = 2;
+
+                  position = {
+                    x = -1097;
+                    y = -613; # 617 - 4px
+                  };
+                };
+
+                # Corner office 19th floor
+                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
+                  scale = 1.5;
+
+                  position = {
+                    x = -1097;
+                    y = -613; # 617 - 4px
+                  };
+                };
+              };
             };
 
             my.desktop-shell = {

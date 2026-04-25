@@ -30,6 +30,12 @@ in
           description = "Path to the wallpaper image file";
         };
 
+        outputs = lib.mkOption {
+          type = lib.types.attrs;
+          default = { };
+          description = "Per-output compositor configuration (passed to programs.niri.settings.outputs)";
+        };
+
         sessionCommand = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
@@ -149,54 +155,7 @@ in
               clipboard.disable-primary = true;
               prefer-no-csd = true;
 
-              outputs = {
-                # Laptop screen
-                "eDP-1" = {
-                  scale = 1.175;
-                  position = {
-                    x = 0;
-                    y = 0;
-                  };
-                };
-
-                # Home monitor
-                "LG Electronics LG HDR 4K 210MAZVRJG93" = {
-                  focus-at-startup = true;
-                  scale = 1.25;
-                  position = {
-                    x = 1920;
-                    y = -1720;
-                  };
-                };
-
-                # Office monitor
-                "LG Electronics LG HDR 4K 0x0004C67F" = {
-                  focus-at-startup = true;
-                  scale = 1.25;
-                  position = {
-                    x = 1920;
-                    y = -1720;
-                  };
-                };
-
-                # Meeting room 18th floor
-                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
-                  scale = 2;
-                  position = {
-                    x = -1097;
-                    y = -613; # 617 - 4px
-                  };
-                };
-
-                # Corner office 19th floor
-                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                  scale = 1.5;
-                  position = {
-                    x = -1097;
-                    y = -613; # 617 - 4px
-                  };
-                };
-              };
+              outputs = cfg.outputs;
 
               overview = {
                 backdrop-color = "transparent";
