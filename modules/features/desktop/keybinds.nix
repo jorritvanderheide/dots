@@ -37,7 +37,7 @@
                     {
                       key = "m";
                       desc = "Music";
-                      cmd = "app2unit -s a -- qobuz-player";
+                      cmd = "app2unit -s a -- ghostty -e qobuz-player";
                     }
                     {
                       key = "n";
@@ -52,7 +52,7 @@
                     {
                       key = "s";
                       desc = "Social";
-                      cmd = "app2unit -s a -- tuba";
+                      cmd = "app2unit -s a -- dev.geopjr.Tuba";
                     }
                     {
                       key = "t";
@@ -63,7 +63,7 @@
                 );
                 repeat = false;
               };
-              "Mod+Shift+D" = {
+              "Mod+S" = {
                 action = spawn (
                   pkgs.lib.getExe (mkMenu [
                     {
