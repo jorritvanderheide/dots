@@ -43,6 +43,10 @@
           };
         };
 
+        # Force HTTP/2 transport: QUIC (UDP/7844) is unstable through this
+        # network's NAT/ISP path, causing edge dial timeouts and tunnel flaps.
+        systemd.services."cloudflared-tunnel-${tunnelId}".environment.TUNNEL_TRANSPORT_PROTOCOL = "http2";
+
         # ACME certificate for nginx
         security.acme.certs.${domain} = { };
 
