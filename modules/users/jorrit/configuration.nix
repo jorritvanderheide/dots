@@ -11,6 +11,7 @@
       "adbusers" # Android
       "audio"
       "dialout" # Serial
+      "docker"
       "input"
       "keys" # Sops
       "nixos" # NixOS config editing
