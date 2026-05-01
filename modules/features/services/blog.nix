@@ -43,9 +43,30 @@
           };
         };
 
-        # Force HTTP/2 transport: QUIC (UDP/7844) is unstable through this
-        # network's NAT/ISP path, causing edge dial timeouts and tunnel flaps.
-        systemd.services."cloudflared-tunnel-${tunnelId}".environment.TUNNEL_TRANSPORT_PROTOCOL = "http2";
+        systemd.services."cloudflared-tunnel-${tunnelId}" = {
+          # Force HTTP/2 transport: QUIC (UDP/7844) is unstable through this
+          # network's NAT/ISP path, causing edge dial timeouts and tunnel flaps.
+          environment.TUNNEL_TRANSPORT_PROTOCOL = "http2";
+
+          # dnscrypt-proxy's initial DoH handshake takes ~60s after boot;
+          # without ordering and an unlimited restart budget, cloudflared races
+          # it, fails its SRV lookup, hits systemd's start-rate-limit, and
+          # never recovers.
+          after = [
+            "dnscrypt-proxy.service"
+            "nss-lookup.target"
+          ];
+          wants = [
+            "dnscrypt-proxy.service"
+            "nss-lookup.target"
+          ];
+
+          unitConfig.StartLimitIntervalSec = 0;
+          serviceConfig = {
+            Restart = lib.mkForce "always";
+            RestartSec = "30s";
+          };
+        };
 
         # ACME certificate for nginx
         security.acme.certs.${domain} = { };
