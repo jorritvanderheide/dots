@@ -33,6 +33,7 @@ in
         blog
         calibre-web
         contacts
+        home-assistant
         monitoring
         ntfy
         offsite-backup
@@ -65,6 +66,7 @@ in
             my.boot.secureboot.enable = true;
             my.calibre-web.enable = true;
             my.contacts.enable = true;
+            my.home-assistant.enable = true;
             my.monitoring.enable = true;
             my.ntfy.enable = true;
             my.ssh-server.allowedUsers = [ "nixos" ];
@@ -89,6 +91,7 @@ in
               paths = [
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
+                "/var/lib/hass"
                 "/var/lib/radicale"
               ];
             };
