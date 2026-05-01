@@ -25,15 +25,25 @@
 
               functions.ndeploy = ''
                 if test (count $argv) -eq 0
-                  echo "Usage: ndeploy <hostname>"
+                  echo "Usage: ndeploy <hostname> [switch|boot]"
                   return 1
+                end
+                set -l action switch
+                if test (count $argv) -ge 2
+                  switch $argv[2]
+                    case switch boot
+                      set action $argv[2]
+                    case '*'
+                      echo "Invalid action: $argv[2] (must be switch or boot)"
+                      return 1
+                  end
                 end
                 # --use-substitutes lets the target pull cached paths from
                 # cache.nixos.org directly instead of forcing the full closure
                 # over the SSH/tailscale link.
                 # --ask-sudo-password prompts locally for the remote sudo password
                 # (target hosts require it since wheelNeedsPassword=true).
-                nixos-rebuild switch --flake /etc/nixos#$argv[1] --target-host nixos@$argv[1] --sudo --ask-sudo-password --use-substitutes
+                nixos-rebuild $action --flake /etc/nixos#$argv[1] --target-host nixos@$argv[1] --sudo --ask-sudo-password --use-substitutes
               '';
 
               shellAliases = {
