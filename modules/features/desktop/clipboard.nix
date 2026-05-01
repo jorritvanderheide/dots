@@ -18,7 +18,6 @@
             ];
 
             programs.niri = {
-              enable = true;
               settings = {
                 # Startup
                 spawn-at-startup = [

@@ -42,7 +42,6 @@
         home-manager.sharedModules = [
           {
             programs.niri = {
-              enable = true;
               settings.spawn-at-startup = lib.optionals cfg.greetOnStartup [
                 {
                   command = [

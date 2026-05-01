@@ -3,7 +3,7 @@
   ...
 }:
 let
-  niriHomeModule = inputs.niri-flake.homeModules.niri;
+  niri-flake = inputs.niri-flake.nixosModules.niri;
   system76SchedulerModule = inputs.system76-scheduler-niri.homeModules.default;
 in
 {
@@ -18,6 +18,8 @@ in
       cfg = config.my.compositor;
     in
     {
+      imports = [ niri-flake ];
+
       options.my.compositor = {
         name = lib.mkOption {
           type = lib.types.enum [ "niri" ];
@@ -44,16 +46,10 @@ in
       };
 
       config = {
-        # Enable Niri overlay
-        nixpkgs.overlays = [ inputs.niri-flake.overlays.niri ];
+        programs.niri.enable = true;
 
         # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
-
-        programs.niri = {
-          enable = true;
-          package = pkgs.niri-unstable;
-        };
 
         # Niri auto-enables gnome-keyring at system level, which also pulls in
         # gcr-ssh-agent that overrides SSH_AUTH_SOCK (breaking Bitwarden SSH agent).
@@ -69,6 +65,7 @@ in
           sessionVariables.NIXOS_OZONE_WL = "1";
 
           systemPackages = with pkgs; [
+            alacritty
             batsignal
             blueman
             brightnessctl
@@ -89,7 +86,6 @@ in
           .${cfg.name};
 
         home-manager.sharedModules = [
-          niriHomeModule
           system76SchedulerModule
           {
             # Override gnome-keyring to exclude ssh component (conflicts with Bitwarden SSH agent)
@@ -104,6 +100,91 @@ in
           }
           {
             programs.niri.settings = {
+              clipboard.disable-primary = true;
+              gestures.hot-corners.enable = false;
+              outputs = cfg.outputs;
+              prefer-no-csd = true;
+
+              cursor = {
+                size = 32;
+                theme = "Capitaine Cursors (Gruvbox)";
+                hide-when-typing = true;
+                hide-after-inactive-ms = 1000;
+              };
+
+              hotkey-overlay = {
+                hide-not-bound = true;
+                skip-at-startup = true;
+              };
+
+              input = {
+                keyboard.xkb.layout = "nl(us)";
+                warp-mouse-to-focus.enable = true;
+
+                focus-follows-mouse = {
+                  enable = true;
+                  max-scroll-amount = "100%";
+                };
+
+                touchpad = {
+                  accel-profile = "adaptive";
+                  accel-speed = 0.3;
+                  click-method = "clickfinger";
+                  dwt = true;
+                  scroll-method = "two-finger";
+                  tap-button-map = "left-right-middle";
+                };
+              };
+
+              layer-rules = [
+                {
+                  place-within-backdrop = true;
+
+                  matches = [
+                    {
+                      namespace = "^wallpaper$";
+                    }
+                  ];
+                }
+              ];
+
+              layout = {
+                always-center-single-column = true;
+                background-color = "transparent";
+                default-column-width.proportion = 1.0;
+                empty-workspace-above-first = true;
+                focus-ring.enable = false;
+                gaps = 64.0;
+                shadow.enable = true;
+
+                border = {
+                  enable = true;
+                  width = 4;
+                  active.color = config.lib.stylix.colors.withHashtag.base08;
+                  inactive.color = config.lib.stylix.colors.withHashtag.base02;
+                };
+
+                preset-column-widths = [
+                  { proportion = 1.0 / 2.0; }
+                  { proportion = 1.0 / 3.0; }
+                  { proportion = 2.0 / 3.0; }
+                  { proportion = 1.0; }
+                ];
+
+                struts = {
+                  top = 16.0;
+                  right = 16.0;
+                  left = 16.0;
+                  bottom = 0;
+                };
+              };
+
+              overview = {
+                backdrop-color = "transparent";
+                workspace-shadow.enable = false;
+                zoom = 0.66;
+              };
+
               spawn-at-startup = [
                 {
                   command = [
@@ -147,81 +228,6 @@ in
                 }
               ];
 
-              hotkey-overlay = {
-                hide-not-bound = true;
-                skip-at-startup = true;
-              };
-
-              clipboard.disable-primary = true;
-              prefer-no-csd = true;
-
-              outputs = cfg.outputs;
-
-              overview = {
-                backdrop-color = "transparent";
-                workspace-shadow.enable = false;
-                zoom = 0.66;
-              };
-
-              input = {
-                keyboard.xkb.layout = "nl(us)";
-                warp-mouse-to-focus.enable = true;
-
-                touchpad = {
-                  accel-profile = "adaptive";
-                  accel-speed = 0.3;
-                  click-method = "clickfinger";
-                  dwt = true;
-                  scroll-method = "two-finger";
-                  tap-button-map = "left-right-middle";
-                };
-
-                focus-follows-mouse = {
-                  enable = true;
-                  max-scroll-amount = "100%";
-                };
-              };
-
-              gestures.hot-corners.enable = false;
-
-              cursor = {
-                size = 32;
-                theme = "Capitaine Cursors (Gruvbox)";
-              };
-
-              layout = {
-                always-center-single-column = true;
-                background-color = "transparent";
-                empty-workspace-above-first = true;
-                focus-ring.enable = false;
-                gaps = 64.0;
-
-                border = {
-                  enable = true;
-                  width = 4;
-                  active.color = config.lib.stylix.colors.withHashtag.base08;
-                  inactive.color = config.lib.stylix.colors.withHashtag.base02;
-                };
-
-                default-column-width = {
-                  proportion = 1.0;
-                };
-
-                preset-column-widths = [
-                  { proportion = 1.0 / 2.0; }
-                  { proportion = 1.0 / 3.0; }
-                  { proportion = 2.0 / 3.0; }
-                  { proportion = 1.0; }
-                ];
-
-                struts = {
-                  top = 16.0;
-                  right = 16.0;
-                  left = 16.0;
-                  bottom = 0;
-                };
-              };
-
               window-rules = lib.singleton {
                 draw-border-with-background = false;
                 clip-to-geometry = true;
@@ -233,18 +239,6 @@ in
                   bottom-left = top-left;
                 };
               };
-
-              layer-rules = [
-                {
-                  place-within-backdrop = true;
-
-                  matches = [
-                    {
-                      namespace = "^wallpaper$";
-                    }
-                  ];
-                }
-              ];
             };
 
             xdg.mimeApps.defaultApplications = {

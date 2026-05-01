@@ -24,7 +24,7 @@
 
     quickshell = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.2.1";
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/heads/0.2";
     };
 
     lanzaboote = {

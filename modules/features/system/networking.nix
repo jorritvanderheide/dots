@@ -6,7 +6,6 @@
   flake.nixosModules.networking =
     {
       config,
-      pkgs,
       ...
     }:
     let
@@ -146,13 +145,6 @@
           group = "wpa_supplicant";
         };
         users.groups.wpa_supplicant = lib.mkIf (cfg.wireless != null) { };
-
-        environment.systemPackages = lib.mkIf (cfg.wireless != null) (
-          with pkgs;
-          [
-            wpa_supplicant_gui
-          ]
-        );
 
         networking = {
           useDHCP = lib.mkForce (cfg.staticConfig == null);
