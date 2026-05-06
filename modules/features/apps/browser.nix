@@ -221,20 +221,35 @@
                   };
                 };
 
-                # pinsForce = true;
-                # pins =
-                #   let
-                #     workspaces = config.programs.zen-browser.profiles."default".spaces;
-                #   in
-                #   {
-                #     # Work
-                #     "GitLab" = {
-                #       id = "be198a28-a2b5-4362-b43a-d164a31a8215";
-                #       url = "https://gitlab.science.ru.nl/dashboard/home";
-                #       workspace = workspaces."PubHubs".id;
-                #       position = 1000;
-                #     };
-                #   };
+                pinsForce = true;
+                pins =
+                  let
+                  containers = config.programs.zen-browser.profiles."default".containers;
+                  in
+                  {
+                    # Work
+                    "GitLab" = {
+                      container = containers."Work".id;
+                      id = "be198a28-a2b5-4362-b43a-d164a31a8215";
+                      isEssential = true;
+                      position = 1000;
+                      url = "https://gitlab.science.ru.nl/dashboard/home";
+                    };
+                    "PubHubs" = {
+                      container = containers."Work".id;
+                      id = "efe48942-39d2-41ae-b83f-b214205447ce";
+                      isEssential = true;
+                      position = 2000;
+                      url = "http://localhost:8080";
+                    };
+                    "PubHubs Client" = {
+                      container = containers."Work".id;
+                      id = "eada3af4-51dc-4fc5-8def-ca679185cf12";
+                      isEssential = true;
+                      position = 3000;
+                      url = "http://localhost:8001/?accessToken={%22token%22:%22syt_NzFiLTlmNw_iZnQndtjomcCaZzGJgNa_0s6moV%22,%22userId%22:%22@71b-9f7:main.testhub-matrix.ihub.ru.nl%22}";
+                    };
+                  };
 
                 spacesForce = true;
                 spaces =
@@ -257,6 +272,8 @@
                 settings = {
                   ## General
                   "browser.sessionstore.resume_from_crash" = false;
+                  "zen.window-sync.enabled" = true;
+                  "zen.window-sync.sync-only-pinned-tabs" = true;
 
                   ## Cachining
                   "browser.cache.disk.enable" = false;
@@ -270,6 +287,7 @@
                   "browser.tabs.unloadOnLowMemory" = true;
                   "browser.low_commit_space_threshold_percent" = 100;
                   "browser.tabs.min_inactive_duration_before_unload" = 3600000;
+                  "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
 
                   ## Styling
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
