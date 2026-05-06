@@ -61,6 +61,11 @@ in
             nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
 
+            # TODO: dbus-broker (new nixpkgs default) hangs at boot with
+            # `launcher_run_child: no such file or directory`. Pinned back
+            # to dbus-daemon until investigated.
+            services.dbus.implementation = "dbus";
+
             # My modules
             my.blog.enable = true;
             my.boot.secureboot.enable = true;
