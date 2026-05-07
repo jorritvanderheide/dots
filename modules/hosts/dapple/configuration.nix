@@ -54,6 +54,7 @@ in
           {
             config,
             lib,
+            pkgs,
             ...
           }:
           {
@@ -62,6 +63,9 @@ in
             networking.useNetworkd = lib.mkForce false; # Realtek rtw89 driver incompatible with networkd's BPF DHCP client
             nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
+
+            # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
+            environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
             # TODO: dbus-broker (new nixpkgs default) hangs at boot with
             # `launcher_run_child: no such file or directory`. Pinned back
@@ -91,8 +95,6 @@ in
               mediaGroupUsers = [ "nixos" ];
             };
 
-            my.servarr.enable = true;
-
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp3s0";
@@ -108,6 +110,11 @@ in
                 "/var/lib/hass"
                 "/var/lib/radicale"
               ];
+            };
+
+            my.servarr = {
+              enable = true;
+              recyclarr.enable = true;
             };
 
             my.tailscale = {

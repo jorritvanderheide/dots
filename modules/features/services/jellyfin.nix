@@ -99,6 +99,10 @@
                 compression = "zstd-1";
                 mountpoint = "legacy";
                 quota = cfg.quota;
+                # Tuned for large sequential video files: cuts metadata
+                # overhead vs. the 128K default. Existing files keep their
+                # original recordsize; only new writes use this.
+                recordsize = "1M";
               };
             };
 
