@@ -76,6 +76,7 @@ in
         music-player
         notes
         password-manager
+        slicer
         social
         terminal
 
