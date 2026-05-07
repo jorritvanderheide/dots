@@ -3,7 +3,7 @@
     config = {
       home-manager.sharedModules = [
         (
-          { pkgs, ... }:
+          { config, pkgs, ... }:
           {
             home.packages = with pkgs; [
               vlc
@@ -20,6 +20,10 @@
               terminal = false;
               mimeType = [ "x-scheme-handler/magnet" ];
             };
+
+            xdg.configFile."mpv/script-opts/webtorrent.conf".text = ''
+              path=${config.home.homeDirectory}/Videos
+            '';
 
             xdg.configFile."vlc/vlcrc".text = ''
               [qt]
