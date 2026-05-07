@@ -125,6 +125,11 @@
           enable = true;
 
           preserveAt."/persist/system" = {
+            commonMountOptions = [
+              "x-gvfs-hide"
+              "x-gdu.hide"
+            ];
+
             directories = [
               {
                 directory = "/etc/nixos";
@@ -164,6 +169,11 @@
 
           preserveAt."/persist" = {
             users = lib.genAttrs normalUsers (_username: {
+              commonMountOptions = [
+                "x-gvfs-hide"
+                "x-gdu.hide"
+              ];
+
               directories = [
                 "Documents"
                 "Downloads"
