@@ -70,7 +70,6 @@ in
             blueman
             brightnessctl
             imv
-            nautilus
             playerctl
             swaybg
             udiskie

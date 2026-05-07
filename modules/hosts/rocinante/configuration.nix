@@ -42,6 +42,7 @@ in
         clipboard
         compositor
         desktop-shell
+        files
         idle
         keybinds
         keyboard-remap
@@ -202,6 +203,10 @@ in
                 "100.88.135.27"
               ];
             };
+
+            home-manager.users.jorrit.gtk.gtk3.bookmarks = [
+              "sftp://nixos@dapple/srv/media Dapple Media"
+            ];
           }
         )
       ];
