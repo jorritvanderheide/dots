@@ -34,6 +34,7 @@ in
         calibre-web
         contacts
         home-assistant
+        jellyfin
         monitoring
         ntfy
         offsite-backup
@@ -82,6 +83,11 @@ in
               luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
               usbSerial = "3248831116939333057";
+            };
+
+            my.jellyfin = {
+              enable = true;
+              mediaGroupUsers = [ "nixos" ];
             };
 
             my.networking = {
