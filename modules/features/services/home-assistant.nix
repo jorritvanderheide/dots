@@ -28,6 +28,7 @@
               enable = true;
               extraComponents = [
                 "default_config"
+                "enphase_envoy"
                 "esphome"
               ];
 
