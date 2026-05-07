@@ -38,6 +38,7 @@ in
         monitoring
         ntfy
         offsite-backup
+        servarr
         tailscale
         vaultwarden
 
@@ -89,6 +90,8 @@ in
               enable = true;
               mediaGroupUsers = [ "nixos" ];
             };
+
+            my.servarr.enable = true;
 
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];

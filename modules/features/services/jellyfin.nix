@@ -112,6 +112,9 @@
             # any specific user existing; new files inherit the media group.
             systemd.tmpfiles.rules = [
               "d ${mediaDir} 2775 root media -"
+              "d ${mediaDir}/library 2775 root media -"
+              "d ${mediaDir}/library/movies 2775 root media -"
+              "d ${mediaDir}/library/series 2775 root media -"
             ];
 
             systemd.services.jellyfin.serviceConfig = {
