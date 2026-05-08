@@ -103,6 +103,53 @@ in
               mediaGroupUsers = [ "nixos" ];
             };
 
+            # Second drive: 500 GB SATA SSD dedicated to the media library
+            # (Jellyfin + servarr). LUKS+TPM2 mirrors the zroot pattern so the
+            # pool auto-imports without prompting at boot.
+            disko.devices.disk.media = {
+              device = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
+              type = "disk";
+              content = {
+                type = "gpt";
+                partitions.luks = {
+                  size = "100%";
+                  content = {
+                    name = "zmedia-crypt";
+                    type = "luks";
+                    passwordFile = "/tmp/secret.key";
+                    settings = {
+                      allowDiscards = true;
+                      crypttabExtraOpts = [ "tpm2-device=auto" ];
+                    };
+                    content = {
+                      type = "zfs";
+                      pool = "zmedia";
+                    };
+                  };
+                };
+              };
+            };
+
+            disko.devices.zpool.zmedia = {
+              type = "zpool";
+              rootFsOptions = {
+                acltype = "posixacl";
+                canmount = "off";
+                checksum = "fletcher4";
+                compression = "zstd";
+                dnodesize = "auto";
+                mountpoint = "none";
+                normalization = "formD";
+                relatime = "on";
+                xattr = "sa";
+              };
+              options = {
+                ashift = "12";
+                autotrim = "on";
+              };
+              # zmedia/media itself is declared by the jellyfin module.
+            };
+
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp3s0";

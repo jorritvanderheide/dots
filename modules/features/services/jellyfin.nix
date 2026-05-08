@@ -27,8 +27,8 @@
 
         quota = lib.mkOption {
           type = lib.types.str;
-          default = "256G";
-          description = "ZFS quota on zroot/media to bound media library growth";
+          default = "none";
+          description = "ZFS quota on zmedia/media (\"none\" = bounded by pool size only)";
         };
 
         mediaGroupUsers = lib.mkOption {
@@ -56,8 +56,8 @@
           {
             assertions = [
               {
-                assertion = config.disko.devices.zpool ? zroot;
-                message = "my.jellyfin requires the zroot ZFS pool (this host needs the `zfs` core module)";
+                assertion = config.disko.devices.zpool ? zmedia;
+                message = "my.jellyfin requires a `zmedia` zpool declared by the host (dedicated media drive)";
               }
             ];
 
@@ -90,7 +90,7 @@
             # Mount is handled by the explicit fileSystems entry below (with
             # nofail) so first-time activation doesn't break if the dataset
             # hasn't been created yet.
-            disko.devices.zpool.zroot.datasets.media = {
+            disko.devices.zpool.zmedia.datasets.media = {
               type = "zfs_fs";
               options = {
                 atime = "off";
@@ -107,7 +107,7 @@
             };
 
             fileSystems.${mediaDir} = {
-              device = "zroot/media";
+              device = "zmedia/media";
               fsType = "zfs";
               options = [ "nofail" ];
             };
