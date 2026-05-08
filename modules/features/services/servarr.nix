@@ -56,8 +56,11 @@
               services.recyclarr = {
                 enable = true;
                 schedule = "daily";
+                # Recyclarr 8 requires instance names to be unique across all
+                # apps (not just within an app), so use distinct names rather
+                # than `main` everywhere.
                 configuration = {
-                  sonarr.main = {
+                  sonarr.series = {
                     base_url = "http://127.0.0.1:8989";
                     api_key._secret = config.sops.secrets.sonarr_api_key.path;
                     quality_definition.type = "series";
@@ -72,7 +75,7 @@
                       }
                     ];
                   };
-                  radarr.main = {
+                  radarr.movies = {
                     base_url = "http://127.0.0.1:7878";
                     api_key._secret = config.sops.secrets.radarr_api_key.path;
                     quality_definition.type = "movie";
@@ -126,10 +129,12 @@
                     Connection.GlobalUPLimit = 10240;
                     Connection.GlobalDLLimit = 0;
                   };
-                  # When a share-ratio limit is hit, pause (don't remove).
-                  # Removing in qBit deletes the source file, which would
-                  # also drop the hardlinked copy in /srv/media/library if
-                  # that's the only inode reference. 0 = pause.
+                  # Stop seeding once a torrent has either repaid 2x what was
+                  # downloaded or has been seeding for 14 days, whichever comes
+                  # first. Pause rather than remove so the source file stays
+                  # intact for hardlinking into /srv/media/library.
+                  BitTorrent.Session.GlobalMaxRatio = 2.0;
+                  BitTorrent.Session.GlobalMaxSeedingMinutes = 20160;
                   BitTorrent.Session.MaxRatioAction = 0;
                 };
               };

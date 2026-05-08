@@ -30,10 +30,12 @@
                 "default_config"
                 "enphase_envoy"
                 "esphome"
+                "go2rtc"
               ];
 
               config = {
                 default_config = { };
+                go2rtc.url = "http://127.0.0.1:1984";
                 homeassistant = {
                   latitude = 51.8425;
                   longitude = 5.8528;

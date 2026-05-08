@@ -33,6 +33,7 @@ in
         blog
         calibre-web
         contacts
+        go2rtc
         home-assistant
         jellyfin
         monitoring
@@ -88,6 +89,13 @@ in
               luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
               usbSerial = "3248831116939333057";
+            };
+
+            my.go2rtc = {
+              enable = true;
+              streams = {
+                dogcam = "rtsp://@100.81.32.76:8080/h264_ulaw.sdp";
+              };
             };
 
             my.jellyfin = {
