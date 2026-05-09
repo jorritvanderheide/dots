@@ -15,11 +15,26 @@
       torrentsDir = "${mediaDir}/torrents";
 
       apps = {
-        qbit = 8080;
-        prowlarr = 9696;
-        sonarr = 8989;
-        radarr = 7878;
-        bazarr = 6767;
+        qbit = {
+          port = 8080;
+          subdomain = "torrents";
+        };
+        prowlarr = {
+          port = 9696;
+          subdomain = "prowlarr";
+        };
+        sonarr = {
+          port = 8989;
+          subdomain = "series";
+        };
+        radarr = {
+          port = 7878;
+          subdomain = "movies";
+        };
+        bazarr = {
+          port = 6767;
+          subdomain = "bazarr";
+        };
       };
     in
     {
@@ -37,7 +52,8 @@
       config = lib.mkIf cfg.enable (
         lib.mkMerge (
           (lib.mapAttrsToList (
-            subdomain: port:
+            _name:
+            { port, subdomain }:
             inputs.self.lib.mkReverseProxy {
               inherit config port subdomain;
             }
@@ -103,7 +119,7 @@
 
               services.qbittorrent = {
                 enable = true;
-                webuiPort = apps.qbit;
+                webuiPort = apps.qbit.port;
                 openFirewall = false;
                 serverConfig = {
                   LegalNotice.Accepted = true;
@@ -136,6 +152,14 @@
                   BitTorrent.Session.GlobalMaxRatio = 2.0;
                   BitTorrent.Session.GlobalMaxSeedingMinutes = 20160;
                   BitTorrent.Session.MaxRatioAction = 0;
+
+                  # Honour each category's save path (Auto Torrent Management)
+                  # by default, and relocate already-running torrents when a
+                  # save path changes. Without this, qBit ignores the category
+                  # save path and dumps everything in DefaultSavePath.
+                  BitTorrent.Session.DisableAutoTMMByDefault = false;
+                  BitTorrent.Session.DisableAutoTMMTriggers.CategorySavePathChanged = false;
+                  BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
                 };
               };
 
@@ -162,7 +186,7 @@
               services.bazarr = {
                 enable = true;
                 openFirewall = false;
-                listenPort = apps.bazarr;
+                listenPort = apps.bazarr.port;
               };
 
               # FlareSolverr: a headless-Chromium proxy that solves Cloudflare

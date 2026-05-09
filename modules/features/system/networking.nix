@@ -230,6 +230,11 @@
           settings.Resolve = {
             DNSSEC = "false"; # dnscrypt-proxy handles DNSSEC validation
             DNS = [ "127.0.0.1:5354" ];
+            # Force every query through dnscrypt-proxy. Without ~. as a
+            # routing domain, resolved prefers per-link DNS (e.g., DHCP'd
+            # 192.168.1.1) over the global DNS, which silently bypasses
+            # DOH and leaks plaintext queries to the local router.
+            Domains = "~.";
             DNSStubListener = "yes";
             FallbackDNS = [ ];
           };

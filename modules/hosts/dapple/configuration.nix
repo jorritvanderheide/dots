@@ -104,28 +104,22 @@ in
             };
 
             # Second drive: 500 GB SATA SSD dedicated to the media library
-            # (Jellyfin + servarr). LUKS+TPM2 mirrors the zroot pattern so the
-            # pool auto-imports without prompting at boot.
+            # (Jellyfin + servarr). Whole-disk LUKS (no partition table) with
+            # TPM2 enrollment so the pool auto-imports at boot without prompting.
             disko.devices.disk.media = {
               device = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
               type = "disk";
               content = {
-                type = "gpt";
-                partitions.luks = {
-                  size = "100%";
-                  content = {
-                    name = "zmedia-crypt";
-                    type = "luks";
-                    passwordFile = "/tmp/secret.key";
-                    settings = {
-                      allowDiscards = true;
-                      crypttabExtraOpts = [ "tpm2-device=auto" ];
-                    };
-                    content = {
-                      type = "zfs";
-                      pool = "zmedia";
-                    };
-                  };
+                type = "luks";
+                name = "zmedia-crypt";
+                passwordFile = "/tmp/secret.key";
+                settings = {
+                  allowDiscards = true;
+                  crypttabExtraOpts = [ "tpm2-device=auto" ];
+                };
+                content = {
+                  type = "zfs";
+                  pool = "zmedia";
                 };
               };
             };
