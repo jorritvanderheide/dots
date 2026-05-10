@@ -36,6 +36,27 @@
             home.packages = [
               orca-slicer-pinned
             ];
+
+            # MakerWorld's "Open in Bambu Studio" buttons emit bambustudio://
+            # (and bambustudioopen://) links. Register OrcaSlicer as the
+            # handler for both so those links open Orca instead of being
+            # dropped by the desktop env.
+            xdg.desktopEntries.orca-slicer-bambu = {
+              name = "OrcaSlicer (Bambu links)";
+              exec = "${orca-slicer-pinned}/bin/orca-slicer %u";
+              icon = "OrcaSlicer";
+              terminal = false;
+              mimeType = [
+                "x-scheme-handler/bambustudio"
+                "x-scheme-handler/bambustudioopen"
+              ];
+              noDisplay = true;
+            };
+
+            xdg.mimeApps.defaultApplications = {
+              "x-scheme-handler/bambustudio" = "orca-slicer-bambu.desktop";
+              "x-scheme-handler/bambustudioopen" = "orca-slicer-bambu.desktop";
+            };
           }
         ];
       };
