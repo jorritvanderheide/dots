@@ -145,13 +145,16 @@
                     Connection.GlobalUPLimit = 10240;
                     Connection.GlobalDLLimit = 0;
                   };
-                  # Stop seeding once a torrent has either repaid 2x what was
-                  # downloaded or has been seeding for 14 days, whichever comes
-                  # first. Pause rather than remove so the source file stays
-                  # intact for hardlinking into /srv/media/library.
-                  BitTorrent.Session.GlobalMaxRatio = 2.0;
-                  BitTorrent.Session.GlobalMaxSeedingMinutes = 20160;
+                  # Private trackers: seed indefinitely (no ratio/time cap)
+                  # and disable peer-discovery protocols (DHT, PeX, LSD) since
+                  # most private trackers ban peers that announce torrents
+                  # outside the tracker.
+                  BitTorrent.Session.GlobalMaxRatio = -1;
+                  BitTorrent.Session.GlobalMaxSeedingMinutes = -1;
                   BitTorrent.Session.MaxRatioAction = 0;
+                  BitTorrent.Session.DHT = false;
+                  BitTorrent.Session.PeX = false;
+                  BitTorrent.Session.LSD = false;
 
                   # Honour each category's save path (Auto Torrent Management)
                   # by default, and relocate already-running torrents when a

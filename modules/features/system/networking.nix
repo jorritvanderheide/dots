@@ -137,6 +137,7 @@
           "wireless/hackerspace" = { };
           "wireless/beverweg" = { };
           "wireless/eduroam" = { };
+          "wireless/reticulum" = { };
         };
 
         # Ensure wpa_supplicant user exists early enough for sops template ownership
@@ -191,6 +192,11 @@
               "Beverweg 20" = {
                 priority = 10;
                 pskRaw = "ext:BEVERWEG_PSK";
+                authProtocols = [ "WPA-PSK" ];
+              };
+              "reticulum" = {
+                priority = 10;
+                pskRaw = "ext:RETICULUM_PSK";
                 authProtocols = [ "WPA-PSK" ];
               };
               "eduroam" = {

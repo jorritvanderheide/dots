@@ -1,8 +1,4 @@
 {
-  inputs,
-  ...
-}:
-{
   flake.nixosModules.desktop-shell =
     {
       config,
@@ -12,8 +8,6 @@
     }:
     let
       cfg = config.my.desktop-shell;
-
-      quickshellPkg = inputs.quickshell.packages.${pkgs.system}.default; # Quickshell package
 
       # Theme.qml generated from the active Stylix base16 palette so shell
       # colors track the system theme.
@@ -101,7 +95,7 @@
       options.my.desktop-shell = {
         package = lib.mkOption {
           type = lib.types.package;
-          default = quickshellPkg;
+          default = pkgs.quickshell;
           description = "Quickshell package";
         };
 

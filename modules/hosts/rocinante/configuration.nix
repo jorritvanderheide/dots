@@ -58,8 +58,9 @@ in
         direnv
         git
         nix
+        reticulum
         virtualization
-        worktrunk
+        # worktrunk
 
         # Shell
         cli-tools
