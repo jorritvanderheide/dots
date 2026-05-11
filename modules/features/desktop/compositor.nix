@@ -84,7 +84,7 @@ in
             programs.niri.settings = {
               clipboard.disable-primary = true;
               gestures.hot-corners.enable = false;
-              outputs = cfg.outputs;
+              inherit (cfg) outputs;
               prefer-no-csd = true;
 
               cursor = {
@@ -167,49 +167,51 @@ in
                 zoom = 0.66;
               };
 
-              spawn-at-startup = lib.optionals (cfg.wallpaper != null) [
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "b"
-                    "--"
-                    "swaybg"
-                    "-m"
-                    "fill"
-                    "-i"
-                    "${cfg.wallpaper}"
-                  ];
-                }
-              ] ++ [
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "b"
-                    "--"
-                    "mako"
-                  ];
-                }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "b"
-                    "--"
-                    "batsignal"
-                  ];
-                }
-                {
-                  command = [
-                    "app2unit"
-                    "-s"
-                    "b"
-                    "--"
-                    "udiskie"
-                  ];
-                }
-              ];
+              spawn-at-startup =
+                lib.optionals (cfg.wallpaper != null) [
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "swaybg"
+                      "-m"
+                      "fill"
+                      "-i"
+                      "${cfg.wallpaper}"
+                    ];
+                  }
+                ]
+                ++ [
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "mako"
+                    ];
+                  }
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "batsignal"
+                    ];
+                  }
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "udiskie"
+                    ];
+                  }
+                ];
 
               window-rules = lib.singleton {
                 draw-border-with-background = false;

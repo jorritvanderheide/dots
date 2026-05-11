@@ -1,7 +1,4 @@
-{
-  ...
-}:
-{
+_: {
   flake.nixosModules.zfs =
     {
       config,
@@ -121,10 +118,22 @@
 
       # Hide system mounts from gvfs/Nautilus and GNOME Disks sidebars.
       fileSystems = {
-        "/".options = [ "x-gvfs-hide" "x-gdu.hide" ];
-        "/nix".options = [ "x-gvfs-hide" "x-gdu.hide" ];
-        "/persist".options = [ "x-gvfs-hide" "x-gdu.hide" ];
-        "/boot".options = [ "x-gvfs-hide" "x-gdu.hide" ];
+        "/".options = [
+          "x-gvfs-hide"
+          "x-gdu.hide"
+        ];
+        "/nix".options = [
+          "x-gvfs-hide"
+          "x-gdu.hide"
+        ];
+        "/persist".options = [
+          "x-gvfs-hide"
+          "x-gdu.hide"
+        ];
+        "/boot".options = [
+          "x-gvfs-hide"
+          "x-gdu.hide"
+        ];
       };
 
       # Automated snapshots for /persist (the only stateful dataset, root rolls back on boot)

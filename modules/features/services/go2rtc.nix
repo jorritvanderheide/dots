@@ -37,7 +37,7 @@
             api.listen = "127.0.0.1:${toString cfg.apiPort}";
             rtsp.listen = "127.0.0.1:8554";
             webrtc.listen = ":${toString webrtcPort}";
-            streams = cfg.streams;
+            inherit (cfg) streams;
           };
         };
 

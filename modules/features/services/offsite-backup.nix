@@ -22,10 +22,15 @@
           description = "Local paths to back up";
         };
 
-        healthcheckUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
+        healthcheckUrlFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
           default = null;
-          description = "URL to ping on successful backup (e.g. Uptime Kuma push URL)";
+          description = ''
+            Path to a file whose contents are the full URL (including any
+            token) to GET on successful backup. Read at runtime so the URL
+            with token can come from sops without being baked into the
+            store. Set to null to disable health pings.
+          '';
         };
       };
 
@@ -51,7 +56,7 @@
           path = [
             pkgs.rclone
           ]
-          ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl;
+          ++ lib.optional (cfg.healthcheckUrlFile != null) pkgs.curl;
 
           serviceConfig = {
             Type = "oneshot";
@@ -94,8 +99,9 @@
               echo "Starting offsite backup to Storj"
               ${syncCommands}
               echo "Offsite backup complete"
-              ${lib.optionalString (cfg.healthcheckUrl != null) ''
-                curl -fsS -o /dev/null "${cfg.healthcheckUrl}"
+              ${lib.optionalString (cfg.healthcheckUrlFile != null) ''
+                HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
+                curl -fsS -o /dev/null "$HEALTHCHECK_URL"
               ''}
             '';
         };

@@ -33,11 +33,11 @@ in
         blog
         calibre-web
         contacts
+        gatus
         go2rtc
         harmonia
         home-assistant
         jellyfin
-        monitoring
         ntfy
         offsite-backup
         servarr
@@ -85,7 +85,7 @@ in
             my.calibre-web.enable = true;
             my.contacts.enable = true;
             my.home-assistant.enable = true;
-            my.monitoring.enable = true;
+            my.gatus.enable = true;
             my.ntfy.enable = true;
             my.ssh-server = {
               enable = true;
@@ -118,9 +118,11 @@ in
               wireless.interface = "wlp3s0";
             };
 
+            sops.templates."offsite-backup-healthcheck-url".content = "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?token=${config.sops.placeholder.gatus_push_token}&success=true";
+
             my.offsite-backup = {
               enable = true;
-              healthcheckUrl = "https://status.bw20.nl/api/push/ByR8KZU1z6x71bXEgaylIT9aKm5F5TCU?status=up&msg=OK&ping=";
+              healthcheckUrlFile = config.sops.templates."offsite-backup-healthcheck-url".path;
 
               paths = [
                 "/var/backup/vaultwarden"

@@ -25,6 +25,7 @@
           nixfmt.enable = true;
           qmlformat.enable = true;
           prettier.enable = true;
+          statix.enable = true;
         };
 
         settings = {
@@ -37,6 +38,7 @@
             "**/assets/**"
             "**/facter.json"
             "**/qmldir"
+            "statix.toml"
           ];
         };
       };

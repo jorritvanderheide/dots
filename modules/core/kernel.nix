@@ -1,7 +1,4 @@
-{
-  ...
-}:
-{
+_: {
   flake.nixosModules.kernel =
     { pkgs, ... }:
     {
