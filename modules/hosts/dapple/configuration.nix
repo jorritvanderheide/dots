@@ -29,6 +29,7 @@ in
         sudo
 
         # Services
+        attic
         backup
         blog
         calibre-web
@@ -74,6 +75,8 @@ in
             services.dbus.implementation = "dbus";
 
             # My modules
+            my.attic.enable = true;
+
             my.blog = {
               enable = true;
               tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
