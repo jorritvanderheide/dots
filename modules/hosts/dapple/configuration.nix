@@ -87,7 +87,10 @@ in
             my.home-assistant.enable = true;
             my.monitoring.enable = true;
             my.ntfy.enable = true;
-            my.ssh-server.allowedUsers = [ "nixos" ];
+            my.ssh-server = {
+              enable = true;
+              allowedUsers = [ "nixos" ];
+            };
             my.vaultwarden.enable = true;
 
             my.backup = {
@@ -129,6 +132,7 @@ in
 
             my.servarr = {
               enable = true;
+              webuiUser = "jorrit";
               recyclarr.enable = true;
             };
 

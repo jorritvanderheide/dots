@@ -12,7 +12,6 @@
     let
       cfg = config.my.blog;
       subdomain = "www";
-      domain = "${subdomain}.${config.my.tailscale.acme.domain}";
       blogPackage = inputs.personal-blog.packages.${config.nixpkgs.hostPlatform.system}.default;
     in
     {
@@ -25,7 +24,11 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = lib.mkIf cfg.enable (
+        let
+          domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+        in
+        {
         assertions = [
           {
             assertion = config.my.tailscale.acme.enable;
@@ -107,6 +110,7 @@
             globalRedirect = domain;
           };
         };
-      };
+      }
+      );
     };
 }

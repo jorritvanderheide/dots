@@ -12,13 +12,15 @@
     let
       cfg = config.my.ntfy;
       subdomain = "alerts";
-      domain = "${subdomain}.${config.my.tailscale.acme.domain}";
       port = 2586;
     in
     {
       options.my.ntfy.enable = lib.mkEnableOption "ntfy push notification server";
 
       config = lib.mkIf cfg.enable (
+        let
+          domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+        in
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config;

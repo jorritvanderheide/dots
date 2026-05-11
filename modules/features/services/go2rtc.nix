@@ -10,12 +10,18 @@
     }:
     let
       cfg = config.my.go2rtc;
-      apiPort = 1984;
       webrtcPort = 8555;
     in
     {
       options.my.go2rtc = {
         enable = lib.mkEnableOption "go2rtc streaming server";
+
+        apiPort = lib.mkOption {
+          type = lib.types.port;
+          default = 1984;
+          readOnly = true;
+          description = "Loopback port go2rtc's HTTP API listens on. Consumers (e.g. Home Assistant) read this instead of hardcoding.";
+        };
 
         streams = lib.mkOption {
           type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
@@ -28,7 +34,7 @@
         services.go2rtc = {
           enable = true;
           settings = {
-            api.listen = "127.0.0.1:${toString apiPort}";
+            api.listen = "127.0.0.1:${toString cfg.apiPort}";
             rtsp.listen = "127.0.0.1:8554";
             webrtc.listen = ":${toString webrtcPort}";
             streams = cfg.streams;

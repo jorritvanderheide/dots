@@ -41,6 +41,11 @@
       options.my.servarr = {
         enable = lib.mkEnableOption "Servarr stack (qBittorrent + Prowlarr + Sonarr + Radarr) feeding Jellyfin";
 
+        webuiUser = lib.mkOption {
+          type = lib.types.str;
+          description = "Username for qBittorrent's WebUI login.";
+        };
+
         recyclarr.enable = lib.mkEnableOption ''
           Recyclarr daily sync of TRaSH-Guides quality profiles + custom formats
           into Sonarr and Radarr. Requires sops secrets `sonarr_api_key` and
@@ -126,7 +131,7 @@
                   Preferences = {
                     WebUI = {
                       Address = "127.0.0.1";
-                      Username = "jorrit";
+                      Username = cfg.webuiUser;
                       Password_PBKDF2 = ''"@ByteArray(eBo1EBIF1iQdJISdjT4BDQ==:4yLawi5c8p2ez0phEqF00SBYm5ujtnQVL/w+hpSwT/nE+TZyvvyXuGZYVZbyyy52YVOpNXcLwjd/U/efG8O+BA==)"'';
                     };
                     # Save downloads on the media dataset so the *arr apps

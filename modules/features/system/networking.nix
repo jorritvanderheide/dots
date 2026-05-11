@@ -80,7 +80,7 @@
         users.groups.wpa_supplicant = lib.mkIf (cfg.wireless != null) { };
 
         networking = {
-          useDHCP = lib.mkForce true;
+          useDHCP = lib.mkDefault true;
           useNetworkd = lib.mkDefault true;
 
           firewall = {

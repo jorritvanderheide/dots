@@ -42,7 +42,7 @@
 
               config = {
                 default_config = { };
-                go2rtc.url = "http://127.0.0.1:1984";
+                go2rtc.url = "http://127.0.0.1:${toString config.my.go2rtc.apiPort}";
                 homeassistant = {
                   latitude = 51.8425;
                   longitude = 5.8528;

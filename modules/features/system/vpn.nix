@@ -14,6 +14,8 @@
     in
     {
       options.my.vpn = {
+        enable = lib.mkEnableOption "Mullvad VPN";
+
         enableExcludedApps = lib.mkOption {
           type = lib.types.bool;
           default = false;
@@ -21,7 +23,7 @@
         };
       };
 
-      config = {
+      config = lib.mkIf cfg.enable {
         # Enable Mullvad VPN service
         services.mullvad-vpn = {
           enable = true;

@@ -32,6 +32,13 @@
       };
 
       config = {
+        assertions = [
+          {
+            assertion = config.my.compositor.wallpaper != null;
+            message = "my.lockscreen requires my.compositor.wallpaper to be set (used as the lock-screen background).";
+          }
+        ];
+
         # Required: Enable PAM for hyprlock authentication
         security.pam.services.hyprlock = { };
 

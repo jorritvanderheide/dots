@@ -114,6 +114,7 @@ in
             my.session.autologinuser = "jorrit";
             my.sudo.fingerprintAuth = true;
             my.tailscale.enable = true;
+            my.vpn.enable = true;
 
             my.compositor = {
               wallpaper = ./assets/wallpapers/cabin.jpg;

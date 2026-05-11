@@ -12,13 +12,15 @@
     let
       cfg = config.my.vaultwarden;
       subdomain = "passwords";
-      domain = "${subdomain}.${config.my.tailscale.acme.domain}";
       port = 8222;
     in
     {
       options.my.vaultwarden.enable = lib.mkEnableOption "Vaultwarden password manager server";
 
       config = lib.mkIf cfg.enable (
+        let
+          domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+        in
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port;

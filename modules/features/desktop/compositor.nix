@@ -22,8 +22,9 @@ in
 
       options.my.compositor = {
         wallpaper = lib.mkOption {
-          type = lib.types.path;
-          description = "Path to the wallpaper image file";
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to the wallpaper image file. When null, no wallpaper is set.";
         };
 
         outputs = lib.mkOption {
@@ -166,7 +167,7 @@ in
                 zoom = 0.66;
               };
 
-              spawn-at-startup = [
+              spawn-at-startup = lib.optionals (cfg.wallpaper != null) [
                 {
                   command = [
                     "app2unit"
@@ -180,6 +181,7 @@ in
                     "${cfg.wallpaper}"
                   ];
                 }
+              ] ++ [
                 {
                   command = [
                     "app2unit"

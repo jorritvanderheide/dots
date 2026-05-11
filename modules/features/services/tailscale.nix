@@ -19,8 +19,9 @@
           enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
 
           domain = lib.mkOption {
-            type = lib.types.str;
-            description = "Base domain for ACME certificates (e.g., bw20.nl)";
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Base domain for ACME certificates (e.g., bw20.nl). Required when acme.enable is true.";
           };
         };
       };

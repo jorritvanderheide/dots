@@ -20,13 +20,18 @@
         '',
       }:
       let
-        domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+        acmeDomain = config.my.tailscale.acme.domain;
+        domain = "${subdomain}.${toString acmeDomain}";
       in
       {
         assertions = [
           {
             assertion = config.my.tailscale.acme.enable;
             message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
+          }
+          {
+            assertion = acmeDomain != null;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.domain to be set";
           }
         ];
 

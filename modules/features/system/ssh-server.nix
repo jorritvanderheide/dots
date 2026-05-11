@@ -21,6 +21,8 @@
     in
     {
       options.my.ssh-server = {
+        enable = lib.mkEnableOption "OpenSSH server (opens port 22, hardened to pubkey-only)";
+
         allowedUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -28,7 +30,7 @@
         };
       };
 
-      config = {
+      config = lib.mkIf cfg.enable {
         services.openssh = {
           enable = true;
           allowSFTP = false;

@@ -96,14 +96,34 @@
                 ashift = "12";
                 autotrim = "on";
               };
+
+              # Disko declaration for documentation / future reinstalls; on a
+              # running system the dataset must be created manually first.
+              # Mount is handled by the explicit fileSystems entry below (with
+              # nofail) so first-time activation doesn't break if the dataset
+              # hasn't been created yet.
+              datasets.media = {
+                type = "zfs_fs";
+                options = {
+                  atime = "off";
+                  canmount = "on";
+                  "com.sun:auto-snapshot" = "false";
+                  compression = "zstd-1";
+                  mountpoint = "legacy";
+                  # Tuned for large sequential video files: cuts metadata
+                  # overhead vs. the 128K default. Existing files keep their
+                  # original recordsize; only new writes use this.
+                  recordsize = "1M";
+                };
+              };
             };
           })
 
           {
             assertions = [
               {
-                assertion = config.disko.devices.zpool ? zmedia;
-                message = "my.jellyfin requires a `zmedia` zpool declared by the host (dedicated media drive)";
+                assertion = cfg.mediaDisk != null;
+                message = "my.jellyfin.mediaDisk must be set to a /dev/disk/by-id/* path; jellyfin needs a dedicated `zmedia` pool";
               }
             ];
 
@@ -130,26 +150,6 @@
                 extraGroups = [ "media" ];
               }))
             ];
-
-            # Disko declaration for documentation / future reinstalls; on a
-            # running system the dataset must be created manually first.
-            # Mount is handled by the explicit fileSystems entry below (with
-            # nofail) so first-time activation doesn't break if the dataset
-            # hasn't been created yet.
-            disko.devices.zpool.zmedia.datasets.media = {
-              type = "zfs_fs";
-              options = {
-                atime = "off";
-                canmount = "on";
-                "com.sun:auto-snapshot" = "false";
-                compression = "zstd-1";
-                mountpoint = "legacy";
-                # Tuned for large sequential video files: cuts metadata
-                # overhead vs. the 128K default. Existing files keep their
-                # original recordsize; only new writes use this.
-                recordsize = "1M";
-              };
-            };
 
             fileSystems.${mediaDir} = {
               device = "zmedia/media";
