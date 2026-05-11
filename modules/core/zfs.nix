@@ -19,6 +19,10 @@
           # Don't auto-import unknown pools (e.g. a malicious USB drive named "zroot").
           # The backup pool is imported explicitly by the usb-backup service.
           forceImportAll = false;
+          # Keep the pre-26.11 behavior so a hard reboot doesn't drop us into
+          # a rescue shell. Acceptable here because each pool only ever lives
+          # on one machine (no shared storage).
+          forceImportRoot = true;
           # Pool is encrypted at the LUKS layer, no ZFS-native encryption keys to prompt for.
           requestEncryptionCredentials = false;
         };
