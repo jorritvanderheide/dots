@@ -24,6 +24,13 @@
             inherit subdomain;
           })
           {
+            assertions = [
+              {
+                assertion = config.my.go2rtc.enable;
+                message = "my.home-assistant requires my.go2rtc.enable: HA's go2rtc integration is configured to use the external instance at 127.0.0.1:1984.";
+              }
+            ];
+
             services.home-assistant = {
               enable = true;
               extraComponents = [

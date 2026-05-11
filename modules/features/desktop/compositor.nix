@@ -21,12 +21,6 @@ in
       imports = [ niri-flake ];
 
       options.my.compositor = {
-        name = lib.mkOption {
-          type = lib.types.enum [ "niri" ];
-          default = "niri";
-          description = "Name of the Wayland compositor";
-        };
-
         wallpaper = lib.mkOption {
           type = lib.types.path;
           description = "Path to the wallpaper image file";
@@ -36,12 +30,6 @@ in
           type = lib.types.attrs;
           default = { };
           description = "Per-output compositor configuration (passed to programs.niri.settings.outputs)";
-        };
-
-        sessionCommand = lib.mkOption {
-          type = lib.types.str;
-          readOnly = true;
-          description = "Session startup command for the compositor (read-only)";
         };
       };
 
@@ -77,12 +65,6 @@ in
             xwayland-satellite
           ];
         };
-
-        my.compositor.sessionCommand =
-          {
-            niri = "niri --session";
-          }
-          .${cfg.name};
 
         home-manager.sharedModules = [
           system76SchedulerModule

@@ -23,13 +23,6 @@
             description = "Base domain for ACME certificates (e.g., bw20.nl)";
           };
         };
-
-        fqdn = lib.mkOption {
-          type = lib.types.str;
-          default = "${config.networking.hostName}.tail2039cf.ts.net";
-          readOnly = true;
-          description = "Fully qualified domain name on the Tailnet";
-        };
       };
 
       config = lib.mkIf cfg.enable (

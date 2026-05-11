@@ -14,10 +14,16 @@
       subdomain = "www";
       domain = "${subdomain}.${config.my.tailscale.acme.domain}";
       blogPackage = inputs.personal-blog.packages.${config.nixpkgs.hostPlatform.system}.default;
-      tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
     in
     {
-      options.my.blog.enable = lib.mkEnableOption "Personal blog (static site)";
+      options.my.blog = {
+        enable = lib.mkEnableOption "Personal blog (static site)";
+
+        tunnelId = lib.mkOption {
+          type = lib.types.str;
+          description = "Cloudflare Tunnel UUID matching the sops `cloudflared-blog` credentials";
+        };
+      };
 
       config = lib.mkIf cfg.enable {
         assertions = [
@@ -32,7 +38,7 @@
         # Cloudflare Tunnel (outbound-only, no open ports needed)
         services.cloudflared = {
           enable = true;
-          tunnels.${tunnelId} = {
+          tunnels.${cfg.tunnelId} = {
             credentialsFile = config.sops.secrets.cloudflared-blog.path;
             ingress = {
               ${domain} = "https://localhost";
@@ -43,7 +49,7 @@
           };
         };
 
-        systemd.services."cloudflared-tunnel-${tunnelId}" = {
+        systemd.services."cloudflared-tunnel-${cfg.tunnelId}" = {
           # Force HTTP/2 transport: QUIC (UDP/7844) is unstable through this
           # network's NAT/ISP path, causing edge dial timeouts and tunnel flaps.
           environment.TUNNEL_TRANSPORT_PROTOCOL = "http2";

@@ -6,7 +6,6 @@
   flake.nixosModules.keyboard-remap =
     {
       config,
-      pkgs,
       ...
     }:
     let
@@ -14,15 +13,6 @@
     in
     {
       options.my.keyboard-remap = {
-        enableHotplugReload = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = ''
-            Automatically restart Kanata when a new keyboard is connected.
-            This works around known hotplug detection issues, especially with Bluetooth keyboards.
-          '';
-        };
-
         tapTime = lib.mkOption {
           type = lib.types.int;
           default = 200;
@@ -57,11 +47,6 @@
         services.udev.extraRules = ''
           # Allow uinput group to access the uinput device
           KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
-
-          ${lib.optionalString cfg.enableHotplugReload ''
-            # Restart Kanata when a new keyboard is connected (workaround for hotplug issues)
-            ACTION=="add", SUBSYSTEM=="input", ENV{ID_INPUT_KEYBOARD}=="1", TAG+="systemd", ENV{SYSTEMD_WANTS}+="kanata-reloader.service"
-          ''}
         '';
 
         # Configure Kanata service with proper permissions and restart policy
@@ -164,52 +149,6 @@
           };
         };
 
-        # Service for restarting Kanata on keyboard hotplug
-        # This works around Kanata's known issues with device reconnection
-        # See: https://github.com/jtroo/kanata/issues/1390
-        systemd.services.kanata-reloader = lib.mkIf cfg.enableHotplugReload {
-          description = "Restart Kanata on keyboard hotplug";
-
-          unitConfig = {
-            # Don't add default dependencies to avoid blocking boot
-            DefaultDependencies = false;
-
-            # Run after Kanata service to avoid race conditions
-            After = [ "kanata-any.service" ];
-
-            # Rate limiting: max 5 restarts per 30 seconds
-            StartLimitIntervalSec = 30;
-            StartLimitBurst = 5;
-          };
-
-          serviceConfig = {
-            Type = "oneshot";
-
-            # Only restart if Kanata is actually active
-            ExecCondition = "${pkgs.systemd}/bin/systemctl is-active kanata-any.service";
-
-            # Small delay to debounce multiple rapid keyboard connections
-            ExecStartPre = "${pkgs.coreutils}/bin/sleep 0.5";
-
-            # Restart Kanata
-            ExecStart = "${pkgs.systemd}/bin/systemctl restart kanata-any.service";
-
-            User = "root";
-
-            # Logging for debugging
-            StandardOutput = "journal";
-            StandardError = "journal";
-
-            # Quick timeout to avoid blocking
-            TimeoutStartSec = "5s";
-
-            # Don't stay around after execution
-            RemainAfterExit = false;
-          };
-
-          # Explicitly not wanted by any target - triggered by udev only
-          wantedBy = [ ];
-        };
       };
     };
 }

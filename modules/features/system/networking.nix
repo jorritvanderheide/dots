@@ -19,39 +19,6 @@
           default = null;
         };
 
-        hosts = lib.mkOption {
-          type = lib.types.attrsOf (lib.types.listOf lib.types.str);
-          description = "Mapping of IP addresses to hostnames";
-          example = {
-            "192.168.1.1" = [ "hostname" ];
-          };
-        };
-
-        staticConfig = lib.mkOption {
-          type = lib.types.nullOr (
-            lib.types.submodule {
-              options = {
-                address = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Static IP address";
-                };
-
-                interface = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Network interface name";
-                };
-
-                gateway = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Default gateway address";
-                };
-              };
-            }
-          );
-          default = null;
-          description = "Static network configuration, or null for DHCP";
-        };
-
         wireless = lib.mkOption {
           type = lib.types.nullOr (
             lib.types.submodule {
@@ -59,27 +26,6 @@
                 interface = lib.mkOption {
                   type = lib.types.str;
                   description = "Wireless interface name";
-                };
-
-                networks = lib.mkOption {
-                  type = lib.types.attrsOf (
-                    lib.types.submodule {
-                      options = {
-                        priority = lib.mkOption {
-                          type = lib.types.int;
-                          default = 5;
-                          description = "Network priority, higher values are preferred";
-                        };
-
-                        psk = lib.mkOption {
-                          type = lib.types.str;
-                          description = "Pre-shared key for authentication";
-                        };
-                      };
-                    }
-                  );
-                  default = { };
-                  description = "Wireless networks and their credentials";
                 };
               };
             }
@@ -106,20 +52,6 @@
       };
 
       config = {
-        assertions = [
-          {
-            assertion =
-              (cfg.wireless != null && cfg.staticConfig != null)
-              -> cfg.wireless.interface == cfg.staticConfig.interface;
-            message = ''
-              When using both wireless and static IP configuration, they must use the same interface.
-              Currently configured:
-                wireless interface: ${if cfg.wireless != null then cfg.wireless.interface else "none"}
-                static IP interface: ${if cfg.staticConfig != null then cfg.staticConfig.interface else "none"}
-            '';
-          }
-        ];
-
         # Persist dnscrypt-proxy cache across reboots
         # Note: /var/lib/dnscrypt-proxy is a symlink to private/dnscrypt-proxy
         my.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
@@ -148,26 +80,12 @@
         users.groups.wpa_supplicant = lib.mkIf (cfg.wireless != null) { };
 
         networking = {
-          useDHCP = lib.mkForce (cfg.staticConfig == null);
+          useDHCP = lib.mkForce true;
           useNetworkd = lib.mkDefault true;
-
-          defaultGateway = lib.mkIf (cfg.staticConfig != null) {
-            address = cfg.staticConfig.gateway;
-            inherit (cfg.staticConfig) interface;
-          };
 
           firewall = {
             enable = lib.mkDefault true;
             interfaces = lib.mapAttrs (_: ports: { allowedTCPPorts = ports; }) cfg.firewallPorts;
-          };
-
-          interfaces = lib.mkIf (cfg.staticConfig != null) {
-            ${cfg.staticConfig.interface}.ipv4.addresses = [
-              {
-                inherit (cfg.staticConfig) address;
-                prefixLength = 24;
-              }
-            ];
           };
 
           wireless = lib.mkIf (cfg.wireless != null) {
@@ -223,6 +141,7 @@
             HACKERSPACE_PSK=${config.sops.placeholder."wireless/hackerspace"}
             BEVERWEG_PSK=${config.sops.placeholder."wireless/beverweg"}
             EDUROAM_PSK=${config.sops.placeholder."wireless/eduroam"}
+            RETICULUM_PSK=${config.sops.placeholder."wireless/reticulum"}
           '';
           mode = "0400";
           owner = "wpa_supplicant";

@@ -60,7 +60,7 @@ in
         nix
         reticulum
         virtualization
-        # worktrunk
+        worktrunk
 
         # Shell
         cli-tools
@@ -116,7 +116,6 @@ in
             my.tailscale.enable = true;
 
             my.compositor = {
-              name = "niri";
               wallpaper = ./assets/wallpapers/cabin.jpg;
 
               outputs = {

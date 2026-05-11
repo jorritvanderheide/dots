@@ -74,7 +74,10 @@ in
             services.dbus.implementation = "dbus";
 
             # My modules
-            my.blog.enable = true;
+            my.blog = {
+              enable = true;
+              tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
+            };
             my.boot.secureboot.enable = true;
             my.calibre-web.enable = true;
             my.contacts.enable = true;
@@ -101,47 +104,7 @@ in
             my.jellyfin = {
               enable = true;
               mediaGroupUsers = [ "nixos" ];
-            };
-
-            # Second drive: 500 GB SATA SSD dedicated to the media library
-            # (Jellyfin + servarr). Whole-disk LUKS (no partition table) with
-            # TPM2 enrollment so the pool auto-imports at boot without prompting.
-            disko.devices.disk.media = {
-              device = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
-              type = "disk";
-              content = {
-                type = "luks";
-                name = "zmedia-crypt";
-                passwordFile = "/tmp/secret.key";
-                settings = {
-                  allowDiscards = true;
-                  crypttabExtraOpts = [ "tpm2-device=auto" ];
-                };
-                content = {
-                  type = "zfs";
-                  pool = "zmedia";
-                };
-              };
-            };
-
-            disko.devices.zpool.zmedia = {
-              type = "zpool";
-              rootFsOptions = {
-                acltype = "posixacl";
-                canmount = "off";
-                checksum = "fletcher4";
-                compression = "zstd";
-                dnodesize = "auto";
-                mountpoint = "none";
-                normalization = "formD";
-                relatime = "on";
-                xattr = "sa";
-              };
-              options = {
-                ashift = "12";
-                autotrim = "on";
-              };
-              # zmedia/media itself is declared by the jellyfin module.
+              mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
             };
 
             my.networking = {

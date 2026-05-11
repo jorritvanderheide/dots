@@ -25,18 +25,24 @@
       options.my.jellyfin = {
         enable = lib.mkEnableOption "Jellyfin media server";
 
-        quota = lib.mkOption {
-          type = lib.types.str;
-          default = "none";
-          description = "ZFS quota on zmedia/media (\"none\" = bounded by pool size only)";
-        };
-
         mediaGroupUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
           description = ''
             Users to add to the `media` group so they can write to /srv/media.
             Jellyfin itself is added automatically.
+          '';
+        };
+
+        mediaDisk = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
+          description = ''
+            /dev/disk/by-id/* path to a dedicated drive for the media library.
+            When set, the module declares a LUKS+ZFS `zmedia` pool on that disk
+            (TPM2-bound, like zroot). When null, a `zmedia` pool must be
+            declared elsewhere (e.g. by the host config).
           '';
         };
       };
@@ -53,6 +59,46 @@
               client_max_body_size 20M;
             '';
           })
+
+          (lib.mkIf (cfg.mediaDisk != null) {
+            disko.devices.disk.media = {
+              device = cfg.mediaDisk;
+              type = "disk";
+              content = {
+                type = "luks";
+                name = "zmedia-crypt";
+                passwordFile = "/tmp/secret.key";
+                settings = {
+                  allowDiscards = true;
+                  crypttabExtraOpts = [ "tpm2-device=auto" ];
+                };
+                content = {
+                  type = "zfs";
+                  pool = "zmedia";
+                };
+              };
+            };
+
+            disko.devices.zpool.zmedia = {
+              type = "zpool";
+              rootFsOptions = {
+                acltype = "posixacl";
+                canmount = "off";
+                checksum = "fletcher4";
+                compression = "zstd";
+                dnodesize = "auto";
+                mountpoint = "none";
+                normalization = "formD";
+                relatime = "on";
+                xattr = "sa";
+              };
+              options = {
+                ashift = "12";
+                autotrim = "on";
+              };
+            };
+          })
+
           {
             assertions = [
               {
@@ -98,7 +144,6 @@
                 "com.sun:auto-snapshot" = "false";
                 compression = "zstd-1";
                 mountpoint = "legacy";
-                quota = cfg.quota;
                 # Tuned for large sequential video files: cuts metadata
                 # overhead vs. the 128K default. Existing files keep their
                 # original recordsize; only new writes use this.

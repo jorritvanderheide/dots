@@ -16,24 +16,6 @@
       options.my.offsite-backup = {
         enable = lib.mkEnableOption "offsite backup to Storj via rclone";
 
-        calendar = lib.mkOption {
-          type = lib.types.str;
-          default = "daily";
-          description = "systemd OnCalendar expression for backup schedule";
-        };
-
-        bucket = lib.mkOption {
-          type = lib.types.str;
-          default = "backup";
-          description = "Storj bucket name";
-        };
-
-        remotePath = lib.mkOption {
-          type = lib.types.str;
-          default = config.networking.hostName;
-          description = "Path prefix within the bucket";
-        };
-
         paths = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -45,12 +27,6 @@
           default = null;
           description = "URL to ping on successful backup (e.g. Uptime Kuma push URL)";
         };
-
-        failureNotifyUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "ntfy topic URL to notify on backup failure";
-        };
       };
 
       config = lib.mkIf cfg.enable {
@@ -61,7 +37,7 @@
           description = "Offsite backup to Storj timer";
           wantedBy = [ "timers.target" ];
           timerConfig = {
-            OnCalendar = cfg.calendar;
+            OnCalendar = "daily";
             Persistent = true;
             RandomizedDelaySec = "1h";
           };
@@ -71,7 +47,6 @@
           description = "Offsite backup to Storj via rclone";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
-          onFailure = lib.optional (cfg.failureNotifyUrl != null) "offsite-backup-notify-failure.service";
 
           path = [
             pkgs.rclone
@@ -91,13 +66,13 @@
                   dirName = baseNameOf path;
                 in
                 ''
-                  echo "Syncing ${path} -> storj:${cfg.bucket}/${cfg.remotePath}/${dirName}"
+                  echo "Syncing ${path} -> storj:backup/${config.networking.hostName}/${dirName}"
                   rclone sync \
                     --config "$RCLONE_CONFIG" \
                     --transfers 4 \
                     --log-level INFO \
                     "${path}" \
-                    "storj:${cfg.bucket}/${cfg.remotePath}/${dirName}"
+                    "storj:backup/${config.networking.hostName}/${dirName}"
                 ''
               ) cfg.paths;
             in
@@ -123,15 +98,6 @@
                 curl -fsS -o /dev/null "${cfg.healthcheckUrl}"
               ''}
             '';
-        };
-
-        systemd.services.offsite-backup-notify-failure = lib.mkIf (cfg.failureNotifyUrl != null) {
-          description = "Notify on offsite backup failure";
-          serviceConfig.Type = "oneshot";
-          path = [ pkgs.curl ];
-          script = ''
-            curl -fsS -d "Offsite backup to Storj failed" "${cfg.failureNotifyUrl}"
-          '';
         };
       };
     };
