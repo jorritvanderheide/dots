@@ -30,11 +30,11 @@
             "flakes"
           ];
 
-          # Local Attic cache on dapple first so it serves hot paths without
+          # Local Harmonia cache on dapple first so it serves hot paths without
           # round-tripping to the public caches. Failed substituter just falls
           # through to the next one, so listing it first is safe even offline.
           substituters = [
-            "https://cache.bw20.nl/nixos"
+            # "https://cache.bw20.nl"
             "https://cache.garnix.io"
             "https://cache.nixos.org"
             "https://niri.cachix.org"
@@ -43,7 +43,7 @@
           ];
 
           trusted-public-keys = [
-            "nixos:ntaMBr3WHQgAM677xCsBK6QQHYLOAy1yWO/ZeQOMMtM="
+            "cache.bw20.nl-1:xkMAP0HGSNkCNnWO1Z1z+c3FrR1uwRzQCvszMZCHf+8="
             "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
             "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
             "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="

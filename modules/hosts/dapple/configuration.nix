@@ -29,12 +29,12 @@ in
         sudo
 
         # Services
-        attic
         backup
         blog
         calibre-web
         contacts
         go2rtc
+        harmonia
         home-assistant
         jellyfin
         monitoring
@@ -75,7 +75,7 @@ in
             services.dbus.implementation = "dbus";
 
             # My modules
-            my.attic.enable = true;
+            my.harmonia.enable = true;
 
             my.blog = {
               enable = true;
