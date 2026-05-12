@@ -58,15 +58,15 @@
           };
         };
 
-        # Persist SSH host public key (private key is read directly from /persist by sshd)
+        # Apply authorized keys from home-manager user configs
+        users.users = collectAuthorizedKeys;
+
+        # Preserve state
         my.preservation.systemFiles = [
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
 
-        # Apply authorized keys from home-manager user configs
-        users.users = collectAuthorizedKeys;
-
-        # Home-manager module for per-user SSH key configuration
+        # Home-manager
         home-manager.sharedModules = [
           {
             options.my.ssh-server = {
@@ -78,7 +78,6 @@
             };
           }
         ];
-
       };
     };
 }

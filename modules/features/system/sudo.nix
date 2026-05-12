@@ -24,14 +24,15 @@
       };
 
       config = {
+        services.fprintd.enable = lib.mkIf cfg.fingerprintAuth true;
+        security.pam.services.sudo.fprintAuth = lib.mkIf cfg.fingerprintAuth true;
+
         security.sudo = {
           execWheelOnly = true;
           wheelNeedsPassword = true;
         };
 
-        services.fprintd.enable = lib.mkIf cfg.fingerprintAuth true;
-        security.pam.services.sudo.fprintAuth = lib.mkIf cfg.fingerprintAuth true;
-
+        # Preserve state
         my.preservation.systemDirectories = lib.mkIf cfg.fingerprintAuth [
           "/var/lib/fprint"
         ];

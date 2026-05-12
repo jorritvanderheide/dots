@@ -34,16 +34,18 @@
       };
 
       config = {
-        my.preservation.homeDirectories = [
-          ".ssh"
-        ];
-
         programs.ssh = {
           # Use mkDefault to allow password-manager module to override this
           startAgent = true;
           inherit (cfg) knownHosts;
         };
 
+        # Preserve state
+        my.preservation.homeDirectories = [
+          ".ssh"
+        ];
+
+        # Home manager
         home-manager.sharedModules = [
           {
             # Configure SSH
@@ -83,7 +85,6 @@
                 };
               };
             };
-
           }
         ];
       };

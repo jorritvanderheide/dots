@@ -64,33 +64,21 @@ in
             networking.hostName = "dapple";
             networking.useNetworkd = lib.mkForce false; # Realtek rtw89 driver incompatible with networkd's BPF DHCP client
             nixpkgs.hostPlatform = facterReport.system;
+            services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated.
             system.stateVersion = "26.05";
 
-            # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
-            environment.systemPackages = [ pkgs.ghostty.terminfo ];
-
-            # TODO: dbus-broker (new nixpkgs default) hangs at boot with
-            # `launcher_run_child: no such file or directory`. Pinned back
-            # to dbus-daemon until investigated.
-            services.dbus.implementation = "dbus";
+            ## Other
+            environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
+            sops.templates."offsite-backup-healthcheck-url".content = "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?token=${config.sops.placeholder.gatus_push_token}&success=true";
 
             # My modules
-            my.harmonia.enable = true;
-
-            my.blog = {
-              enable = true;
-              tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
-            };
             my.boot.secureboot.enable = true;
             my.calibre-web.enable = true;
             my.contacts.enable = true;
             my.home-assistant.enable = true;
             my.gatus.enable = true;
+            my.harmonia.enable = true;
             my.ntfy.enable = true;
-            my.ssh-server = {
-              enable = true;
-              allowedUsers = [ "nixos" ];
-            };
             my.vaultwarden.enable = true;
 
             my.backup = {
@@ -100,25 +88,26 @@ in
               usbSerial = "3248831116939333057";
             };
 
+            my.blog = {
+              enable = true;
+              tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
+            };
+
             my.go2rtc = {
               enable = true;
-              streams = {
-                dogcam = "rtsp://@100.81.32.76:8080/h264_ulaw.sdp";
-              };
+              streams.dogcam = "rtsp://@100.81.32.76:8080/h264_ulaw.sdp";
             };
 
             my.jellyfin = {
               enable = true;
-              mediaGroupUsers = [ "nixos" ];
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
+              mediaGroupUsers = [ "nixos" ];
             };
 
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp3s0";
             };
-
-            sops.templates."offsite-backup-healthcheck-url".content = "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?token=${config.sops.placeholder.gatus_push_token}&success=true";
 
             my.offsite-backup = {
               enable = true;
@@ -136,6 +125,11 @@ in
               enable = true;
               webuiUser = "jorrit";
               recyclarr.enable = true;
+            };
+
+            my.ssh-server = {
+              enable = true;
+              allowedUsers = [ "nixos" ];
             };
 
             my.tailscale = {

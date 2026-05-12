@@ -107,6 +107,11 @@ in
             environment.systemPackages = with pkgs; [ intel-media-driver ];
             services.fwupd.extraRemotes = [ "lvfs-testing" ];
 
+            ## Other
+            home-manager.users.jorrit.gtk.gtk3.bookmarks = [
+              "sftp://nixos@dapple/srv/media Dapple Media"
+            ];
+
             ## My modules
             my.idle.suspendTimeout = 1800;
             my.lockscreen.greetOnStartup = true;
@@ -204,10 +209,6 @@ in
                 "100.88.135.27"
               ];
             };
-
-            home-manager.users.jorrit.gtk.gtk3.bookmarks = [
-              "sftp://nixos@dapple/srv/media Dapple Media"
-            ];
           }
         )
       ];

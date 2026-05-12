@@ -23,8 +23,8 @@
           beautysh.enable = true;
           deadnix.enable = true;
           nixfmt.enable = true;
-          qmlformat.enable = true;
           prettier.enable = true;
+          qmlformat.enable = true;
           statix.enable = true;
         };
 

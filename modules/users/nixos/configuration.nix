@@ -7,15 +7,15 @@
     username = "nixos";
     userSecretsFile = inputs.self + "/secrets/users/nixos.yaml";
 
+    extraGroups = [
+      "nixos" # NixOS config editing
+    ];
+
     userSecrets = {
       user_password = {
         neededForUsers = true;
       };
     };
-
-    extraGroups = [
-      "nixos" # NixOS config editing
-    ];
 
     withModules = [
       {

@@ -4,6 +4,33 @@
 }:
 {
   flake.lib = {
+    mkMenu =
+      {
+        colors,
+        lib,
+        wlr-which-key,
+        writeShellScriptBin,
+        writeText,
+      }:
+      menu:
+      let
+        configFile = writeText "config.yaml" (
+          lib.generators.toYAML { } {
+            anchor = "center";
+            border = "#${colors.base08}ff";
+            border_width = 3;
+            corner_r = 8;
+            font = "JetBrainsMono Nerd Font Mono 11.5";
+            inherit menu;
+            padding = 24;
+            separator = "  ";
+          }
+        );
+      in
+      writeShellScriptBin "my-menu" ''
+        exec ${lib.getExe wlr-which-key} ${configFile}
+      '';
+
     mkReverseProxy =
       {
         config,
@@ -59,33 +86,6 @@
           // extraLocations;
         };
       };
-
-    mkMenu =
-      {
-        colors,
-        lib,
-        wlr-which-key,
-        writeShellScriptBin,
-        writeText,
-      }:
-      menu:
-      let
-        configFile = writeText "config.yaml" (
-          lib.generators.toYAML { } {
-            anchor = "center";
-            border = "#${colors.base08}ff";
-            border_width = 3;
-            corner_r = 8;
-            font = "JetBrainsMono Nerd Font Mono 11.5";
-            inherit menu;
-            padding = 24;
-            separator = "  ";
-          }
-        );
-      in
-      writeShellScriptBin "my-menu" ''
-        exec ${lib.getExe wlr-which-key} ${configFile}
-      '';
 
     mkUser =
       {

@@ -24,6 +24,8 @@
       };
 
       config = lib.mkIf cfg.enable {
+        environment.systemPackages = with pkgs; [ mullvad-vpn ]; # Install Mullvad package
+
         # Enable Mullvad VPN service
         services.mullvad-vpn = {
           enable = true;
@@ -31,19 +33,14 @@
           package = pkgs.mullvad-vpn;
         };
 
-        # Install Mullvad packages
-        environment.systemPackages = with pkgs; [
-          mullvad-vpn
-        ];
-
         # Persist VPN configuration across reboots
         my.preservation = {
-          systemDirectories = [
-            "/etc/mullvad-vpn"
-          ];
-
           homeDirectories = [
             ".config/Mullvad VPN"
+          ];
+
+          systemDirectories = [
+            "/etc/mullvad-vpn"
           ];
         };
       };

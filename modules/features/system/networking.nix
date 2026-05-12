@@ -54,9 +54,6 @@
       config = {
         # Persist dnscrypt-proxy cache across reboots
         # Note: /var/lib/dnscrypt-proxy is a symlink to private/dnscrypt-proxy
-        my.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
-          "/var/lib/private/dnscrypt-proxy"
-        ];
 
         # Fix permissions for /var/lib/private (systemd requires 0700 for StateDirectory)
         systemd.tmpfiles.rules = lib.mkIf (cfg.DOHServers != null) [
@@ -211,6 +208,11 @@
             # Disable unnecessary network wait service
             NetworkManager-wait-online.enable = false;
           }
+        ];
+
+        # Preserve state
+        my.preservation.systemDirectories = lib.mkIf (cfg.DOHServers != null) [
+          "/var/lib/private/dnscrypt-proxy"
         ];
       };
     };

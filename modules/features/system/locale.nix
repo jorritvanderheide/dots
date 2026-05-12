@@ -11,9 +11,9 @@
     {
       options.my.locale = {
         timezone = lib.mkOption {
-          type = lib.types.str;
           default = "Europe/Amsterdam";
           description = "Preferred timezone";
+          type = lib.types.str;
         };
       };
 
