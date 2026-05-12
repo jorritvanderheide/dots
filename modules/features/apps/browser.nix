@@ -143,16 +143,16 @@
                 };
 
                 SearchEngines = {
-                  Default = "Kagi";
+                  Default = "Brave";
                   PreventInstalls = true;
 
                   Add = [
                     {
-                      Alias = "@kg";
-                      Name = "Kagi";
-                      IconURL = "https://kagi.com/favicon.ico";
-                      SuggestURLTemplate = "https://kagi.com/api/autosuggest?q={searchTerms}";
-                      URLTemplate = "https://kagi.com/search?q={searchTerms}";
+                      Alias = "@br";
+                      Name = "Brave";
+                      IconURL = "https://search.brave.com/favicon.ico";
+                      SuggestURLTemplate = "https://search.brave.com/api/suggest?q={searchTerms}";
+                      URLTemplate = "https://search.brave.com/search?q={searchTerms}";
                     }
                     {
                       Alias = "@ai";
