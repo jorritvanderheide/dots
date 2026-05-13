@@ -60,7 +60,6 @@ in
         nix
         reticulum
         virtualization
-        worktrunk
 
         # Shell
         cli-tools

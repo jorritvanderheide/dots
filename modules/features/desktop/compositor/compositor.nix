@@ -16,6 +16,7 @@ in
     }:
     let
       cfg = config.my.compositor;
+      niriPkgs = inputs.niri-pkgs.packages.${pkgs.stdenv.hostPlatform.system};
     in
     {
       imports = [ niri-flake ];
@@ -35,13 +36,16 @@ in
       };
 
       config = {
-        programs.niri.enable = true;
+        programs.niri = {
+          enable = true;
+          package = niriPkgs.niri-unstable;
+        };
 
         # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
 
         # Niri auto-enables gnome-keyring at system level, which also pulls in
-        # gcr-ssh-agent that overrides SSH_AUTH_SOCK (breaking Bitwarden SSH agent).
+        # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
         # We disable the system-level service and run gnome-keyring-daemon via
         # home-manager with only secrets+pkcs11 components instead.
         services.gnome.gnome-keyring.enable = lib.mkForce false;
@@ -67,6 +71,7 @@ in
           ];
         };
 
+        # Home manager
         home-manager.sharedModules = [
           system76SchedulerModule
           {
@@ -80,12 +85,32 @@ in
             xdg.configFile."systemd/user/gcr-ssh-agent.service".source =
               builtins.toFile "gcr-ssh-agent.service" "";
           }
-          {
+          (
+            { config, lib, pkgs, ... }:
+            {
+            # niri-flake doesn't yet model the `background-effect`/blur KDL
+            # nodes (issue #1721). Use niri-flake's internal validator so we
+            # can append the raw KDL snippet and still get build-time
+            # `niri validate` checks against the resulting config.
+            xdg.configFile.niri-config.source = lib.mkForce (
+              inputs.niri-flake.lib.internal.validated-config-for pkgs
+                config.programs.niri.package
+                ''
+                  ${config.programs.niri.finalConfig}
+
+                  window-rule {
+                      background-effect {
+                          blur true
+                      }
+                  }
+                ''
+            );
+
             programs.niri.settings = {
               clipboard.disable-primary = true;
-              gestures.hot-corners.enable = false;
               inherit (cfg) outputs;
               prefer-no-csd = true;
+              xwayland-satellite.path = lib.getExe niriPkgs.xwayland-satellite-unstable;
 
               cursor = {
                 size = 32;
@@ -216,6 +241,7 @@ in
               window-rules = lib.singleton {
                 draw-border-with-background = false;
                 clip-to-geometry = true;
+                opacity = 0.97;
 
                 geometry-corner-radius = rec {
                   top-left = 8.0;
@@ -237,7 +263,8 @@ in
             };
 
             services.system76-scheduler-niri.enable = true;
-          }
+            }
+          )
         ];
       };
     };

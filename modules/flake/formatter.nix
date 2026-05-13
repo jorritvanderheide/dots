@@ -34,11 +34,11 @@
           global.excludes = [
             ".direnv/*"
             ".envrc"
+            "config/statix.toml"
             "secrets/**"
             "**/assets/**"
             "**/facter.json"
             "**/qmldir"
-            "statix.toml"
           ];
         };
       };

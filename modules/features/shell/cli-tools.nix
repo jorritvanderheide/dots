@@ -19,7 +19,6 @@
           fd
           parallel
           ripgrep
-          # worktrunk
         ];
 
         home-manager.sharedModules = [

@@ -4,7 +4,6 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
-    niri-flake.url = "github:sodiboo/niri-flake";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:nixos/nixos-hardware";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -32,6 +31,16 @@
       url = "github:nix-community/lanzaboote/v0.4.3";
     };
 
+    niri-flake = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:sodiboo/niri-flake/very-refactor";
+    };
+
+    niri-pkgs = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:sodiboo/niri-flake";
+    };
+
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Mic92/sops-nix";
@@ -57,10 +66,6 @@
       url = "github:numtide/treefmt-nix";
     };
 
-    worktrunk = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:max-sixty/worktrunk";
-    };
 
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
