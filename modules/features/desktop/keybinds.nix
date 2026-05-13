@@ -254,7 +254,7 @@
 
               # Gear key
               "XF86AudioMedia" = {
-                action = spawn "app2unit" "-s" "a" "--" "zeditor" "/etc/nixos";
+                action = spawn "app2unit" "-s" "a" "--" "zeditor" "--new" "/etc/nixos";
                 repeat = false;
               };
             };
