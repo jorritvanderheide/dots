@@ -11,6 +11,70 @@
     }:
     let
       cfg = config.my.lockscreen;
+      backgroundsConf = "$XDG_RUNTIME_DIR/hyprlock/backgrounds.conf";
+      lockScript = pkgs.writeShellApplication {
+        name = "hyprlock-screenshot";
+        runtimeInputs = with pkgs; [
+          coreutils
+          grim
+          hyprlock
+          jq
+          niri
+          procps
+          util-linux
+        ];
+        text = ''
+          dir="''${XDG_RUNTIME_DIR:-/tmp}/hyprlock"
+          conf="$dir/backgrounds.conf"
+          marker="$dir/last_unlock"
+          mkdir -p "$dir"
+
+          # Serialize invocations. swayidle's lock handler runs synchronously,
+          # so loginctl lock-session calls that arrive while hyprlock is up
+          # (e.g. lockTimeout re-firing every 5 min) queue inside swayidle and
+          # get drained after the user unlocks. Without this guard each queued
+          # event spawns another hyprlock and the user has to authenticate N
+          # times.
+          exec {fd}>"$dir/lock"
+          flock "$fd"
+
+          # Already up (e.g. a manual hyprlock), or just-unlocked within the
+          # debounce window: drop the event.
+          if pgrep -x hyprlock >/dev/null 2>&1; then
+            exit 0
+          fi
+          if [[ -f "$marker" ]] && (( $(date +%s) - $(stat -c %Y "$marker") < 5 )); then
+            exit 0
+          fi
+
+          : > "$conf"
+
+          if [[ "''${1:-}" == "--wallpaper" ]]; then
+            hyprlock
+            touch "$marker"
+            exit 0
+          fi
+
+          mapfile -t outputs < <(niri msg --json outputs 2>/dev/null | jq -r 'keys[]' || true)
+          for output in "''${outputs[@]}"; do
+            safe=$(printf '%s' "$output" | tr -c '[:alnum:]' '_')
+            path="$dir/$safe.png"
+            if grim -o "$output" "$path" 2>/dev/null; then
+              cat >> "$conf" <<EOF
+          background {
+            monitor = $output
+            path = $path
+            blur_passes = 2
+            blur_size = 2
+          }
+          EOF
+            fi
+          done
+
+          hyprlock
+          touch "$marker"
+        '';
+      };
     in
     {
       options.my.lockscreen = {
@@ -43,7 +107,7 @@
         security.pam.services.hyprlock = { };
 
         # Export lock command for other modules
-        my.lockscreen.command = lib.getExe pkgs.hyprlock;
+        my.lockscreen.command = lib.getExe lockScript;
 
         # Configure hyprlock via home-manager for all users
         home-manager.sharedModules = [
@@ -56,7 +120,8 @@
                     "-s"
                     "a"
                     "--"
-                    "hyprlock"
+                    (lib.getExe lockScript)
+                    "--wallpaper"
                   ];
                 }
               ];
@@ -65,6 +130,9 @@
           {
             programs.hyprlock = {
               enable = true;
+              extraConfig = ''
+                source = ${backgroundsConf}
+              '';
               settings = {
                 auth.fingerprint.enabled = true;
 
@@ -73,6 +141,8 @@
                   immediate_render = true;
                 };
 
+                # Fallback background; per-monitor screenshot overrides come
+                # from the file sourced via extraConfig.
                 background = lib.mkForce [
                   {
                     blur_passes = 2;
