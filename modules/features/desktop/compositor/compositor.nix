@@ -86,16 +86,19 @@ in
               builtins.toFile "gcr-ssh-agent.service" "";
           }
           (
-            { config, lib, pkgs, ... }:
             {
-            # niri-flake doesn't yet model the `background-effect`/blur KDL
-            # nodes (issue #1721). Use niri-flake's internal validator so we
-            # can append the raw KDL snippet and still get build-time
-            # `niri validate` checks against the resulting config.
-            xdg.configFile.niri-config.source = lib.mkForce (
-              inputs.niri-flake.lib.internal.validated-config-for pkgs
-                config.programs.niri.package
-                ''
+              config,
+              lib,
+              pkgs,
+              ...
+            }:
+            {
+              # niri-flake doesn't yet model the `background-effect`/blur KDL
+              # nodes (issue #1721). Use niri-flake's internal validator so we
+              # can append the raw KDL snippet and still get build-time
+              # `niri validate` checks against the resulting config.
+              xdg.configFile.niri-config.source = lib.mkForce (
+                inputs.niri-flake.lib.internal.validated-config-for pkgs config.programs.niri.package ''
                   ${config.programs.niri.finalConfig}
 
                   window-rule {
@@ -104,165 +107,165 @@ in
                       }
                   }
                 ''
-            );
+              );
 
-            programs.niri.settings = {
-              clipboard.disable-primary = true;
-              inherit (cfg) outputs;
-              prefer-no-csd = true;
-              xwayland-satellite.path = lib.getExe niriPkgs.xwayland-satellite-unstable;
+              programs.niri.settings = {
+                clipboard.disable-primary = true;
+                inherit (cfg) outputs;
+                prefer-no-csd = true;
+                xwayland-satellite.path = lib.getExe niriPkgs.xwayland-satellite-unstable;
 
-              cursor = {
-                size = 32;
-                theme = "Capitaine Cursors (Gruvbox)";
-                hide-when-typing = true;
-                hide-after-inactive-ms = 1000;
-              };
-
-              hotkey-overlay = {
-                hide-not-bound = true;
-                skip-at-startup = true;
-              };
-
-              input = {
-                keyboard.xkb.layout = "nl(us)";
-                warp-mouse-to-focus.enable = true;
-
-                focus-follows-mouse = {
-                  enable = true;
-                  max-scroll-amount = "100%";
+                cursor = {
+                  size = 32;
+                  theme = "Capitaine Cursors (Gruvbox)";
+                  hide-when-typing = true;
+                  hide-after-inactive-ms = 1000;
                 };
 
-                touchpad = {
-                  accel-profile = "adaptive";
-                  accel-speed = 0.3;
-                  click-method = "clickfinger";
-                  dwt = true;
-                  scroll-method = "two-finger";
-                  tap-button-map = "left-right-middle";
+                hotkey-overlay = {
+                  hide-not-bound = true;
+                  skip-at-startup = true;
                 };
-              };
 
-              layer-rules = [
-                {
-                  place-within-backdrop = true;
+                input = {
+                  keyboard.xkb.layout = "nl(us)";
+                  warp-mouse-to-focus.enable = true;
 
-                  matches = [
+                  focus-follows-mouse = {
+                    enable = true;
+                    max-scroll-amount = "100%";
+                  };
+
+                  touchpad = {
+                    accel-profile = "adaptive";
+                    accel-speed = 0.3;
+                    click-method = "clickfinger";
+                    dwt = true;
+                    scroll-method = "two-finger";
+                    tap-button-map = "left-right-middle";
+                  };
+                };
+
+                layer-rules = [
+                  {
+                    place-within-backdrop = true;
+
+                    matches = [
+                      {
+                        namespace = "^wallpaper$";
+                      }
+                    ];
+                  }
+                ];
+
+                layout = {
+                  always-center-single-column = true;
+                  background-color = "transparent";
+                  default-column-width.proportion = 1.0;
+                  empty-workspace-above-first = true;
+                  focus-ring.enable = false;
+                  gaps = 64.0;
+                  shadow.enable = true;
+
+                  border = {
+                    enable = true;
+                    width = 4;
+                    active.color = config.lib.stylix.colors.withHashtag.base08;
+                    inactive.color = config.lib.stylix.colors.withHashtag.base02;
+                  };
+
+                  preset-column-widths = [
+                    { proportion = 1.0 / 2.0; }
+                    { proportion = 1.0 / 3.0; }
+                    { proportion = 2.0 / 3.0; }
+                    { proportion = 1.0; }
+                  ];
+
+                  struts = {
+                    top = 16.0;
+                    right = 16.0;
+                    left = 16.0;
+                    bottom = 0;
+                  };
+                };
+
+                overview = {
+                  backdrop-color = "transparent";
+                  workspace-shadow.enable = false;
+                  zoom = 0.66;
+                };
+
+                spawn-at-startup =
+                  lib.optionals (cfg.wallpaper != null) [
                     {
-                      namespace = "^wallpaper$";
+                      command = [
+                        "app2unit"
+                        "-s"
+                        "b"
+                        "--"
+                        "swaybg"
+                        "-m"
+                        "fill"
+                        "-i"
+                        "${cfg.wallpaper}"
+                      ];
+                    }
+                  ]
+                  ++ [
+                    {
+                      command = [
+                        "app2unit"
+                        "-s"
+                        "b"
+                        "--"
+                        "mako"
+                      ];
+                    }
+                    {
+                      command = [
+                        "app2unit"
+                        "-s"
+                        "b"
+                        "--"
+                        "batsignal"
+                      ];
+                    }
+                    {
+                      command = [
+                        "app2unit"
+                        "-s"
+                        "b"
+                        "--"
+                        "udiskie"
+                      ];
                     }
                   ];
-                }
-              ];
 
-              layout = {
-                always-center-single-column = true;
-                background-color = "transparent";
-                default-column-width.proportion = 1.0;
-                empty-workspace-above-first = true;
-                focus-ring.enable = false;
-                gaps = 64.0;
-                shadow.enable = true;
+                window-rules = lib.singleton {
+                  draw-border-with-background = false;
+                  clip-to-geometry = true;
+                  opacity = 0.97;
 
-                border = {
-                  enable = true;
-                  width = 4;
-                  active.color = config.lib.stylix.colors.withHashtag.base08;
-                  inactive.color = config.lib.stylix.colors.withHashtag.base02;
-                };
-
-                preset-column-widths = [
-                  { proportion = 1.0 / 2.0; }
-                  { proportion = 1.0 / 3.0; }
-                  { proportion = 2.0 / 3.0; }
-                  { proportion = 1.0; }
-                ];
-
-                struts = {
-                  top = 16.0;
-                  right = 16.0;
-                  left = 16.0;
-                  bottom = 0;
+                  geometry-corner-radius = rec {
+                    top-left = 8.0;
+                    top-right = top-left;
+                    bottom-right = top-left;
+                    bottom-left = top-left;
+                  };
                 };
               };
 
-              overview = {
-                backdrop-color = "transparent";
-                workspace-shadow.enable = false;
-                zoom = 0.66;
+              xdg.mimeApps.defaultApplications = {
+                "image/png" = "imv-dir.desktop";
+                "image/jpeg" = "imv-dir.desktop";
+                "image/gif" = "imv-dir.desktop";
+                "image/webp" = "imv-dir.desktop";
+                "image/tiff" = "imv-dir.desktop";
+                "image/bmp" = "imv-dir.desktop";
+                "image/svg+xml" = "imv-dir.desktop";
               };
 
-              spawn-at-startup =
-                lib.optionals (cfg.wallpaper != null) [
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "swaybg"
-                      "-m"
-                      "fill"
-                      "-i"
-                      "${cfg.wallpaper}"
-                    ];
-                  }
-                ]
-                ++ [
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "mako"
-                    ];
-                  }
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "batsignal"
-                    ];
-                  }
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "udiskie"
-                    ];
-                  }
-                ];
-
-              window-rules = lib.singleton {
-                draw-border-with-background = false;
-                clip-to-geometry = true;
-                opacity = 0.97;
-
-                geometry-corner-radius = rec {
-                  top-left = 8.0;
-                  top-right = top-left;
-                  bottom-right = top-left;
-                  bottom-left = top-left;
-                };
-              };
-            };
-
-            xdg.mimeApps.defaultApplications = {
-              "image/png" = "imv-dir.desktop";
-              "image/jpeg" = "imv-dir.desktop";
-              "image/gif" = "imv-dir.desktop";
-              "image/webp" = "imv-dir.desktop";
-              "image/tiff" = "imv-dir.desktop";
-              "image/bmp" = "imv-dir.desktop";
-              "image/svg+xml" = "imv-dir.desktop";
-            };
-
-            services.system76-scheduler-niri.enable = true;
+              services.system76-scheduler-niri.enable = true;
             }
           )
         ];

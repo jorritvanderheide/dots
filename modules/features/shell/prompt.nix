@@ -71,7 +71,7 @@
 
               home = {
                 packages = lib.optionals config.programs.jujutsu.enable [
-                  inputs.starship-jj.packages.${pkgs.system}.default
+                  inputs.starship-jj.packages.${pkgs.stdenv.hostPlatform.system}.default
                 ];
 
                 # Reduce logging

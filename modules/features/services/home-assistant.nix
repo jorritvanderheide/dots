@@ -7,12 +7,32 @@
   flake.nixosModules.home-assistant =
     {
       config,
+      pkgs,
       ...
     }:
     let
       cfg = config.my.home-assistant;
       subdomain = "home";
       port = 8123;
+
+      hass-py = pkgs.home-assistant.python.pkgs;
+      enphase-envoy-installer = pkgs.buildHomeAssistantComponent rec {
+        owner = "vincentwolsink";
+        domain = "enphase_envoy";
+        version = "0.8.4";
+        src = pkgs.fetchFromGitHub {
+          owner = "vincentwolsink";
+          repo = "home_assistant_enphase_envoy_installer";
+          tag = version;
+          hash = "sha256-IHnJCtrAFhLoyyfgruvCIFFrtUTpTnebKWZcJA3ruog=";
+        };
+        dependencies = with hass-py; [
+          pyjwt
+          xmltodict
+          httpx
+          jsonpath
+        ];
+      };
     in
     {
       options.my.home-assistant.enable = lib.mkEnableOption "Home Assistant smart home server";
@@ -35,10 +55,11 @@
               enable = true;
               extraComponents = [
                 "default_config"
-                "enphase_envoy"
                 "esphome"
                 "go2rtc"
+                "zha"
               ];
+              customComponents = [ enphase-envoy-installer ];
 
               config = {
                 default_config = { };
@@ -60,6 +81,9 @@
             };
 
             systemd.services.home-assistant.serviceConfig.Restart = lib.mkForce "always";
+
+            # ZHA: let HA open the Zigbee dongle's serial port.
+            users.users.hass.extraGroups = [ "dialout" ];
 
             my.preservation.systemDirectories = [
               {

@@ -54,7 +54,7 @@
               enableDefaultConfig = false;
 
               # Host configuration
-              matchBlocks = {
+              settings = {
                 "*" = { };
 
                 "dapple" = {

@@ -69,7 +69,8 @@ in
 
             ## Other
             environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
-            sops.templates."offsite-backup-healthcheck-url".content = "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?token=${config.sops.placeholder.gatus_push_token}&success=true";
+            sops.templates."offsite-backup-healthcheck-url".content =
+              "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?token=${config.sops.placeholder.gatus_push_token}&success=true";
 
             # My modules
             my.boot.secureboot.enable = true;
