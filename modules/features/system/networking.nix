@@ -82,7 +82,7 @@
 
           firewall = {
             enable = lib.mkDefault true;
-            logRefusedConnections = true;
+            logRefusedConnections = false;
             interfaces = lib.mapAttrs (_: ports: { allowedTCPPorts = ports; }) cfg.firewallPorts;
           };
 

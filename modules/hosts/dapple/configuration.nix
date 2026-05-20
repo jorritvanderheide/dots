@@ -76,9 +76,10 @@ in
             my.boot.secureboot.enable = true;
             my.calibre-web.enable = true;
             my.contacts.enable = true;
-            my.home-assistant.enable = true;
             my.gatus.enable = true;
+            my.home-assistant.enable = true;
             my.harmonia.enable = true;
+            my.networking.DOHServers = [ "mullvad-all-doh" ];
             my.ntfy.enable = true;
             my.vaultwarden.enable = true;
 
@@ -103,11 +104,6 @@ in
               enable = true;
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
               mediaGroupUsers = [ "nixos" ];
-            };
-
-            my.networking = {
-              DOHServers = [ "mullvad-all-doh" ];
-              wireless.interface = "wlp3s0";
             };
 
             my.offsite-backup = {

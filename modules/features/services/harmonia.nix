@@ -28,7 +28,10 @@
             '';
           })
           {
-            sops.secrets.harmonia_sign_key.owner = "harmonia";
+            sops.secrets.harmonia_sign_key = {
+              owner = "harmonia";
+              group = "harmonia";
+            };
 
             services.harmonia.cache = {
               enable = true;

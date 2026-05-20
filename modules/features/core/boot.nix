@@ -50,7 +50,7 @@
 
             loader = {
               efi.canTouchEfiVariables = true;
-              timeout = 1; # 1s window to pick an older generation if the current one is broken
+              timeout = 0;
 
               systemd-boot = {
                 enable = lib.mkDefault (!cfg.secureboot.enable);
