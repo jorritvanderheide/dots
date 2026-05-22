@@ -34,6 +34,9 @@
               (_final: prev: {
                 calibre-web = prev.calibre-web.overridePythonAttrs (old: {
                   dependencies = old.dependencies ++ (old.optional-dependencies.kobo or [ ]);
+                  postPatch = (old.postPatch or "") + ''
+                    python3 ${./upload-owner-tag.py}
+                  '';
                 });
               })
             ];
