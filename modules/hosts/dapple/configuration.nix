@@ -36,6 +36,7 @@ in
         gatus
         go2rtc
         harmonia
+        headscale
         home-assistant
         jellyfin
         ntfy
@@ -100,6 +101,11 @@ in
               streams.dogcam = "rtsp://@100.81.32.76:8080/h264_ulaw.sdp";
             };
 
+            my.headscale = {
+              enable = true;
+              domain = "vpn.bw20.nl";
+            };
+
             my.jellyfin = {
               enable = true;
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
@@ -131,6 +137,7 @@ in
 
             my.tailscale = {
               enable = true;
+              loginServer = "http://127.0.0.1:8085";
 
               acme = {
                 enable = true;

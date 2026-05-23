@@ -4,6 +4,49 @@
 }:
 {
   flake.lib = {
+    mkCloudflaredTunnel =
+      {
+        tunnelId,
+        credentialsFile,
+        ingress,
+        default ? "http_status:404",
+        originRequest ? {
+          noTLSVerify = true;
+        },
+        transportProtocol ? null,
+      }:
+      {
+        services.cloudflared = {
+          enable = true;
+          tunnels.${tunnelId} = {
+            inherit
+              credentialsFile
+              ingress
+              default
+              originRequest
+              ;
+          };
+        };
+        systemd.services."cloudflared-tunnel-${tunnelId}" = {
+          environment = lib.optionalAttrs (transportProtocol != null) {
+            TUNNEL_TRANSPORT_PROTOCOL = transportProtocol;
+          };
+          after = [
+            "dnscrypt-proxy.service"
+            "nss-lookup.target"
+          ];
+          wants = [
+            "dnscrypt-proxy.service"
+            "nss-lookup.target"
+          ];
+          unitConfig.StartLimitIntervalSec = 0;
+          serviceConfig = {
+            Restart = lib.mkForce "always";
+            RestartSec = "30s";
+          };
+        };
+      };
+
     mkMenu =
       {
         colors,

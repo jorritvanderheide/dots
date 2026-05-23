@@ -59,7 +59,7 @@
 
                 "dapple" = {
                   host = "dapple";
-                  hostname = "100.88.135.27";
+                  hostname = "100.64.0.1";
                   user = "nixos";
                 };
 

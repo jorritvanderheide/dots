@@ -15,6 +15,12 @@
       options.my.tailscale = {
         enable = lib.mkEnableOption "Tailscale VPN";
 
+        loginServer = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Custom login server URL (e.g. https://hs.bw20.nl). Null uses official Tailscale.";
+        };
+
         acme = {
           enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
 
@@ -35,7 +41,12 @@
               enable = true;
               authKeyFile = config.sops.secrets.tailscale_auth_key.path;
               openFirewall = true;
-              permitCertUid = "root";
+              permitCertUid = lib.mkIf (cfg.loginServer == null) "root";
+
+              extraUpFlags = lib.optionals (cfg.loginServer != null) [
+                "--login-server"
+                cfg.loginServer
+              ];
             };
 
             my.preservation.systemDirectories = [
@@ -48,9 +59,10 @@
 
             security.acme = {
               acceptTerms = true;
+
               defaults = {
-                email = "jorrit+acme@bw20.nl";
                 dnsProvider = "cloudflare";
+                email = "jorrit+acme@bw20.nl";
                 environmentFile = config.sops.secrets.cloudflare_dns_env.path;
               };
             };
@@ -60,9 +72,9 @@
 
             services.nginx = {
               enable = true;
-              recommendedTlsSettings = true;
-              recommendedOptimisation = true;
               recommendedGzipSettings = true;
+              recommendedOptimisation = true;
+              recommendedTlsSettings = true;
             };
 
             systemd.services.nginx.serviceConfig = {

@@ -117,7 +117,6 @@ in
             my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
             my.sudo.fingerprintAuth = true;
-            my.tailscale.enable = true;
             my.vpn.enable = true;
 
             my.compositor = {
@@ -201,12 +200,17 @@ in
             };
 
             my.ssh.knownHosts.dapple = {
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrxBNOPaV9heh3y0Sjf7ke0wh/JulWTwcWWPVVJGXZQ";
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante";
 
               hostNames = [
                 "dapple"
-                "100.88.135.27"
+                "100.64.0.1"
               ];
+            };
+
+            my.tailscale = {
+              enable = true;
+              loginServer = "https://vpn.bw20.nl";
             };
           }
         )

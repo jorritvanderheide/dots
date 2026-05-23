@@ -11,8 +11,8 @@
     }:
     let
       cfg = config.my.harmonia;
-      subdomain = "cache";
       port = 5000;
+      subdomain = "cache";
     in
     {
       options.my.harmonia.enable = lib.mkEnableOption "Harmonia binary cache server";
@@ -21,6 +21,7 @@
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port subdomain;
+
             locationExtraConfig = ''
               # Serving NARs straight from /nix/store; some can be large.
               proxy_buffering off;
@@ -28,16 +29,13 @@
             '';
           })
           {
-            sops.secrets.harmonia_sign_key = {
-              owner = "harmonia";
-              group = "harmonia";
-            };
-
             services.harmonia.cache = {
               enable = true;
               signKeyPaths = [ config.sops.secrets.harmonia_sign_key.path ];
               settings.bind = "127.0.0.1:${toString port}";
             };
+
+            sops.secrets.harmonia_sign_key = { };
           }
         ]
       );
