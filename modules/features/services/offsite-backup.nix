@@ -26,10 +26,20 @@
           type = lib.types.nullOr lib.types.path;
           default = null;
           description = ''
-            Path to a file whose contents are the full URL (including any
-            token) to GET on successful backup. Read at runtime so the URL
-            with token can come from sops without being baked into the
-            store. Set to null to disable health pings.
+            Path to a file whose contents are the full URL to POST to on
+            successful backup. Read at runtime so the URL with token can
+            come from sops without being baked into the store.
+            Set to null to disable health pings.
+          '';
+        };
+
+        healthcheckTokenFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = ''
+            Path to a file whose contents are the bearer token for the
+            healthcheck push endpoint. Required when using Gatus 5.x push
+            endpoints which expect Authorization: Bearer <token>.
           '';
         };
       };
@@ -101,7 +111,12 @@
               echo "Offsite backup complete"
               ${lib.optionalString (cfg.healthcheckUrlFile != null) ''
                 HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
-                curl -fsS -o /dev/null "$HEALTHCHECK_URL"
+                ${if cfg.healthcheckTokenFile != null then ''
+                  TOKEN="$(<${cfg.healthcheckTokenFile})"
+                  curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"
+                '' else ''
+                  curl -fsS -o /dev/null "$HEALTHCHECK_URL"
+                ''}
               ''}
             '';
         };

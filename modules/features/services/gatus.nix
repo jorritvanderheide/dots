@@ -140,6 +140,11 @@
                     group = "infra";
                     url = "https://alerts.${config.my.tailscale.acme.domain}";
                   })
+                  (mkHttpEndpoint {
+                    name = "headscale";
+                    group = "infra";
+                    url = "https://vpn.${config.my.tailscale.acme.domain}";
+                  })
                 ];
 
                 external-endpoints = [
