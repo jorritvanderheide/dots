@@ -114,8 +114,8 @@ in
 
             my.offsite-backup = {
               enable = true;
-              healthcheckUrlFile = config.sops.templates."offsite-backup-healthcheck-url".path;
               healthcheckTokenFile = config.sops.secrets.gatus_push_token.path;
+              healthcheckUrlFile = config.sops.templates."offsite-backup-healthcheck-url".path;
 
               paths = [
                 "/var/backup/vaultwarden"
@@ -127,8 +127,8 @@ in
 
             my.servarr = {
               enable = true;
-              webuiUser = "jorrit";
               recyclarr.enable = true;
+              webuiUser = "jorrit";
             };
 
             my.ssh-server = {

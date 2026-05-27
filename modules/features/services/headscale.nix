@@ -28,6 +28,9 @@
       };
 
       config = lib.mkIf cfg.enable {
+        my.preservation.systemDirectories = [ "/var/lib/headscale" ];
+        security.acme.certs.${cfg.domain} = { };
+
         assertions = [
           {
             assertion = config.my.tailscale.acme.enable;
@@ -35,7 +38,10 @@
           }
         ];
 
-        networking.firewall.allowedTCPPorts = [ 443 ];
+        networking.firewall = {
+          allowedTCPPorts = [ 443 ];
+          allowedUDPPorts = [ 3478 ];
+        };
 
         services.headscale = {
           enable = true;
@@ -45,13 +51,32 @@
           settings = {
             server_url = "https://${cfg.domain}";
 
+            database = {
+              sqlite.path = "/var/lib/headscale/db.sqlite";
+              type = "sqlite";
+            };
+
+            derp = {
+              paths = [ ];
+              urls = [ ];
+
+              server = {
+                enabled = true;
+                region_code = "headscale";
+                region_id = 999;
+                region_name = "Headscale Embedded DERP";
+                private_key_path = "/var/lib/headscale/derp_server_private.key";
+                stun_listen_addr = "0.0.0.0:3478";
+              };
+            };
+
             dns = {
-              magic_dns = true;
               base_domain = cfg.magicDnsDomain;
+              magic_dns = true;
 
               nameservers.global = [
-                "1.1.1.1"
                 "1.0.0.1"
+                "1.1.1.1"
               ];
             };
 
@@ -59,23 +84,7 @@
               v4 = "100.64.0.0/10";
               v6 = "fd7a:115c:a1e0::/48";
             };
-
-            database = {
-              type = "sqlite";
-              sqlite.path = "/var/lib/headscale/db.sqlite";
-            };
           };
-        };
-
-        services.nginx.commonHttpConfig = ''
-          limit_req_zone $binary_remote_addr zone=headscale:10m rate=10r/m;
-        '';
-
-        security.acme.certs.${cfg.domain} = { };
-
-        systemd.services.nginx = {
-          wants = [ "acme-finished-${cfg.domain}.target" ];
-          after = [ "acme-finished-${cfg.domain}.target" ];
         };
 
         services.nginx.virtualHosts.${cfg.domain} = {
@@ -88,12 +97,14 @@
 
             extraConfig = ''
               proxy_buffering off;
-              limit_req zone=headscale burst=20 nodelay;
             '';
           };
         };
 
-        my.preservation.systemDirectories = [ "/var/lib/headscale" ];
+        systemd.services.nginx = {
+          wants = [ "acme-finished-${cfg.domain}.target" ];
+          after = [ "acme-finished-${cfg.domain}.target" ];
+        };
       };
     };
 }

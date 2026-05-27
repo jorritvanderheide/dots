@@ -17,27 +17,28 @@
         enable = lib.mkEnableOption "go2rtc streaming server";
 
         apiPort = lib.mkOption {
-          type = lib.types.port;
           default = 1984;
-          readOnly = true;
           description = "Loopback port go2rtc's HTTP API listens on. Consumers (e.g. Home Assistant) read this instead of hardcoding.";
+          readOnly = true;
+          type = lib.types.port;
         };
 
         streams = lib.mkOption {
-          type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
           default = { };
           description = "Streams definition for go2rtc.";
+          type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
         };
       };
 
       config = lib.mkIf cfg.enable {
         services.go2rtc = {
           enable = true;
+
           settings = {
             api.listen = "127.0.0.1:${toString cfg.apiPort}";
             rtsp.listen = "127.0.0.1:8554";
-            webrtc.listen = ":${toString webrtcPort}";
             inherit (cfg) streams;
+            webrtc.listen = ":${toString webrtcPort}";
           };
         };
 

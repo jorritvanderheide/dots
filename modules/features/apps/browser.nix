@@ -129,7 +129,8 @@
                   "http://localhost"
                   "http://localhost:8001"
                   "http://localhost:8080"
-                  "http://145.116.138.166"
+                  "http://145.137.168.165"
+                  "http://100.64.0.2"
                 ];
 
                 SanitizeOnShutdown = {
@@ -153,12 +154,6 @@
                       IconURL = "https://search.brave.com/favicon.ico";
                       SuggestURLTemplate = "https://search.brave.com/api/suggest?q={searchTerms}";
                       URLTemplate = "https://search.brave.com/search?q={searchTerms}";
-                    }
-                    {
-                      Alias = "@ai";
-                      Name = "Perplexity AI";
-                      URLTemplate = "https://perplexity.ai/search?q={searchTerms}&copilot=false";
-                      IconURL = "https://perplexity.ai/favicon.ico";
                     }
                     {
                       Alias = "@np";
@@ -187,34 +182,37 @@
                   ];
 
                   Remove = [
-                    "Bing"
-                    "eBay"
-                    "Ecosia"
-                    "Google"
-                    "Perplexity"
-                    "Qwant"
-                    "Wikipedia (en)"
+                    "bing"
+                    "duckduckgo"
+                    "ebay-nl"
+                    "ecosia"
+                    "google"
+                    "perplexity"
+                    "qwant"
+                    "wikipedia"
                   ];
                 };
 
                 UserMessaging = {
                   ExtensionRecommendations = false;
                   FeatureRecommendations = false;
-                  UrlbarInterventions = false;
-                  SkipOnboarding = true;
-                  MoreFromMozilla = false;
                   FirefoxLabs = false;
                   Locked = true;
+                  MoreFromMozilla = false;
+                  SkipOnboarding = true;
+                  UrlbarInterventions = false;
                 };
               };
 
               profiles."default" = {
                 containersForce = true;
+
                 containers = {
                   "Default" = {
                     color = "toolbar";
                     id = 1;
                   };
+
                   "Work" = {
                     color = "blue";
                     id = 2;
@@ -235,6 +233,7 @@
                       position = 1000;
                       url = "https://gitlab.science.ru.nl/dashboard/home";
                     };
+
                     "PubHubs" = {
                       container = containers."Work".id;
                       id = "efe48942-39d2-41ae-b83f-b214205447ce";
@@ -242,6 +241,7 @@
                       position = 2000;
                       url = "http://localhost:8080";
                     };
+
                     "PubHubs Client" = {
                       container = containers."Work".id;
                       id = "eada3af4-51dc-4fc5-8def-ca679185cf12";
@@ -262,6 +262,7 @@
                       container = containers."Default".id;
                       position = 1000;
                     };
+
                     "PubHubs" = {
                       id = "c0d32de6-fd82-4943-ad01-3496469506fb";
                       container = containers."Work".id;
@@ -288,6 +289,10 @@
                   "browser.low_commit_space_threshold_percent" = 100;
                   "browser.tabs.min_inactive_duration_before_unload" = 3600000;
                   "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
+                  "zen.tabs.show-newtab-vertical" = false;
+
+                  ## Features
+                  "zen.glance.enabled" = false;
 
                   ## Styling
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
