@@ -69,7 +69,6 @@ in
         # Apps
         browser
         cad
-        darktable
         editor
         email
         gaming
@@ -78,6 +77,7 @@ in
         music-player
         notes
         password-manager
+        rapidraw
         slicer
         social
         terminal
