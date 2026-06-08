@@ -69,6 +69,7 @@ in
         # Apps
         browser
         cad
+        darktable
         editor
         email
         gaming
