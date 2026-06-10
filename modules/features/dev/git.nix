@@ -76,7 +76,7 @@
                   enable = true;
 
                   settings = {
-                    ui.merge-editor = "code --wait";
+                    ui.merge-editor = ":builtin";
 
                     signing = {
                       backend = "ssh";
