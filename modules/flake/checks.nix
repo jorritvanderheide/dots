@@ -16,7 +16,7 @@
 
         # Linting
         statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
-          statix check ${inputs.self}
+          statix check -c ${inputs.self}/config ${inputs.self}
           touch $out
         '';
 
