@@ -96,8 +96,3 @@ nix flake check   # formatting + statix + builds both hosts
 Version control uses [jujutsu] (`jj`) on a colocated git repo. Secrets live in
 `secrets/` and are decrypted by sops-nix using an age key derived at boot from
 the host's SSH key.
-
-[preservation]: https://github.com/nix-community/preservation
-[sops-nix]: https://github.com/Mic92/sops-nix
-[nixos-facter]: https://github.com/nix-community/nixos-facter
-[jujutsu]: https://github.com/jj-vcs/jj

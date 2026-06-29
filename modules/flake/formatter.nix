@@ -21,6 +21,7 @@
 
         programs = {
           beautysh.enable = true;
+          black.enable = true;
           deadnix.enable = true;
           nixfmt.enable = true;
           prettier.enable = true;
