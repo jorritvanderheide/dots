@@ -5,7 +5,7 @@
 }:
 {
   flake.nixosModules.boot =
-    { config, ... }:
+    { config, pkgs, ... }:
     let
       cfg = config.my.boot;
     in
@@ -87,7 +87,15 @@
           };
         }
 
-        # Secure boot configuration
+        # Secure Boot + Measured Boot, provisioned automatically.
+        #
+        # Fresh-machine flow (hands-off after a one-time BIOS Setup Mode):
+        #   1. First boot runs unsigned: autoGenerateKeys creates the sbctl
+        #      keys, autoEnrollKeys stages them on the ESP, then reboots.
+        #   2. systemd-boot enrolls the keys into firmware -> Secure Boot
+        #      enforced.
+        #   3. With Secure Boot active, make-policy builds the pcrlock policy
+        #      and tpm-luks-enroll binds a TPM2 keyslot to it.
         (lib.mkIf cfg.secureboot.enable {
           boot = {
             loader.systemd-boot.enable = lib.mkForce false;
@@ -95,17 +103,76 @@
             lanzaboote = {
               enable = true;
               pkiBundle = "/var/lib/sbctl";
+
+              # Auto-provision Secure Boot keys (trust-on-first-use).
+              autoGenerateKeys.enable = true;
+              autoEnrollKeys = {
+                enable = true;
+                autoReboot = true;
+              };
+
+              # Measured Boot: bind unlock to firmware code (0), kernel/initrd
+              # (4) and Secure Boot state (7). make-policy refreshes the TPM NV
+              # index on every rebuild, so kernel updates don't break unlock.
+              # systemd-pcrlock caps the policy at 8 boot variants.
+              configurationLimit = 8;
+              measuredBoot = {
+                enable = true;
+                pcrs = [
+                  0
+                  4
+                  7
+                ];
+                pcrlockPolicy = "/var/lib/pcrlock/pcrlock.json";
+              };
             };
+          };
+
+          # Initial TPM2 enrollment for a freshly provisioned disk. Lanzaboote's
+          # own autoCryptenroll can only migrate an existing TPM2 slot, so we
+          # bootstrap from the sops LUKS password instead. Gated on Secure Boot
+          # being active (so the policy reflects the enforced PCR 7 state) and on
+          # the policy existing; the state flag makes it run exactly once. The
+          # password keyslot stays enrolled as the recovery path.
+          systemd.services.tpm-luks-enroll = {
+            description = "Bind a LUKS TPM2 keyslot to the pcrlock policy";
+            wantedBy = [ "multi-user.target" ];
+            after = [ "systemd-pcrlock-make-policy.service" ];
+            unitConfig = {
+              ConditionSecurity = "uefi-secureboot";
+              ConditionPathExists = [
+                "!/var/lib/tpm-luks-enroll/done"
+                "/var/lib/pcrlock/pcrlock.json"
+              ];
+            };
+            serviceConfig = {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              StateDirectory = "tpm-luks-enroll";
+            };
+            script = ''
+              PASSWORD="$(${pkgs.coreutils}/bin/cat ${config.sops.secrets.luks_password.path})" \
+                ${config.systemd.package}/bin/systemd-cryptenroll \
+                  --wipe-slot=tpm2 \
+                  --tpm2-device=auto \
+                  --tpm2-pcrlock=/var/lib/pcrlock/pcrlock.json \
+                  /dev/disk/by-partlabel/disk-main-luks
+              ${pkgs.coreutils}/bin/touch /var/lib/tpm-luks-enroll/done
+            '';
           };
 
           my.preservation.systemDirectories = [
             "/var/lib/sbctl"
             "/var/lib/tpm2-tss"
+            "/var/lib/pcrlock" # pcrlock policy (pcrlockPolicy)
+            "/var/lib/pcrlock.d" # pcrlock measurement components (pcrlockDirectory)
+            "/var/lib/tpm-luks-enroll" # one-shot enrollment guard
           ];
 
-          # To re-enroll the luks decryption key into the TPM:
-          # `sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p2`
-          # `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7 /dev/nvme0n1p2`
+          # Recovery: the LUKS password keyslot (sops `luks_password`) stays
+          # enrolled. To rebuild the TPM binding by hand:
+          #   sudo rm /var/lib/tpm-luks-enroll/done
+          #   sudo systemctl start tpm-luks-enroll
           security.tpm2 = {
             enable = true;
             tctiEnvironment.enable = true;

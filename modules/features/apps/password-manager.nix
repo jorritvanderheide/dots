@@ -52,6 +52,11 @@
           }
         ];
 
+        # bitwarden-desktop pins electron_39 (39.8.10), which nixpkgs marks EOL.
+        # Permit it so the build succeeds; remove once Bitwarden moves to a
+        # supported electron. Kept here next to the package that needs it.
+        nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
+
         environment.systemPackages = with pkgs; [
           bitwarden-desktop
         ];

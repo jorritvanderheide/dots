@@ -16,7 +16,7 @@ in
     }:
     let
       cfg = config.my.compositor;
-      niriPkgs = inputs.niri-pkgs.packages.${pkgs.stdenv.hostPlatform.system};
+      niriPkgs = inputs.niri-flake.packages.${pkgs.stdenv.hostPlatform.system};
     in
     {
       imports = [ niri-flake ];
@@ -89,26 +89,9 @@ in
             {
               config,
               lib,
-              pkgs,
               ...
             }:
             {
-              # niri-flake doesn't yet model the `background-effect`/blur KDL
-              # nodes (issue #1721). Use niri-flake's internal validator so we
-              # can append the raw KDL snippet and still get build-time
-              # `niri validate` checks against the resulting config.
-              xdg.configFile.niri-config.source = lib.mkForce (
-                inputs.niri-flake.lib.internal.validated-config-for pkgs config.programs.niri.package ''
-                  ${config.programs.niri.finalConfig}
-
-                  window-rule {
-                      background-effect {
-                          blur true
-                      }
-                  }
-                ''
-              );
-
               programs.niri.settings = {
                 clipboard.disable-primary = true;
                 inherit (cfg) outputs;
