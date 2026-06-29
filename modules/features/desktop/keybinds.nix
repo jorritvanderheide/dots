@@ -1,7 +1,7 @@
 {
   flake.nixosModules.keybinds = {
     config = {
-      # Assertion: app-launch must be enabled for app2unit command
+      # Requires the app-launch module (provides the app2unit launcher).
       home-manager.sharedModules = [
         (
           {

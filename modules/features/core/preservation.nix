@@ -44,30 +44,39 @@
             lib.types.either lib.types.str (
               lib.types.submodule {
                 options = {
-                  directory = lib.mkOption { type = lib.types.str; };
+                  directory = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Absolute path of the directory to persist across reboots.";
+                  };
                   user = lib.mkOption {
                     type = lib.types.str;
                     default = "root";
+                    description = "Owner of the persisted directory.";
                   };
                   group = lib.mkOption {
                     type = lib.types.str;
                     default = "root";
+                    description = "Group of the persisted directory.";
                   };
                   mode = lib.mkOption {
                     type = lib.types.str;
                     default = "0755";
+                    description = "Permission bits for the persisted directory.";
                   };
                   configureParent = lib.mkOption {
                     type = lib.types.bool;
                     default = false;
+                    description = "Whether to also create/own the parent directory (needed for nested paths).";
                   };
                   how = lib.mkOption {
                     type = lib.types.str;
                     default = "bindmount";
+                    description = "Preservation method passed through to the preservation module (e.g. bindmount).";
                   };
                   inInitrd = lib.mkOption {
                     type = lib.types.bool;
                     default = false;
+                    description = "Whether the directory must be available already in the initrd.";
                   };
                 };
               }

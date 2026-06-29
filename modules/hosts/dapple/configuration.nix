@@ -65,7 +65,7 @@ in
             networking.hostName = "dapple";
             networking.useNetworkd = lib.mkForce false; # Realtek rtw89 driver incompatible with networkd's BPF DHCP client
             nixpkgs.hostPlatform = facterReport.system;
-            services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated.
+            services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated. Re-test on the next nixpkgs bump.
             system.stateVersion = "26.05";
 
             ## Other
@@ -88,6 +88,7 @@ in
               enable = true;
               luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
+              # Serial of the external USB drive used for local zbackup snapshots.
               usbSerial = "3248831116939333057";
             };
 
@@ -108,6 +109,7 @@ in
 
             my.jellyfin = {
               enable = true;
+              # Dedicated SSD for the Jellyfin media library (zmedia pool).
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
               mediaGroupUsers = [ "nixos" ];
             };

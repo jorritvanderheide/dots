@@ -6,7 +6,7 @@
     }:
     {
       config = {
-        # Assertion: app-launch must be enabled for app2unit command
+        # Requires the app-launch module (provides the app2unit launcher).
         security.polkit.enable = true;
         environment.systemPackages = [ pkgs.polkit_gnome ];
 

@@ -276,7 +276,7 @@
                   "zen.window-sync.enabled" = true;
                   "zen.window-sync.sync-only-pinned-tabs" = true;
 
-                  ## Cachining
+                  ## Caching
                   "browser.cache.disk.enable" = false;
                   "browser.cache.memory.enable" = true;
                   "browser.cache.memory.capacity" = 32768;

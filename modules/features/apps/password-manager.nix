@@ -10,7 +10,7 @@
     }:
     {
       config = {
-        # Assertion: app-launch must be enabled for app2unit command
+        # Requires the app-launch module (provides the app2unit launcher).
         # Disable standard ssh-agent in favor of Bitwarden SSH agent
         programs.ssh.startAgent = lib.mkForce false;
 

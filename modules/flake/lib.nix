@@ -178,6 +178,7 @@
         }
         // (
           # Use hashedPasswordFile if provided, otherwise use user_password from userSecrets
+          # Password precedence: explicit hashedPasswordFile > sops user_password secret > initialPassword > none.
           if hashedPasswordFile != null then
             { inherit hashedPasswordFile; }
           else if (userSecrets ? user_password) then

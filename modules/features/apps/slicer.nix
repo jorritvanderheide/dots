@@ -1,6 +1,7 @@
 {
   flake.nixosModules.slicer =
     {
+      lib,
       pkgs,
       ...
     }:
@@ -22,7 +23,7 @@
             # dropped by the desktop env.
             xdg.desktopEntries.orca-slicer-bambu = {
               name = "OrcaSlicer (Bambu links)";
-              exec = "${pkgs.orca-slicer}/bin/orca-slicer %u";
+              exec = "${lib.getExe pkgs.orca-slicer} %u";
               icon = "OrcaSlicer";
               terminal = false;
               mimeType = [
