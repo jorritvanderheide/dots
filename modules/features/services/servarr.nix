@@ -225,23 +225,23 @@
               systemd.services = {
                 qbittorrent.serviceConfig = {
                   Restart = lib.mkForce "always";
-                  RestartSec = "5s";
+                  RestartSec = lib.mkForce "5s";
                 };
                 prowlarr.serviceConfig = {
                   Restart = lib.mkForce "always";
-                  RestartSec = "5s";
+                  RestartSec = lib.mkForce "5s";
                 };
                 sonarr.serviceConfig = {
                   Restart = lib.mkForce "always";
-                  RestartSec = "5s";
+                  RestartSec = lib.mkForce "5s";
                 };
                 radarr.serviceConfig = {
                   Restart = lib.mkForce "always";
-                  RestartSec = "5s";
+                  RestartSec = lib.mkForce "5s";
                 };
                 bazarr.serviceConfig = {
                   Restart = lib.mkForce "always";
-                  RestartSec = "5s";
+                  RestartSec = lib.mkForce "5s";
                 };
               };
 

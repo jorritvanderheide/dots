@@ -40,7 +40,7 @@
 
             systemd.services.radicale.serviceConfig = {
               Restart = lib.mkForce "always";
-              RestartSec = "5s";
+              RestartSec = lib.mkForce "5s";
             };
 
             my.preservation.systemDirectories = [

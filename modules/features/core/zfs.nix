@@ -27,6 +27,7 @@ _: {
         kernelParams =
           let
             facterReport = config.facter.report;
+            # Assumes a single memory controller / single primary disk per host.
             memoryBytes = (builtins.head (builtins.head facterReport.hardware.memory).resources).range;
             arcMaxBytes = memoryBytes / 4;
           in

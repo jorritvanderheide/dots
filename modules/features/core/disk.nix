@@ -19,6 +19,7 @@
         disko.devices.disk.main =
           let
             facterReport = config.facter.report;
+            # Assumes a single primary disk (the convention for these hosts).
             diskInfo = builtins.head facterReport.hardware.disk;
             device = builtins.head diskInfo.unix_device_names;
           in
