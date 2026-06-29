@@ -30,6 +30,7 @@
       apps.install-host = {
         type = "app";
         program = "${install-host}/bin/install-host";
+        meta.description = "Install a NixOS host from this flake (disko partitioning + nixos-install).";
       };
 
       packages.install-host = install-host;
