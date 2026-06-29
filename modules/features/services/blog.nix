@@ -30,7 +30,7 @@
         in
         lib.mkMerge [
           (inputs.self.lib.mkCloudflaredTunnel {
-            tunnelId = cfg.tunnelId;
+            inherit (cfg) tunnelId;
             credentialsFile = config.sops.secrets.cloudflared-blog.path;
             ingress = {
               ${domain} = "https://localhost";

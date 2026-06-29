@@ -111,12 +111,17 @@
               echo "Offsite backup complete"
               ${lib.optionalString (cfg.healthcheckUrlFile != null) ''
                 HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
-                ${if cfg.healthcheckTokenFile != null then ''
-                  TOKEN="$(<${cfg.healthcheckTokenFile})"
-                  curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"
-                '' else ''
-                  curl -fsS -o /dev/null "$HEALTHCHECK_URL"
-                ''}
+                ${
+                  if cfg.healthcheckTokenFile != null then
+                    ''
+                      TOKEN="$(<${cfg.healthcheckTokenFile})"
+                      curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"
+                    ''
+                  else
+                    ''
+                      curl -fsS -o /dev/null "$HEALTHCHECK_URL"
+                    ''
+                }
               ''}
             '';
         };
