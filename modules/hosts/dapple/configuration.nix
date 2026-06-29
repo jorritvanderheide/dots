@@ -98,7 +98,7 @@ in
 
             my.go2rtc = {
               enable = true;
-              streams.dogcam = "rtsp://@100.81.32.76:8080/h264_ulaw.sdp";
+              streams.dogcam = "rtsp://@100.64.0.7:8080/h264_ulaw.sdp";
             };
 
             my.headscale = {

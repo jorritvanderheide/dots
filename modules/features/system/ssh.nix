@@ -63,6 +63,39 @@
                   user = "nixos";
                 };
 
+                "ilab1" = {
+                  host = "ilab1";
+                  hostname = "ilab1.ihub.ru.nl";
+                  proxyJump = "lilo";
+                  user = "ilab";
+                  identityFile = "~/Git/ops/ssh/id_ilab";
+                  identitiesOnly = true;
+                };
+
+                "ilab2" = {
+                  host = "ilab2";
+                  hostname = "ilab2.ihub.ru.nl";
+                  proxyJump = "lilo";
+                  user = "ilab";
+                  identityFile = "~/Git/ops/ssh/id_ilab";
+                  identitiesOnly = true;
+                };
+
+                "lilo" = {
+                  host = "lilo";
+                  hostname = "lilo.science.ru.nl";
+                  user = "jvanderheide";
+                };
+
+                "ph" = {
+                  host = "ph";
+                  hostname = "ph.ihub.ru.nl";
+                  proxyJump = "lilo";
+                  user = "ilab";
+                  identityFile = "~/Git/ops/ssh/id_ilab";
+                  identitiesOnly = true;
+                };
+
                 "codeberg" = {
                   host = "codeberg.org";
                   identityFile = "~/.ssh/git@codeberg.org.pub";

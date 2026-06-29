@@ -65,6 +65,7 @@
           "wireless/fairphone" = { };
           "wireless/hackerspace" = { };
           "wireless/beverweg" = { };
+          "wireless/iotroam" = { };
           "wireless/eduroam" = { };
           "wireless/reticulum" = { };
         };
@@ -96,7 +97,7 @@
 
             networks = {
               "Jorrit's Fairphone" = {
-                priority = 20;
+                priority = 30;
                 pskRaw = "ext:FAIRPHONE_PSK";
                 authProtocols = [ "WPA-PSK" ];
               };
@@ -113,6 +114,11 @@
               "reticulum" = {
                 priority = 10;
                 pskRaw = "ext:RETICULUM_PSK";
+                authProtocols = [ "WPA-PSK" ];
+              };
+              "iotroam" = {
+                priority = 20;
+                pskRaw = "ext:IOTROAM_PSK";
                 authProtocols = [ "WPA-PSK" ];
               };
               "eduroam" = {
@@ -138,6 +144,7 @@
             FAIRPHONE_PSK=${config.sops.placeholder."wireless/fairphone"}
             HACKERSPACE_PSK=${config.sops.placeholder."wireless/hackerspace"}
             BEVERWEG_PSK=${config.sops.placeholder."wireless/beverweg"}
+            IOTROAM_PSK=${config.sops.placeholder."wireless/iotroam"}
             EDUROAM_PSK=${config.sops.placeholder."wireless/eduroam"}
             RETICULUM_PSK=${config.sops.placeholder."wireless/reticulum"}
           '';

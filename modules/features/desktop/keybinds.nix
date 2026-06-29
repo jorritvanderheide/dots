@@ -106,6 +106,10 @@
                 action = toggle-overview;
                 repeat = false;
               };
+              "Alt+Tab" = {
+                action = spawn "true";
+                repeat = false;
+              };
               "Mod+Q" = {
                 action = close-window;
                 repeat = false;
