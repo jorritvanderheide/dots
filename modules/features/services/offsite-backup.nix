@@ -14,7 +14,13 @@
     in
     {
       options.my.offsite-backup = {
-        enable = lib.mkEnableOption "offsite backup to Storj via rclone";
+        enable = lib.mkEnableOption "offsite backup to Storj via restic (versioned, deduplicated, encrypted)";
+
+        bucket = lib.mkOption {
+          type = lib.types.str;
+          default = "backup";
+          description = "Storj bucket holding the restic repository.";
+        };
 
         paths = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -45,84 +51,76 @@
       };
 
       config = lib.mkIf cfg.enable {
-        sops.secrets.storj_access_key = { };
-        sops.secrets.storj_secret_key = { };
+        sops.secrets = {
+          # S3-compatible credentials for Storj's gateway.
+          storj_access_key = { };
+          storj_secret_key = { };
+          # restic repository encryption key. WITHOUT THIS THE BACKUP IS
+          # UNRECOVERABLE -- keep a copy in Bitwarden, like the LUKS passphrase.
+          restic_password = { };
+        };
 
-        systemd.timers.offsite-backup = {
-          description = "Offsite backup to Storj timer";
-          wantedBy = [ "timers.target" ];
+        # restic reads its S3 credentials from the environment. Render them
+        # from the Storj sops secrets so they never land in the store.
+        sops.templates."restic-s3-env".content = ''
+          AWS_ACCESS_KEY_ID=${config.sops.placeholder.storj_access_key}
+          AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.storj_secret_key}
+        '';
+
+        services.restic.backups.offsite = {
+          # Storj's S3-compatible gateway (not Amazon; same endpoint the old
+          # rclone job used). restic encrypts client-side, so the gateway only
+          # ever sees ciphertext.
+          repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
+          passwordFile = config.sops.secrets.restic_password.path;
+          environmentFile = config.sops.templates."restic-s3-env".path;
+
+          inherit (cfg) paths;
+          initialize = true;
+
           timerConfig = {
             OnCalendar = "daily";
             Persistent = true;
             RandomizedDelaySec = "1h";
           };
+
+          # Versioned history. forget --prune runs after each backup.
+          pruneOpts = [
+            "--keep-daily 7"
+            "--keep-weekly 5"
+            "--keep-monthly 12"
+          ];
+
+          # Structural integrity check after each run (metadata only, cheap).
+          runCheck = true;
+
+          # Larger packs => far fewer objects/segments on Storj (default 16 MiB).
+          extraBackupArgs = [ "--pack-size=64" ];
         };
 
-        systemd.services.offsite-backup = {
-          description = "Offsite backup to Storj via rclone";
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
+        # Ping the gatus push endpoint only on a successful backup. The restic
+        # unit's own backupCleanupCommand maps to ExecStopPost (runs on failure
+        # too), so use OnSuccess to gate the ping on success.
+        systemd.services.restic-backups-offsite = lib.mkIf (cfg.healthcheckUrlFile != null) {
+          unitConfig.OnSuccess = [ "offsite-backup-healthcheck.service" ];
+        };
 
-          path = [
-            pkgs.rclone
-          ]
-          ++ lib.optional (cfg.healthcheckUrlFile != null) pkgs.curl;
-
-          serviceConfig = {
-            Type = "oneshot";
-            PrivateTmp = true;
-          };
-
+        systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrlFile != null) {
+          description = "Notify gatus that the offsite backup succeeded";
+          path = [ pkgs.curl ];
+          serviceConfig.Type = "oneshot";
           script =
             let
-              syncCommands = lib.concatMapStringsSep "\n" (
-                path:
-                let
-                  dirName = baseNameOf path;
-                in
-                ''
-                  echo "Syncing ${path} -> storj:backup/${config.networking.hostName}/${dirName}"
-                  rclone sync \
-                    --config "$RCLONE_CONFIG" \
-                    --transfers 4 \
-                    --log-level INFO \
-                    "${path}" \
-                    "storj:backup/${config.networking.hostName}/${dirName}"
-                ''
-              ) cfg.paths;
+              ping =
+                if cfg.healthcheckTokenFile != null then
+                  ''curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"''
+                else
+                  ''curl -fsS -o /dev/null "$HEALTHCHECK_URL"'';
             in
             ''
-              ACCESS_KEY="$(<${config.sops.secrets.storj_access_key.path})"
-              SECRET_KEY="$(<${config.sops.secrets.storj_secret_key.path})"
-              RCLONE_CONFIG="$(mktemp)"
-              trap 'rm -f "$RCLONE_CONFIG"' EXIT
-
-              printf '%s\n' \
-                "[storj]" \
-                "type = s3" \
-                "provider = Storj" \
-                "access_key_id = $ACCESS_KEY" \
-                "secret_access_key = $SECRET_KEY" \
-                "endpoint = gateway.eu1.storjshare.io" \
-                > "$RCLONE_CONFIG"
-
-              echo "Starting offsite backup to Storj"
-              ${syncCommands}
-              echo "Offsite backup complete"
-              ${lib.optionalString (cfg.healthcheckUrlFile != null) ''
-                HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
-                ${
-                  if cfg.healthcheckTokenFile != null then
-                    ''
-                      TOKEN="$(<${cfg.healthcheckTokenFile})"
-                      curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"
-                    ''
-                  else
-                    ''
-                      curl -fsS -o /dev/null "$HEALTHCHECK_URL"
-                    ''
-                }
-              ''}
+              HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
+              ${lib.optionalString (cfg.healthcheckTokenFile != null) ''TOKEN="$(<${cfg.healthcheckTokenFile})"''}
+              ${ping}
             '';
         };
       };

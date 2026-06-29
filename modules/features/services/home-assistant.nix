@@ -15,7 +15,7 @@
       subdomain = "home";
       port = 8123;
 
-      hass-py = pkgs.home-assistant.python.pkgs;
+      hass-py = pkgs.home-assistant.python3Packages;
       enphase-envoy-installer = pkgs.buildHomeAssistantComponent rec {
         owner = "vincentwolsink";
         domain = "enphase_envoy";

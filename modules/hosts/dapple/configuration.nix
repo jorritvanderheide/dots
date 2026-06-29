@@ -121,6 +121,7 @@ in
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
                 "/var/lib/hass"
+                "/var/lib/headscale"
                 "/var/lib/radicale"
               ];
             };
