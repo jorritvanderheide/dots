@@ -55,10 +55,10 @@
                 SkipTermsOfUse = true;
                 TranslateEnabled = false;
 
-                Cookies = {
-                  Behavior = "reject-foreign";
-                  Locked = true;
-                };
+                # Cookies = {
+                #   Behavior = "reject-foreign";
+                #   Locked = true;
+                # };
 
                 DNSOverHTTPS = {
                   Enabled = false;
@@ -129,7 +129,7 @@
                   "http://localhost"
                   "http://localhost:8001"
                   "http://localhost:8080"
-                  "http://145.137.168.165"
+                  "http://145.137.190.196"
                   "http://100.64.0.2"
                 ];
 
