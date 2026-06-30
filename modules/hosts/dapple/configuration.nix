@@ -75,6 +75,10 @@ in
 
             # My modules
             my.boot.secureboot.enable = true;
+            # dapple's TPM falls back to a non-working RSA SRK with systemd's
+            # pcrlock path; force an ECC SRK + static PCR 7 instead. See
+            # modules/features/core/boot.nix my.boot.tpmUnlock.
+            my.boot.tpmUnlock = "static-pcr7";
             my.calibre-web.enable = true;
             my.contacts.enable = true;
             my.gatus.enable = true;

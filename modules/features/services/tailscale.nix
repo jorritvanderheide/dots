@@ -49,6 +49,27 @@
               ];
             };
 
+            # `tailscale up` only needs to reach the (TLS) login server to log in
+            # once; the authenticated state then persists in /var/lib/tailscale.
+            #
+            # - Order it after the network is online and the clock is set, so it
+            #   doesn't fire at 1970 on an RTC reset (see the clock-floor module);
+            #   upstream only orders it after basic.target. These list entries
+            #   merge with the upstream after/wants.
+            # - Don't let switch-to-configuration restart it: the upstream script
+            #   runs under `set -e`, so when the login server is unreachable (e.g.
+            #   dapple down) the one-shot exits non-zero and `nixos-rebuild switch`
+            #   reports a failed unit. Re-running it on every switch buys nothing
+            #   once authenticated, so skip it.
+            systemd.services.tailscaled-autoconnect = {
+              wants = [ "network-online.target" ];
+              after = [
+                "network-online.target"
+                "time-set.target"
+              ];
+              restartIfChanged = false;
+            };
+
             my.preservation.systemDirectories = [
               "/var/lib/tailscale"
             ];

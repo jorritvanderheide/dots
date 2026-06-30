@@ -61,6 +61,10 @@
           })
 
           (lib.mkIf (cfg.mediaDisk != null) {
+            # Bind the media disk's LUKS to the TPM alongside the root disk
+            # (only consumed in my.boot.tpmUnlock = "static-pcr7" mode).
+            my.boot.tpmExtraDevices = [ cfg.mediaDisk ];
+
             disko.devices.disk.media = {
               device = cfg.mediaDisk;
               type = "disk";
