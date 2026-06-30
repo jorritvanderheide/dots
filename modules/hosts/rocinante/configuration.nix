@@ -178,18 +178,6 @@ in
               };
             };
 
-            my.desktop-shell = {
-              pinnedApps = [
-                "zen-beta"
-                "zed"
-                {
-                  id = "obsidian";
-                  aliases = [ "electron" ];
-                }
-                "signal"
-              ];
-            };
-
             my.networking = {
               DOHServers = [ "mullvad-all-doh" ];
               wireless.interface = "wlp170s0";

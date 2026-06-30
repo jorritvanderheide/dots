@@ -44,10 +44,9 @@ PanelWindow { // qmllint disable uncreatable-type
         height: parent.height
         y: -parent.height * (1 - topBar.slideProgress)
 
-        // Clock floats centered so it stays put regardless of how many tray
-        // icons or widgets sit on the right.
         Clock {
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: Theme.topBarSideMargin
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -57,8 +56,6 @@ PanelWindow { // qmllint disable uncreatable-type
             anchors.rightMargin: Theme.topBarSideMargin
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.topBarSpacing
-
-            SystemTray {}
 
             Battery {}
         }

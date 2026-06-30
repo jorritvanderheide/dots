@@ -1,4 +1,3 @@
 singleton AppConfig 1.0 AppConfig.qml
-singleton IconResolver 1.0 IconResolver.qml
 singleton NiriState 1.0 NiriState.qml
 singleton Theme 1.0 Theme.qml
