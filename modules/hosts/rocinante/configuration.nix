@@ -22,6 +22,7 @@ in
         zfs
 
         # System
+        clock-floor
         locale
         networking
         ssh
