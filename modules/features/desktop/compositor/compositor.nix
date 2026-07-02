@@ -225,15 +225,15 @@ in
                   ];
 
                 window-rules = lib.singleton {
-                  draw-border-with-background = false;
                   clip-to-geometry = true;
-                  opacity = 0.97;
+                  draw-border-with-background = false;
+                  opacity = 0.99;
 
                   geometry-corner-radius = rec {
-                    top-left = 8.0;
-                    top-right = top-left;
-                    bottom-right = top-left;
-                    bottom-left = top-left;
+                    bottom-left = 8.0;
+                    bottom-right = bottom-left;
+                    top-left = bottom-left;
+                    top-right = bottom-left;
                   };
                 };
               };
