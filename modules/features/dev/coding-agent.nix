@@ -34,12 +34,6 @@
     in
     {
       config = {
-        # Ollama for local LLM inference
-        services.ollama = {
-          enable = true;
-          environmentVariables.OLLAMA_NUM_CTX = "32768";
-        };
-
         home-manager.sharedModules = [
           {
             home.file = {
@@ -131,22 +125,7 @@
               '';
             };
 
-            programs.opencode = {
-              enable = true;
-              settings.provider.ollama-local = {
-                npm = "@ai-sdk/openai-compatible";
-                name = "Ollama (local)";
-                options.baseURL = "http://localhost:11434/v1";
-                models."qwen3:8b-32k" = {
-                  tools = true;
-                  context_length = 32768;
-                };
-                models."qwen3:14b-32k" = {
-                  tools = true;
-                  context_length = 32768;
-                };
-              };
-            };
+            programs.opencode.enable = true;
 
             programs.claude-code = {
               enable = true;
@@ -367,14 +346,6 @@
           homeDirectories = [
             ".claude"
             ".config/opencode"
-          ];
-
-          systemDirectories = [
-            {
-              directory = "/var/lib/private/ollama";
-              user = "ollama";
-              group = "ollama";
-            }
           ];
         };
       };

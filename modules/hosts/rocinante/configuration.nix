@@ -91,119 +91,116 @@ in
         inputs.nixos-hardware.nixosModules.framework-13th-gen-intel
 
         # Host configuration
-        (
-          {
-            pkgs,
-            ...
-          }:
-          {
-            ## System
-            networking.hostName = "rocinante";
-            nixpkgs.hostPlatform = facterReport.system;
-            system.stateVersion = "26.05";
+        (_: {
+          ## System
+          networking.hostName = "rocinante";
+          nixpkgs.hostPlatform = facterReport.system;
+          system.stateVersion = "26.05";
 
-            ## Hardware
-            boot.blacklistedKernelModules = [ "kvm-amd" ];
-            boot.initrd.availableKernelModules = [ "tpm_tis" ];
-            environment.systemPackages = with pkgs; [ intel-media-driver ];
-            services.fwupd.extraRemotes = [ "lvfs-testing" ];
+          ## Hardware
+          boot.blacklistedKernelModules = [ "kvm-amd" ];
+          boot.initrd.availableKernelModules = [ "tpm_tis" ];
+          # 13th gen is Gen12 graphics: use the modern media-driver only,
+          # instead of nixos-hardware's default of also installing the
+          # legacy intel-vaapi-driver (meant for Gen8-11).
+          hardware.intelgpu.vaapiDriver = "intel-media-driver";
+          services.fwupd.extraRemotes = [ "lvfs-testing" ];
 
-            ## Other
-            home-manager.users.jorrit.gtk.gtk3.bookmarks = [
-              "sftp://nixos@dapple/srv/media Dapple Media"
-            ];
+          ## Other
+          home-manager.users.jorrit.gtk.gtk3.bookmarks = [
+            "sftp://nixos@dapple/srv/media Dapple Media"
+          ];
 
-            ## My modules
-            my.idle.suspendTimeout = 1800;
-            my.lockscreen.greetOnStartup = true;
-            my.power.laptop.enable = true;
-            my.session.autologinuser = "jorrit";
-            my.sudo.fingerprintAuth = true;
-            my.vpn.enable = true;
+          ## My modules
+          my.idle.suspendTimeout = 1800;
+          my.lockscreen.greetOnStartup = true;
+          my.power.laptop.enable = true;
+          my.session.autologinuser = "jorrit";
+          my.sudo.fingerprintAuth = true;
+          my.vpn.enable = true;
 
-            my.compositor = {
-              wallpaper = ./assets/wallpapers/cabin.jpg;
+          my.compositor = {
+            wallpaper = ./assets/wallpapers/cabin.jpg;
 
-              outputs = {
-                # Laptop screen
-                "eDP-1" = {
-                  scale = 1.175;
+            outputs = {
+              # Laptop screen
+              "eDP-1" = {
+                scale = 1.175;
 
-                  position = {
-                    x = 0;
-                    y = 0;
-                  };
+                position = {
+                  x = 0;
+                  y = 0;
                 };
+              };
 
-                # Home monitor
-                "LG Electronics LG HDR 4K 0x0004C67F" = {
-                  focus-at-startup = true;
-                  scale = 1.25;
+              # Home monitor
+              "LG Electronics LG HDR 4K 0x0004C67F" = {
+                focus-at-startup = true;
+                scale = 1.25;
 
-                  position = {
-                    x = -576;
-                    y = -1728;
-                  };
+                position = {
+                  x = -576;
+                  y = -1728;
                 };
+              };
 
-                # Office monitor
-                "LG Electronics LG HDR 4K 210MAZVRJG93" = {
-                  focus-at-startup = true;
-                  scale = 1.25;
+              # Office monitor
+              "LG Electronics LG HDR 4K 210MAZVRJG93" = {
+                focus-at-startup = true;
+                scale = 1.25;
 
-                  position = {
-                    x = -576;
-                    y = -1728;
-                  };
+                position = {
+                  x = -576;
+                  y = -1728;
                 };
+              };
 
-                # Meeting room 18th floor
-                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
-                  scale = 2;
+              # Meeting room 18th floor
+              "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
+                scale = 2;
 
-                  position = {
-                    x = 0;
-                    y = -1080;
-                  };
+                position = {
+                  x = 0;
+                  y = -1080;
                 };
+              };
 
-                # Corner office 19th floor
-                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                  scale = 1.5;
+              # Corner office 19th floor
+              "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
+                scale = 1.5;
 
-                  position = {
-                    x = 320;
-                    y = -720;
-                  };
+                position = {
+                  x = 320;
+                  y = -720;
                 };
               };
             };
+          };
 
-            my.networking = {
-              DOHServers = [ "mullvad-all-doh" ];
-              wireless.interface = "wlp170s0";
+          my.networking = {
+            DOHServers = [ "mullvad-all-doh" ];
+            wireless.interface = "wlp170s0";
 
-              firewallPorts.wlp170s0 = [
-                8188 # Yivi (used on home + Radboud networks)
-                8189
-              ];
-            };
+            firewallPorts.wlp170s0 = [
+              8188 # Yivi (used on home + Radboud networks)
+              8189
+            ];
+          };
 
-            my.ssh.knownHosts.dapple = {
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante";
+          my.ssh.knownHosts.dapple = {
+            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante";
 
-              hostNames = [
-                "dapple"
-                "100.64.0.1"
-              ];
-            };
+            hostNames = [
+              "dapple"
+              "100.64.0.1"
+            ];
+          };
 
-            my.tailscale = {
-              enable = true;
-              loginServer = "https://vpn.bw20.nl";
-            };
-          }
-        )
+          my.tailscale = {
+            enable = true;
+            loginServer = "https://vpn.bw20.nl";
+          };
+        })
       ];
   };
 }

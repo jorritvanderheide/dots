@@ -31,16 +31,17 @@
                 load_direnv = "shell_hook";
                 vim_mode = false;
 
+                # The Nix extension prefers nixd and warns when it's missing;
+                # we deliberately ship nil only.
+                languages.Nix.language_servers = [
+                  "nil"
+                  "!nixd"
+                ];
+
                 theme = lib.mkForce {
                   dark = "Gruvbox Material";
                   light = "Gruvbox Material";
                   mode = "system";
-                };
-
-                language_models = {
-                  ollama = {
-                    api_url = "http://localhost:11434";
-                  };
                 };
 
                 agent_servers = {
@@ -62,7 +63,6 @@
 
               packages = with pkgs; [
                 nil
-                nixd
               ];
             };
           }

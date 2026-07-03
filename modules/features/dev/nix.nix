@@ -10,6 +10,13 @@
       nix = {
         nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
 
+        # Builds yield to interactive work (compositor, editor, input) under
+        # contention but keep full speed on an idle machine. Preferable to
+        # capping max-jobs/cores, which would slow builds unconditionally.
+        daemonCPUSchedPolicy = "batch";
+        daemonIOSchedClass = "best-effort";
+        daemonIOSchedPriority = 7;
+
         gc = {
           automatic = true;
           dates = "weekly";
