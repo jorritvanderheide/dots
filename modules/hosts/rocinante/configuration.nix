@@ -135,25 +135,25 @@ in
                   };
                 };
 
-                # Office monitor
+                # Home monitor
                 "LG Electronics LG HDR 4K 0x0004C67F" = {
                   focus-at-startup = true;
                   scale = 1.25;
 
                   position = {
-                    x = 1920;
-                    y = -1720;
+                    x = -576;
+                    y = -1728;
                   };
                 };
 
-                # Home monitor
+                # Office monitor
                 "LG Electronics LG HDR 4K 210MAZVRJG93" = {
                   focus-at-startup = true;
                   scale = 1.25;
 
                   position = {
-                    x = 1920;
-                    y = -1720;
+                    x = -576;
+                    y = -1728;
                   };
                 };
 
@@ -162,8 +162,8 @@ in
                   scale = 2;
 
                   position = {
-                    x = -1097;
-                    y = -613; # 617 - 4px
+                    x = 0;
+                    y = -1080;
                   };
                 };
 
@@ -172,8 +172,8 @@ in
                   scale = 1.5;
 
                   position = {
-                    x = -1097;
-                    y = -613; # 617 - 4px
+                    x = 320;
+                    y = -720;
                   };
                 };
               };

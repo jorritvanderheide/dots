@@ -151,11 +151,11 @@
                 repeat = false;
               };
               "Mod+Down" = {
-                action = focus-window-or-workspace-down;
+                action = focus-window-or-monitor-down;
                 repeat = false;
               };
               "Mod+Up" = {
-                action = focus-window-or-workspace-up;
+                action = focus-window-or-monitor-up;
                 repeat = false;
               };
 
@@ -180,11 +180,11 @@
                 repeat = false;
               };
               "Mod+Shift+Down" = {
-                action = move-window-to-workspace-down;
+                action = move-window-to-monitor-down;
                 repeat = false;
               };
               "Mod+Shift+Up" = {
-                action = move-window-to-workspace-up;
+                action = move-window-to-monitor-up;
                 repeat = false;
               };
               "Mod+Shift+Right" = {
