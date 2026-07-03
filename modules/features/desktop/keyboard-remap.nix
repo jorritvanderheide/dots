@@ -22,17 +22,48 @@
         holdTime = lib.mkOption {
           type = lib.types.int;
           default = 250;
-          description = "Hold timeout in milliseconds for tap-hold keys";
+          description = "Hold timeout in milliseconds for non-homerow tap-hold keys (caps, space)";
+        };
+
+        # Per-finger hold timeouts for the homerow mods. Slower fingers
+        # (ring/pinky) linger on keys, so their mods need longer timeouts to
+        # avoid Alt/Super misfires; index-finger Shift can be fast.
+        # Values from the kanata community consensus (discussion #1656).
+        holdTimes = {
+          shift = lib.mkOption {
+            type = lib.types.int;
+            default = 200;
+            description = "Hold timeout (ms) for the index-finger Shift mods (f/j)";
+          };
+
+          ctrl = lib.mkOption {
+            type = lib.types.int;
+            default = 300;
+            description = "Hold timeout (ms) for the middle-finger Ctrl mods (d/k)";
+          };
+
+          alt = lib.mkOption {
+            type = lib.types.int;
+            default = 400;
+            description = "Hold timeout (ms) for the ring-finger Alt mods (s/l)";
+          };
+
+          meta = lib.mkOption {
+            type = lib.types.int;
+            default = 450;
+            description = "Hold timeout (ms) for the pinky Super mods (a/;)";
+          };
         };
 
         idleTime = lib.mkOption {
           type = lib.types.int;
-          default = 95;
+          default = 200;
           description = ''
             Idle threshold in ms for the typing-layer dampening trick: while
             keys are pressed within this window, homerow mods are bypassed
-            (plain letters pass through). Tune by feel; lower = faster mod
-            activation, higher = more forgiving for fast typing.
+            (plain letters pass through). Rule of thumb (urob's timeless HRM
+            guide): at least 10500 / WPM, so ~150ms at 70 WPM, ~200-260ms for
+            slower typists. Lower = mods re-arm faster after typing.
           '';
         };
       };
@@ -85,9 +116,9 @@
             '';
             config = ''
               (defsrc
-                       u   i   o   p
                 caps   a   s   d   f   h  j   k   l   ;
-                spc
+                lctl   lmet   lalt   spc   ralt   rctl
+                left  down  up  right
               )
 
               (defvar
@@ -95,13 +126,9 @@
                 hold-time ${toString cfg.holdTime}
                 idle-time ${toString cfg.idleTime}
 
-                ;; Same-hand key groups for bilateral homerow mods: pressing a
-                ;; key on the SAME hand as a held homerow key resolves it as
-                ;; the plain letter early, so a modifier can only ever fire
-                ;; from a cross-hand chord. Same-hand chords must therefore
-                ;; use the opposite hand's modifier (Ctrl+S = k+s, not d+s).
-                left-keys  (q w e r t g z x c v b grv tab caps a s d f)
-                right-keys (y u i o p h j k l ; n m , . / ' ret bspc)
+                ;; REMOVED 'a s d f' from left-keys, and 'j k l ;' from right-keys
+                left-keys  (q w e r t g z x c v b grv tab caps)
+                right-keys (y u i o p h n m , . / ' ret bspc)
               )
 
               (defvirtualkeys
@@ -147,19 +174,25 @@
                 escback (tap-hold $tap-time $hold-time esc (layer-switch base))
               )
 
+              ;; Physical Ctrl/Super/Alt are disabled (XX) outside the plain
+              ;; layer to force the homerow mods, and physical arrows are
+              ;; disabled to force the nav-layer arrows (space+hjkl).
+              ;; Physical Shift stays: the typing layer suspends homerow mods,
+              ;; so fast mid-word capitals need it, and mouse chords
+              ;; (Shift+click) would otherwise always wait out the hold-time.
               (deflayer base
-                        _   _   _   _
                 @escctl @a  @s  @d  @f  _  @j  @k  @l  @;
-                @spacenav
+                XX  XX  XX  @spacenav  XX  XX
+                XX  XX  XX  XX
               )
 
               ;; Fast typing layer: all homerow keys pass through as plain keys
               ;; Active during rapid typing to prevent misfires. Caps stays
               ;; Escape here (plain _ would fall back to actual Caps Lock).
               (deflayer typing
-                     _  _  _  _
                 esc  a  s  d  f  _  j  k  l  ;
-                _
+                XX  XX  XX  _  XX  XX
+                XX  XX  XX  XX
               )
 
               ;; Nav layer (held space): arrows on hjkl, home/pgdn/pgup/end on
@@ -167,17 +200,17 @@
               ;; base, but instant). This makes Shift+arrows (select) and
               ;; Ctrl+arrows (word jump) chordable while space is held.
               (deflayer nav
-                          home  pgdn  pgup  end
                 @toplain  lmet  lalt  lctl  lsft  left  down  up  right  _
-                _
+                XX  XX  XX  _  XX  XX
+                XX  XX  XX  XX
               )
 
               ;; Passthrough layer: everything acts as the physical key.
               ;; Caps is the only mapped key, providing the way back to base.
               (deflayer plain
-                          _  _  _  _
                 @escback  _  _  _  _  _  _  _  _  _
-                _
+                _  _  _  _  _  _
+                _  _  _  _
               )
             '';
           };

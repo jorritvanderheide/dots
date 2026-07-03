@@ -57,6 +57,7 @@
                 "default_config"
                 "esphome"
                 "go2rtc"
+                "reolink"
                 "zha"
               ];
               customComponents = [ enphase-envoy-installer ];

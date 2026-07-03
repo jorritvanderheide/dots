@@ -170,9 +170,12 @@
                 # (4) and Secure Boot state (7). make-policy refreshes the TPM NV
                 # index on every rebuild, so kernel updates don't break unlock.
                 # systemd-pcrlock caps the policy at 8 boot variants.
+                # Only in "pcrlock" mode: "static-pcr7" hosts bind to PCR 7
+                # directly, and their TPMs fail make-policy's encrypted session
+                # (the very reason they run static-pcr7).
                 configurationLimit = 8;
                 measuredBoot = {
-                  enable = true;
+                  enable = cfg.tpmUnlock == "pcrlock";
                   pcrs = [
                     0
                     4

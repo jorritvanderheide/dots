@@ -101,10 +101,7 @@ in
               tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
             };
 
-            my.go2rtc = {
-              enable = true;
-              streams.dogcam = "rtsp://@100.64.0.7:8080/h264_ulaw.sdp";
-            };
+            my.go2rtc.enable = true;
 
             my.headscale = {
               enable = true;

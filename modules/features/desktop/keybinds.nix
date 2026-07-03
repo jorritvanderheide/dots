@@ -91,7 +91,7 @@
                 repeat = false;
               };
               "Mod+Return" = {
-                action = spawn "app2unit" "-s" "a" "--" "ghostty";
+                action = toggle-overview;
                 repeat = false;
               };
               "Mod+Space" = {
@@ -100,10 +100,6 @@
               };
               "Mod+Backspace" = {
                 action = spawn "loginctl" "lock-session";
-                repeat = false;
-              };
-              "Mod+Tab" = {
-                action = toggle-overview;
                 repeat = false;
               };
               "Alt+Tab" = {
@@ -122,7 +118,7 @@
                 action = fullscreen-window;
                 repeat = false;
               };
-              "Mod+Shift+F" = {
+              "Mod+Alt+F" = {
                 action = toggle-windowed-fullscreen;
                 repeat = false;
               };
@@ -130,68 +126,35 @@
                 action = focus-column-or-monitor-left;
                 repeat = false;
               };
+              "Mod+J" = {
+                action = focus-window-or-monitor-down;
+                repeat = false;
+              };
+              "Mod+K" = {
+                action = focus-window-or-monitor-up;
+                repeat = false;
+              };
               "Mod+L" = {
                 action = focus-column-or-monitor-right;
                 repeat = false;
               };
-              "Mod+J" = {
-                action = focus-window-or-workspace-down;
-                repeat = false;
-              };
-              "Mod+K" = {
-                action = focus-window-or-workspace-up;
-                repeat = false;
-              };
-              "Mod+Left" = {
-                action = focus-column-or-monitor-left;
-                repeat = false;
-              };
-              "Mod+Right" = {
-                action = focus-column-or-monitor-right;
-                repeat = false;
-              };
-              "Mod+Down" = {
-                action = focus-window-or-monitor-down;
-                repeat = false;
-              };
-              "Mod+Up" = {
-                action = focus-window-or-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+Shift+H" = {
+              "Mod+Alt+H" = {
                 action = move-column-left-or-to-monitor-left;
                 repeat = false;
               };
-              "Mod+Shift+J" = {
-                action = move-window-to-workspace-down;
-                repeat = false;
-              };
-              "Mod+Shift+K" = {
-                action = move-window-to-workspace-up;
-                repeat = false;
-              };
-              "Mod+Shift+L" = {
-                action = move-column-right-or-to-monitor-right;
-                repeat = false;
-              };
-              "Mod+Shift+Left" = {
-                action = move-column-left-or-to-monitor-left;
-                repeat = false;
-              };
-              "Mod+Shift+Down" = {
+              "Mod+Alt+J" = {
                 action = move-window-to-monitor-down;
                 repeat = false;
               };
-              "Mod+Shift+Up" = {
+              "Mod+Alt+K" = {
                 action = move-window-to-monitor-up;
                 repeat = false;
               };
-              "Mod+Shift+Right" = {
+              "Mod+Alt+L" = {
                 action = move-column-right-or-to-monitor-right;
                 repeat = false;
               };
-              "Mod+Shift+P" = {
+              "Mod+Alt+P" = {
                 action.screenshot = {
                   show-pointer = false;
                 };
