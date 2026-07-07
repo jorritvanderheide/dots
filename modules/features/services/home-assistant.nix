@@ -44,19 +44,11 @@
             inherit subdomain;
           })
           {
-            assertions = [
-              {
-                assertion = config.my.go2rtc.enable;
-                message = "my.home-assistant requires my.go2rtc.enable: HA's go2rtc integration is configured to use the external instance at 127.0.0.1:1984.";
-              }
-            ];
-
             services.home-assistant = {
               enable = true;
               extraComponents = [
                 "default_config"
                 "esphome"
-                "go2rtc"
                 "reolink"
                 "zha"
               ];
@@ -64,7 +56,6 @@
 
               config = {
                 default_config = { };
-                go2rtc.url = "http://127.0.0.1:${toString config.my.go2rtc.apiPort}";
                 homeassistant = {
                   latitude = 51.8425;
                   longitude = 5.8528;

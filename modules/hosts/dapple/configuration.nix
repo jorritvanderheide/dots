@@ -34,10 +34,10 @@ in
         calibre-web
         contacts
         gatus
-        go2rtc
         harmonia
         headscale
         home-assistant
+        immich
         jellyfin
         ntfy
         offsite-backup
@@ -75,15 +75,13 @@ in
 
             # My modules
             my.boot.secureboot.enable = true;
-            # dapple's TPM falls back to a non-working RSA SRK with systemd's
-            # pcrlock path; force an ECC SRK + static PCR 7 instead. See
-            # modules/features/core/boot.nix my.boot.tpmUnlock.
             my.boot.tpmUnlock = "static-pcr7";
             my.calibre-web.enable = true;
             my.contacts.enable = true;
             my.gatus.enable = true;
             my.home-assistant.enable = true;
             my.harmonia.enable = true;
+            my.immich.enable = true;
             my.networking.DOHServers = [ "mullvad-all-doh" ];
             my.ntfy.enable = true;
             my.vaultwarden.enable = true;
@@ -92,7 +90,6 @@ in
               enable = true;
               luks.keyFile = config.sops.secrets.usb_backup_luks_key.path;
               notifyUrl = "https://alerts.bw20.nl/usb-backup";
-              # Serial of the external USB drive used for local zbackup snapshots.
               usbSerial = "3248831116939333057";
             };
 
@@ -100,8 +97,6 @@ in
               enable = true;
               tunnelId = "fa66ae19-31e5-4e97-a95a-7cf5e35e8e39";
             };
-
-            my.go2rtc.enable = true;
 
             my.headscale = {
               enable = true;
@@ -125,6 +120,7 @@ in
                 "/var/lib/calibre-web"
                 "/var/lib/hass"
                 "/var/lib/headscale"
+                "/var/lib/immich"
                 "/var/lib/radicale"
               ];
             };

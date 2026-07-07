@@ -81,6 +81,11 @@
                     url = "https://media.${config.my.tailscale.acme.domain}";
                   })
                   (mkHttpEndpoint {
+                    name = "immich";
+                    group = "media";
+                    url = "https://photos.${config.my.tailscale.acme.domain}";
+                  })
+                  (mkHttpEndpoint {
                     name = "sonarr";
                     group = "media";
                     url = "https://series.${config.my.tailscale.acme.domain}";
