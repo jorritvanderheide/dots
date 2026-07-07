@@ -19,6 +19,7 @@
           {
             home.packages = with pkgs; [
               obsidian
+              python3 # opencode Obsidian plugin spawns python3
             ];
 
             # Custom desktop entry to open Obsidian with the vault
