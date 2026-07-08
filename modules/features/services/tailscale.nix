@@ -21,6 +21,17 @@
           description = "Custom login server URL (e.g. https://hs.bw20.nl). Null uses official Tailscale.";
         };
 
+        tailnetIp = lib.mkOption {
+          type = lib.types.str;
+          default = "100.64.0.1";
+          description = ''
+            This host's stable tailnet IPv4 address. Internal reverse-proxy
+            vhosts (mkReverseProxy) bind here instead of 0.0.0.0 so they are
+            reachable only over Tailscale, even though nginx must keep a public
+            0.0.0.0:443 listener for the headscale control server.
+          '';
+        };
+
         acme = {
           enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
 
@@ -90,6 +101,11 @@
 
             networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
             users.groups.acme.members = [ "nginx" ];
+
+            # Let nginx bind its internal vhosts to the tailnet IP before
+            # tailscaled has assigned it, so nginx (and thus the public
+            # headscale vhost) still starts when Tailscale is down at boot.
+            boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
             services.nginx = {
               enable = true;
