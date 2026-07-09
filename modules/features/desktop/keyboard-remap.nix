@@ -116,7 +116,11 @@
             '';
             config = ''
               (defsrc
-                caps   a   s   d   f   h  j   k   l   ;
+                grv  tab  caps
+                q    w    e    r    t    y    u    i    o    p
+                a    s    d    f    g    h    j    k    l    ;    '
+                z    x    c    v    b    n    m    ,    .    /
+                ret  bspc
                 lctl   lmet   lalt   spc   ralt   rctl
                 left  down  up  right
               )
@@ -143,26 +147,40 @@
                   (on-idle $idle-time tap-vkey to-base)
                 )
 
-                ;; Caps as Escape on tap, Ctrl on hold. Caps Lock is unmapped;
-                ;; caps-Ctrl keeps one-handed Ctrl+C/X/V/Z fast, since bilateral
-                ;; homerow mods force same-hand chords to wait for hold-time.
-                escctl (tap-hold $tap-time $hold-time esc lctl)
-
                 ;; Homerow mods - Left hand
                 ;; tap-hold-release-keys fires the modifier when the next key is
                 ;; RELEASED (chords like k+s trigger before hold-time elapses),
                 ;; and resolves to the plain letter as soon as a same-hand key
                 ;; is pressed (rolls like 'as' can never produce a modifier).
-                a (tap-hold-release-keys $tap-time $hold-time (multi a @.tp) lmet $left-keys)
-                s (tap-hold-release-keys $tap-time $hold-time (multi s @.tp) lalt $left-keys)
-                d (tap-hold-release-keys $tap-time $hold-time (multi d @.tp) lctl $left-keys)
-                f (tap-hold-release-keys $tap-time $hold-time (multi f @.tp) lsft $left-keys)
+                ;; The hold also activates a mask layer that kills the other
+                ;; same-hand keys, so a modifier only ever combines with
+                ;; opposite-hand keys. The same hand's other HRM keys stay
+                ;; holdable on the mask layer so mods can stack (a+s+p gives
+                ;; Meta+Alt+P), but their taps are dead there.
+                a (tap-hold-release-keys $tap-time $hold-time (multi a @.tp) (multi lmet (layer-while-held lmask)) $left-keys)
+                s (tap-hold-release-keys $tap-time $hold-time (multi s @.tp) (multi lalt (layer-while-held lmask)) $left-keys)
+                d (tap-hold-release-keys $tap-time $hold-time (multi d @.tp) (multi lctl (layer-while-held lmask)) $left-keys)
+                f (tap-hold-release-keys $tap-time $hold-time (multi f @.tp) (multi lsft (layer-while-held lmask)) $left-keys)
 
                 ;; Homerow mods - Right hand
-                j (tap-hold-release-keys $tap-time $hold-time (multi j @.tp) rsft $right-keys)
-                k (tap-hold-release-keys $tap-time $hold-time (multi k @.tp) rctl $right-keys)
-                l (tap-hold-release-keys $tap-time $hold-time (multi l @.tp) ralt $right-keys)
-                ; (tap-hold-release-keys $tap-time $hold-time (multi ; @.tp) rmet $right-keys)
+                j (tap-hold-release-keys $tap-time $hold-time (multi j @.tp) (multi rsft (layer-while-held rmask)) $right-keys)
+                k (tap-hold-release-keys $tap-time $hold-time (multi k @.tp) (multi rctl (layer-while-held rmask)) $right-keys)
+                l (tap-hold-release-keys $tap-time $hold-time (multi l @.tp) (multi ralt (layer-while-held rmask)) $right-keys)
+                ; (tap-hold-release-keys $tap-time $hold-time (multi ; @.tp) (multi rmet (layer-while-held rmask)) $right-keys)
+
+                ;; Masked homerow mods, used on the mask layers: tap is dead
+                ;; (a same-hand mod+letter must never fire), hold stacks the
+                ;; next modifier. This distinguishes s-as-key (released before
+                ;; the target key: blocked) from s-as-mod (still held when the
+                ;; target key fires: stacks).
+                am (tap-hold-release-keys $tap-time $hold-time XX (multi lmet (layer-while-held lmask)) $left-keys)
+                sm (tap-hold-release-keys $tap-time $hold-time XX (multi lalt (layer-while-held lmask)) $left-keys)
+                dm (tap-hold-release-keys $tap-time $hold-time XX (multi lctl (layer-while-held lmask)) $left-keys)
+                fm (tap-hold-release-keys $tap-time $hold-time XX (multi lsft (layer-while-held lmask)) $left-keys)
+                jm (tap-hold-release-keys $tap-time $hold-time XX (multi rsft (layer-while-held rmask)) $right-keys)
+                km (tap-hold-release-keys $tap-time $hold-time XX (multi rctl (layer-while-held rmask)) $right-keys)
+                lm (tap-hold-release-keys $tap-time $hold-time XX (multi ralt (layer-while-held rmask)) $right-keys)
+                sem (tap-hold-release-keys $tap-time $hold-time XX (multi rmet (layer-while-held rmask)) $right-keys)
 
                 ;; Space as navigation layer on hold
                 spacenav (tap-hold $tap-time $hold-time spc (layer-while-held nav))
@@ -174,15 +192,18 @@
                 escback (tap-hold $tap-time $hold-time esc (layer-switch base))
               )
 
-              ;; Physical Ctrl/Super/Alt are disabled (XX) outside the plain
-              ;; layer to force the homerow mods, and physical arrows are
+              ;; Only the physical Super/Win key is disabled (XX) outside the
+              ;; plain layer, to force the homerow Meta mods. Physical
+              ;; Ctrl/Alt/Shift work normally, and physical arrows are
               ;; disabled to force the nav-layer arrows (space+hjkl).
-              ;; Physical Shift stays: the typing layer suspends homerow mods,
-              ;; so fast mid-word capitals need it, and mouse chords
-              ;; (Shift+click) would otherwise always wait out the hold-time.
+              ;; Caps is plain Escape (no hold behavior).
               (deflayer base
-                @escctl @a  @s  @d  @f  _  @j  @k  @l  @;
-                XX  XX  XX  @spacenav  XX  XX
+                _    _    esc
+                _    _    _    _    _    _    _    _    _    _
+                @a   @s   @d   @f   _    _    @j   @k   @l   @;   _
+                _    _    _    _    _    _    _    _    _    _
+                _    _
+                _   XX  _   @spacenav  _   _
                 XX  XX  XX  XX
               )
 
@@ -190,8 +211,12 @@
               ;; Active during rapid typing to prevent misfires. Caps stays
               ;; Escape here (plain _ would fall back to actual Caps Lock).
               (deflayer typing
-                esc  a  s  d  f  _  j  k  l  ;
-                XX  XX  XX  _  XX  XX
+                _    _    esc
+                _    _    _    _    _    _    _    _    _    _
+                a    s    d    f    _    _    j    k    l    ;    _
+                _    _    _    _    _    _    _    _    _    _
+                _    _
+                _   XX  _   _  _   _
                 XX  XX  XX  XX
               )
 
@@ -200,17 +225,50 @@
               ;; base, but instant). This makes Shift+arrows (select) and
               ;; Ctrl+arrows (word jump) chordable while space is held.
               (deflayer nav
-                @toplain  lmet  lalt  lctl  lsft  left  down  up  right  _
-                XX  XX  XX  _  XX  XX
+                _    _    @toplain
+                _    _    _    _    _    _    _    _    _    _
+                lmet lalt lctl lsft _    left down up   right _    _
+                _    _    _    _    _    _    _    _    _    _
+                _    _
+                _   XX  _   _  _   _
                 XX  XX  XX  XX
               )
 
               ;; Passthrough layer: everything acts as the physical key.
               ;; Caps is the only mapped key, providing the way back to base.
               (deflayer plain
-                @escback  _  _  _  _  _  _  _  _  _
+                _    _    @escback
+                _    _    _    _    _    _    _    _    _    _
+                _    _    _    _    _    _    _    _    _    _    _
+                _    _    _    _    _    _    _    _    _    _
+                _    _
                 _  _  _  _  _  _
                 _  _  _  _
+              )
+
+              ;; Mask layers, active while a homerow mod is held. Keys on the
+              ;; modifier's own hand are dead (XX), forcing mod+key combos to
+              ;; use the opposite hand. The same hand's other HRM keys use the
+              ;; masked aliases (tap dead, hold stacks). Physical Ctrl/Alt and
+              ;; caps-Escape stay usable.
+              (deflayer lmask
+                XX   XX   esc
+                XX   XX   XX   XX   XX   _    _    _    _    _
+                @am  @sm  @dm  @fm  XX   _    @j   @k   @l   @;   _
+                XX   XX   XX   XX   XX   _    _    _    _    _
+                _    _
+                _   XX  _   @spacenav  _   _
+                XX  XX  XX  XX
+              )
+
+              (deflayer rmask
+                _    _    esc
+                _    _    _    _    _    XX   XX   XX   XX   XX
+                @a   @s   @d   @f   _    XX   @jm  @km  @lm  @sem XX
+                _    _    _    _    _    XX   XX   XX   XX   XX
+                XX   XX
+                _   XX  _   @spacenav  _   _
+                XX  XX  XX  XX
               )
             '';
           };
