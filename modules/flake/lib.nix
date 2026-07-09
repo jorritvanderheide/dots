@@ -25,12 +25,12 @@
               default
               originRequest
               ;
+          }
+          // lib.optionalAttrs (transportProtocol != null) {
+            protocol = transportProtocol;
           };
         };
         systemd.services."cloudflared-tunnel-${tunnelId}" = {
-          environment = lib.optionalAttrs (transportProtocol != null) {
-            TUNNEL_TRANSPORT_PROTOCOL = transportProtocol;
-          };
           after = [
             "dnscrypt-proxy.service"
             "nss-lookup.target"
