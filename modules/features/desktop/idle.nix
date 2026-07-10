@@ -71,7 +71,11 @@
 
               events = {
                 before-sleep = "${pkgs.systemd}/bin/loginctl lock-session";
-                lock = "${lockCommand}; ${pkgs.systemd}/bin/loginctl unlock-session";
+                # Dispatch detached so swayidle's event loop never blocks on
+                # hyprlock and never queues stale lock events. The script grabs
+                # a non-blocking flock and calls loginctl unlock-session itself
+                # once hyprlock exits.
+                lock = "${pkgs.util-linux}/bin/setsid -f ${lockCommand}";
               };
             };
           }

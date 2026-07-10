@@ -21,29 +21,29 @@
           jq
           niri
           procps
+          systemd
           util-linux
         ];
         text = ''
           dir="''${XDG_RUNTIME_DIR:-/tmp}/hyprlock"
           conf="$dir/backgrounds.conf"
-          marker="$dir/last_unlock"
           mkdir -p "$dir"
 
-          # Serialize invocations. swayidle's lock handler runs synchronously,
-          # so loginctl lock-session calls that arrive while hyprlock is up
-          # (e.g. lockTimeout re-firing every 5 min) queue inside swayidle and
-          # get drained after the user unlocks. Without this guard each queued
-          # event spawns another hyprlock and the user has to authenticate N
-          # times.
+          # Single-instance guard, no time debounce. swayidle dispatches this
+          # script detached (setsid -f), so its event loop never blocks on
+          # hyprlock and never queues stale loginctl lock-session events to
+          # drain after unlock. We take a non-blocking flock held for the whole
+          # lock: a duplicate lock event fired while hyprlock is up fails
+          # flock -n and drops instantly, while a deliberate re-lock after
+          # unlock finds the lock free and proceeds. No queue, no drain, no
+          # window. The lock is released when this process exits.
           exec {fd}>"$dir/lock"
-          flock "$fd"
-
-          # Already up (e.g. a manual hyprlock), or just-unlocked within the
-          # debounce window: drop the event.
-          if pgrep -x hyprlock >/dev/null 2>&1; then
+          if ! flock -n "$fd"; then
             exit 0
           fi
-          if [[ -f "$marker" ]] && (( $(date +%s) - $(stat -c %Y "$marker") < 5 )); then
+
+          # A hyprlock started outside this script (e.g. a manual one) counts too.
+          if pgrep -x hyprlock >/dev/null 2>&1; then
             exit 0
           fi
 
@@ -51,7 +51,6 @@
 
           if [[ "''${1:-}" == "--wallpaper" ]]; then
             hyprlock
-            touch "$marker"
             exit 0
           fi
 
@@ -75,7 +74,10 @@
           done
 
           hyprlock
-          touch "$marker"
+          # Return logind to the unlocked state so the next lock-session works.
+          # swayidle used to do this after its (blocking) lock event; it now
+          # dispatches us detached, so we do it here once hyprlock exits.
+          loginctl unlock-session
         '';
       };
     in
