@@ -119,7 +119,7 @@
                 grv  tab  caps
                 q    w    e    r    t    y    u    i    o    p
                 a    s    d    f    g    h    j    k    l    ;    '
-                z    x    c    v    b    n    m    ,    .    /
+                lsft z    x    c    v    b    n    m    ,    .    /    rsft
                 ret  bspc
                 lctl   lmet   lalt   spc   ralt   rctl
                 left  down  up  right
@@ -190,33 +190,38 @@
                 ;; There, caps tap is still Escape and caps hold returns to base.
                 toplain (layer-switch plain)
                 escback (tap-hold $tap-time $hold-time esc (layer-switch base))
+
+                ;; Caps: Escape on tap, Caps Lock on hold. Plain tap-hold (not
+                ;; -press) so chording a key right after Escape never fires Caps
+                ;; Lock. Ctrl is on the d/k homerow only.
+                capsesc (tap-hold $tap-time $hold-time esc caps)
               )
 
-              ;; Only the physical Super/Win key is disabled (XX) outside the
-              ;; plain layer, to force the homerow Meta mods. Physical
-              ;; Ctrl/Alt/Shift work normally, and physical arrows are
-              ;; disabled to force the nav-layer arrows (space+hjkl).
-              ;; Caps is plain Escape (no hold behavior).
+              ;; Physical Super, Ctrl and Alt are disabled (XX) outside the
+              ;; plain layer, to force the homerow mods and keep the hands at
+              ;; the home row. Physical Shift is disabled too (use homerow
+              ;; f/j). Physical arrows are disabled to force the nav-layer
+              ;; arrows (space+hjkl). Caps is Escape on tap, Caps Lock on hold.
               (deflayer base
-                _    _    esc
+                _    _    @capsesc
                 _    _    _    _    _    _    _    _    _    _
                 @a   @s   @d   @f   _    _    @j   @k   @l   @;   _
-                _    _    _    _    _    _    _    _    _    _
+                XX   _    _    _    _    _    _    _    _    _    _    XX
                 _    _
-                _   XX  _   @spacenav  _   _
+                XX  XX  XX  @spacenav  XX  XX
                 XX  XX  XX  XX
               )
 
               ;; Fast typing layer: all homerow keys pass through as plain keys
               ;; Active during rapid typing to prevent misfires. Caps stays
-              ;; Escape here (plain _ would fall back to actual Caps Lock).
+              ;; Escape/CapsLock here (@capsesc); plain _ would fall back to Caps Lock.
               (deflayer typing
-                _    _    esc
+                _    _    @capsesc
                 _    _    _    _    _    _    _    _    _    _
                 a    s    d    f    _    _    j    k    l    ;    _
-                _    _    _    _    _    _    _    _    _    _
+                XX   _    _    _    _    _    _    _    _    _    _    XX
                 _    _
-                _   XX  _   _  _   _
+                XX  XX  XX  _  XX  XX
                 XX  XX  XX  XX
               )
 
@@ -228,9 +233,9 @@
                 _    _    @toplain
                 _    _    _    _    _    _    _    _    _    _
                 lmet lalt lctl lsft _    left down up   right _    _
-                _    _    _    _    _    _    _    _    _    _
+                XX   _    _    _    _    _    _    _    _    _    _    XX
                 _    _
-                _   XX  _   _  _   _
+                XX  XX  XX  _  XX  XX
                 XX  XX  XX  XX
               )
 
@@ -240,7 +245,7 @@
                 _    _    @escback
                 _    _    _    _    _    _    _    _    _    _
                 _    _    _    _    _    _    _    _    _    _    _
-                _    _    _    _    _    _    _    _    _    _
+                _    _    _    _    _    _    _    _    _    _    _    _
                 _    _
                 _  _  _  _  _  _
                 _  _  _  _
@@ -249,25 +254,25 @@
               ;; Mask layers, active while a homerow mod is held. Keys on the
               ;; modifier's own hand are dead (XX), forcing mod+key combos to
               ;; use the opposite hand. The same hand's other HRM keys use the
-              ;; masked aliases (tap dead, hold stacks). Physical Ctrl/Alt and
-              ;; caps-Escape stay usable.
+              ;; masked aliases (tap dead, hold stacks). Caps (tap Esc / hold
+              ;; Caps Lock) stays usable while a mod is held.
               (deflayer lmask
-                XX   XX   esc
+                XX   XX   @capsesc
                 XX   XX   XX   XX   XX   _    _    _    _    _
                 @am  @sm  @dm  @fm  XX   _    @j   @k   @l   @;   _
-                XX   XX   XX   XX   XX   _    _    _    _    _
+                XX   XX   XX   XX   XX   XX   _    _    _    _    _    XX
                 _    _
-                _   XX  _   @spacenav  _   _
+                XX  XX  XX  @spacenav  XX  XX
                 XX  XX  XX  XX
               )
 
               (deflayer rmask
-                _    _    esc
+                _    _    @capsesc
                 _    _    _    _    _    XX   XX   XX   XX   XX
                 @a   @s   @d   @f   _    XX   @jm  @km  @lm  @sem XX
-                _    _    _    _    _    XX   XX   XX   XX   XX
+                XX   _    _    _    _    _    XX   XX   XX   XX   XX   XX
                 XX   XX
-                _   XX  _   @spacenav  _   _
+                XX  XX  XX  @spacenav  XX  XX
                 XX  XX  XX  XX
               )
             '';

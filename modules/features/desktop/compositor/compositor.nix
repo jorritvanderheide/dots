@@ -115,7 +115,7 @@ in
                   warp-mouse-to-focus.enable = true;
 
                   focus-follows-mouse = {
-                    enable = true;
+                    enable = false;
                     max-scroll-amount = "100%";
                   };
 

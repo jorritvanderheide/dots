@@ -13,56 +13,51 @@
           let
             mkMenu = pkgs.callPackage inputs.self.lib.mkMenu { inherit (config.lib.stylix) colors; };
             scriptsDirectory = inputs.self + "/scripts";
+            appMenu = pkgs.lib.getExe (mkMenu [
+              {
+                key = "b";
+                desc = "Browser";
+                cmd = "app2unit -s a -- zen-beta";
+              }
+              {
+                key = "c";
+                desc = "Code editor";
+                cmd = "app2unit -s a -- zeditor";
+              }
+              {
+                key = "e";
+                desc = "Explorer";
+                cmd = "app2unit -s a -- nautilus";
+              }
+              {
+                key = "m";
+                desc = "Music";
+                cmd = "app2unit -s a -- ghostty -e jellyfin-tui";
+              }
+              {
+                key = "n";
+                desc = "Notes";
+                cmd = "app2unit -s a -- obsidian";
+              }
+              {
+                key = "p";
+                desc = "Passwords";
+                cmd = "app2unit -s a -- bitwarden";
+              }
+              {
+                key = "s";
+                desc = "Social";
+                cmd = "app2unit -s a -- dev.geopjr.Tuba";
+              }
+              {
+                key = "t";
+                desc = "Terminal";
+                cmd = "app2unit -s a -- ghostty";
+              }
+            ]);
           in
           {
             programs.niri.settings.binds = with config.lib.niri.actions; {
-              "Mod+D" = {
-                action = spawn (
-                  pkgs.lib.getExe (mkMenu [
-                    {
-                      key = "b";
-                      desc = "Browser";
-                      cmd = "app2unit -s a -- zen-beta";
-                    }
-                    {
-                      key = "c";
-                      desc = "Code editor";
-                      cmd = "app2unit -s a -- zeditor";
-                    }
-                    {
-                      key = "e";
-                      desc = "Explorer";
-                      cmd = "app2unit -s a -- nautilus";
-                    }
-                    {
-                      key = "m";
-                      desc = "Music";
-                      cmd = "app2unit -s a -- ghostty -e jellyfin-tui";
-                    }
-                    {
-                      key = "n";
-                      desc = "Notes";
-                      cmd = "app2unit -s a -- obsidian";
-                    }
-                    {
-                      key = "p";
-                      desc = "Passwords";
-                      cmd = "app2unit -s a -- bitwarden";
-                    }
-                    {
-                      key = "s";
-                      desc = "Social";
-                      cmd = "app2unit -s a -- dev.geopjr.Tuba";
-                    }
-                    {
-                      key = "t";
-                      desc = "Terminal";
-                      cmd = "app2unit -s a -- ghostty";
-                    }
-                  ])
-                );
-                repeat = false;
-              };
               "Mod+S" = {
                 action = spawn (
                   pkgs.lib.getExe (mkMenu [
@@ -90,11 +85,15 @@
                 );
                 repeat = false;
               };
-              "Mod+Return" = {
+              "Mod+Tab" = {
                 action = toggle-overview;
                 repeat = false;
               };
               "Mod+Space" = {
+                action = spawn appMenu;
+                repeat = false;
+              };
+              "Mod+Return" = {
                 action = spawn "sh" "-c" "pkill fuzzel || app2unit -s a -- fuzzel";
                 repeat = false;
               };
