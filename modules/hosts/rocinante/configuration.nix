@@ -78,7 +78,7 @@ in
         music-player
         notes
         password-manager
-        rapidraw
+        raw-editor
         slicer
         social
         terminal
