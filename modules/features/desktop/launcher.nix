@@ -27,7 +27,10 @@
                   layer = "overlay";
                   lines = 12;
                   line-height = 32;
-                  terminal = "$TERMINAL -e";
+                  # Literal command: fuzzel does not expand env vars like
+                  # $TERMINAL, and a Terminal=true desktop entry would fail
+                  # with "executable not found".
+                  terminal = "ghostty -e";
                   vertical-pad = 32;
                   width = 48;
                 };

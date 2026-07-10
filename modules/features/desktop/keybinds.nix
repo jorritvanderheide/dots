@@ -37,7 +37,7 @@
                     {
                       key = "m";
                       desc = "Music";
-                      cmd = "app2unit -s a -- ghostty -e qobuz-player";
+                      cmd = "app2unit -s a -- ghostty -e jellyfin-tui";
                     }
                     {
                       key = "n";

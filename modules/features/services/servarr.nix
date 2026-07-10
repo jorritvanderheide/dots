@@ -31,6 +31,10 @@
           port = 7878;
           subdomain = "movies";
         };
+        lidarr = {
+          port = 8686;
+          subdomain = "music";
+        };
         bazarr = {
           port = 6767;
           subdomain = "bazarr";
@@ -39,7 +43,7 @@
     in
     {
       options.my.servarr = {
-        enable = lib.mkEnableOption "Servarr stack (qBittorrent + Prowlarr + Sonarr + Radarr) feeding Jellyfin";
+        enable = lib.mkEnableOption "Servarr stack (qBittorrent + Prowlarr + Sonarr + Radarr + Lidarr) feeding Jellyfin";
 
         webuiUser = lib.mkOption {
           type = lib.types.str;
@@ -189,6 +193,12 @@
                 settings.server.bindaddress = "127.0.0.1";
               };
 
+              services.lidarr = {
+                enable = true;
+                openFirewall = false;
+                settings.server.bindaddress = "127.0.0.1";
+              };
+
               # Bazarr fetches subtitles for Sonarr's + Radarr's libraries and
               # writes .srt files next to the media (so Jellyfin auto-detects).
               services.bazarr = {
@@ -213,6 +223,7 @@
                 qbittorrent.extraGroups = [ "media" ];
                 sonarr.extraGroups = [ "media" ];
                 radarr.extraGroups = [ "media" ];
+                lidarr.extraGroups = [ "media" ];
                 bazarr.extraGroups = [ "media" ];
               };
 
@@ -220,6 +231,9 @@
                 "d ${torrentsDir} 2775 root media -"
                 "d ${torrentsDir}/movies 2775 root media -"
                 "d ${torrentsDir}/series 2775 root media -"
+                "d ${torrentsDir}/music 2775 root media -"
+                # Lidarr's import target; Jellyfin's Music library reads it.
+                "d ${mediaDir}/library/music 2775 root media -"
               ];
 
               systemd.services = {
@@ -236,6 +250,10 @@
                   RestartSec = lib.mkForce "5s";
                 };
                 radarr.serviceConfig = {
+                  Restart = lib.mkForce "always";
+                  RestartSec = lib.mkForce "5s";
+                };
+                lidarr.serviceConfig = {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
                 };
@@ -262,6 +280,12 @@
                   directory = "/var/lib/radarr";
                   user = "radarr";
                   group = "radarr";
+                  mode = "0700";
+                }
+                {
+                  directory = "/var/lib/lidarr";
+                  user = "lidarr";
+                  group = "lidarr";
                   mode = "0700";
                 }
                 {

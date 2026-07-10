@@ -11,21 +11,30 @@
     {
       config = {
         my.preservation.homeDirectories = [
-          ".local/share/qobuz-player"
+          # Server URL + credentials, and the offline metadata/song cache.
+          ".config/jellyfin-tui"
+          ".local/share/jellyfin-tui"
         ];
 
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
-              qobuz-player
+              jellyfin-tui
             ];
 
-            xdg.desktopEntries.qobuz = {
-              comment = "Qobuz player";
-              exec = "${lib.getExe pkgs.ghostty} -e ${lib.getExe pkgs.qobuz-player}";
+            # Shadow the package's own Terminal=true entry so only the
+            # "Music" entry below shows up in the launcher.
+            xdg.desktopEntries.jellyfin-tui = {
+              name = "jellyfin-tui";
+              noDisplay = true;
+            };
+
+            xdg.desktopEntries.music = {
+              comment = "Jellyfin music player";
+              exec = "${lib.getExe pkgs.ghostty} -e ${lib.getExe pkgs.jellyfin-tui}";
               genericName = "Music player";
               icon = "music-app";
-              name = "Qobuz";
+              name = "Music";
               type = "Application";
 
               categories = [

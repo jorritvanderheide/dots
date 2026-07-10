@@ -96,6 +96,11 @@
                     url = "https://movies.${config.my.tailscale.acme.domain}";
                   })
                   (mkHttpEndpoint {
+                    name = "lidarr";
+                    group = "media";
+                    url = "https://music.${config.my.tailscale.acme.domain}";
+                  })
+                  (mkHttpEndpoint {
                     name = "prowlarr";
                     group = "media";
                     url = "https://prowlarr.${config.my.tailscale.acme.domain}";
