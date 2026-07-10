@@ -18,6 +18,7 @@
       "kvm" # Android
       "plugdev" # Android
       "sops-users" # SOPS manual editing
+      "systemd-journal" # Read the full system journal without sudo
       "video"
       "wpa_supplicant" # WiFi (wpa_gui)
     ];

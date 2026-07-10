@@ -58,8 +58,11 @@
           mapfile -t outputs < <(niri msg --json outputs 2>/dev/null | jq -r 'keys[]' || true)
           for output in "''${outputs[@]}"; do
             safe=$(printf '%s' "$output" | tr -c '[:alnum:]' '_')
-            path="$dir/$safe.png"
-            if grim -o "$output" "$path" 2>/dev/null; then
+            path="$dir/$safe.jpg"
+            # JPEG q80: this screenshot is a throwaway that hyprlock immediately
+            # blurs, so lossless PNG is pointless. grim's default PNG (level 6)
+            # costs ~600ms/monitor; JPEG q80 is ~75ms and a fraction of the size.
+            if grim -t jpeg -q 80 -o "$output" "$path" 2>/dev/null; then
               cat >> "$conf" <<EOF
           background {
             monitor = $output
@@ -101,6 +104,19 @@
             assertion = config.my.compositor.wallpaper != null;
             message = "my.lockscreen requires my.compositor.wallpaper to be set (used as the lock-screen background).";
           }
+        ];
+
+        # Fix slow fingerprint unlock. On a match hyprlock 0.9.5 calls a
+        # synchronous VerifyStop and then, in terminate(), a synchronous
+        # Release; on Goodix MOC sensors those block ~1.4s and ~0.8s, so the
+        # screen takes ~2s to unlock after a successful scan. The patch drops
+        # the redundant VerifyStop and makes the Release fire-and-forget.
+        nixpkgs.overlays = [
+          (_final: prev: {
+            hyprlock = prev.hyprlock.overrideAttrs (old: {
+              patches = (old.patches or [ ]) ++ [ ./hyprlock-fast-fingerprint-unlock.patch ];
+            });
+          })
         ];
 
         # Required: Enable PAM for hyprlock authentication
