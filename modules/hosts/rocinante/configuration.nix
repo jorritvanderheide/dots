@@ -71,6 +71,7 @@ in
         browser
         cad
         editor
+        emacs
         email
         gaming
         media-player

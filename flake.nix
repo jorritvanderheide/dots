@@ -36,6 +36,10 @@
       url = "github:sodiboo/niri-flake";
     };
 
+    nix-doom-emacs-unstraightened = {
+      url = "github:marienz/nix-doom-emacs-unstraightened";
+    };
+
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Mic92/sops-nix";
