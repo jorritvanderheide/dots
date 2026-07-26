@@ -32,6 +32,13 @@
           '';
         };
 
+        advertiseRoutes = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "192.168.1.0/24" ];
+          description = "Subnet routes to advertise into the tailnet. Enables IP forwarding automatically.";
+        };
+
         acme = {
           enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
 
@@ -85,6 +92,17 @@
               "/var/lib/tailscale"
             ];
           }
+
+          (lib.mkIf (cfg.advertiseRoutes != [ ]) {
+            boot.kernel.sysctl = {
+              "net.ipv4.ip_forward" = true;
+              "net.ipv6.conf.all.forwarding" = true;
+            };
+
+            services.tailscale.extraSetFlags = [
+              "--advertise-routes=${lib.concatStringsSep "," cfg.advertiseRoutes}"
+            ];
+          })
 
           (lib.mkIf cfg.acme.enable {
             sops.secrets.cloudflare_dns_env = { };

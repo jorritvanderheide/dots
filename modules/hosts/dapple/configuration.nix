@@ -138,6 +138,7 @@ in
 
             my.tailscale = {
               enable = true;
+              advertiseRoutes = [ "192.168.1.0/24" ];
               loginServer = "http://127.0.0.1:8085";
 
               acme = {
