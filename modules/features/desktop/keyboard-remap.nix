@@ -110,9 +110,9 @@
           enable = true;
           keyboards.any = {
             extraDefCfg = ''
-              process-unmapped-keys yes
               concurrent-tap-hold yes
               linux-output-device-name "kanata"
+              process-unmapped-keys yes
             '';
             config = ''
               (defsrc
@@ -131,7 +131,7 @@
                 idle-time ${toString cfg.idleTime}
 
                 ;; REMOVED 'a s d f' from left-keys, and 'j k l ;' from right-keys
-                left-keys  (q w e r t g z x c v b grv tab caps)
+                left-keys  (q w e r t g z x c v grv tab caps)
                 right-keys (y u i o p h n m , . / ' ret bspc)
               )
 
@@ -191,17 +191,24 @@
                 toplain (layer-switch plain)
                 escback (tap-hold $tap-time $hold-time esc (layer-switch base))
 
-                ;; Caps: Escape on tap, Caps Lock on hold. Plain tap-hold (not
-                ;; -press) so chording a key right after Escape never fires Caps
-                ;; Lock. Ctrl is on the d/k homerow only.
-                capsesc (tap-hold $tap-time $hold-time esc caps)
+                ;; Caps: Escape on tap, Ctrl on hold (one hand copy/paste:
+                ;; Caps+A chord gives Ctrl+Shift, then tap C/V with same hand).
+                capsesc (tap-hold $tap-time $hold-time esc lctl)
+              )
+
+              ;; Caps+A chord: one-handed copy/paste in terminals etc.
+              ;; Hold Caps (Ctrl) + A (Shift) within 150ms to get Ctrl+Shift,
+              ;; then press C/V/A/etc with the same hand. Caps tap alone still
+              ;; gives Escape; chord only activates when both keys are held.
+              (defchordsv2
+                (caps a) (multi lctl lsft) 150 all-released ()
               )
 
               ;; Physical Super, Ctrl and Alt are disabled (XX) outside the
               ;; plain layer, to force the homerow mods and keep the hands at
               ;; the home row. Physical Shift is disabled too (use homerow
               ;; f/j). Physical arrows are disabled to force the nav-layer
-              ;; arrows (space+hjkl). Caps is Escape on tap, Caps Lock on hold.
+              ;; arrows (space+hjkl). Caps is Escape on tap, Ctrl on hold.
               (deflayer base
                 _    _    @capsesc
                 _    _    _    _    _    _    _    _    _    _
@@ -260,7 +267,7 @@
                 XX   XX   @capsesc
                 XX   XX   XX   XX   XX   _    _    _    _    _
                 @am  @sm  @dm  @fm  XX   _    @j   @k   @l   @;   _
-                XX   XX   XX   XX   XX   XX   _    _    _    _    _    XX
+                XX   XX   XX   XX   XX   _    _    _    _    _    _    XX
                 _    _
                 XX  XX  XX  @spacenav  XX  XX
                 XX  XX  XX  XX

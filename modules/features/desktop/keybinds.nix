@@ -90,11 +90,11 @@
                 repeat = false;
               };
               "Mod+Space" = {
-                action = spawn appMenu;
+                action = spawn "sh" "-c" "pkill fuzzel || app2unit -s a -- fuzzel";
                 repeat = false;
               };
               "Mod+Return" = {
-                action = spawn "sh" "-c" "pkill fuzzel || app2unit -s a -- fuzzel";
+                action = spawn "app2unit" "-s" "a" "--" "ghostty";
                 repeat = false;
               };
               "Mod+Backspace" = {
