@@ -6,6 +6,7 @@
   flake.nixosModules.networking =
     {
       config,
+      pkgs,
       ...
     }:
     let
@@ -215,6 +216,12 @@
             # Disable unnecessary network wait service
             NetworkManager-wait-online.enable = false;
           }
+        ];
+
+        # Install wpa_gui for interactive WiFi management (scan/connect to
+        # public networks without editing the NixOS config).
+        environment.systemPackages = lib.mkIf (cfg.wireless != null) [
+          pkgs.wpa_supplicant_gui
         ];
 
         # Preserve state
