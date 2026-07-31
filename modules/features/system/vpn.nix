@@ -6,7 +6,6 @@
   flake.nixosModules.vpn =
     {
       config,
-      pkgs,
       ...
     }:
     let
@@ -24,13 +23,11 @@
       };
 
       config = lib.mkIf cfg.enable {
-        environment.systemPackages = with pkgs; [ mullvad-vpn ]; # Install Mullvad package
-
         # Enable Mullvad VPN service
         services.mullvad-vpn = {
           enable = true;
           enableExcludeWrapper = cfg.enableExcludedApps;
-          package = pkgs.mullvad-vpn;
+          gui.enable = true;
         };
 
         # Persist VPN configuration across reboots

@@ -32,7 +32,7 @@
     };
 
     niri-flake = {
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs"; # disabled: breaks build, libdisplay-info_0_2 removed from nixpkgs, fix pending https://github.com/sodiboo/niri-flake/pull/1853
       url = "github:sodiboo/niri-flake";
     };
 
