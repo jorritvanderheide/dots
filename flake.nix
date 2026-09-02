@@ -26,7 +26,15 @@
       url = "github:nix-community/home-manager";
     };
 
+    # Deliberately not following the shared nixpkgs: niri-flake's package
+    # build currently needs libdisplay-info_0_2, already removed from
+    # nixos-unstable, so pinning it to the shared input breaks the build.
     niri-flake.url = "github:sodiboo/niri-flake";
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";

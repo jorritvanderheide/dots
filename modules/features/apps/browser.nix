@@ -66,6 +66,7 @@
 
                 ExtensionSettings = {
                   "*".installation_mode = "blocked";
+
                   "*".allowed_types = [
                     "extension"
                     "theme"
@@ -83,18 +84,21 @@
                     install_url = "https://addons.mozilla.org/firefox/downloads/file/4875950/bitwarden_password_manager-2026.6.1.xpi";
                     updates_disabled = true;
                   };
+
                   "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
                     default_area = "menupanel";
                     installation_mode = "force_installed";
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
                     private_browsing = true;
                   };
+
                   "jid1-MnnxcxisBPnSXQ@jetpack" = {
                     default_area = "menupanel";
                     installation_mode = "force_installed";
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
                     private_browsing = true;
                   };
+
                   "uBlock0@raymondhill.net" = {
                     default_area = "menupanel";
                     installation_mode = "force_installed";
@@ -104,20 +108,20 @@
                 };
 
                 FirefoxHome = {
-                  Search = true;
-                  TopSites = false;
-                  SponsoredTopSites = false;
                   Highlights = false;
                   Pocket = false;
-                  SponsoredPocket = false;
+                  Search = true;
                   Snippets = false;
+                  SponsoredPocket = false;
+                  SponsoredTopSites = false;
+                  TopSites = false;
                   Locked = true;
                 };
 
                 FirefoxSuggest = {
-                  WebSuggestions = false;
-                  SponsoredSuggestions = false;
                   ImproveSuggest = false;
+                  SponsoredSuggestions = false;
+                  WebSuggestions = false;
                   Locked = true;
                 };
 
@@ -127,8 +131,8 @@
                 };
 
                 Homepage = {
-                  Locked = false;
                   StartPage = "homepage";
+                  Locked = false;
                 };
 
                 HttpAllowlist = [
@@ -203,15 +207,17 @@
                   ExtensionRecommendations = false;
                   FeatureRecommendations = false;
                   FirefoxLabs = false;
-                  Locked = true;
                   MoreFromMozilla = false;
                   SkipOnboarding = true;
                   UrlbarInterventions = false;
+                  Locked = true;
                 };
               };
 
               profiles."default" = {
                 containersForce = true;
+                pinsForce = true;
+                spacesForce = true;
 
                 containers = {
                   "Default" = {
@@ -225,7 +231,6 @@
                   };
                 };
 
-                pinsForce = true;
                 pins =
                   let
                     inherit (config.programs.zen-browser.profiles."default") containers;
@@ -248,7 +253,45 @@
                     };
                   };
 
-                spacesForce = true;
+                settings = {
+                  toolkit.legacyUserProfileCustomizations.stylesheets = true;
+
+                  browser = {
+                    low_commit_space_threshold_percent = 100;
+                    startup.homepage_override.mstone = "ignore";
+                    sessionstore.resume_from_crash = false;
+                    ml.enable = false;
+
+                    cache = {
+                      disk.enable = false;
+
+                      memory = {
+                        enable = true;
+                        capacity = 32768;
+                      };
+                    };
+
+                    tabs = {
+                      tabs.min_inactive_duration_before_unload = 3600000;
+                      unloadOnLowMemory = true;
+                    };
+                  };
+
+                  zen = {
+                    glance.enabled = false;
+
+                    tabs = {
+                      ctrl-tab.ignore-pending-tabs = true;
+                      show-newtab-vertical = false;
+                    };
+
+                    window-sync = {
+                      enabled = true;
+                      sync-only-pinned-tabs = true;
+                    };
+                  };
+                };
+
                 spaces =
                   let
                     inherit (config.programs.zen-browser.profiles."default") containers;
@@ -266,35 +309,6 @@
                       position = 2000;
                     };
                   };
-
-                settings = {
-                  ## General
-                  "browser.startup.homepage_override.mstone" = "ignore";
-                  "browser.sessionstore.resume_from_crash" = false;
-                  "zen.window-sync.enabled" = true;
-                  "zen.window-sync.sync-only-pinned-tabs" = true;
-
-                  ## Caching
-                  "browser.cache.disk.enable" = false;
-                  "browser.cache.memory.enable" = true;
-                  "browser.cache.memory.capacity" = 32768;
-
-                  ## AI
-                  "browser.ml.enable" = false;
-
-                  ## Tabs
-                  "browser.tabs.unloadOnLowMemory" = true;
-                  "browser.low_commit_space_threshold_percent" = 100;
-                  "browser.tabs.min_inactive_duration_before_unload" = 3600000;
-                  "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
-                  "zen.tabs.show-newtab-vertical" = false;
-
-                  ## Features
-                  "zen.glance.enabled" = false;
-
-                  ## Styling
-                  "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-                };
               };
             };
           }

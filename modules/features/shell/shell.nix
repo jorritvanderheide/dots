@@ -36,6 +36,10 @@
                 end
               '';
 
+              functions.nrun = ''
+                nix run nixpkgs#$argv
+              '';
+
               functions.ndeploy = ''
                 if test (count $argv) -eq 0
                   echo "Usage: ndeploy <hostname> [switch|boot]"

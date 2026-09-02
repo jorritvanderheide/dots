@@ -27,12 +27,6 @@ in
           description = "Per-output compositor configuration (passed to programs.niri.settings.outputs)";
           type = lib.types.attrs;
         };
-
-        wallpaper = lib.mkOption {
-          default = null;
-          description = "Path to the wallpaper image file. When null, no wallpaper is set.";
-          type = lib.types.nullOr lib.types.path;
-        };
       };
 
       config = {
@@ -54,7 +48,6 @@ in
             brightnessctl
             imv
             playerctl
-            swaybg
             udiskie
             xwayland-satellite
           ];
@@ -90,14 +83,17 @@ in
               programs.niri.settings = {
                 inherit (cfg) outputs;
                 clipboard.disable-primary = true;
+                # Allows notification actions and window activation from Noctalia.
+                debug.honor-xdg-activation-with-invalid-serial = [ ];
+                gestures.hot-corners.enable = false;
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe niriPkgs.xwayland-satellite-stable;
 
                 cursor = {
-                  size = 32;
-                  theme = "Capitaine Cursors (Gruvbox)";
-                  hide-when-typing = true;
                   hide-after-inactive-ms = 1000;
+                  hide-when-typing = true;
+                  size = config.stylix.cursor.size;
+                  theme = config.stylix.cursor.name;
                 };
 
                 hotkey-overlay = {
@@ -124,14 +120,19 @@ in
                   };
                 };
 
+                # place-within-backdrop renders the wallpaper layer surface
+                # once as a shared backdrop instead of duplicated per
+                # workspace tile in niri's overview. "noctalia-backdrop" is
+                # noctalia's blurred/tinted copy (my.desktop-shell's
+                # settings.backdrop), used here instead of the sharp
+                # "noctalia-wallpaper" layer so the blur is visible at all
+                # times (not just in overview), not only stationary.
                 layer-rules = [
                   {
                     place-within-backdrop = true;
 
                     matches = [
-                      {
-                        namespace = "^wallpaper$";
-                      }
+                      { namespace = "^noctalia-backdrop$"; }
                     ];
                   }
                 ];
@@ -142,7 +143,7 @@ in
                   default-column-width.proportion = 1.0;
                   empty-workspace-above-first = true;
                   focus-ring.enable = false;
-                  gaps = 64.0;
+                  gaps = 80.0;
                   shadow.enable = true;
 
                   border = {
@@ -169,60 +170,35 @@ in
 
                 overview = {
                   backdrop-color = "transparent";
-                  workspace-shadow.enable = false;
+                  workspace-shadow.enable = true;
                   zoom = 0.66;
                 };
 
-                spawn-at-startup =
-                  lib.optionals (cfg.wallpaper != null) [
-                    {
-                      command = [
-                        "app2unit"
-                        "-s"
-                        "b"
-                        "--"
-                        "swaybg"
-                        "-m"
-                        "fill"
-                        "-i"
-                        "${cfg.wallpaper}"
-                      ];
-                    }
-                  ]
-                  ++ [
-                    {
-                      command = [
-                        "app2unit"
-                        "-s"
-                        "b"
-                        "--"
-                        "mako"
-                      ];
-                    }
-                    {
-                      command = [
-                        "app2unit"
-                        "-s"
-                        "b"
-                        "--"
-                        "batsignal"
-                      ];
-                    }
-                    {
-                      command = [
-                        "app2unit"
-                        "-s"
-                        "b"
-                        "--"
-                        "udiskie"
-                      ];
-                    }
-                  ];
+                spawn-at-startup = [
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "batsignal"
+                    ];
+                  }
+                  {
+                    command = [
+                      "app2unit"
+                      "-s"
+                      "b"
+                      "--"
+                      "udiskie"
+                    ];
+                  }
+                ];
 
                 window-rules = lib.singleton {
                   clip-to-geometry = true;
                   draw-border-with-background = false;
-                  opacity = 0.99;
+                  opacity = 0.98;
 
                   geometry-corner-radius = rec {
                     bottom-left = 8.0;

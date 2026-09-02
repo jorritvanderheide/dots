@@ -18,12 +18,12 @@
         stylix = {
           enable = true;
           autoEnable = true;
-          base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-medium.yaml";
+          base16Scheme = "${pkgs.base16-schemes}/share/themes/dracula.yaml";
           polarity = "dark";
 
           cursor = {
             package = pkgs.capitaine-cursors-themed;
-            name = "Capitaine Cursors (Gruvbox)";
+            name = "Capitaine Cursors (Nord)";
             size = 32;
           };
 
@@ -77,6 +77,12 @@
         home-manager.sharedModules = [
           {
             home.sessionVariables.XCURSOR_THEME = config.stylix.cursor.name;
+            # autoEnable turns on both the noctalia color target (wanted --
+            # follows the generated palette) and its own image/wallpaper
+            # target (not wanted -- fights with the explicit
+            # wallpaper.default.path set in noctalia.nix, which is the one
+            # source of truth for the actual wallpaper path).
+            stylix.targets.noctalia.image.enable = false;
 
             stylix.icons = {
               enable = true;

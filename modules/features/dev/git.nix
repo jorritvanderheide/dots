@@ -104,6 +104,9 @@
       ];
 
       my.preservation.homeDirectories = [
+        # gh auth login stores its token here (hosts.yml); without this it's
+        # lost on reboot and every session needs `gh auth login` again.
+        ".config/gh"
         "Git"
       ];
     };
