@@ -1,0 +1,9 @@
+# Nix
+result
+
+# Source control
+.jj
+
+# Tools
+.direnv
+.envrc

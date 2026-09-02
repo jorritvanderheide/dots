@@ -1,0 +1,47 @@
+Hyprlock handles a fingerprint match by calling a synchronous VerifyStop
+and then, in terminate(), a synchronous Release. On Goodix MOC ("press")
+sensors those two callMethod() calls block ~1.4s and ~0.8s, so the screen takes
+~2s to unlock after a successful scan. On a match the verify has already
+completed (VerifyStop is redundant), and the Release only needs to happen
+eventually (fprintd also frees the device when the client disconnects). Drop
+the VerifyStop and make the Release fire-and-forget so neither blocks the
+unlock.
+
+--- a/src/auth/Fingerprint.cpp
++++ b/src/auth/Fingerprint.cpp
+@@ -169,7 +169,10 @@
+             m_sFailureReason = "Fingerprint auth disabled (unknown error)";
+             break;
+         case MATCH_MATCHED:
+-            stopVerify();
++            // The verify has already completed on a match, so VerifyStop is
++            // redundant and blocks ~1.4s on Goodix MOC sensors. Skip it and
++            // unlock immediately; the device is released in terminate().
++            m_sDBUSState.verifying = false;
+             authenticated = true;
+             g_pAuth->enqueueUnlock();
+             break;
+@@ -264,15 +267,13 @@
+ bool CFingerprint::releaseDevice() {
+     if (!m_sDBUSState.device)
+         return false;
+-    try {
+-        m_sDBUSState.device->callMethod("Release").onInterface(DEVICE);
+-    } catch (sdbus::Error& e) {
+-        Log::logger->log(Log::WARN, "fprint: could not release device, {}", e.what());
+-        m_sDBUSState.device.reset();
+-        return false;
+-    }
+-
+-    m_sDBUSState.device.reset();
+-    Log::logger->log(Log::INFO, "fprint: released device");
++    // Release asynchronously so terminate() doesn't block the unlock teardown
++    // (~0.8s on Goodix MOC). The device is freed on reply or on process exit.
++    m_sDBUSState.device->callMethodAsync("Release").onInterface(DEVICE).uponReplyInvoke([](std::optional<sdbus::Error> e) {
++        if (e)
++            Log::logger->log(Log::WARN, "fprint: could not release device, {}", e->what());
++        else
++            Log::logger->log(Log::INFO, "fprint: released device");
++    });
+     return true;
+ }
