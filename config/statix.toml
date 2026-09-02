@@ -1,0 +1,5 @@
+# W20 "repeated_keys" would collapse host configs like
+#   my.foo.enable = true; my.bar = { ... }; my.baz.enable = true;
+# into a single nested `my = { ... }` attrset, which is harder to read and
+# diff than per-feature lines.
+disabled = ["repeated_keys"]
