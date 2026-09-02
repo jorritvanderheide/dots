@@ -35,14 +35,11 @@ in
 
         # Desktop
         app-launch
-        clipboard
         compositor
         files
-        idle
         keybinds
         keyboard-remap
-        launcher
-        lockscreen
+        desktop-shell
         notifications
         polkit
         session
@@ -78,14 +75,11 @@ in
           nixpkgs.hostPlatform = facterReport.system;
           system.stateVersion = "26.05";
 
-          my.session.autologinuser = "jorrit";
-          my.idle.suspendTimeout = 1800;
-          my.lockscreen.greetOnStartup = true;
+          my.desktop-shell.lockOnStartup = true;
           my.power.laptop.enable = true;
+          my.session.autologinuser = "jorrit";
 
           my.compositor = {
-            wallpaper = ./assets/wallpapers/cabin.jpg;
-
             outputs = {
               # Laptop screen
               "eDP-1" = {
@@ -161,10 +155,7 @@ in
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
           };
 
-          my.vpn = {
-            enable = true;
-            loginServer = "https://vpn.bw20.nl";
-          };
+          my.vpn.loginServer = "https://vpn.bw20.nl";
         })
       ];
   };

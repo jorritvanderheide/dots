@@ -16,6 +16,8 @@
     {
       config = {
         boot = {
+          # Suppress raw kernel log messages on the console too
+          consoleLogLevel = 0;
           plymouth.enable = true;
 
           initrd = {
@@ -27,11 +29,9 @@
             };
           };
 
-          # quiet hides the kernel's own log spam; show_status=1 puts it back
-          # just enough to see systemd's per-unit OK/FAIL lines during boot.
+          # Quiet hides the kernel's own log spam
           kernelParams = [
             "quiet"
-            "systemd.show_status=1"
           ];
 
           loader = {
@@ -48,10 +48,10 @@
         };
 
         # Bound /var/log growth (preserved across reboots).
-        services.journald.extraConfig = ''
-          SystemMaxUse=2G
-          SystemMaxFileSize=100M
-        '';
+        services.journald.settings.Journal = {
+          SystemMaxUse = "2G";
+          SystemMaxFileSize = "100M";
+        };
 
         # Names each generation after the flake revision it was built from.
         system = {
@@ -64,10 +64,6 @@
             in
             "${config.system.nixos.release}.${date}-${rev}";
         };
-
-        my.preservation.systemDirectories = [
-          "/var/lib/tpm2-luks-enroll"
-        ];
 
         # Binds a LUKS TPM2 keyslot. Not started automatically at boot --
         # run by hand once, after first login: `nix run .#enroll-tpm` on
@@ -92,6 +88,10 @@
             ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done
           '';
         };
+
+        my.preservation.systemDirectories = [
+          "/var/lib/tpm2-luks-enroll"
+        ];
       };
     };
 }

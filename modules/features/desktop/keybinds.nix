@@ -52,11 +52,6 @@
                   repeat = false;
                 };
 
-                "Mod+Alt+P" = {
-                  action.screenshot.show-pointer = false;
-                  repeat = false;
-                };
-
                 "Mod+Backspace" = {
                   action = spawn "loginctl" "lock-session";
                   repeat = false;
@@ -68,11 +63,11 @@
                 };
 
                 "Mod+Space" = {
-                  action = spawn "sh" "-c" "pkill fuzzel || app2unit -s a -- fuzzel";
+                  action = spawn "noctalia" "msg" "panel-toggle" "launcher";
                   repeat = false;
                 };
 
-                "Mod+Tab" = {
+                "Mod+Escape" = {
                   action = toggle-overview;
                   repeat = false;
                 };
@@ -108,6 +103,19 @@
                   repeat = false;
                 };
 
+                "Mod+O" = {
+                  action = spawn "sh" "-c" ''
+                    hex=$(niri msg pick-color | sed -n 's/^Hex: //p')
+                    [ -n "$hex" ] && noctalia msg clipboard-copy "$hex"
+                  '';
+                  repeat = false;
+                };
+
+                "Mod+P" = {
+                  action = spawn "noctalia" "msg" "screenshot-region";
+                  repeat = false;
+                };
+
                 "Mod+Q" = {
                   action = close-window;
                   repeat = false;
@@ -115,6 +123,21 @@
 
                 "Mod+R" = {
                   action = switch-preset-column-width;
+                  repeat = false;
+                };
+
+                "Mod+V" = {
+                  action = spawn "noctalia" "msg" "panel-toggle" "clipboard";
+                  repeat = false;
+                };
+
+                "Mod+W" = {
+                  action = spawn "noctalia" "msg" "wallpaper-next";
+                  repeat = false;
+                };
+
+                "Mod+Shift+W" = {
+                  action = spawn "noctalia" "msg" "wallpaper-previous";
                   repeat = false;
                 };
 
@@ -163,13 +186,16 @@
                   allow-when-locked = true;
                 };
 
+                # Uses noctalia's own brightness backend + OSD instead of
+                # brightnessctl directly, which also covers external
+                # monitors via DDC/CI.
                 "XF86MonBrightnessDown" = {
-                  action = spawn "sh" "${scriptsDirectory}/brightness.sh" "down";
+                  action = spawn "noctalia" "msg" "brightness-down";
                   allow-when-locked = true;
                 };
 
                 "XF86MonBrightnessUp" = {
-                  action = spawn "sh" "${scriptsDirectory}/brightness.sh" "up";
+                  action = spawn "noctalia" "msg" "brightness-up";
                   allow-when-locked = true;
                 };
               };

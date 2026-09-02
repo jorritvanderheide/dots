@@ -12,17 +12,13 @@
       cfg = config.my.vpn;
     in
     {
-      options.my.vpn = {
-        enable = lib.mkEnableOption "Tailscale VPN";
-
-        loginServer = lib.mkOption {
-          default = null;
-          description = "Custom login server URL (e.g. https://hs.bw20.nl). Null uses official Tailscale.";
-          type = lib.types.nullOr lib.types.str;
-        };
+      options.my.vpn.loginServer = lib.mkOption {
+        default = null;
+        description = "Custom login server URL (e.g. https://hs.bw20.nl). Null uses official Tailscale.";
+        type = lib.types.nullOr lib.types.str;
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         services.tailscale = {
           enable = true;
           openFirewall = true;

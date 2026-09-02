@@ -37,7 +37,8 @@ _: {
             # surviving a power cycle -- this host only has zram swap
             # (kernel.nix), which is neither, so disable it outright rather
             # than risk a hibernate attempt failing badly. Suspend-to-RAM
-            # (see my.idle.suspendTimeout) is unaffected.
+            # (see desktop-shell.nix's idle.behavior.lock-and-suspend) is
+            # unaffected.
             "nohibernate"
             "zfs.zfs_arc_max=${toString arcMaxBytes}"
           ];

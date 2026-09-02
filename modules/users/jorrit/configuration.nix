@@ -6,12 +6,12 @@
   flake.nixosModules.jorrit = {
     imports = [
       (inputs.self.lib.mkUser {
-        # Owns /etc/nixos (group-writable, see preservation.nix)
-        extraGroups = [ "nixos" ];
         username = "jorrit";
 
         withModules = [
           {
+            my.desktop-shell.wallpaperDir = ./assets/wallpapers;
+
             accounts.email.accounts = {
               "Radboud Outlook" = {
                 address = "jorrit.vanderheide@ru.nl";
