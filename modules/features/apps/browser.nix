@@ -75,14 +75,7 @@
                   "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
                     default_area = "navbar";
                     installation_mode = "force_installed";
-
-                    # Pinned + frozen at 2026.6.1: dapple's Vaultwarden is
-                    # stuck on 1.36.0, which breaks with Bitwarden clients
-                    # 2026.7.0+ (needs Vaultwarden 1.37.2+). See flake.nix's
-                    # nixpkgs-bitwarden-pin for the matching desktop app pin.
-                    # Remove once dapple's Vaultwarden is updated.
-                    install_url = "https://addons.mozilla.org/firefox/downloads/file/4875950/bitwarden_password_manager-2026.6.1.xpi";
-                    updates_disabled = true;
+                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
                   };
 
                   "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
