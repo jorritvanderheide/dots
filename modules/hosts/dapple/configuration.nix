@@ -95,7 +95,10 @@ in
             };
 
             # My modules
-            my.calibre-web.enable = true;
+            my.calibre-web = {
+              enable = true;
+              lanSync.enable = true;
+            };
             my.contacts.enable = true;
             my.gatus.enable = true;
             my.home-assistant.enable = true;
