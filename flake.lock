@@ -318,22 +318,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-bitwarden-pin": {
-      "locked": {
-        "lastModified": 1784921920,
-        "narHash": "sha256-5ow9ZniHx0Ws4kyQd+Mf175n8PEMlx7N/jkUpIDjqU8=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "cc451f6f164363f960b53cb76be15a6ddd975146",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "cc451f6f164363f960b53cb76be15a6ddd975146",
-        "type": "github"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1788057806,
@@ -464,7 +448,6 @@
         "nixos-facter-modules": "nixos-facter-modules",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",
-        "nixpkgs-bitwarden-pin": "nixpkgs-bitwarden-pin",
         "noctalia": "noctalia",
         "preservation": "preservation",
         "sops-nix": "sops-nix",

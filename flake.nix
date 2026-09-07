@@ -7,12 +7,6 @@
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:nixos/nixos-hardware";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # Pinned to the last commit where bitwarden-desktop was 2026.6.1 --
-    # dapple's Vaultwarden is stuck on 1.36.0 for now, which only speaks to
-    # Bitwarden clients up through 2026.6.1 (2026.7.0+ needs Vaultwarden
-    # 1.37.2+: https://github.com/dani-garcia/vaultwarden/discussions/7473).
-    # Remove this pin once dapple's Vaultwarden is updated.
-    nixpkgs-bitwarden-pin.url = "github:nixos/nixpkgs/cc451f6f164363f960b53cb76be15a6ddd975146";
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 

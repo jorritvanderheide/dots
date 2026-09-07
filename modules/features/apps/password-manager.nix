@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -10,20 +9,6 @@
       pkgs,
       ...
     }:
-    let
-      # See flake.nix: dapple's Vaultwarden is stuck on 1.36.0, which
-      # doesn't speak to Bitwarden clients newer than 2026.6.1.
-      bitwardenPinnedPkgs = import inputs.nixpkgs-bitwarden-pin {
-        system = pkgs.stdenv.hostPlatform.system;
-
-        config = {
-          allowUnfree = true;
-          # This pinned bitwarden-desktop still depends on EOL electron_39
-          # (39.8.10); the newer, unpinned version dropped that dependency.
-          permittedInsecurePackages = [ "electron-39.8.10" ];
-        };
-      };
-    in
     {
       config = {
         assertions = [
@@ -68,7 +53,7 @@
         ];
 
         environment.systemPackages = [
-          bitwardenPinnedPkgs.bitwarden-desktop
+          pkgs.bitwarden-desktop
         ];
 
         my.preservation.homeDirectories = [
