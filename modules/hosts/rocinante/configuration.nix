@@ -63,6 +63,7 @@ in
         notes
         password-manager
         terminal
+        yubikey
 
         # Users
         jorrit
@@ -136,7 +137,7 @@ in
           };
 
           my.ssh.knownHosts.dapple = {
-            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante";
+            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
 
             hostNames = [
               "dapple"

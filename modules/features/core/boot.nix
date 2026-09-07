@@ -12,8 +12,19 @@
     }:
     let
       luksDevice = "/dev/disk/by-partlabel/disk-main-luks";
+      cfg = config.my.boot;
+      allLuksDevices = [ luksDevice ] ++ cfg.extraLuksDevices;
     in
     {
+      options.my.boot.extraLuksDevices = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          LUKS device paths beyond the root disk to bind to the TPM (e.g. a
+          dedicated data disk). Each must unlock with the sops `luks_password`.
+        '';
+      };
+
       config = {
         boot = {
           # Suppress raw kernel log messages on the console too
@@ -80,11 +91,13 @@
           # short-circuit ("already enrolled") and leave a stale token.
           script = ''
             PW="$(sops_extract luks_password)"
-            PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
-              --wipe-slot=tpm2 "${luksDevice}" 2>/dev/null || true
-            PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
-              --tpm2-device=auto \
-              "${luksDevice}"
+            for dev in ${lib.concatStringsSep " " allLuksDevices}; do
+              PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
+                --wipe-slot=tpm2 "$dev" 2>/dev/null || true
+              PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
+                --tpm2-device=auto \
+                "$dev"
+            done
             ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done
           '';
         };

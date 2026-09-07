@@ -2,15 +2,20 @@ keys:
   # YubiKey, serial 29635974 PIV slot 1 -- day-to-day recipient.
   # pin-policy=never, touch-policy=never -- physical possession is the only
   # gate, matching FIDO2 LUKS unlock's own no-PIN/no-touch boot.
-  - &jorrit_yubikey age1yubikey1qgejl25v5v97z9xl7y75qlagjenwk73awsc045skya7an5znsnp0z2pu7k7
+  - &rocinante_yubikey age1yubikey1qgejl25v5v97z9xl7y75qlagjenwk73awsc045skya7an5znsnp0z2pu7k7
 
   # Passphrase identity -- fallback only, kept in the password manager.
   # See README.md to regenerate.
   - &jorrit_passphrase age1j0qgknt0tlez0c3cvfuq30zv0vwp48c9q4q4wl4htgqngvcdkfdq6nr0v5
 
+  # dapple's own physical YubiKey, plugged in permanently for headless boot.
+  # pin-policy=never, touch-policy=never -- same reasoning as rocinante_yubikey.
+  - &dapple_yubikey age1yubikey1qwa2sy27xlnlfdxdnhksrvkup339vr6grzfhrsj86ynsxhspn4jd6v2p0ve
+
 creation_rules:
   - path_regex: secrets/.*\.yaml$
     key_groups:
       - age:
-          - *jorrit_yubikey
+          - *rocinante_yubikey
           - *jorrit_passphrase
+          - *dapple_yubikey
