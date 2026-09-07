@@ -79,6 +79,67 @@
         + script;
       };
 
+    mkReverseProxy =
+      {
+        config,
+        subdomain,
+        port,
+        extraLocations ? { },
+        locationExtraConfig ? "",
+        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
+        # e.g. Vaultwarden's browser extension popup.
+        extraHeaders ? ''
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header Referrer-Policy "no-referrer" always;
+        '',
+      }:
+      let
+        acmeDomain = config.my.tailscale.acme.domain;
+        domain = "${subdomain}.${toString acmeDomain}";
+      in
+      {
+        assertions = [
+          {
+            assertion = config.my.tailscale.acme.enable;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
+          }
+          {
+            assertion = acmeDomain != null;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.domain to be set";
+          }
+        ];
+
+        security.acme.certs.${domain} = { };
+
+        systemd.services.nginx = {
+          wants = [ "acme-finished-${domain}.target" ];
+          after = [ "acme-finished-${domain}.target" ];
+        };
+
+        services.nginx.virtualHosts.${domain} = {
+          # Bind only to the tailnet IP. nginx keeps a 0.0.0.0:443 listener for
+          # the public headscale vhost, but internal services must not answer
+          # there: a connection to the public IP hits the 0.0.0.0 socket, which
+          # has no server_name match here, so these vhosts stay tailnet-only.
+          listenAddresses = [ config.my.tailscale.tailnetIp ];
+          forceSSL = true;
+          useACMEHost = domain;
+          extraConfig = extraHeaders;
+          locations = {
+            "/" = {
+              proxyPass = "http://127.0.0.1:${toString port}";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+            }
+            // lib.optionalAttrs (locationExtraConfig != "") {
+              extraConfig = locationExtraConfig;
+            };
+          }
+          // extraLocations;
+        };
+      };
+
     mkUser =
       {
         extraGroups ? [ ],

@@ -85,6 +85,42 @@
 
               **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
             '';
+
+            commands.mr-review = ''
+              ---
+              allowed-tools: Bash(git diff:*), Bash(git log:*), Bash(git merge-base:*), Bash(jj diff:*), Bash(jj log:*), Read, Grep, Glob
+              argument-hint: [base-branch]
+              description: Review current branch vs main and produce GitLab-ready MR comments
+              ---
+
+              Compare the current branch against `$1` (default `main`/`master`, whichever exists) and
+              produce a review formatted for pasting as GitLab merge request comments.
+
+              Steps:
+              1. Find the merge base and diff the current branch against it (prefer `jj diff`/`jj log`
+                 if this is a jj repo, otherwise `git diff`/`git log`).
+              2. Read enough surrounding context (not just the diff hunks) to take a holistic view and
+                 judge correctness, not just style.
+              3. Flag vital issues first: correctness bugs, security issues, broken invariants, data
+                 loss, missing error handling for real (not hypothetical) failure paths.
+              4. Then flag code quality: duplication, unclear naming, dead code, overcomplicated
+                 abstractions, missing tests for new behavior.
+              5. Skip nitpicks that a linter/formatter would already catch.
+
+              Output format (nothing else, no preamble):
+
+              For each finding, one block:
+
+              ```
+              **`path/to/file:LINE`** — <one-line summary>
+
+              <2-4 sentences: what's wrong, why it matters, concrete suggestion>
+              ```
+
+              Order findings most-severe first. If there are no vital issues, say so explicitly in one
+              line before the quality findings. If the branch is clean, say so in one line and produce no
+              finding blocks.
+            '';
           };
         }
       ];
