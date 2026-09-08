@@ -59,6 +59,7 @@ in
         browser
         editor
         email
+        messaging
         music-player
         notes
         password-manager
