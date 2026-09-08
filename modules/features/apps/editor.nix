@@ -19,6 +19,7 @@
               enable = true;
 
               extensions = [
+                "jj-lsp"
                 "nix"
                 "vue"
               ];
@@ -34,6 +35,7 @@
                   format_on_save = "on";
 
                   language_servers = [
+                    "jj-lsp"
                     "nixd"
                   ];
                 };
