@@ -89,8 +89,9 @@
           systemd.services.email-secrets = inputs.self.lib.mkSopsService {
             inherit pkgs;
             description = "Decrypt Thunderbird email passwords from sops";
-            wantedBy = [ "multi-user.target" ];
             extraServiceConfig.UMask = "0177";
+            wantedBy = [ "multi-user.target" ];
+
             script = ''
               install -d -m 0755 /run/secrets
               sops_extract email_password_outlook > /run/secrets/email_password_outlook

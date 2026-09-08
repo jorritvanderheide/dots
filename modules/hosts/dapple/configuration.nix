@@ -44,6 +44,10 @@ in
         tailscale
         vaultwarden
 
+        # Shell
+        cli-tools
+        shell
+
         # Users
         nixos
       ])
