@@ -59,6 +59,7 @@ in
         browser
         editor
         email
+        media-player
         messaging
         music-player
         notes
