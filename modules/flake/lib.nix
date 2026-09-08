@@ -191,6 +191,7 @@
 
           extraGroups = [
             "nixos"
+            "systemd-journal"
             "wheel"
           ]
           ++ extraGroups;
