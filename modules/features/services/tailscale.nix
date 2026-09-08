@@ -132,7 +132,11 @@
             };
 
             my.preservation.systemDirectories = [
-              "/var/lib/acme"
+              {
+                directory = "/var/lib/acme";
+                user = "acme";
+                group = "acme";
+              }
             ];
           })
         ]

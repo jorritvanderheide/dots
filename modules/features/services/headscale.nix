@@ -28,7 +28,13 @@
       };
 
       config = lib.mkIf cfg.enable {
-        my.preservation.systemDirectories = [ "/var/lib/headscale" ];
+        my.preservation.systemDirectories = [
+          {
+            directory = "/var/lib/headscale";
+            user = "headscale";
+            group = "headscale";
+          }
+        ];
         security.acme.certs.${cfg.domain} = { };
 
         assertions = [
