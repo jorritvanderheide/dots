@@ -309,9 +309,16 @@
                   group = "bazarr";
                   mode = "0700";
                 }
-                # Prowlarr is DynamicUser, so its state lives under /var/lib/private.
+                # Prowlarr is DynamicUser, so its state lives under /var/lib/private,
+                # owned by a UID allocated fresh each boot -- there's no fixed
+                # username to chown the persisted directory to. Mode 0777 instead;
+                # /var/lib/private itself is 0700 root, so nothing but root can
+                # even traverse in to exploit the open permissions on this subdir.
                 # /var/lib/prowlarr is a symlink that systemd recreates each start.
-                "/var/lib/private/prowlarr"
+                {
+                  directory = "/var/lib/private/prowlarr";
+                  mode = "0777";
+                }
               ];
             }
           ]

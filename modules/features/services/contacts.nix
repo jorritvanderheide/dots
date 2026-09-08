@@ -61,7 +61,11 @@
             };
 
             my.preservation.systemDirectories = [
-              "/var/lib/radicale"
+              {
+                directory = "/var/lib/radicale";
+                user = "radicale";
+                group = "radicale";
+              }
             ];
           }
         ]
