@@ -36,6 +36,16 @@
                 end
               '';
 
+              # switch/boot activate a real generation, so they should only
+              # ever run on described, committed code. build/test are for
+              # iterating on dirty working-copy state.
+              functions.check-clean = ''
+                if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
+                  echo "Working copy has uncommitted changes -- describe them first (nswitch/nboot/ndeploy require a clean working copy; use nbuild/ntest to iterate on dirty code)." >&2
+                  return 1
+                end
+              '';
+
               functions.nrun = ''
                 nix run nixpkgs#$argv
               '';
@@ -45,6 +55,7 @@
                   echo "Usage: ndeploy <hostname> [switch|boot]"
                   return 1
                 end
+                check-clean; or return 1
                 set -l action switch
                 if test (count $argv) -ge 2
                   switch $argv[2]
@@ -68,14 +79,16 @@
                 "c" = "clear";
 
                 # Nix
-                "nboot" = "check-yubikey; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
+                "nboot" =
+                  "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
                 "nbuild" = "nh os build /etc/nixos --hostname (hostname) --no-nom";
                 "ncheck" = "pushd /etc/nixos && nixos-rebuild check --flake .#(hostname) --no-reexec && popd";
                 "nformat" = "pushd /etc/nixos && sudo nix fmt . && popd";
                 "nlist" = "sudo nixos-rebuild list-generations";
                 "nrollback" = "nh os rollback";
                 "nsearch" = "nh search";
-                "nswitch" = "check-yubikey; and nh os switch /etc/nixos --hostname (hostname) --no-nom";
+                "nswitch" =
+                  "check-yubikey; and check-clean; and nh os switch /etc/nixos --hostname (hostname) --no-nom";
                 "ntest" = "check-yubikey; and nh os test /etc/nixos --hostname (hostname) --no-nom";
                 "nupdate" = "pushd /etc/nixos && nix flake update && popd";
               };
