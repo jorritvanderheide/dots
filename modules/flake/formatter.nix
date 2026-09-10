@@ -22,6 +22,7 @@
         programs = {
           deadnix.enable = true;
           nixfmt.enable = true;
+          ruff-format.enable = true;
           shfmt.enable = true;
           statix.enable = true;
         };
