@@ -20,6 +20,33 @@
                     nix-shell -p $argv --command fish
                   end
                 ''
+                # Autosuggestions (the inline grey completion while typing) are
+                # drawn from the active history session, so giving each
+                # directory its own session is what scopes them to that
+                # directory. Search stays global, see fzf-history-global.
+                ''
+                  function __history_per_directory --on-variable PWD
+                    set -g fish_history (string replace -ra '[^A-Za-z0-9]' _ -- $PWD)
+                  end
+                  __history_per_directory
+                ''
+                # fzf's own ctrl-r widget shells out to `builtin history` in a
+                # child fish, which only ever sees the default session and so
+                # goes blind once history is split per directory. Read every
+                # session file directly instead, newest first, deduplicated.
+                ''
+                  function fzf-history-global --description "Search command history from every directory"
+                    set -l query (commandline | string collect)
+                    set -l selected (cat $__fish_user_data_dir/*_history 2>/dev/null | string match -rg '^- cmd: (.*)' | tac | awk '!seen[$0]++' | fzf --scheme=history --height=40% --reverse --query "$query")
+                    if test -n "$selected"
+                      commandline -r -- $selected
+                    end
+                    commandline -f repaint
+                  end
+
+                  bind ctrl-r fzf-history-global
+                  bind up fzf-history-global
+                ''
                 "zoxide init fish | source"
               ];
 
@@ -99,7 +126,6 @@
               enableFishIntegration = true;
             };
           };
-
         }
       ];
     };
