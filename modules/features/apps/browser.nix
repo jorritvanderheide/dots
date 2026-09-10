@@ -246,43 +246,27 @@
                     };
                   };
 
+                # Keys have to be flat, quoted pref names. The module runs
+                # each top-level attribute's value through toJSON, so a
+                # nested attrset lands in user.js as one junk pref -- e.g.
+                # user_pref("browser", "{\"cache\":{...}}") -- and every
+                # setting inside it silently never applies.
                 settings = {
-                  toolkit.legacyUserProfileCustomizations.stylesheets = true;
-
-                  browser = {
-                    low_commit_space_threshold_percent = 100;
-                    startup.homepage_override.mstone = "ignore";
-                    sessionstore.resume_from_crash = false;
-                    ml.enable = false;
-
-                    cache = {
-                      disk.enable = false;
-
-                      memory = {
-                        enable = true;
-                        capacity = 32768;
-                      };
-                    };
-
-                    tabs = {
-                      tabs.min_inactive_duration_before_unload = 3600000;
-                      unloadOnLowMemory = true;
-                    };
-                  };
-
-                  zen = {
-                    glance.enabled = false;
-
-                    tabs = {
-                      ctrl-tab.ignore-pending-tabs = true;
-                      show-newtab-vertical = false;
-                    };
-
-                    window-sync = {
-                      enabled = true;
-                      sync-only-pinned-tabs = true;
-                    };
-                  };
+                  "browser.cache.disk.enable" = false;
+                  "browser.cache.memory.capacity" = 32768;
+                  "browser.cache.memory.enable" = true;
+                  "browser.low_commit_space_threshold_percent" = 100;
+                  "browser.ml.enable" = false;
+                  "browser.sessionstore.resume_from_crash" = false;
+                  "browser.startup.homepage_override.mstone" = "ignore";
+                  "browser.tabs.min_inactive_duration_before_unload" = 3600000;
+                  "browser.tabs.unloadOnLowMemory" = true;
+                  "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+                  "zen.glance.enabled" = false;
+                  "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
+                  "zen.tabs.show-newtab-vertical" = false;
+                  "zen.window-sync.enabled" = true;
+                  "zen.window-sync.sync-only-pinned-tabs" = true;
                 };
 
                 spaces =
