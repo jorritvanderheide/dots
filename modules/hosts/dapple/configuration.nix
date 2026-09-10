@@ -39,6 +39,7 @@ in
         home-assistant
         immich
         jellyfin
+        kosync
         offsite-backup
         servarr
         tailscale
@@ -129,6 +130,18 @@ in
               mediaGroupUsers = [ "nixos" ];
             };
 
+            my.kosync = {
+              enable = true;
+
+              # Phones hit the tailnet books vhost; the Kobo has no Tailscale
+              # client, so it uses the LAN-only kobo vhost. Both proxy to the
+              # same kosync, so progress is shared regardless of which is used.
+              subdomains = [
+                "books"
+                "kobo"
+              ];
+            };
+
             my.offsite-backup = {
               enable = true;
               healthcheckTokenFile = "/run/secrets/gatus_push_token";
@@ -140,6 +153,7 @@ in
                 "/var/lib/hass"
                 "/var/lib/headscale"
                 "/var/lib/immich"
+                "/var/lib/kosync"
                 "/var/lib/radicale"
               ];
             };

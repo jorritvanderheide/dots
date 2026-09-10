@@ -98,6 +98,12 @@
               url = "https://books.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
+              name = "kosync";
+              group = "productivity";
+              # kosync has no route for /, so probe its healthcheck instead.
+              url = "https://books.${config.my.tailscale.acme.domain}/healthcheck";
+            })
+            (mkHttpEndpoint {
               name = "radicale";
               group = "productivity";
               url = "https://contacts.${config.my.tailscale.acme.domain}";

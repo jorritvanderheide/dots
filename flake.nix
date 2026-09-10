@@ -20,6 +20,11 @@
       url = "github:nix-community/home-manager";
     };
 
+    kosync = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/cmooon/kosync";
+    };
+
     # Deliberately not following the shared nixpkgs: niri-flake's package
     # build currently needs libdisplay-info_0_2, already removed from
     # nixos-unstable, so pinning it to the shared input breaks the build.
