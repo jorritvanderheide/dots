@@ -33,11 +33,13 @@
                 # fzf's own ctrl-r widget shells out to `builtin history` in a
                 # child fish, which only ever sees the default session and so
                 # goes blind once history is split per directory. Read every
-                # session file directly instead, newest first, deduplicated.
+                # session file directly instead, ordered newest first by each
+                # entry's `when:` timestamp (a plain `tac` over the
+                # concatenation only reverses within each file), deduplicated.
                 ''
                   function fzf-history-global --description "Search command history from every directory"
                     set -l query (commandline | string collect)
-                    set -l selected (cat $__fish_user_data_dir/*_history 2>/dev/null | string match -rg '^- cmd: (.*)' | tac | awk '!seen[$0]++' | fzf --scheme=history --height=40% --reverse --query "$query")
+                    set -l selected (awk '/^- cmd: /{cmd=substr($0, 8)} /^ +when: /{print $2, cmd}' $__fish_user_data_dir/*_history 2>/dev/null | sort -rns | cut -d' ' -f2- | awk '$0 != "exit" && !seen[$0]++' | fzf --scheme=history --height=40% --layout=default --query "$query")
                     if test -n "$selected"
                       commandline -r -- $selected
                     end
