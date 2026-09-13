@@ -35,7 +35,19 @@
       };
     in
     {
-      options.my.home-assistant.enable = lib.mkEnableOption "Home Assistant smart home server";
+      options.my.home-assistant = {
+        enable = lib.mkEnableOption "Home Assistant smart home server";
+
+        lanAccess = {
+          enable = lib.mkEnableOption "plain-HTTP access from the home LAN, for devices with no Tailscale client";
+
+          interface = lib.mkOption {
+            type = lib.types.str;
+            default = "enp2s0";
+            description = "LAN interface to open the Home Assistant port on.";
+          };
+        };
+      };
 
       config = lib.mkIf cfg.enable (
         lib.mkMerge [
@@ -64,7 +76,10 @@
                   time_zone = config.time.timeZone;
                 };
                 http = {
-                  server_host = "127.0.0.1";
+                  # Loopback is enough for the tailnet vhost, which proxies
+                  # from 127.0.0.1. LAN access needs a real listener, and the
+                  # firewall below is what keeps it to the LAN interface.
+                  server_host = if cfg.lanAccess.enable then "0.0.0.0" else "127.0.0.1";
                   server_port = port;
                   use_x_forwarded_for = true;
                   trusted_proxies = [ "127.0.0.1" ];
@@ -86,6 +101,14 @@
               }
             ];
           }
+
+          # Scoped to the LAN interface rather than opened globally, which
+          # would also expose it on the path the router forwards 443 in on.
+          # Plain HTTP: this is the bare port, not the TLS vhost, so LAN
+          # traffic here is unencrypted.
+          (lib.mkIf cfg.lanAccess.enable {
+            networking.firewall.interfaces.${cfg.lanAccess.interface}.allowedTCPPorts = [ port ];
+          })
         ]
       );
     };

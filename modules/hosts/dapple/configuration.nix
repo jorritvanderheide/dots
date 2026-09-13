@@ -106,7 +106,10 @@ in
             };
             my.contacts.enable = true;
             my.gatus.enable = true;
-            my.home-assistant.enable = true;
+            my.home-assistant = {
+              enable = true;
+              lanAccess.enable = true;
+            };
             my.harmonia.enable = true;
             my.immich.enable = true;
             my.vaultwarden.enable = true;
@@ -125,6 +128,7 @@ in
 
             my.jellyfin = {
               enable = true;
+              lanAccess.enable = true;
               # Dedicated SSD for the Jellyfin media library (zmedia pool).
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
               mediaGroupUsers = [ "nixos" ];
