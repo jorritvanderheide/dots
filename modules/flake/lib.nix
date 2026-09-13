@@ -118,10 +118,11 @@
         };
 
         services.nginx.virtualHosts.${domain} = {
-          # Bind only to the tailnet IP. nginx keeps a 0.0.0.0:443 listener for
-          # the public headscale vhost, but internal services must not answer
-          # there: a connection to the public IP hits the 0.0.0.0 socket, which
-          # has no server_name match here, so these vhosts stay tailnet-only.
+          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
+          # listener for the headscale and kobo vhosts, but internal services
+          # must not answer there: a connection to the public IP hits the
+          # 0.0.0.0 socket, which has no server_name match here, so these
+          # vhosts stay tailnet-only.
           listenAddresses = [ config.my.tailscale.tailnetIp ];
           forceSSL = true;
           useACMEHost = domain;

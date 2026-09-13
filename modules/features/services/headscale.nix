@@ -10,19 +10,50 @@
     }:
     let
       cfg = config.my.headscale;
+
+      proxyToHeadscale = {
+        proxyPass = "http://127.0.0.1:8085";
+        proxyWebsockets = true;
+
+        extraConfig = ''
+          proxy_buffering off;
+        '';
+      };
+
+      lanAndTailnetOnly = proxyToHeadscale // {
+        extraConfig = ''
+          allow ${cfg.subnet};
+          allow 100.64.0.0/10;
+          deny all;
+
+          proxy_buffering off;
+        '';
+      };
     in
     {
       options.my.headscale = {
         enable = lib.mkEnableOption "Headscale control server";
 
         domain = lib.mkOption {
-          description = "FQDN for the headscale server (e.g. hs.bw20.nl)";
+          description = "FQDN for the headscale server (e.g. vpn.bw20.nl)";
           type = lib.types.str;
         };
 
         magicDnsDomain = lib.mkOption {
           default = "vpn";
           description = "MagicDNS base domain";
+          type = lib.types.str;
+        };
+
+        subnet = lib.mkOption {
+          default = "192.168.1.0/24";
+          description = "Home LAN subnet allowed to reach the control API.";
+          type = lib.types.str;
+        };
+
+        interface = lib.mkOption {
+          default = "enp2s0";
+          description = "LAN interface to open the control API and STUN ports on.";
           type = lib.types.str;
         };
       };
@@ -44,7 +75,12 @@
           }
         ];
 
-        networking.firewall = {
+        # Scoped to the LAN interface, which is also where traffic forwarded in
+        # from the router arrives, since dapple has no WAN interface of its
+        # own. Public reachability is therefore governed by the router's port
+        # forward and the per-location rules on the vhost below, not here.
+        # tailnet access to 443 comes from my.tailscale's acme block.
+        networking.firewall.interfaces.${cfg.interface} = {
           allowedTCPPorts = [ 443 ];
           allowedUDPPorts = [ 3478 ];
         };
@@ -97,13 +133,20 @@
           forceSSL = true;
           useACMEHost = cfg.domain;
 
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:8085";
-            proxyWebsockets = true;
+          locations = {
+            # Public on purpose. This carries the client control protocol and
+            # the embedded DERP relay, and a device off the LAN (phone on
+            # mobile data) needs both to reach the tailnet at all -- there is
+            # no way to have a self-hosted control server that is private and
+            # still usable remotely. Nodes authenticate by key exchange, not
+            # by network position, so this is headscale's intended posture.
+            "/" = proxyToHeadscale;
 
-            extraConfig = ''
-              proxy_buffering off;
-            '';
+            # The admin API is the sensitive surface: it manages users, nodes
+            # and preauth keys, guarded only by a bearer token. Keep it off
+            # the public path. "^~" so these win over "/" above.
+            "^~ /api" = lanAndTailnetOnly;
+            "^~ /swagger" = lanAndTailnetOnly;
           };
         };
 

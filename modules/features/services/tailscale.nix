@@ -21,7 +21,7 @@
         loginServer = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "Custom login server URL (e.g. https://hs.bw20.nl). Null uses official Tailscale.";
+          description = "Custom login server URL (e.g. https://vpn.bw20.nl). Null uses official Tailscale.";
         };
 
         tailnetIp = lib.mkOption {
@@ -30,8 +30,8 @@
           description = ''
             This host's stable tailnet IPv4 address. Internal reverse-proxy
             vhosts (mkReverseProxy) bind here instead of 0.0.0.0 so they are
-            reachable only over Tailscale, even though nginx must keep a public
-            0.0.0.0:443 listener for the headscale control server.
+            reachable only over Tailscale, even though nginx must keep a
+            0.0.0.0:443 listener for the headscale and kobo vhosts.
           '';
         };
 
@@ -115,8 +115,9 @@
             users.groups.acme.members = [ "nginx" ];
 
             # Let nginx bind its internal vhosts to the tailnet IP before
-            # tailscaled has assigned it, so nginx (and thus the public
-            # headscale vhost) still starts when Tailscale is down at boot.
+            # tailscaled has assigned it, so nginx (and thus the headscale
+            # vhost that Tailscale needs to recover) still starts when
+            # Tailscale is down at boot.
             boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
             services.nginx = {
