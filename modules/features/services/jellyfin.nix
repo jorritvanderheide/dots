@@ -25,6 +25,16 @@
       options.my.jellyfin = {
         enable = lib.mkEnableOption "Jellyfin media server";
 
+        lanAccess = {
+          enable = lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
+
+          interface = lib.mkOption {
+            type = lib.types.str;
+            default = "enp2s0";
+            description = "LAN interface to open the Jellyfin and auto-discovery ports on.";
+          };
+        };
+
         mediaGroupUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -188,6 +198,18 @@
               }
             ];
           }
+
+          # Jellyfin already listens on 0.0.0.0 for both of these, so only the
+          # firewall is in the way. Scoped to the LAN interface rather than
+          # using services.jellyfin.openFirewall, which opens them globally --
+          # the same trap my.kosync avoids. 7359/udp is the auto-discovery
+          # port clients broadcast on to work out whether they are home.
+          (lib.mkIf cfg.lanAccess.enable {
+            networking.firewall.interfaces.${cfg.lanAccess.interface} = {
+              allowedTCPPorts = [ port ];
+              allowedUDPPorts = [ 7359 ];
+            };
+          })
         ]
       );
     };
