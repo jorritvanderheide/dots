@@ -67,6 +67,7 @@ in
         music-player
         notes
         password-manager
+        pdf-reader
         terminal
         yubikey
         zotero
