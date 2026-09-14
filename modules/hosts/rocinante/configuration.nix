@@ -51,6 +51,9 @@ in
         git
         virtualization
 
+        # Services
+        offsite-backup
+
         # Shell
         cli-tools
         shell
@@ -66,6 +69,7 @@ in
         password-manager
         terminal
         yubikey
+        zotero
 
         # Users
         jorrit
@@ -136,6 +140,17 @@ in
                 };
               };
             };
+          };
+
+          # The laptop has no USB/ZFS backup of its own (that's dapple's
+          # my.backup), and /persist is all that survives the boot-time
+          # rollback -- so this is the only copy of anything here.
+          my.offsite-backup = {
+            enable = true;
+
+            paths = [
+              "/persist/home/jorrit/Zotero"
+            ];
           };
 
           my.ssh.knownHosts.dapple = {
