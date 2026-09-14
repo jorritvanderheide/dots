@@ -98,6 +98,12 @@
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
                     private_browsing = true;
                   };
+
+                  "zotero@chnm.gmu.edu" = {
+                    default_area = "navbar";
+                    installation_mode = "force_installed";
+                    install_url = "https://www.zotero.org/download/connector/dl?browser=firefox&channel=release";
+                  };
                 };
 
                 FirefoxHome = {

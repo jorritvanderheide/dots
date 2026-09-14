@@ -1,0 +1,154 @@
+{
+  inputs,
+  ...
+}:
+{
+  flake.nixosModules.zotero =
+    {
+      pkgs,
+      ...
+    }:
+    let
+      # Zotero plugins aren't packaged in nixpkgs, and both of these ship
+      # their XPI unsigned -- fine, since Zotero's greprefs.js already
+      # defaults xpinstall.signatures.required to false.
+      #
+      # home-manager links the contents of this (Firefox-app-ID) directory
+      # into <profile>/extensions, where Zotero's add-on manager picks each
+      # XPI up by filename, so the name has to be the add-on's own ID.
+      mkZoteroPlugin =
+        {
+          pname,
+          version,
+          url,
+          hash,
+          addonId,
+        }:
+        pkgs.stdenvNoCC.mkDerivation {
+          inherit pname version;
+
+          src = pkgs.fetchurl { inherit url hash; };
+
+          dontUnpack = true;
+
+          installPhase = ''
+            runHook preInstall
+            install -Dm444 $src "$out/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/${addonId}.xpi"
+            runHook postInstall
+          '';
+        };
+
+      # Citekeys, which ZotLit reads for the note filenames.
+      better-bibtex = mkZoteroPlugin {
+        pname = "zotero-better-bibtex";
+        version = "9.0.64";
+        addonId = "better-bibtex@iris-advies.com";
+        url = "https://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.64/zotero-better-bibtex-9.0.64.xpi";
+        hash = "sha256-hMS1sF/6yanH4v95ZjYSSG93gWkN1ZsSoeYq7Nz6fCc=";
+      };
+
+      # ZotLit's Zotero-side companion. The Obsidian plugin reads the
+      # library out of zotero.sqlite on its own, so this is only needed to
+      # push changes to Obsidian live while Zotero happens to be open.
+      zotlit = mkZoteroPlugin {
+        pname = "zotero-zotlit";
+        version = "2.1.4";
+        addonId = "zotlit@aidenlx.site";
+        url = "https://github.com/aidenlx/zotlit/releases/download/zt-2.1.4/zotlit-zotero-2.1.4.xpi";
+        hash = "sha256-T3CGoDZr83+G984oEADitWAtzUlu8rz6UgEnsZqeBhQ=";
+      };
+    in
+    {
+      config = {
+        home-manager.sharedModules = [
+          # There's no programs.zotero upstream, but Zotero is Gecko-based,
+          # so home-manager's generic browser-module generator produces one:
+          # profiles.ini with a fixed profile path (no random name to chase)
+          # plus a generated user.js. Passing wrappedPackageName rather than
+          # unwrappedPackageName matters -- zotero.override takes no `cfg`
+          # argument, so the module hands the package through untouched
+          # instead of running it through wrapFirefox.
+          (import "${inputs.home-manager}/modules/programs/firefox/mkFirefoxModule.nix" {
+            modulePath = [
+              "programs"
+              "zotero"
+            ];
+            name = "Zotero";
+            wrappedPackageName = "zotero";
+            # darwin is unused here, but the generator dereferences it
+            # unconditionally for darwinDefaultsId, so it can't be omitted.
+            platforms.darwin.configPath = "Library/Application Support/Zotero";
+            platforms.linux.configPath = ".zotero/zotero";
+          })
+          (
+            {
+              config,
+              lib,
+              ...
+            }:
+            {
+              programs.zotero = {
+                enable = true;
+
+                profiles.default = {
+                  extensions.packages = [
+                    better-bibtex
+                    zotlit
+                  ];
+
+                  settings = {
+                    # Required for add-ons dropped into the profile: without
+                    # it they install but sit disabled pending approval.
+                    "extensions.autoDisableScopes" = 0;
+
+                    # Stops the bundled LibreOffice-integration installer
+                    # from running on every startup. It probes /opt whenever
+                    # that directory exists, and /opt is mode 0711 here, so
+                    # the scan throws NS_ERROR_FILE_ACCESS_DENIED and the
+                    # modal error dialog it raises takes the whole app down
+                    # with an IPC fatal error. Preferences > Cite still has
+                    # a manual install button, which bypasses this.
+                    "extensions.zoteroOpenOfficeIntegration.skipInstallation" = true;
+
+                    # Zotero 10 segfaults indexing HTML snapshots: it loads
+                    # them into a hidden browser over a blob: URL, the
+                    # parent rejects that as an illegal load and aborts the
+                    # process (mozilla::ipc::FatalError). The item stays
+                    # queued, so every later launch retries it and dies
+                    # again. Saving PDFs is unaffected -- those go through
+                    # indexPDF, a different path -- so turn snapshots off
+                    # rather than disabling full-text indexing wholesale.
+                    "extensions.zotero.automaticSnapshots" = false;
+
+                    # BBT's own default, pinned rather than left implicit:
+                    # changing the key format once the library has items
+                    # re-keys all of them and breaks citation keys already
+                    # written into documents.
+                    "extensions.zotero.translators.better-bibtex.citekeyFormat" = "auth.lower + shorttitle(3,3) + year";
+                  };
+                };
+              };
+
+              # Gecko decides whether to rescan <profile>/extensions from a
+              # cached directory state keyed on mtimes, and every file in
+              # the Nix store is stamped 1970 -- so a plugin added or bumped
+              # here never looks newer than the cache and is silently never
+              # picked up, with no error and no log line. Dropping the cache
+              # forces the rescan. extensions.json is deliberately left
+              # alone: it also holds per-plugin enable/disable state.
+              home.activation.zoteroAddonRescan = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                run rm -f ${lib.escapeShellArg "${config.home.homeDirectory}/${config.programs.zotero.profilesPath}/${config.programs.zotero.profiles.default.path}/addonStartup.json.lz4"}
+              '';
+            }
+          )
+        ];
+
+        my.preservation.homeDirectories = [
+          # Profile (prefs, plugin state); the library database and
+          # attachment storage live in the separate data directory.
+          ".zotero"
+          "Zotero"
+        ];
+      };
+    };
+}
