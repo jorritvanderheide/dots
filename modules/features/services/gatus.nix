@@ -109,6 +109,11 @@
               url = "https://contacts.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
+              name = "obsidian-sync";
+              group = "productivity";
+              url = "https://notes.${config.my.tailscale.acme.domain}";
+            })
+            (mkHttpEndpoint {
               name = "harmonia";
               group = "infra";
               url = "https://cache.${config.my.tailscale.acme.domain}";
