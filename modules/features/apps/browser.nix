@@ -43,12 +43,6 @@
                 DontCheckDefaultBrowser = true;
                 HttpsOnlyMode = "force_enabled";
                 NewTabPage = true;
-                # No NoDefaultBookmarks here on purpose. home-manager imports
-                # `profiles.default.bookmarks` by pointing browser.bookmarks.file
-                # at its generated bookmarks.html and letting the first-run
-                # importer read it, so it pins the policy to false; setting it
-                # true skips the import and silently drops our bookmarks.
-
                 OverrideFirstRunPage = "";
                 OverridePostUpdatePage = "";
                 PasswordManagerEnabled = false;
@@ -188,23 +182,28 @@
                       URLTemplate = "https://noogle.dev/q?term={searchTerms}";
                     }
                     {
-                      Alias = "@nw";
-                      Name = "NixOS Wiki";
-                      IconURL = "https://wiki.nixos.org/favicon.ico";
-                      URLTemplate = "https://wiki.nixos.org/w/index.php?search={searchTerms}";
-                    }
-                    {
                       Alias = "@mn";
                       Name = "My Nixos";
                       IconURL = "https://mynixos.com/favicon.ico";
                       URLTemplate = "https://mynixos.com/search?q={searchTerms}";
                     }
                     {
-                      Alias = "@ru";
+                      Alias = "@rp";
                       Name = "Radboud proxy";
-                      # The proxy host itself serves no favicon (404).
                       IconURL = "https://www.ru.nl/favicon.ico";
-                      URLTemplate = "https://ru.idm.oclc.org/login?url={searchTerms}";
+                      URLTemplate = "https://login.ru.idm.oclc.org/login?qurl={searchTerms}";
+                    }
+                    {
+                      Alias = "@ru";
+                      Name = "Radboud University Library";
+                      IconURL = "https://www.ru.nl/favicon.ico";
+                      URLTemplate = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
+                    }
+                    {
+                      Alias = "@ss";
+                      Name = "Semantic Scholar";
+                      IconURL = "https://www.semanticscholar.org/favicon.ico";
+                      URLTemplate = "https://www.semanticscholar.org/search?q={searchTerms}";
                     }
                   ];
 
@@ -252,7 +251,7 @@
                       bookmarks = [
                         {
                           name = "Radboud proxy";
-                          url = "javascript:void(location.href='https://ru.idm.oclc.org/login?url='+encodeURIComponent(location.href))";
+                          url = "javascript:void(location.href='https://login.ru.idm.oclc.org/login?qurl='+encodeURIComponent(location.href))";
                         }
                       ];
                     }
@@ -310,6 +309,22 @@
                   "browser.tabs.unloadOnLowMemory" = true;
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
                   "zen.glance.enabled" = false;
+
+                  # Drop windows flagged isZenUnsynced when restoring. Those
+                  # are the ones zen.window-sync.open-link-in-new-unsynced-
+                  # window (on by default) spawns for links handed over by
+                  # another app, so without this a link opened from Zotero or
+                  # Obsidian can leave a second window in the session that
+                  # comes back on every later launch.
+                  #
+                  # This is damage control, not a fix: Zen patched
+                  # SessionStartup.isAutomaticRestoreEnabled() to a hardcoded
+                  # `true`, so browser.startup.page is ignored and every saved
+                  # window is restored regardless. A duplicate that is *not*
+                  # flagged unsynced still has to be closed by hand once, and
+                  # then it stays gone.
+                  "zen.session-store.restore-unsynced-windows" = false;
+
                   "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
                   "zen.tabs.show-newtab-vertical" = false;
                   "zen.window-sync.enabled" = true;

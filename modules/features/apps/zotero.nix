@@ -137,6 +137,32 @@
                     # proxied page is opened, with proxies.autoRecognize on.
                     "extensions.zotero.openURL.resolver" = "https://ru.on.worldcat.org/atoztitles/link";
 
+                    # Extra source for Find Available PDF, which otherwise
+                    # only tries doi.org, the item's own url field, Zotero's
+                    # Unpaywall-backed OA service and PMC. Semantic Scholar
+                    # indexes open copies those miss (arXiv, ACL, author
+                    # postprints). It needs no key, and unlike a proxied
+                    # resolver it needs no session either, so it actually
+                    # works from Zotero's own HTTP stack.
+                    #
+                    # Passed as a Nix list, not a string: the module runs
+                    # non-scalars through toJSON twice, which is exactly the
+                    # JSON-encoded-string-in-a-pref that Zotero parses here.
+                    #
+                    # Zotero hardcodes a 5s timeout per resolver and the
+                    # anonymous pool allows ~100 requests per 5 minutes, so
+                    # this will miss some items in a bulk run.
+                    "extensions.zotero.findPDFs.resolvers" = [
+                      {
+                        name = "Semantic Scholar";
+                        method = "GET";
+                        url = "https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}?fields=openAccessPdf";
+                        mode = "json";
+                        selector = ".openAccessPdf.url";
+                        automatic = true;
+                      }
+                    ];
+
                     # BBT's own default, pinned rather than left implicit:
                     # changing the key format once the library has items
                     # re-keys all of them and breaks citation keys already
