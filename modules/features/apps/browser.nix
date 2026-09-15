@@ -43,7 +43,12 @@
                 DontCheckDefaultBrowser = true;
                 HttpsOnlyMode = "force_enabled";
                 NewTabPage = true;
-                NoDefaultBookmarks = true;
+                # No NoDefaultBookmarks here on purpose. home-manager imports
+                # `profiles.default.bookmarks` by pointing browser.bookmarks.file
+                # at its generated bookmarks.html and letting the first-run
+                # importer read it, so it pins the policy to false; setting it
+                # true skips the import and silently drops our bookmarks.
+
                 OverrideFirstRunPage = "";
                 OverridePostUpdatePage = "";
                 PasswordManagerEnabled = false;
@@ -76,6 +81,12 @@
                     default_area = "navbar";
                     installation_mode = "force_installed";
                     install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+                  };
+
+                  "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
+                    default_area = "navbar";
+                    installation_mode = "force_installed";
+                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
                   };
 
                   "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
@@ -188,6 +199,13 @@
                       IconURL = "https://mynixos.com/favicon.ico";
                       URLTemplate = "https://mynixos.com/search?q={searchTerms}";
                     }
+                    {
+                      Alias = "@ru";
+                      Name = "Radboud proxy";
+                      # The proxy host itself serves no favicon (404).
+                      IconURL = "https://www.ru.nl/favicon.ico";
+                      URLTemplate = "https://ru.idm.oclc.org/login?url={searchTerms}";
+                    }
                   ];
 
                   Remove = [
@@ -217,6 +235,29 @@
                 containersForce = true;
                 pinsForce = true;
                 spacesForce = true;
+
+                bookmarks = {
+                  force = true;
+
+                  # No `toolbar = true` anywhere, so this lands in the
+                  # bookmarks menu (hamburger > Bookmarks, or Ctrl+Shift+O)
+                  # rather than the toolbar, which DisplayBookmarksToolbar
+                  # keeps hidden. It has to be *clicked*: giving it a
+                  # `keyword` would not help, since the urlbar has silently
+                  # dropped keyword-invoked bookmarklets since Firefox 68
+                  # (mozilla bug 1552141).
+                  settings = [
+                    {
+                      name = "Library";
+                      bookmarks = [
+                        {
+                          name = "Radboud proxy";
+                          url = "javascript:void(location.href='https://ru.idm.oclc.org/login?url='+encodeURIComponent(location.href))";
+                        }
+                      ];
+                    }
+                  ];
+                };
 
                 containers = {
                   "Default" = {
