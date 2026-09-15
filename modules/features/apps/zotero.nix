@@ -120,6 +120,23 @@
                     # rather than disabling full-text indexing wholesale.
                     "extensions.zotero.automaticSnapshots" = false;
 
+                    # Drives Locate (the green arrow) > Library Lookup.
+                    # Taken from Zotero's own resolver directory, which it
+                    # reads from zotero.org/support/locate/openurl_resolvers
+                    # -- it is the only Radboud entry there. This is an
+                    # OpenURL endpoint, so it 400s when opened bare and only
+                    # answers with real ?sid=&doi= parameters.
+                    #
+                    # Note this is *not* the EZproxy path: it hands off to
+                    # WorldCat, which then links onward to the licensed copy.
+                    # Zotero's own proxy list (the transparent redirection
+                    # behind "Find Available PDF" and stored item URLs) lives
+                    # in the proxies/proxyHosts tables of zotero.sqlite, not
+                    # in prefs, so it cannot be set from here -- Zotero
+                    # learns ru.idm.oclc.org by itself the first time a
+                    # proxied page is opened, with proxies.autoRecognize on.
+                    "extensions.zotero.openURL.resolver" = "https://ru.on.worldcat.org/atoztitles/link";
+
                     # BBT's own default, pinned rather than left implicit:
                     # changing the key format once the library has items
                     # re-keys all of them and breaks citation keys already
