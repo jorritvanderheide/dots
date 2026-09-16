@@ -3,360 +3,387 @@
   ...
 }:
 {
-  flake.nixosModules.browser = {
-    config = {
-      home-manager.sharedModules = [
-        inputs.zen-browser.homeModules.beta
-        (
-          {
-            config,
-            ...
-          }:
-          {
-            # Tells the stylix target which profile directory to theme
-            stylix.targets.zen-browser.profileNames = [ "default" ];
+  flake.nixosModules.browser =
+    {
+      config,
+      lib,
+      ...
+    }:
+    let
+      # The home-manager submodules below rebind `config`, so the institution
+      # endpoints are resolved out here. Only the endpoints are shared; the
+      # display names stay local because this module is not part of the
+      # portable research set.
+      inherit (config.my.research) institution;
+    in
+    {
+      config = {
+        home-manager.sharedModules = [
+          inputs.zen-browser.homeModules.beta
+          (
+            {
+              config,
+              ...
+            }:
+            {
+              # Tells the stylix target which profile directory to theme
+              stylix.targets.zen-browser.profileNames = [ "default" ];
 
-            programs.zen-browser = {
-              enable = true;
-              setAsDefaultBrowser = true;
+              programs.zen-browser = {
+                enable = true;
+                setAsDefaultBrowser = true;
 
-              policies = {
-                AutofillAddressEnabled = false;
-                AutofillCreditCardEnabled = false;
-                BlockAboutConfig = true;
-                BlockAboutAddons = true;
-                BlockAboutProfiles = true;
-                BlockAboutSupport = true;
-                CaptivePortal = true;
-                DisableAppUpdate = true;
-                DisableFirefoxAccounts = true;
-                DisableFormHistory = true;
-                DisableFirefoxScreenshots = true;
-                DisableFirefoxStudies = true;
-                DisablePocket = true;
-                DisableProfileImport = true;
-                DisableSetDesktopBackground = true;
-                DisableSystemAddonUpdate = true;
-                DisableTelemetry = true;
-                DisplayBookmarksToolbar = "never";
-                DisplayMenuBar = "default-off";
-                DontCheckDefaultBrowser = true;
-                HttpsOnlyMode = "force_enabled";
-                NewTabPage = true;
-                OverrideFirstRunPage = "";
-                OverridePostUpdatePage = "";
-                PasswordManagerEnabled = false;
-                PictureInPicture = false;
-                SearchSuggestEnabled = true;
-                ShowHomeButton = true;
-                SkipTermsOfUse = true;
-                TranslateEnabled = false;
+                policies = {
+                  AutofillAddressEnabled = false;
+                  AutofillCreditCardEnabled = false;
+                  BlockAboutConfig = true;
+                  BlockAboutAddons = true;
+                  BlockAboutProfiles = true;
+                  BlockAboutSupport = true;
+                  CaptivePortal = true;
+                  DisableAppUpdate = true;
+                  DisableFirefoxAccounts = true;
+                  DisableFormHistory = true;
+                  DisableFirefoxScreenshots = true;
+                  DisableFirefoxStudies = true;
+                  DisablePocket = true;
+                  DisableProfileImport = true;
+                  DisableSetDesktopBackground = true;
+                  DisableSystemAddonUpdate = true;
+                  DisableTelemetry = true;
+                  DisplayBookmarksToolbar = "never";
+                  DisplayMenuBar = "default-off";
+                  DontCheckDefaultBrowser = true;
+                  HttpsOnlyMode = "force_enabled";
+                  NewTabPage = true;
+                  OverrideFirstRunPage = "";
+                  OverridePostUpdatePage = "";
+                  PasswordManagerEnabled = false;
+                  PictureInPicture = false;
+                  SearchSuggestEnabled = true;
+                  ShowHomeButton = true;
+                  SkipTermsOfUse = true;
+                  TranslateEnabled = false;
 
-                DNSOverHTTPS = {
-                  Enabled = false;
-                  Locked = false;
-                };
+                  DNSOverHTTPS = {
+                    Enabled = false;
+                    Locked = false;
+                  };
 
-                EnableTrackingProtection = {
-                  Category = "strict";
-                  Locked = true;
-                  Value = true;
-                };
+                  EnableTrackingProtection = {
+                    Category = "strict";
+                    Locked = true;
+                    Value = true;
+                  };
 
-                ExtensionSettings = {
-                  "*".installation_mode = "blocked";
+                  ExtensionSettings = {
+                    "*".installation_mode = "blocked";
 
-                  "*".allowed_types = [
-                    "extension"
-                    "theme"
+                    "*".allowed_types = [
+                      "extension"
+                      "theme"
+                    ];
+
+                    "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
+                      default_area = "navbar";
+                      installation_mode = "force_installed";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+                    };
+
+                    "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
+                      default_area = "navbar";
+                      installation_mode = "force_installed";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
+                    };
+
+                    "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
+                      default_area = "menupanel";
+                      installation_mode = "force_installed";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
+                      private_browsing = true;
+                    };
+
+                    "jid1-MnnxcxisBPnSXQ@jetpack" = {
+                      default_area = "menupanel";
+                      installation_mode = "force_installed";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
+                      private_browsing = true;
+                    };
+
+                    "uBlock0@raymondhill.net" = {
+                      default_area = "menupanel";
+                      installation_mode = "force_installed";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+                      private_browsing = true;
+                    };
+
+                    "zotero@chnm.gmu.edu" = {
+                      default_area = "navbar";
+                      installation_mode = "force_installed";
+                      install_url = "https://www.zotero.org/download/connector/dl?browser=firefox&channel=release";
+                    };
+                  };
+
+                  FirefoxHome = {
+                    Highlights = false;
+                    Pocket = false;
+                    Search = true;
+                    Snippets = false;
+                    SponsoredPocket = false;
+                    SponsoredTopSites = false;
+                    TopSites = false;
+                    Locked = true;
+                  };
+
+                  FirefoxSuggest = {
+                    ImproveSuggest = false;
+                    SponsoredSuggestions = false;
+                    WebSuggestions = false;
+                    Locked = true;
+                  };
+
+                  GenerativeAI = {
+                    Enabled = false;
+                    Locked = true;
+                  };
+
+                  Homepage = {
+                    StartPage = "homepage";
+                    Locked = false;
+                  };
+
+                  HttpAllowlist = [
+                    "http://localhost"
+                    "http://localhost:8001"
+                    "http://localhost:8080"
+                    "http://145.137.190.196"
+                    "http://100.64.0.2"
                   ];
 
-                  "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
-                    default_area = "navbar";
-                    installation_mode = "force_installed";
-                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+                  SanitizeOnShutdown = {
+                    Cache = true;
+                    Cookies = false;
+                    FormData = true;
+                    History = false;
+                    Sessions = true;
+                    SiteSettings = false;
+                    Locked = false;
                   };
 
-                  "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
-                    default_area = "navbar";
-                    installation_mode = "force_installed";
-                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
-                  };
+                  SearchEngines = {
+                    Default = "Brave";
+                    PreventInstalls = true;
 
-                  "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
-                    default_area = "menupanel";
-                    installation_mode = "force_installed";
-                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
-                    private_browsing = true;
-                  };
-
-                  "jid1-MnnxcxisBPnSXQ@jetpack" = {
-                    default_area = "menupanel";
-                    installation_mode = "force_installed";
-                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
-                    private_browsing = true;
-                  };
-
-                  "uBlock0@raymondhill.net" = {
-                    default_area = "menupanel";
-                    installation_mode = "force_installed";
-                    install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
-                    private_browsing = true;
-                  };
-
-                  "zotero@chnm.gmu.edu" = {
-                    default_area = "navbar";
-                    installation_mode = "force_installed";
-                    install_url = "https://www.zotero.org/download/connector/dl?browser=firefox&channel=release";
-                  };
-                };
-
-                FirefoxHome = {
-                  Highlights = false;
-                  Pocket = false;
-                  Search = true;
-                  Snippets = false;
-                  SponsoredPocket = false;
-                  SponsoredTopSites = false;
-                  TopSites = false;
-                  Locked = true;
-                };
-
-                FirefoxSuggest = {
-                  ImproveSuggest = false;
-                  SponsoredSuggestions = false;
-                  WebSuggestions = false;
-                  Locked = true;
-                };
-
-                GenerativeAI = {
-                  Enabled = false;
-                  Locked = true;
-                };
-
-                Homepage = {
-                  StartPage = "homepage";
-                  Locked = false;
-                };
-
-                HttpAllowlist = [
-                  "http://localhost"
-                  "http://localhost:8001"
-                  "http://localhost:8080"
-                  "http://145.137.190.196"
-                  "http://100.64.0.2"
-                ];
-
-                SanitizeOnShutdown = {
-                  Cache = true;
-                  Cookies = false;
-                  FormData = true;
-                  History = false;
-                  Sessions = true;
-                  SiteSettings = false;
-                  Locked = false;
-                };
-
-                SearchEngines = {
-                  Default = "Brave";
-                  PreventInstalls = true;
-
-                  Add = [
-                    {
-                      Alias = "@br";
-                      Name = "Brave";
-                      IconURL = "https://search.brave.com/favicon.ico";
-                      SuggestURLTemplate = "https://search.brave.com/api/suggest?q={searchTerms}";
-                      URLTemplate = "https://search.brave.com/search?q={searchTerms}";
-                    }
-                    {
-                      Alias = "@np";
-                      Name = "Nix packages";
-                      IconURL = "https://wiki.nixos.org/favicon.ico";
-                      URLTemplate = "https://search.nixos.org/packages?channel=unstable&query={searchTerms}";
-                    }
-                    {
-                      Alias = "@ng";
-                      Name = "Noogle";
-                      IconURL = "https://noogle.dev/favicon.ico";
-                      URLTemplate = "https://noogle.dev/q?term={searchTerms}";
-                    }
-                    {
-                      Alias = "@mn";
-                      Name = "My Nixos";
-                      IconURL = "https://mynixos.com/favicon.ico";
-                      URLTemplate = "https://mynixos.com/search?q={searchTerms}";
-                    }
-                    {
-                      Alias = "@rp";
-                      Name = "Radboud proxy";
-                      IconURL = "https://www.ru.nl/favicon.ico";
-                      URLTemplate = "https://login.ru.idm.oclc.org/login?qurl={searchTerms}";
-                    }
-                    {
-                      Alias = "@ru";
-                      Name = "Radboud University Library";
-                      IconURL = "https://www.ru.nl/favicon.ico";
-                      URLTemplate = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
-                    }
-                    {
-                      Alias = "@ss";
-                      Name = "Semantic Scholar";
-                      IconURL = "https://www.semanticscholar.org/favicon.ico";
-                      URLTemplate = "https://www.semanticscholar.org/search?q={searchTerms}";
-                    }
-                  ];
-
-                  Remove = [
-                    "bing"
-                    "duckduckgo"
-                    "ebay-nl"
-                    "ecosia"
-                    "google"
-                    "perplexity"
-                    "qwant"
-                    "wikipedia"
-                  ];
-                };
-
-                UserMessaging = {
-                  ExtensionRecommendations = false;
-                  FeatureRecommendations = false;
-                  FirefoxLabs = false;
-                  MoreFromMozilla = false;
-                  SkipOnboarding = true;
-                  UrlbarInterventions = false;
-                  Locked = true;
-                };
-              };
-
-              profiles."default" = {
-                containersForce = true;
-                pinsForce = true;
-                spacesForce = true;
-
-                bookmarks = {
-                  force = true;
-
-                  # No `toolbar = true` anywhere, so this lands in the
-                  # bookmarks menu (hamburger > Bookmarks, or Ctrl+Shift+O)
-                  # rather than the toolbar, which DisplayBookmarksToolbar
-                  # keeps hidden. It has to be *clicked*: giving it a
-                  # `keyword` would not help, since the urlbar has silently
-                  # dropped keyword-invoked bookmarklets since Firefox 68
-                  # (mozilla bug 1552141).
-                  settings = [
-                    {
-                      name = "Library";
-                      bookmarks = [
+                    Add = [
+                      {
+                        Alias = "@br";
+                        Name = "Brave";
+                        IconURL = "https://search.brave.com/favicon.ico";
+                        SuggestURLTemplate = "https://search.brave.com/api/suggest?q={searchTerms}";
+                        URLTemplate = "https://search.brave.com/search?q={searchTerms}";
+                      }
+                      {
+                        Alias = "@np";
+                        Name = "Nix packages";
+                        IconURL = "https://wiki.nixos.org/favicon.ico";
+                        URLTemplate = "https://search.nixos.org/packages?channel=unstable&query={searchTerms}";
+                      }
+                      {
+                        Alias = "@ng";
+                        Name = "Noogle";
+                        IconURL = "https://noogle.dev/favicon.ico";
+                        URLTemplate = "https://noogle.dev/q?term={searchTerms}";
+                      }
+                      {
+                        Alias = "@mn";
+                        Name = "My Nixos";
+                        IconURL = "https://mynixos.com/favicon.ico";
+                        URLTemplate = "https://mynixos.com/search?q={searchTerms}";
+                      }
+                    ]
+                    ++ lib.optionals (institution.ezproxyPrefix != null) [
+                      (
                         {
-                          name = "Radboud proxy";
-                          url = "javascript:void(location.href='https://login.ru.idm.oclc.org/login?qurl='+encodeURIComponent(location.href))";
+                          Alias = "@rp";
+                          Name = "Radboud proxy";
+                          URLTemplate = "${institution.ezproxyPrefix}{searchTerms}";
                         }
-                      ];
-                    }
-                  ];
-                };
+                        // lib.optionalAttrs (institution.iconUrl != null) {
+                          IconURL = institution.iconUrl;
+                        }
+                      )
+                    ]
+                    ++ lib.optionals (institution.librarySearchUrl != null) [
+                      (
+                        {
+                          Alias = "@ru";
+                          Name = "Radboud University Library";
+                          URLTemplate = institution.librarySearchUrl;
+                        }
+                        // lib.optionalAttrs (institution.iconUrl != null) {
+                          IconURL = institution.iconUrl;
+                        }
+                      )
+                    ]
+                    ++ [
+                      {
+                        Alias = "@ss";
+                        Name = "Semantic Scholar";
+                        IconURL = "https://www.semanticscholar.org/favicon.ico";
+                        URLTemplate = "https://www.semanticscholar.org/search?q={searchTerms}";
+                      }
+                    ];
 
-                containers = {
-                  "Default" = {
-                    color = "toolbar";
-                    id = 1;
+                    Remove = [
+                      "bing"
+                      "duckduckgo"
+                      "ebay-nl"
+                      "ecosia"
+                      "google"
+                      "perplexity"
+                      "qwant"
+                      "wikipedia"
+                    ];
                   };
 
-                  "Work" = {
-                    color = "blue";
-                    id = 2;
+                  UserMessaging = {
+                    ExtensionRecommendations = false;
+                    FeatureRecommendations = false;
+                    FirefoxLabs = false;
+                    MoreFromMozilla = false;
+                    SkipOnboarding = true;
+                    UrlbarInterventions = false;
+                    Locked = true;
                   };
                 };
 
-                pins =
-                  let
-                    inherit (config.programs.zen-browser.profiles."default") containers;
-                  in
-                  {
-                    "GitLab" = {
-                      container = containers."Work".id;
-                      id = "be198a28-a2b5-4362-b43a-d164a31a8215";
-                      isEssential = true;
-                      position = 1000;
-                      url = "https://gitlab.science.ru.nl/dashboard/home";
-                    };
+                profiles."default" = {
+                  containersForce = true;
+                  pinsForce = true;
+                  spacesForce = true;
 
-                    "PubHubs" = {
-                      container = containers."Work".id;
-                      id = "efe48942-39d2-41ae-b83f-b214205447ce";
-                      isEssential = true;
-                      position = 2000;
-                      url = "http://localhost:8080";
-                    };
+                  bookmarks = {
+                    force = true;
+
+                    # No `toolbar = true` anywhere, so this lands in the
+                    # bookmarks menu (hamburger > Bookmarks, or Ctrl+Shift+O)
+                    # rather than the toolbar, which DisplayBookmarksToolbar
+                    # keeps hidden. It has to be *clicked*: giving it a
+                    # `keyword` would not help, since the urlbar has silently
+                    # dropped keyword-invoked bookmarklets since Firefox 68
+                    # (mozilla bug 1552141).
+                    settings = [
+                      {
+                        name = "Library";
+                        bookmarks = [
+                          {
+                            name = "Radboud proxy";
+                            url = "javascript:void(location.href='${institution.ezproxyPrefix}'+encodeURIComponent(location.href))";
+                          }
+                        ];
+                      }
+                    ];
                   };
 
-                # Keys have to be flat, quoted pref names. The module runs
-                # each top-level attribute's value through toJSON, so a
-                # nested attrset lands in user.js as one junk pref -- e.g.
-                # user_pref("browser", "{\"cache\":{...}}") -- and every
-                # setting inside it silently never applies.
-                settings = {
-                  "browser.cache.disk.enable" = false;
-                  "browser.cache.memory.capacity" = 32768;
-                  "browser.cache.memory.enable" = true;
-                  "browser.low_commit_space_threshold_percent" = 100;
-                  "browser.ml.enable" = false;
-                  "browser.sessionstore.resume_from_crash" = false;
-                  "browser.startup.homepage_override.mstone" = "ignore";
-                  "browser.tabs.min_inactive_duration_before_unload" = 3600000;
-                  "browser.tabs.unloadOnLowMemory" = true;
-                  "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-                  "zen.glance.enabled" = false;
-
-                  # Drop windows flagged isZenUnsynced when restoring. Those
-                  # are the ones zen.window-sync.open-link-in-new-unsynced-
-                  # window (on by default) spawns for links handed over by
-                  # another app, so without this a link opened from Zotero or
-                  # Obsidian can leave a second window in the session that
-                  # comes back on every later launch.
-                  #
-                  # This is damage control, not a fix: Zen patched
-                  # SessionStartup.isAutomaticRestoreEnabled() to a hardcoded
-                  # `true`, so browser.startup.page is ignored and every saved
-                  # window is restored regardless. A duplicate that is *not*
-                  # flagged unsynced still has to be closed by hand once, and
-                  # then it stays gone.
-                  "zen.session-store.restore-unsynced-windows" = false;
-
-                  "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
-                  "zen.tabs.show-newtab-vertical" = false;
-                  "zen.window-sync.enabled" = true;
-                  "zen.window-sync.sync-only-pinned-tabs" = true;
-                };
-
-                spaces =
-                  let
-                    inherit (config.programs.zen-browser.profiles."default") containers;
-                  in
-                  {
+                  containers = {
                     "Default" = {
-                      id = "ddb6f565-10ff-4f93-86eb-33f8920aacf4";
-                      container = containers."Default".id;
-                      position = 1000;
+                      color = "toolbar";
+                      id = 1;
                     };
 
-                    "PubHubs" = {
-                      id = "c0d32de6-fd82-4943-ad01-3496469506fb";
-                      container = containers."Work".id;
-                      position = 2000;
+                    "Work" = {
+                      color = "blue";
+                      id = 2;
                     };
                   };
-              };
-            };
-          }
-        )
-      ];
 
-      my.preservation.homeDirectories = [
-        ".config/zen"
-      ];
+                  pins =
+                    let
+                      inherit (config.programs.zen-browser.profiles."default") containers;
+                    in
+                    {
+                      "GitLab" = {
+                        container = containers."Work".id;
+                        id = "be198a28-a2b5-4362-b43a-d164a31a8215";
+                        isEssential = true;
+                        position = 1000;
+                        url = "https://gitlab.science.ru.nl/dashboard/home";
+                      };
+
+                      "PubHubs" = {
+                        container = containers."Work".id;
+                        id = "efe48942-39d2-41ae-b83f-b214205447ce";
+                        isEssential = true;
+                        position = 2000;
+                        url = "http://localhost:8080";
+                      };
+                    };
+
+                  # Keys have to be flat, quoted pref names. The module runs
+                  # each top-level attribute's value through toJSON, so a
+                  # nested attrset lands in user.js as one junk pref -- e.g.
+                  # user_pref("browser", "{\"cache\":{...}}") -- and every
+                  # setting inside it silently never applies.
+                  settings = {
+                    "browser.cache.disk.enable" = false;
+                    "browser.cache.memory.capacity" = 32768;
+                    "browser.cache.memory.enable" = true;
+                    "browser.low_commit_space_threshold_percent" = 100;
+                    "browser.ml.enable" = false;
+                    "browser.sessionstore.resume_from_crash" = false;
+                    "browser.startup.homepage_override.mstone" = "ignore";
+                    "browser.tabs.min_inactive_duration_before_unload" = 3600000;
+                    "browser.tabs.unloadOnLowMemory" = true;
+                    "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+                    "zen.glance.enabled" = false;
+
+                    # Drop windows flagged isZenUnsynced when restoring. Those
+                    # are the ones zen.window-sync.open-link-in-new-unsynced-
+                    # window (on by default) spawns for links handed over by
+                    # another app, so without this a link opened from Zotero or
+                    # Obsidian can leave a second window in the session that
+                    # comes back on every later launch.
+                    #
+                    # This is damage control, not a fix: Zen patched
+                    # SessionStartup.isAutomaticRestoreEnabled() to a hardcoded
+                    # `true`, so browser.startup.page is ignored and every saved
+                    # window is restored regardless. A duplicate that is *not*
+                    # flagged unsynced still has to be closed by hand once, and
+                    # then it stays gone.
+                    "zen.session-store.restore-unsynced-windows" = false;
+
+                    "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
+                    "zen.tabs.show-newtab-vertical" = false;
+                    "zen.window-sync.enabled" = true;
+                    "zen.window-sync.sync-only-pinned-tabs" = true;
+                  };
+
+                  spaces =
+                    let
+                      inherit (config.programs.zen-browser.profiles."default") containers;
+                    in
+                    {
+                      "Default" = {
+                        id = "ddb6f565-10ff-4f93-86eb-33f8920aacf4";
+                        container = containers."Default".id;
+                        position = 1000;
+                      };
+
+                      "PubHubs" = {
+                        id = "c0d32de6-fd82-4943-ad01-3496469506fb";
+                        container = containers."Work".id;
+                        position = 2000;
+                      };
+                    };
+                };
+              };
+            }
+          )
+        ];
+
+        my.preservation.homeDirectories = [
+          ".config/zen"
+        ];
+      };
     };
-  };
 }

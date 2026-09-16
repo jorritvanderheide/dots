@@ -19,7 +19,7 @@
         )
       ];
 
-      my.preservation.homeDirectories = [
+      my.research.statePaths = [
         # Per-document state Papers keeps outside the PDF itself: last page,
         # zoom, and annotations.
         ".local/share/papers"

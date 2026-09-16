@@ -58,6 +58,12 @@ in
         cli-tools
         shell
 
+        # Research
+        notes
+        pdf-reader
+        research
+        zotero
+
         # Apps
         browser
         editor
@@ -65,12 +71,9 @@ in
         media-player
         messaging
         music-player
-        notes
         password-manager
-        pdf-reader
         terminal
         yubikey
-        zotero
 
         # Users
         jorrit
@@ -78,104 +81,122 @@ in
       ++ [
         inputs.nixos-hardware.nixosModules.framework-13th-gen-intel
 
-        (_: {
-          networking.hostName = "rocinante";
-          nixpkgs.hostPlatform = facterReport.system;
-          system.stateVersion = "26.05";
+        (
+          { config, ... }:
+          {
+            networking.hostName = "rocinante";
+            nixpkgs.hostPlatform = facterReport.system;
+            system.stateVersion = "26.05";
 
-          my.desktop-shell.lockOnStartup = true;
-          my.power.laptop.enable = true;
-          my.session.autologinuser = "jorrit";
+            my.desktop-shell.lockOnStartup = true;
+            my.power.laptop.enable = true;
+            my.session.autologinuser = "jorrit";
 
-          my.compositor = {
-            outputs = {
-              # Laptop screen
-              "eDP-1" = {
-                scale = 1.175;
+            my.compositor = {
+              outputs = {
+                # Laptop screen
+                "eDP-1" = {
+                  scale = 1.175;
 
-                position = {
-                  x = 0;
-                  y = 0;
+                  position = {
+                    x = 0;
+                    y = 0;
+                  };
                 };
-              };
 
-              # Home monitor
-              "LG Electronics LG HDR 4K 0x0004C67F" = {
-                focus-at-startup = true;
-                scale = 1.25;
+                # Home monitor
+                "LG Electronics LG HDR 4K 0x0004C67F" = {
+                  focus-at-startup = true;
+                  scale = 1.25;
 
-                position = {
-                  x = -576;
-                  y = -1728;
+                  position = {
+                    x = -576;
+                    y = -1728;
+                  };
                 };
-              };
 
-              # Office monitor
-              "LG Electronics LG HDR 4K 210MAZVRJG93" = {
-                focus-at-startup = true;
-                scale = 1.25;
+                # Office monitor
+                "LG Electronics LG HDR 4K 210MAZVRJG93" = {
+                  focus-at-startup = true;
+                  scale = 1.25;
 
-                position = {
-                  x = -576;
-                  y = -1728;
+                  position = {
+                    x = -576;
+                    y = -1728;
+                  };
                 };
-              };
 
-              # Meeting room 18th floor
-              "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
-                scale = 2;
+                # Meeting room 18th floor
+                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
+                  scale = 2;
 
-                position = {
-                  x = 0;
-                  y = -1080;
+                  position = {
+                    x = 0;
+                    y = -1080;
+                  };
                 };
-              };
 
-              # Corner office 19th floor
-              "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                scale = 1.5;
+                # Corner office 19th floor
+                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
+                  scale = 1.5;
 
-                position = {
-                  x = 320;
-                  y = -720;
+                  position = {
+                    x = 320;
+                    y = -720;
+                  };
                 };
               };
             };
-          };
 
-          # The laptop has no USB/ZFS backup of its own (that's dapple's
-          # my.backup), and /persist is all that survives the boot-time
-          # rollback -- so this is the only copy of anything here.
-          my.offsite-backup = {
-            enable = true;
+            # The laptop has no USB/ZFS backup of its own (that's dapple's
+            # my.backup), and /persist is all that survives the boot-time
+            # rollback -- so this is the only copy of anything here.
+            # The research modules declare what state they need kept but not
+            # how; this machine persists it with preservation.
+            my.preservation.homeDirectories = config.my.research.statePaths;
 
-            paths = [
-              "/persist/home/jorrit/Zotero"
-            ];
-          };
+            my.research = {
+              vaultPath = "Git/obsidian";
 
-          my.ssh.knownHosts.dapple = {
-            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+              institution = {
+                ezproxyPrefix = "https://login.ru.idm.oclc.org/login?qurl=";
+                openurlResolver = "https://ru.on.worldcat.org/atoztitles/link";
+                librarySearchUrl = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
+                iconUrl = "https://www.ru.nl/favicon.ico";
+              };
+            };
 
-            hostNames = [
-              "dapple"
-              "100.64.0.1"
-            ];
-          };
+            my.offsite-backup = {
+              enable = true;
 
-          # Public halves only -- private keys live in the Bitwarden SSH
-          # agent (ssh-add -L to re-derive these if they're ever lost).
-          my.ssh.identityFiles = {
-            "git@codeberg.org.pub" =
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC git@codeberg.org";
-            "git@github.com.pub" =
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
-            "git@gitlab.science.ru.nl.pub" =
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
-          };
+              paths = [
+                "/persist/home/jorrit/Zotero"
+              ];
+            };
 
-          my.vpn.loginServer = "https://vpn.bw20.nl";
-        })
+            my.ssh.knownHosts.dapple = {
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+
+              hostNames = [
+                "dapple"
+                "100.64.0.1"
+              ];
+            };
+
+            # Public halves only -- private keys live in the Bitwarden SSH
+            # agent (ssh-add -L to re-derive these if they're ever lost).
+            my.ssh.identityFiles = {
+              "git@codeberg.org.pub" =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC git@codeberg.org";
+              "git@github.com.pub" =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
+              "git@gitlab.science.ru.nl.pub" =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
+            };
+
+            my.vpn.loginServer = "https://vpn.bw20.nl";
+          }
+        )
       ];
   };
 }
