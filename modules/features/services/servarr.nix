@@ -247,6 +247,10 @@
                 "d ${torrentsDir}/movies 2775 root media -"
                 "d ${torrentsDir}/series 2775 root media -"
                 "d ${torrentsDir}/music 2775 root media -"
+                # Landing dir for the `audiobooks` qBittorrent category;
+                # grabs come from Prowlarr's search UI and are moved into
+                # /srv/media/library/audiobooks by hand.
+                "d ${torrentsDir}/audiobooks 2775 root media -"
                 # Lidarr's import target; Jellyfin's Music library reads it.
                 "d ${mediaDir}/library/music 2775 root media -"
               ];
