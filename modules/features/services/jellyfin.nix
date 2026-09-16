@@ -176,6 +176,10 @@
               "d ${mediaDir}/library 2775 root media -"
               "d ${mediaDir}/library/movies 2775 root media -"
               "d ${mediaDir}/library/series 2775 root media -"
+              # Audiobooks aren't managed by any *arr; files are dropped here
+              # manually and picked up by a Jellyfin library of type "Books",
+              # the only type that tracks listening position.
+              "d ${mediaDir}/library/audiobooks 2775 root media -"
             ];
 
             systemd.services.jellyfin.serviceConfig = {
