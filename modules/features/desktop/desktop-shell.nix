@@ -38,22 +38,6 @@
           }
         ];
 
-        my.preservation.homeDirectories = [
-          # wallpaper_depth's 99MB model + Python venv + generated mask cache
-          # live under here; without this they're wiped every boot (like
-          # everything else outside preserveAt) and the setup work (including
-          # the network fetch) redoes itself from scratch every time, with no
-          # mask -- and no occlusion effect on the clock widget -- until it does.
-          ".local/state/noctalia/plugins/data"
-          # The official/community plugin catalogs noctalia clones from git
-          # to discover/materialize plugins. Not preserving this cost ~13-19s
-          # of re-clone on every boot before wallpaper_depth's service even
-          # started (git clone + checkout of the whole catalog), during which
-          # window a wallpaper change can fire before anything is listening
-          # for it -- part of why the mask wasn't showing up after boot.
-          ".local/state/noctalia/plugins/sources"
-        ];
-
         home-manager.sharedModules = [
           inputs.noctalia.homeModules.default
           (
@@ -87,9 +71,8 @@
                 '';
 
                 # Bar shows on every connected output by default; disable it on
-                # every known external monitor so it (and the clock_main
-                # desktop widget, already pinned to eDP-1 below) only ever
-                # appears on the laptop screen, docked or not.
+                # every known external monitor so it only ever appears on the
+                # laptop screen, docked or not.
                 programs.noctalia.settings.bar.main.monitor =
                   lib.genAttrs
                     (builtins.filter (name: name != "eDP-1") (builtins.attrNames osConfig.my.compositor.outputs))
@@ -104,18 +87,6 @@
                 # in by hand. Pictures/ as a whole is already bind-mounted
                 # persistent (see preservation.nix), so hand-dropped files
                 # survive reboots without any extra preservation entry.
-                #
-                # Deliberately a real copy, not a home.file symlink into the
-                # store: wallpaper_depth's depth_helper.py resolves the
-                # --wallpaper path (Path.resolve(), follows symlinks) before
-                # echoing it back as the completed job's `wallpaperPath`. A
-                # symlink here means that echoed path (the resolved
-                # /nix/store/... target) never matches what noctalia has on
-                # file as the current wallpaper (the plain ~/Pictures/... path
-                # everything else compares against), so the plugin always
-                # treats its own successful result as stale and silently
-                # discards it -- the clock never gets a mask, with no warning
-                # logged anywhere (a nil mask short-circuits before that).
                 home.activation.noctaliaWallpaperCopies = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                   ${lib.concatMapStringsSep "\n" (name: ''
                     run install -D -m 0644 ${
@@ -143,8 +114,7 @@
                 # every other picture -- use a dedicated subfolder instead.
                 programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
 
-                # Boot-time default, declared instead of pushed via IPC (see
-                # spawn-at-startup below) -- loads as part of noctalia's own
+                # Boot-time default, declared instead of pushed via IPC -- loads as part of noctalia's own
                 # config, so it's showing before noctalia is even visible,
                 # with nothing to race. Picks deterministically (not just
                 # "first file" order-of-readDir, which isn't stable) rather
@@ -171,36 +141,6 @@
                       "b"
                       "--"
                       "noctalia"
-                    ];
-                  }
-                  {
-                    # The wallpaper image itself is now declarative
-                    # (wallpaper.default.path above), loaded synchronously as
-                    # part of noctalia's own startup -- no more race for the
-                    # base image, and nothing to retry here for it.
-                    #
-                    # wallpaper_depth's mask generation is still a separate,
-                    # genuinely async runtime service action: its own service
-                    # can take 15-20s to spin up after boot (git-cloning the
-                    # plugin catalog, even with plugins/sources preserved this
-                    # can still race a cold cache), and a mask that's already
-                    # cached for the current wallpaper doesn't reliably get
-                    # (re-)published to this fresh process's desktop widgets
-                    # host on its own -- so force a (re-)generate, retrying
-                    # since this races the service's own startup.
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "sh"
-                      "-c"
-                      ''
-                        for _ in $(seq 1 20); do
-                          noctalia msg plugin noctalia/wallpaper_depth:service all generate && exit 0
-                          sleep 0.5
-                        done
-                      ''
                     ];
                   }
                 ]
@@ -237,6 +177,7 @@
                   enable = true;
 
                   settings = {
+                    desktop_widgets.enabled = false;
                     lockscreen.enabled = true;
                     notification.history_retention_hours = 0;
                     system.monitor.enabled = false;
@@ -262,7 +203,9 @@
                         "media"
                       ];
 
-                      center = [ ];
+                      center = [
+                        "clock"
+                      ];
 
                       end = [
                         "network"
@@ -270,32 +213,6 @@
                         "volume"
                         "battery"
                       ];
-                    };
-
-                    desktop_widgets = {
-                      enabled = true;
-                      widget_order = [ "clock_main" ];
-
-                      widget.clock_main = {
-                        # box_width/box_height (not a "settings" key) are what
-                        # actually scale a desktop widget's content: noctalia
-                        # fits it to this box, aspect-preserved, then re-lays-out
-                        # at the fitted scale. There's no per-widget font-size or
-                        # "scale" setting -- content otherwise renders at a fixed
-                        # size derived only from the global accessibility uiScale.
-                        # box_height is ~1/4 of eDP-1's 1280 logical height;
-                        # box_width is deliberately wider than the fitted text so
-                        # height stays the binding dimension (content is centered
-                        # in the box either way, and background=false below hides
-                        # the extra margin).
-                        box_height = 320.0;
-                        box_width = 900.0;
-                        cx = 960.0;
-                        cy = 640.0;
-                        output = "eDP-1";
-                        settings.background = false;
-                        type = "clock";
-                      };
                     };
 
                     # Replaces the old standalone swayidle-based my.idle module --
@@ -330,12 +247,6 @@
                       sidebar = "none";
                       sidebar_section = "none";
                     };
-
-                    # wallpaper_depth needs network access to fetch the depth
-                    # model and generate masks.
-                    plugins.enabled = [
-                      "noctalia/wallpaper_depth"
-                    ];
 
                     shell = {
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";
@@ -398,37 +309,6 @@
                 };
               };
 
-              home.packages = [
-                # noctalia/wallpaper_depth plugin dependencies (setup runs
-                # `uv` to create a private Python env for the ONNX model).
-                pkgs.python3
-                pkgs.uv
-              ];
-
-              # noctalia/wallpaper_depth's setup step pip-installs prebuilt
-              # manylinux wheels (numpy, onnxruntime, Pillow) into a plain
-              # `python3 -m venv`. Those wheels assume libstdc++/libz live at
-              # the FHS-standard path and fail to import on NixOS (ImportError:
-              # libstdc++.so.6/libz.so.1 cannot open shared object file)
-              # without this on the loader's path. Scoped to this user's
-              # session rather than every session on the machine
-              # (environment.sessionVariables) -- narrower blast radius for
-              # other programs that bundle their own libstdc++/zlib.
-              #
-              # systemd.user.sessionVariables (-> ~/.config/environment.d/),
-              # not home.sessionVariables (-> ~/.profile): niri spawns
-              # noctalia via app2unit as a systemd --user transient unit,
-              # which inherits the user manager's activation environment, not
-              # a login shell's. home.sessionVariables never reaches it, so
-              # wallpaper_depth's runtime_ready() check silently sees
-              # ImportError on libstdc++ and reports "setup required" forever,
-              # even though the venv is fine -- no error surfaces anywhere
-              # because the plugin only logs a translated "not installed"
-              # message, not the underlying exception.
-              systemd.user.sessionVariables.LD_LIBRARY_PATH = lib.makeLibraryPath [
-                pkgs.stdenv.cc.cc
-                pkgs.zlib
-              ];
             }
           )
         ];
