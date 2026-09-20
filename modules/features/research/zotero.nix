@@ -52,17 +52,6 @@
         url = "https://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.64/zotero-better-bibtex-9.0.64.xpi";
         hash = "sha256-hMS1sF/6yanH4v95ZjYSSG93gWkN1ZsSoeYq7Nz6fCc=";
       };
-
-      # ZotLit's Zotero-side companion. The Obsidian plugin reads the
-      # library out of zotero.sqlite on its own, so this is only needed to
-      # push changes to Obsidian live while Zotero happens to be open.
-      zotlit = mkZoteroPlugin {
-        pname = "zotero-zotlit";
-        version = "2.1.4";
-        addonId = "zotlit@aidenlx.site";
-        url = "https://github.com/aidenlx/zotlit/releases/download/zt-2.1.4/zotlit-zotero-2.1.4.xpi";
-        hash = "sha256-T3CGoDZr83+G984oEADitWAtzUlu8rz6UgEnsZqeBhQ=";
-      };
     in
     {
       config = {
@@ -99,7 +88,6 @@
                 profiles.default = {
                   extensions.packages = [
                     better-bibtex
-                    zotlit
                   ];
 
                   settings =
