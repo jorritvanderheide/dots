@@ -205,9 +205,9 @@
 
           # Jellyfin already listens on 0.0.0.0 for both of these, so only the
           # firewall is in the way. Scoped to the LAN interface rather than
-          # using services.jellyfin.openFirewall, which opens them globally --
-          # the same trap my.kosync avoids. 7359/udp is the auto-discovery
-          # port clients broadcast on to work out whether they are home.
+          # using services.jellyfin.openFirewall, which opens them globally.
+          # 7359/udp is the auto-discovery port clients broadcast on to work
+          # out whether they are home.
           (lib.mkIf cfg.lanAccess.enable {
             networking.firewall.interfaces.${cfg.lanAccess.interface} = {
               allowedTCPPorts = [ port ];
