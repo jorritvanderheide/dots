@@ -39,7 +39,6 @@ in
         home-assistant
         immich
         jellyfin
-        obsidian-sync
         offsite-backup
         servarr
         tailscale
@@ -134,8 +133,6 @@ in
               mediaGroupUsers = [ "nixos" ];
             };
 
-            my.obsidian-sync.enable = true;
-
             my.offsite-backup = {
               enable = true;
               healthcheckTokenFile = "/run/secrets/gatus_push_token";
@@ -144,7 +141,6 @@ in
               paths = [
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
-                "/var/lib/couchdb"
                 "/var/lib/hass"
                 "/var/lib/headscale"
                 "/var/lib/immich"
