@@ -69,6 +69,7 @@ in
         editor
         email
         media-player
+        photo-editor
         messaging
         music-player
         password-manager
