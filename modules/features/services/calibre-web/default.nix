@@ -7,6 +7,7 @@
   flake.nixosModules.calibre-web =
     {
       config,
+      pkgs,
       ...
     }:
     let
@@ -83,6 +84,33 @@
             systemd.services.calibre-web.serviceConfig = {
               Restart = lib.mkForce "always";
               RestartSec = lib.mkForce "5s";
+            };
+
+            # See comics-to-kepub.py. Picks up new uploads on a timer rather
+            # than hooking calibre-web's upload path, which would mean
+            # patching it again.
+            systemd.services.calibre-web-comics-to-kepub = {
+              description = "Convert comics to KEPUB for Kobo sync";
+              startAt = "*:0/10";
+
+              path = [
+                config.services.calibre-web.calibrePackage
+                pkgs.kcc
+              ];
+
+              serviceConfig = {
+                Type = "oneshot";
+                User = "calibre-web";
+                Group = "calibre-web";
+                ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} /var/lib/calibre-web/library";
+                # calibre and KCC both want a writable home for config and
+                # scratch space; the service user has none.
+                PrivateTmp = true;
+                Environment = "HOME=/tmp";
+                # KCC is CPU-heavy on a few-hundred-page volume; don't let
+                # it starve the other services.
+                Nice = 19;
+              };
             };
 
             my.preservation.systemDirectories = [
