@@ -5,7 +5,7 @@
 }:
 {
   flake.nixosModules.desktop-shell =
-    { config, pkgs, ... }:
+    { config, ... }:
     let
       cfg = config.my.desktop-shell;
     in
@@ -215,7 +215,6 @@
                     };
 
                     control_center = {
-                      calendar.show_events_card = false;
                       sidebar = "none";
                       sidebar_section = "none";
                     };
@@ -255,7 +254,6 @@
                     shell = {
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";
                       niri_overview_type_to_launch_enabled = true;
-                      offline_mode = true;
                       polkit_agent = true;
                       setup_wizard_enabled = false;
                       screenshot.directory = "${config.home.homeDirectory}/Pictures/Screenshots";
@@ -263,6 +261,7 @@
                       launcher = {
                         categories = false;
                         compact = true;
+                        fetch_exchange_rates = false;
                       };
 
                       panel = {
