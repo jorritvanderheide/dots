@@ -10,8 +10,6 @@
 
         withModules = [
           {
-            my.desktop-shell.wallpaperDir = ./assets/wallpapers;
-
             # Proton calendar accounts, rendered from sops by
             # noctalia-calendar-secrets below.
             programs.noctalia.settings = {

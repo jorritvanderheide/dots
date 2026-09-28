@@ -47,22 +47,7 @@
               osConfig,
               ...
             }:
-            let
-              hmCfg = config.my.desktop-shell;
-
-              wallpaperFileNames = lib.optionals (hmCfg.wallpaperDir != null) (
-                builtins.attrNames (
-                  lib.filterAttrs (_name: type: type == "regular") (builtins.readDir hmCfg.wallpaperDir)
-                )
-              );
-            in
             {
-              options.my.desktop-shell.wallpaperDir = lib.mkOption {
-                default = null;
-                description = "Directory of wallpaper images to copy into noctalia's wallpaper picker folder, alongside anything dropped in manually. When null, only whatever's already in ~/Pictures is available.";
-                type = lib.types.nullOr lib.types.path;
-              };
-
               config = {
                 # noctalia inotify-watches its config dir, but that can race
                 # home-manager's activation -- nudge it explicitly instead.
@@ -80,20 +65,6 @@
                       match = name;
                       enabled = false;
                     });
-
-                # Expose every wallpaper checked into the repo as a real file
-                # (copy, not symlink) inside the picker folder noctalia
-                # browses (below), so they show up alongside anything dropped
-                # in by hand. Pictures/ as a whole is already bind-mounted
-                # persistent (see preservation.nix), so hand-dropped files
-                # survive reboots without any extra preservation entry.
-                home.activation.noctaliaWallpaperCopies = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                  ${lib.concatMapStringsSep "\n" (name: ''
-                    run install -D -m 0644 ${
-                      lib.escapeShellArg (hmCfg.wallpaperDir + "/${name}")
-                    } ${lib.escapeShellArg "${config.home.homeDirectory}/Pictures/Wallpapers/${name}"}
-                  '') wallpaperFileNames}
-                '';
 
                 home.file = {
                   # Marks noctalia's setup wizard as already completed. Its
@@ -114,18 +85,18 @@
                 # every other picture -- use a dedicated subfolder instead.
                 programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
 
-                # Boot-time default, declared instead of pushed via IPC -- loads as part of noctalia's own
-                # config, so it's showing before noctalia is even visible,
-                # with nothing to race. Picks deterministically (not just
-                # "first file" order-of-readDir, which isn't stable) rather
-                # than hardcoding a filename. No-op when wallpaperDir isn't
-                # set, since there's nothing under Pictures/Wallpapers to
-                # point at yet.
-                programs.noctalia.settings.wallpaper.default.path =
-                  lib.mkIf (wallpaperFileNames != [ ])
-                    "${config.home.homeDirectory}/Pictures/Wallpapers/${
-                      lib.head (lib.sort (a: b: a < b) wallpaperFileNames)
-                    }";
+                # ~/.local/state/noctalia isn't preserved, so a wallpaper picked
+                # in the GUI is gone after a reboot. Startup automation picks a
+                # random image from the folder above before anything is drawn;
+                # when the folder is empty it leaves this bundled default alone.
+                programs.noctalia.settings.wallpaper = {
+                  automation = {
+                    enabled = true;
+                    order = "random";
+                  };
+
+                  default.path = "${config.programs.noctalia.package}/share/noctalia/assets/noctalia-wallpaper.png";
+                };
               };
             }
           )
