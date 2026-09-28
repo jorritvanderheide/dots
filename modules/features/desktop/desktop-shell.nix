@@ -178,7 +178,6 @@
 
                   settings = {
                     desktop_widgets.enabled = false;
-                    lockscreen.enabled = true;
                     notification.history_retention_hours = 0;
                     system.monitor.enabled = false;
                     weather.enabled = false;
@@ -215,6 +214,12 @@
                       ];
                     };
 
+                    control_center = {
+                      calendar.show_events_card = false;
+                      sidebar = "none";
+                      sidebar_section = "none";
+                    };
+
                     # Replaces the old standalone swayidle-based my.idle module --
                     # noctalia's own idle manager uses the ext-idle-notify Wayland
                     # protocol natively and already locks before any sleep via its
@@ -242,10 +247,9 @@
                       };
                     };
 
-                    control_center = {
-                      calendar.show_events_card = false;
-                      sidebar = "none";
-                      sidebar_section = "none";
+                    lockscreen = {
+                      enabled = true;
+                      transition = [ "disc" ];
                     };
 
                     shell = {
