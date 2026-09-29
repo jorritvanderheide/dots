@@ -8,21 +8,20 @@
             ...
           }:
           {
-            # Papers is Evince's GTK4/libadwaita successor. It also ships
-            # papers.thumbnailer, which is what gives Nautilus PDF previews.
-            home.packages = [ pkgs.papers ];
+            # Okular rather than Papers, whose text rendered soft.
+            home.packages = [ pkgs.kdePackages.okular ];
 
             xdg.mimeApps.defaultApplications = {
-              "application/pdf" = "org.gnome.Papers.desktop";
+              "application/pdf" = "okularApplication_pdf.desktop";
             };
           }
         )
       ];
 
       my.research.statePaths = [
-        # Per-document state Papers keeps outside the PDF itself: last page,
+        # Per-document state Okular keeps outside the PDF itself: last page,
         # zoom, and annotations.
-        ".local/share/papers"
+        ".local/share/okular"
       ];
     };
   };
