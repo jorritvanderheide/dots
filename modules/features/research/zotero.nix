@@ -84,6 +84,8 @@
             {
               programs.zotero = {
                 enable = true;
+                # Temporary pin, see the nixpkgs-zotero input in flake.nix.
+                package = inputs.nixpkgs-zotero.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zotero;
 
                 profiles.default = {
                   extensions.packages = [
