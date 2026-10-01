@@ -25,6 +25,11 @@
     # nixos-unstable, so pinning it to the shared input breaks the build.
     niri-flake.url = "github:sodiboo/niri-flake";
 
+    # Temporary: zotero fails to build against firefox-esr 153.4
+    # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
+    # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
+    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
+
     noctalia = {
       url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
