@@ -52,6 +52,26 @@
                   repeat = false;
                 };
 
+                "Mod+Alt+Left" = {
+                  action = move-column-left-or-to-monitor-left;
+                  repeat = false;
+                };
+
+                "Mod+Alt+Down" = {
+                  action = move-window-to-monitor-down;
+                  repeat = false;
+                };
+
+                "Mod+Alt+Up" = {
+                  action = move-window-to-monitor-up;
+                  repeat = false;
+                };
+
+                "Mod+Alt+Right" = {
+                  action = move-column-right-or-to-monitor-right;
+                  repeat = false;
+                };
+
                 "Mod+Backspace" = {
                   action = spawn "loginctl" "lock-session";
                   repeat = false;
@@ -93,6 +113,26 @@
                 };
 
                 "Mod+L" = {
+                  action = focus-column-or-monitor-right;
+                  repeat = false;
+                };
+
+                "Mod+Left" = {
+                  action = focus-column-or-monitor-left;
+                  repeat = false;
+                };
+
+                "Mod+Down" = {
+                  action = focus-window-or-monitor-down;
+                  repeat = false;
+                };
+
+                "Mod+Up" = {
+                  action = focus-window-or-monitor-up;
+                  repeat = false;
+                };
+
+                "Mod+Right" = {
                   action = focus-column-or-monitor-right;
                   repeat = false;
                 };
