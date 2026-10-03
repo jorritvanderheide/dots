@@ -238,7 +238,7 @@
               ;; Ctrl+arrows (word jump) chordable while space is held.
               (deflayer nav
                 _    _    @toplain
-                _    _    _    _    _    _    _    _    _    _
+                _    _    _    _    _    _    home pgdn pgup end
                 lmet lalt lctl lsft _    left down up   right _    _
                 XX   _    _    _    _    _    _    _    _    _    _    XX
                 _    _

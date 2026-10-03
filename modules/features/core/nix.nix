@@ -8,7 +8,7 @@
       nixpkgs.config.allowUnfree = true;
 
       nix = {
-        nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+        settings.nix-path = [ "nixpkgs=${inputs.nixpkgs}" ];
 
         # Yields to interactive work under contention, full speed when idle --
         # preferable to capping max-jobs/cores, which slows builds always.
