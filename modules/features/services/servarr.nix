@@ -264,13 +264,18 @@
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
                 };
+                # Upstream's 0022 makes the series/season folders they create
+                # unwritable for the media group, so Bazarr can't drop .srt
+                # files next to the episodes.
                 sonarr.serviceConfig = {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
+                  UMask = lib.mkForce "0002";
                 };
                 radarr.serviceConfig = {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
+                  UMask = lib.mkForce "0002";
                 };
                 lidarr.serviceConfig = {
                   Restart = lib.mkForce "always";
@@ -279,6 +284,11 @@
                 bazarr.serviceConfig = {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
+                  # Repair folders created before the UMask above (or by other
+                  # means). "+" runs it as root.
+                  ExecStartPre = [
+                    "+${pkgs.findutils}/bin/find ${mediaDir}/library/series ${mediaDir}/library/movies -type d ! -perm -g+w -exec chmod g+w {} +"
+                  ];
                 };
               };
 
