@@ -16,7 +16,6 @@ in
     }:
     let
       cfg = config.my.compositor;
-      niriPkgs = inputs.niri-flake.packages.${pkgs.stdenv.hostPlatform.system};
     in
     {
       imports = [ niri-flake ];
@@ -55,7 +54,11 @@ in
 
         programs.niri = {
           enable = true;
-          package = niriPkgs.niri-stable;
+          # From nixpkgs, not niri-flake: niri-flake builds against its own
+          # (older) nixpkgs, so its niri links an older glibc than the system
+          # mesa in /run/opengl-driver needs. niri then can't open the GPU and
+          # the session comes up with a black screen.
+          package = pkgs.niri;
         };
 
         # Home manager
@@ -87,7 +90,7 @@ in
                 debug.honor-xdg-activation-with-invalid-serial = [ ];
                 gestures.hot-corners.enable = false;
                 prefer-no-csd = true;
-                xwayland-satellite.path = lib.getExe niriPkgs.xwayland-satellite-stable;
+                xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
                 cursor = {
                   hide-after-inactive-ms = 1000;
