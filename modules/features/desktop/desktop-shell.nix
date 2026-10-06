@@ -89,9 +89,12 @@
                 # in the GUI is gone after a reboot. Startup automation picks a
                 # random image from the folder above before anything is drawn;
                 # when the folder is empty it leaves this bundled default alone.
+                # There's no startup-only mode, so the interval is set to its
+                # 86400s maximum to effectively stop periodic rotation.
                 programs.noctalia.settings.wallpaper = {
                   automation = {
                     enabled = true;
+                    interval_seconds = 86400;
                     order = "random";
                   };
 
