@@ -201,7 +201,7 @@ in
                 window-rules = lib.singleton {
                   clip-to-geometry = true;
                   draw-border-with-background = false;
-                  opacity = 0.98;
+                  opacity = 1.00;
 
                   geometry-corner-radius = rec {
                     bottom-left = 8.0;
@@ -211,6 +211,19 @@ in
                   };
                 };
               };
+
+              # niri-flake's settings schema predates niri 26.04's background
+              # effects, so this window rule is added as raw KDL. Defining it
+              # at mkOptionDefault (the same priority as the settings-rendered
+              # default) appends it to that document instead of replacing it.
+              # programs.niri.config = lib.mkOptionDefault (
+              #   with inputs.niri-flake.lib.kdl;
+              #   [
+              #     (plain "window-rule" [
+              #       (plain "background-effect" [ (leaf "blur" true) ])
+              #     ])
+              #   ]
+              # );
 
               xdg.mimeApps = {
                 # Without enable, defaultApplications are silently never
