@@ -49,6 +49,28 @@
                   };
                 };
 
+                beverweg-24 = {
+                  ipv4.method = "auto";
+                  ipv6.method = "auto";
+
+                  connection = {
+                    autoconnect-priority = -1;
+                    id = "Beverweg 20 2.4";
+                    type = "wifi";
+                    permissions = "user:jorrit:";
+                  };
+
+                  wifi = {
+                    mode = "infrastructure";
+                    ssid = "Beverweg 20 2.4";
+                  };
+
+                  wifi-security = {
+                    key-mgmt = "wpa-psk";
+                    psk = "$BEVERWEG_PSK";
+                  };
+                };
+
                 eduroam = {
                   ipv4.method = "auto";
                   ipv6.method = "auto";
