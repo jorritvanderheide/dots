@@ -10,6 +10,14 @@
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
+    # Temporary: local checkout until cv-app has a remote; switch to e.g.
+    # git+ssh://git@codeberg.org/BW20/cv-app.git once pushed, or a fresh
+    # install of dapple can't fetch it.
+    cv-app = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "path:/home/jorrit/Git/cv-app";
+    };
+
     disko = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/disko";

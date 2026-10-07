@@ -33,6 +33,7 @@ in
         backup
         calibre-web
         contacts
+        cv-app
         gatus
         harmonia
         headscale
@@ -104,6 +105,13 @@ in
               lanSync.enable = true;
             };
             my.contacts.enable = true;
+            my.cv-app = {
+              enable = true;
+              users = [
+                "jeltje"
+                "jorrit"
+              ];
+            };
             my.gatus.enable = true;
             my.home-assistant = {
               enable = true;
@@ -141,6 +149,7 @@ in
               paths = [
                 "/var/backup/vaultwarden"
                 "/var/lib/calibre-web"
+                "/var/lib/cv-app/users"
                 "/var/lib/hass"
                 "/var/lib/headscale"
                 "/var/lib/immich"

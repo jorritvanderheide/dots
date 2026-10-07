@@ -68,6 +68,23 @@
         "type": "github"
       }
     },
+    "cv-app": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791446476,
+        "narHash": "sha256-sbHCjuMpeydE0PIoBP0mXQ6n593oE3DxH9Mb44WgNyk=",
+        "path": "/home/jorrit/Git/cv-app",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/jorrit/Git/cv-app",
+        "type": "path"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -456,6 +473,7 @@
     },
     "root": {
       "inputs": {
+        "cv-app": "cv-app",
         "disko": "disko",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",

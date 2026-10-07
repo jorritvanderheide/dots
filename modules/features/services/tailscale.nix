@@ -108,6 +108,12 @@
                 dnsProvider = "cloudflare";
                 email = "jorrit+acme@bw20.nl";
                 environmentFile = cloudflareDnsEnvPath;
+                # Check the DNS-01 challenge against the zone's authoritative
+                # nameserver, not the system resolver (MagicDNS -> 1.1.1.1):
+                # a recursive resolver can keep serving a cached NXDOMAIN for
+                # up to the zone's 30 min negative TTL, e.g. right after a
+                # new subdomain's record was created, and the order fails.
+                dnsResolver = "clint.ns.cloudflare.com:53";
               };
             };
 
