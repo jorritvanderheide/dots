@@ -1,0 +1,58 @@
+/*
+ * Color variables for both Zen templates (zen-userChrome.css and
+ * zen-userContent.css), defined once here. Not imported by
+ * userChrome/userContent: Zen's autoconfig (theming.nix) registers this file
+ * as a user stylesheet and swaps it whenever noctalia rewrites it, so a
+ * wallpaper or light/dark change recolors open windows without a restart.
+ * The two rule files only reference these variables, so they need no reload.
+ *
+ * Scoped to the browser UI and about: pages: the variable names are generic
+ * (--primary, --text, ...), and setting them on every element of a website
+ * would override the site's own variables of the same name.
+ *
+ * Taken from the community template's duplicated blocks, then adjusted:
+ * - --surface is the content tone (new tab and about: pages), shared with
+ *   Zed's editor, Ghostty and Obsidian's notes.
+ * - Zen uses the accents as text (selected tab, links, icons), and the raw
+ *   wallpaper accents can lack contrast: they are darkened in light mode, and
+ *   secondary/tertiary lifted in dark mode.
+ * - --error is the fixed semantic red (theming.nix custom_colors).
+ */
+@-moz-document url-prefix("chrome:"), url-prefix("about:") {
+  @media (prefers-color-scheme: dark) {
+    * {
+      --base:             {{colors.background.dark.hex}};
+      --surface:          {{colors.surface_container_low.dark.hex}};
+      --overlay:          {{colors.surface_container.dark.hex}};
+      --hl_low:           {{colors.surface_container_high.dark.hex}};
+      --hl_med:           {{colors.surface_container_highest.dark.hex}};
+      --hl_high:          {{colors.surface_bright.dark.hex}};
+      --outline:          {{colors.outline_variant.dark.hex}};
+      --muted:            {{colors.outline.dark.hex}};
+      --subtle:           {{colors.on_surface_variant.dark.hex}};
+      --text:             {{colors.on_surface.dark.hex}};
+      --primary:          {{colors.primary.dark.hex}};
+      --secondary:        {{colors.secondary.dark.hex | set_lightness: 72}};
+      --tertiary:         {{colors.tertiary.dark.hex | set_lightness: 72}};
+      --error:            {{colors.red.dark.hex}};
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    * {
+      --base:             {{colors.background.light.hex}};
+      --surface:          {{colors.surface_container_lowest.light.hex}};
+      --overlay:          {{colors.surface_container.light.hex}};
+      --hl_low:           {{colors.surface_container_high.light.hex}};
+      --hl_med:           {{colors.surface_container_highest.light.hex}};
+      --hl_high:          {{colors.surface_bright.light.hex}};
+      --outline:          {{colors.outline_variant.light.hex}};
+      --muted:            {{colors.outline.light.hex}};
+      --subtle:           {{colors.on_surface_variant.light.hex}};
+      --text:             {{colors.on_surface.light.hex}};
+      --primary:          {{colors.primary.light.hex | set_lightness: 22}};
+      --secondary:        {{colors.secondary.light.hex | set_lightness: 22}};
+      --tertiary:         {{colors.tertiary.light.hex | set_lightness: 22}};
+      --error:            {{colors.red.light.hex}};
+    }
+  }
+}

@@ -171,6 +171,14 @@
                   repeat = false;
                 };
 
+                # Dark by default (theming.nix); light on purpose, e.g. for
+                # glare. The choice is saved in noctalia's settings.toml, so it
+                # survives a reboot until toggled back.
+                "Mod+T" = {
+                  action = spawn "noctalia" "msg" "theme-mode-toggle";
+                  repeat = false;
+                };
+
                 "Mod+W" = {
                   action = spawn "noctalia" "msg" "wallpaper-next";
                   repeat = false;

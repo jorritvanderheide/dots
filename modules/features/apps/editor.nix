@@ -1,5 +1,4 @@
-{ inputs, ... }:
-{
+_: {
   flake.nixosModules.editor =
     {
       pkgs,
@@ -66,33 +65,6 @@
               ];
             };
           }
-
-          (
-            {
-              config,
-              lib,
-              pkgs,
-              ...
-            }:
-            {
-              # Zed >=1.17 rejects theme "appearance": "unspecified" (schema
-              # now requires "light" or "dark"); stylix's tinted-zed template
-              # still emits "unspecified", so Zed silently drops the whole
-              # theme file (logs "theme not found: Base16 Stylix"). Patch it
-              # in place -- polarity is fixed to "dark" in theming.nix.
-              programs.zed-editor.themes.stylix = lib.mkForce (
-                pkgs.runCommand "zed-theme-stylix.json" { nativeBuildInputs = [ pkgs.jq ]; } ''
-                  jq '.themes[].appearance = "dark"' \
-                    ${
-                      config.lib.stylix.colors {
-                        templateRepo = inputs.stylix.inputs.tinted-zed;
-                        target = "base16";
-                      }
-                    } > $out
-                ''
-              );
-            }
-          )
         ];
 
         my.preservation.homeDirectories = [

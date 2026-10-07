@@ -1,0 +1,52 @@
+/*
+ * Overrides on top of noctalia's built-in GTK template (noctalia.css), imported
+ * after it by gtk.css (theming.nix), so these definitions win. Only what the
+ * built-in gets wrong for this setup:
+ * - Content (lists, text views) at the extreme surface tone, the same as Zed's
+ *   editor, Ghostty and Obsidian's notes; sidebars on the chrome tone.
+ * - Accent text darkened in light mode, where the raw wallpaper accent can be
+ *   too light to read. Accent fills (accent_bg_color) stay as they are.
+ * - Error, warning and success from the fixed semantic colors
+ *   (theming.nix custom_colors) instead of wallpaper accents.
+ * GTK4 (libadwaita) reads the CSS variables below, pointed at the same
+ * named colors.
+ * The replace turns "light" into an empty, falsy string.
+ */
+<* if {{ mode | replace: "light", "" }} *>
+@define-color view_bg_color {{colors.surface_container_low.dark.hex}};
+@define-color accent_color {{colors.primary.dark.hex}};
+<* else *>
+@define-color view_bg_color {{colors.surface_container_lowest.light.hex}};
+@define-color accent_color {{colors.primary.light.hex | set_lightness: 22}};
+<* endif *>
+@define-color sidebar_bg_color {{colors.surface.default.hex}};
+@define-color destructive_color {{colors.red.default.hex}};
+@define-color destructive_bg_color {{colors.red.default.hex}};
+@define-color destructive_fg_color {{colors.on_red.default.hex}};
+@define-color error_color {{colors.red.default.hex}};
+@define-color error_bg_color {{colors.red.default.hex}};
+@define-color error_fg_color {{colors.on_red.default.hex}};
+@define-color warning_color {{colors.yellow.default.hex}};
+@define-color warning_bg_color {{colors.yellow.default.hex}};
+@define-color warning_fg_color {{colors.on_yellow.default.hex}};
+@define-color success_color {{colors.green.default.hex}};
+@define-color success_bg_color {{colors.green.default.hex}};
+@define-color success_fg_color {{colors.on_green.default.hex}};
+
+:root {
+    --view-bg-color: @view_bg_color;
+    --accent-color: @accent_color;
+    --sidebar-bg-color: @sidebar_bg_color;
+    --destructive-color: @destructive_color;
+    --destructive-bg-color: @destructive_bg_color;
+    --destructive-fg-color: @destructive_fg_color;
+    --error-color: @error_color;
+    --error-bg-color: @error_bg_color;
+    --error-fg-color: @error_fg_color;
+    --warning-color: @warning_color;
+    --warning-bg-color: @warning_bg_color;
+    --warning-fg-color: @warning_fg_color;
+    --success-color: @success_color;
+    --success-bg-color: @success_bg_color;
+    --success-fg-color: @success_fg_color;
+}
