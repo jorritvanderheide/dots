@@ -1,0 +1,38 @@
+# Ghostty theme rendered by noctalia (theming.nix). Background, text, cursor
+# and selection follow the wallpaper; ANSI 1-6 use the fixed semantic
+# custom_colors, so red/green/yellow keep their meaning on every wallpaper.
+# Bright variants are the on_<name>_container tone: lighter in dark mode,
+# darker in light mode, so both stay readable.
+palette = 0={{colors.surface_container_highest.default.hex}}
+palette = 1={{colors.red.default.hex}}
+palette = 2={{colors.green.default.hex}}
+palette = 3={{colors.yellow.default.hex}}
+palette = 4={{colors.blue.default.hex}}
+palette = 5={{colors.purple.default.hex}}
+palette = 6={{colors.cyan.default.hex}}
+palette = 7={{colors.on_surface_variant.default.hex}}
+palette = 9={{colors.on_red_container.default.hex}}
+palette = 10={{colors.on_green_container.default.hex}}
+palette = 11={{colors.on_yellow_container.default.hex}}
+palette = 12={{colors.on_blue_container.default.hex}}
+palette = 13={{colors.on_purple_container.default.hex}}
+palette = 14={{colors.on_cyan_container.default.hex}}
+palette = 15={{colors.on_surface.default.hex}}
+# Background is the content tone shared with Zed's editor, Zen's pages and
+# Obsidian's notes: lightest surface in light mode, one step below the chrome
+# in dark mode. Faint gray (8, fish autosuggestions) is the outline tone
+# nudged away from the background for contrast headroom. (The replace turns
+# "light" into an empty, falsy string.)
+<* if {{ mode | replace: "light", "" }} *>
+background = {{colors.surface_container_low.dark.hex}}
+cursor-text = {{colors.surface_container_low.dark.hex}}
+palette = 8={{colors.outline.dark.hex | lighten: 6}}
+<* else *>
+background = {{colors.surface_container_lowest.light.hex}}
+cursor-text = {{colors.surface_container_lowest.light.hex}}
+palette = 8={{colors.outline.light.hex | darken: 6}}
+<* endif *>
+foreground = {{colors.terminal_foreground.default.hex}}
+cursor-color = {{colors.terminal_cursor.default.hex}}
+selection-background = {{colors.primary_container.default.hex}}
+selection-foreground = {{colors.on_primary_container.default.hex}}

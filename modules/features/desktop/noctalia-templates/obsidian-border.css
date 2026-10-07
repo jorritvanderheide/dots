@@ -1,0 +1,84 @@
+/*
+ * Noctalia palette for Obsidian's Border theme, written as the CSS Border's
+ * Style Settings would generate: same variables, same selectors
+ * (body[.theme-*].css-settings-manager), so it wins over Border's .theme-*
+ * defaults exactly like a Style Settings value does. Anything actually set in
+ * Style Settings still applies on top.
+ *
+ * Set here: the accent, backgrounds, text, and Border's extended colors (red,
+ * orange, ...; Appearance > Extended colors), which come from the fixed
+ * semantic custom_colors (theming.nix) so callouts and tags use the same red,
+ * green, ... as Zed and Ghostty. Border's pink stays (no semantic pink). Border
+ * derives its accent shades, borders, hovers and interactive colors from the
+ * accent.
+ */
+
+/* Appearance (light mode) > Accent color, format hsl-split */
+/* Appearance (dark mode) > Accent color, format hsl-split */
+body.css-settings-manager {
+  --accent-light-h: {{colors.primary.light.hue}};
+  --accent-light-s: {{colors.primary.light.saturation}}%;
+  --accent-light-l: {{colors.primary.light.lightness}}%;
+  --accent-dark-h: {{colors.primary.dark.hue}};
+  --accent-dark-s: {{colors.primary.dark.saturation}}%;
+  --accent-dark-l: {{colors.primary.dark.lightness}}%;
+}
+
+/* Border's card layout: notes are background-primary (the content tone shared
+ * with Zed's editor and Ghostty), the gutter between cards
+ * background-tertiary. */
+body.theme-light.css-settings-manager {
+  --background-primary: {{colors.surface_container_lowest.light.hex}};
+  --background-primary-alt: {{colors.surface_container_low.light.hex}};
+  --background-secondary: {{colors.surface.light.hex}};
+  --background-secondary-alt: {{colors.surface.light.hex}};
+  --background-tertiary: {{colors.surface_container_high.light.hex}};
+  --text-normal: {{colors.on_surface.light.hex}};
+  --text-muted: {{colors.on_surface_variant.light.hex}};
+  --text-faint: {{colors.outline.light.hex}};
+  --text-accent: {{colors.primary.light.hex | set_lightness: 22}};
+  --text-on-accent: {{colors.on_primary.light.hex}};
+  --color-red-rgb: {{colors.red.light.rgb_csv}};
+  --color-orange-rgb: {{colors.orange.light.rgb_csv}};
+  --color-yellow-rgb: {{colors.yellow.light.rgb_csv}};
+  --color-green-rgb: {{colors.green.light.rgb_csv}};
+  --color-cyan-rgb: {{colors.cyan.light.rgb_csv}};
+  --color-blue-rgb: {{colors.blue.light.rgb_csv}};
+  --color-purple-rgb: {{colors.purple.light.rgb_csv}};
+}
+
+body.theme-dark.css-settings-manager {
+  --background-primary: {{colors.surface_container_low.dark.hex}};
+  --background-primary-alt: {{colors.surface_container.dark.hex}};
+  --background-secondary: {{colors.surface.dark.hex}};
+  --background-secondary-alt: {{colors.surface_container_highest.dark.hex}};
+  --background-tertiary: {{colors.surface_container_high.dark.hex}};
+  --text-normal: {{colors.on_surface.dark.hex}};
+  --text-muted: {{colors.on_surface_variant.dark.hex}};
+  --text-faint: {{colors.outline.dark.hex}};
+  --text-accent: {{colors.primary.dark.hex}};
+  --text-on-accent: {{colors.on_primary.dark.hex}};
+  --color-red-rgb: {{colors.red.dark.rgb_csv}};
+  --color-orange-rgb: {{colors.orange.dark.rgb_csv}};
+  --color-yellow-rgb: {{colors.yellow.dark.rgb_csv}};
+  --color-green-rgb: {{colors.green.dark.rgb_csv}};
+  --color-cyan-rgb: {{colors.cyan.dark.rgb_csv}};
+  --color-blue-rgb: {{colors.blue.dark.rgb_csv}};
+  --color-purple-rgb: {{colors.purple.dark.rgb_csv}};
+}
+
+/* Side panels on the chrome tone, the same as Zed's panels. Border picks the
+ * side panel background with a Style Settings class-select ("Left/Right
+ * sidepane background", default background-primary) that sets these with
+ * !important on body.theme-*.<option-class>; the doubled class out-ranks
+ * that whichever option is selected. The editor area (root split) keeps the
+ * content tone. */
+body.theme-light.css-settings-manager.css-settings-manager {
+  --background-mod-left-split: {{colors.surface.light.hex}} !important;
+  --background-mod-right-split: {{colors.surface.light.hex}} !important;
+}
+
+body.theme-dark.css-settings-manager.css-settings-manager {
+  --background-mod-left-split: {{colors.surface.dark.hex}} !important;
+  --background-mod-right-split: {{colors.surface.dark.hex}} !important;
+}

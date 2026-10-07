@@ -73,9 +73,9 @@
                   # completion, but that never runs since setup_wizard_enabled
                   # is false below. Without it, ConfigService::
                   # firstRunWallpaperPath() unconditionally forces noctalia's
-                  # bundled wallpaper on every single boot (impermanence wipes
-                  # this directory), ignoring wallpaper.default.path and any
-                  # already-picked wallpaper. home-manager-jorrit.service runs
+                  # bundled wallpaper on any boot where it's missing, ignoring
+                  # wallpaper.default.path and any already-picked wallpaper.
+                  # home-manager-jorrit.service runs
                   # at every boot before greetd/niri/noctalia (session.nix),
                   # so this is back in place before noctalia ever checks for it.
                   ".local/state/noctalia/.setup-complete".text = "";
@@ -85,19 +85,13 @@
                 # every other picture -- use a dedicated subfolder instead.
                 programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
 
-                # ~/.local/state/noctalia isn't preserved, so a wallpaper picked
-                # in the GUI is gone after a reboot. Startup automation picks a
-                # random image from the folder above before anything is drawn;
-                # when the folder is empty it leaves this bundled default alone.
-                # There's no startup-only mode, so the interval is set to its
-                # 86400s maximum to effectively stop periodic rotation.
+                # Wallpapers are only changed by hand in the GUI; the pick is
+                # saved to ~/.local/state/noctalia/settings.toml, which is
+                # preserved below, so it (and the colors generated from it)
+                # survives a reboot. This bundled default is only shown until
+                # the first pick.
                 programs.noctalia.settings.wallpaper = {
-                  automation = {
-                    enabled = true;
-                    interval_seconds = 86400;
-                    order = "random";
-                  };
-
+                  automation.enabled = false;
                   default.path = "${config.programs.noctalia.package}/share/noctalia/assets/noctalia-wallpaper.png";
                 };
               };
@@ -288,6 +282,13 @@
 
             }
           )
+        ];
+
+        # The whole directory rather than just settings.toml: noctalia saves
+        # it by writing a temp file and renaming it over the original, which
+        # fails on a bind-mounted single file.
+        my.preservation.homeDirectories = [
+          ".local/state/noctalia"
         ];
       };
     };
