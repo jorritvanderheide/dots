@@ -11,8 +11,14 @@
     }:
     let
       cfg = config.my.new-leaf;
-      editorDomain = "${cfg.editorSubdomain}.${config.my.tailscale.acme.domain}";
-      publicDomain = "${cfg.publicSubdomain}.${config.my.tailscale.acme.domain}";
+      domain = "${cfg.subdomain}.${config.my.tailscale.acme.domain}";
+      editor = {
+        proxyPass = "http://unix:${config.services.new-leaf.socket}";
+        recommendedProxySettings = true; # X-Real-IP, which New Leaf asks Tailscale about
+        extraConfig = ''
+          proxy_read_timeout 120s; # fitting pages renders the PDF a few times
+        '';
+      };
     in
     {
       imports = [ inputs.new-leaf.nixosModules.default ];
@@ -25,22 +31,16 @@
           description = "CVs that always exist, named after their headscale user. Every tailnet user can open and edit all CVs, and make, rename and delete others in the editor.";
         };
 
-        editorSubdomain = lib.mkOption {
-          default = "cv-editor";
-          description = "Subdomain of the tailnet-only editor.";
-          type = lib.types.str;
-        };
-
-        publicSubdomain = lib.mkOption {
+        subdomain = lib.mkOption {
           default = "cv";
-          description = "Subdomain the share links are published on, reachable from the internet.";
+          description = "Subdomain of both the editor (from the tailnet) and the share links (from the internet).";
           type = lib.types.str;
         };
 
         rootRedirect = lib.mkOption {
           default = "https://${config.my.tailscale.acme.domain}/";
           defaultText = lib.literalExpression ''"https://''${config.my.tailscale.acme.domain}/"'';
-          description = "Where the bare public domain (no share link) redirects to from outside the tailnet; the tailnet goes to the editor.";
+          description = "Where the bare domain (no share link) redirects to from outside the tailnet; the tailnet gets the editor.";
           type = lib.types.str;
         };
 
@@ -51,74 +51,69 @@
         };
       };
 
-      # New Leaf's module sets up both nginx hosts. Headscale has no Funnel,
-      # so dapple serves them itself: the editor on the tailnet address only,
-      # the share links on the internet, both with certificates for the
-      # tailnet domain.
+      # Headscale has no Funnel, so dapple serves New Leaf itself, on one
+      # domain: the internet gets the share links, the tailnet the editor
+      # with the share links next to it.
       config = lib.mkIf cfg.enable {
         services.new-leaf = {
           enable = true;
           inherit (cfg) users;
-          nginx.editor = {
-            domain = editorDomain;
-            listenAddresses = [ config.my.tailscale.tailnetIp ];
-          };
           nginx.share = {
-            domain = publicDomain;
-            rootRedirect = "$new_leaf_root";
+            inherit domain;
+            inherit (cfg) rootRedirect;
           };
         };
 
-        # The public domain goes through Cloudflare, so nginx can't tell the
-        # tailnet from the internet. MagicDNS points it at dapple's tailnet
-        # address instead, so tailnet visitors arrive from a tailnet address
-        # and "/" sends them to the editor.
+        # The domain goes through Cloudflare, so nginx can't tell the tailnet
+        # from the internet by visitor address. MagicDNS points it at dapple's
+        # tailnet address instead, where the editor's vhost answers.
         services.headscale.settings.dns.extra_records = [
           {
-            name = publicDomain;
+            name = domain;
             type = "A";
             value = config.my.tailscale.tailnetIp;
           }
         ];
 
-        services.nginx.appendHttpConfig = ''
-          geo $new_leaf_root {
-            default ${cfg.rootRedirect};
-            100.64.0.0/10 https://${editorDomain}/;
-            fd7a:115c:a1e0::/48 https://${editorDomain}/;
-          }
-        '';
-
-        security.acme.certs = {
-          ${editorDomain} = { };
-          ${publicDomain} = { };
-        };
+        security.acme.certs.${domain} = { };
 
         systemd.services.nginx = {
-          wants = [
-            "acme-finished-${editorDomain}.target"
-            "acme-finished-${publicDomain}.target"
-          ];
-          after = [
-            "acme-finished-${editorDomain}.target"
-            "acme-finished-${publicDomain}.target"
-          ];
+          wants = [ "acme-finished-${domain}.target" ];
+          after = [ "acme-finished-${domain}.target" ];
         };
 
         services.nginx.virtualHosts = {
-          ${editorDomain} = {
+          ${domain} = {
             forceSSL = true;
-            useACMEHost = editorDomain;
+            useACMEHost = domain;
           };
-          ${publicDomain} = {
-            # MagicDNS sends the tailnet to the tailnet address, where nginx
-            # only considers vhosts bound to it explicitly; without this the
-            # tailnet would get the first tailnet-only vhost instead.
-            listenAddresses = config.services.nginx.defaultListenAddresses ++ [
-              config.my.tailscale.tailnetIp
-            ];
+          # The same domain on the tailnet address: nginx only considers
+          # vhosts bound to it explicitly there, so the tailnet gets this one
+          # and the internet the share links' vhost above. Share links are
+          # served as files, with that vhost's headers; everything else goes
+          # to the editor (no share link takes an editor path: slugs end in a
+          # random suffix).
+          "${domain}-tailnet" = {
+            serverName = domain;
+            listenAddresses = [ config.my.tailscale.tailnetIp ];
             forceSSL = true;
-            useACMEHost = publicDomain;
+            useACMEHost = domain;
+            root = config.services.new-leaf.publicDir;
+            # Backups up to 50 MB. Here, not in the editor's location: nginx
+            # checks it in "/", before try_files hands over to the editor.
+            extraConfig = ''
+              client_max_body_size 52m;
+            '';
+            locations = {
+              "/" = {
+                tryFiles = "$uri $uri/ @editor";
+                inherit (config.services.nginx.virtualHosts.${domain}) extraConfig;
+              };
+              # The webroot itself would be a 403, not the editor.
+              "= /" = editor;
+              "@editor" = editor;
+              "~ /\\.".return = "404"; # New Leaf's marker, publishes in progress
+            };
           };
         };
 

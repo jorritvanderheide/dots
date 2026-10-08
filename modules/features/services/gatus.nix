@@ -112,7 +112,7 @@
             (mkHttpEndpoint {
               name = "cv-editor";
               group = "productivity";
-              url = "https://cv-editor.${config.my.tailscale.acme.domain}/healthz";
+              url = "https://cv.${config.my.tailscale.acme.domain}/healthz";
               conditions = [ "[STATUS] == 200" ];
             })
             # A file New Leaf syncs into the public webroot; "/" only redirects.
