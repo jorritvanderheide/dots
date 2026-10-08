@@ -185,11 +185,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791465139,
-        "narHash": "sha256-hXTjOf2VQDXrNt4aU9rmNhc0qdOhnjy9FcA4tlPEdq8=",
+        "lastModified": 1791484883,
+        "narHash": "sha256-iKxFHJrg7Sltwhq3ssCZYQ4CFEDVvReVVuVuO9dj3sE=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "678e6c11cd5d24226087dc758d17f705c7c4106a",
+        "rev": "dfadbe5162d5e86bc0808badec8f346f81b4b3f0",
         "type": "github"
       },
       "original": {
@@ -220,11 +220,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791478630,
-        "narHash": "sha256-6A0aBbhafY2kPq/7Djx9fpTvAjKVkLdipqObZEiLgkA=",
+        "lastModified": 1791482952,
+        "narHash": "sha256-5wJje/niwPtJ7VcDKGfIZkuOKOnwj+7ZnbO9UOE3Msw=",
         "ref": "refs/heads/main",
-        "rev": "7ef008bc607f6aa27c853938504f829987820cc6",
-        "revCount": 26,
+        "rev": "a427d76a99696766420d9dd633730d5b6399e6df",
+        "revCount": 46,
         "type": "git",
         "url": "https://codeberg.org/BW20/new-leaf"
       },
@@ -421,11 +421,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791472684,
-        "narHash": "sha256-wvaoRpw4igflwDWa0djbMvYZfYV7l3JlZrMh9GwBnx4=",
+        "lastModified": 1791485802,
+        "narHash": "sha256-w2bNmGNwD5y0rx4ruOLY26SM9qGcfPCXM7BGMa/34C8=",
         "owner": "noctalia-dev",
         "repo": "noctalia",
-        "rev": "889757c0fa2af5cd5cbd67afa7b86fc6ac5a6b51",
+        "rev": "fd463a3945376d6ef04900b669c9d803e28ebf0e",
         "type": "github"
       },
       "original": {
