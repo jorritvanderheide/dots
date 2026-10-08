@@ -219,7 +219,7 @@
               services.bazarr = {
                 enable = true;
                 openFirewall = false;
-                listenPort = apps.bazarr.port;
+                settings.general.port = apps.bazarr.port;
               };
 
               # FlareSolverr: a headless-Chromium proxy that solves Cloudflare
