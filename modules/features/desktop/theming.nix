@@ -229,6 +229,7 @@
                   # - ghostty, qtct.conf: own, replacing noctalia's built-in
                   #   Ghostty and Qt templates (noctalia 5.2.1).
                   # - fish.fish: own, prompt accent only.
+                  # - eza-theme.yml: own, directory accent only.
                   # - gtk3-overrides.css, gtk4-overrides.css: own, layered on
                   #   top of the built-in GTK templates, which stay enabled.
                   # - obsidian-border.css: own, for the Border theme, which is
@@ -258,6 +259,11 @@
                         input_path = "${./noctalia-templates/fish.fish}";
                         output_path = "${config.xdg.cacheHome}/noctalia/fish-colors.fish";
                         post_hook = "${lib.getExe config.programs.fish.package} ${config.xdg.cacheHome}/noctalia/fish-colors.fish";
+                      };
+
+                      eza = {
+                        input_path = "${./noctalia-templates/eza-theme.yml}";
+                        output_path = "${config.xdg.configHome}/eza/theme.yml";
                       };
 
                       zed = {

@@ -1,0 +1,6 @@
+# eza theme rendered by noctalia (theming.nix). eza reads it on every run, so
+# ls follows the wallpaper right away. Only directories change: they take the
+# accent, like the fish prompt. Everything else keeps eza's defaults, which
+# use the terminal's ANSI palette.
+filekinds:
+  directory: {foreground: "{{colors.primary.default.hex}}", is_bold: true}
