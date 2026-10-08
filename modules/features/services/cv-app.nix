@@ -21,7 +21,7 @@
 
         users = lib.mkOption {
           type = lib.types.listOf lib.types.str;
-          description = "CVs, one per person, named after their headscale user. Every tailnet user can open and edit all of them.";
+          description = "CVs that always exist, named after their headscale user. Every tailnet user can open and edit all CVs, and make, rename and delete others in the editor.";
         };
 
         editorSubdomain = lib.mkOption {
