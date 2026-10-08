@@ -83,6 +83,12 @@
         # Qt target forces the Kvantum style, which ignores qtct palettes.
         stylix.targets.qt.enable = false;
 
+        # The NixOS-level counterpart of the home-manager fish target
+        # disabled below: it sources base16-fish from /etc/fish/config.fish,
+        # which overwrites the terminal palette with Dracula via escape
+        # sequences and pins Dracula hex colors in fish's universal variables.
+        stylix.targets.fish.colors.enable = false;
+
         # Home-manager integration
         home-manager.sharedModules = [
           (
@@ -222,6 +228,7 @@
                   #   CSS instead.
                   # - ghostty, qtct.conf: own, replacing noctalia's built-in
                   #   Ghostty and Qt templates (noctalia 5.2.1).
+                  # - fish.fish: own, prompt accent only.
                   # - gtk3-overrides.css, gtk4-overrides.css: own, layered on
                   #   top of the built-in GTK templates, which stay enabled.
                   # - obsidian-border.css: own, for the Border theme, which is
@@ -245,6 +252,12 @@
                         input_path = "${./noctalia-templates/ghostty}";
                         output_path = "${config.xdg.configHome}/ghostty/themes/noctalia-terminal";
                         post_hook = "bash ${config.programs.noctalia.package}/share/noctalia/assets/templates/ghostty/reload.sh";
+                      };
+
+                      fish = {
+                        input_path = "${./noctalia-templates/fish.fish}";
+                        output_path = "${config.xdg.cacheHome}/noctalia/fish-colors.fish";
+                        post_hook = "${lib.getExe config.programs.fish.package} ${config.xdg.cacheHome}/noctalia/fish-colors.fish";
                       };
 
                       zed = {
