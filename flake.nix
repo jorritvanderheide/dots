@@ -10,12 +10,9 @@
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
-    # Temporary: local checkout until New Leaf has a remote; switch to
-    # git+https://codeberg.org/BW20/new-leaf once pushed, or a fresh install
-    # of dapple can't fetch it.
     new-leaf = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "path:/home/jorrit/Git/new-leaf";
+      url = "git+https://codeberg.org/BW20/new-leaf";
     };
 
     disko = {

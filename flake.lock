@@ -220,14 +220,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1791465113,
-        "narHash": "sha256-YML5H9b14jHiKoi693R3KqCGkTrWTPtq9OdMRZPhDUs=",
-        "path": "/home/jorrit/Git/new-leaf",
-        "type": "path"
+        "lastModified": 1791468179,
+        "narHash": "sha256-gj4qBMdqAWxjot0x1sOHtywtqlm1vyC1jUdLy/wZ6as=",
+        "ref": "refs/heads/main",
+        "rev": "31423997a84f404f5cbd98c22f05fd8a6fb5b0e3",
+        "revCount": 14,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/new-leaf"
       },
       "original": {
-        "path": "/home/jorrit/Git/new-leaf",
-        "type": "path"
+        "type": "git",
+        "url": "https://codeberg.org/BW20/new-leaf"
       }
     },
     "niri-flake": {
