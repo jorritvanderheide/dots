@@ -107,14 +107,13 @@
               group = "productivity";
               url = "https://contacts.${config.my.tailscale.acme.domain}";
             })
-            # The editor answers 403 to anyone it can't place on the tailnet
-            # (all its routes need a tailnet identity); that still shows that
-            # nginx, the socket and New Leaf work. 502 would mean they don't.
+            # /healthz needs no tailnet identity, and answers 503 when New Leaf
+            # can't write CVs or share links, or run Typst.
             (mkHttpEndpoint {
               name = "cv-editor";
               group = "productivity";
-              url = "https://cv-editor.${config.my.tailscale.acme.domain}";
-              conditions = [ "[STATUS] < 500" ];
+              url = "https://cv-editor.${config.my.tailscale.acme.domain}/healthz";
+              conditions = [ "[STATUS] == 200" ];
             })
             # A file New Leaf syncs into the public webroot; "/" only redirects.
             (mkHttpEndpoint {
