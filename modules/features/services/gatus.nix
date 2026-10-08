@@ -109,14 +109,14 @@
             })
             # The editor answers 403 to anyone it can't place on the tailnet
             # (all its routes need a tailnet identity); that still shows that
-            # nginx, the socket and cv-app work. 502 would mean they don't.
+            # nginx, the socket and New Leaf work. 502 would mean they don't.
             (mkHttpEndpoint {
               name = "cv-editor";
               group = "productivity";
               url = "https://cv-editor.${config.my.tailscale.acme.domain}";
               conditions = [ "[STATUS] < 500" ];
             })
-            # A file cv-app syncs into the public webroot; "/" only redirects.
+            # A file New Leaf syncs into the public webroot; "/" only redirects.
             (mkHttpEndpoint {
               name = "cv-share";
               group = "productivity";
