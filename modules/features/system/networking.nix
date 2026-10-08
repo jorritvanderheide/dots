@@ -33,6 +33,7 @@
                   ipv6.method = "auto";
 
                   connection = {
+                    autoconnect-priority = 10;
                     id = "Beverweg 20";
                     type = "wifi";
                     permissions = "user:jorrit:";
@@ -54,7 +55,6 @@
                   ipv6.method = "auto";
 
                   connection = {
-                    autoconnect-priority = -1;
                     id = "Beverweg 20 2.4";
                     type = "wifi";
                     permissions = "user:jorrit:";
