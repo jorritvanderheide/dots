@@ -56,6 +56,7 @@
                     ".envrc"
                     "CLAUDE.md"
                     "result/"
+                    "TODO.md"
                   ];
 
                   settings = {
