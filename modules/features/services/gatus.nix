@@ -22,11 +22,16 @@
           name,
           group,
           url,
+          conditions ? [ "[STATUS] < 400" ],
         }:
         {
-          inherit name group url;
+          inherit
+            name
+            group
+            url
+            conditions
+            ;
           interval = "1m";
-          conditions = [ "[STATUS] < 400" ];
         };
 
       configTemplate = pkgs.writeText "gatus-config-template.yaml" (
@@ -101,6 +106,21 @@
               name = "radicale";
               group = "productivity";
               url = "https://contacts.${config.my.tailscale.acme.domain}";
+            })
+            # The editor answers 403 to anyone it can't place on the tailnet
+            # (all its routes need a tailnet identity); that still shows that
+            # nginx, the socket and cv-app work. 502 would mean they don't.
+            (mkHttpEndpoint {
+              name = "cv-editor";
+              group = "productivity";
+              url = "https://cv-editor.${config.my.tailscale.acme.domain}";
+              conditions = [ "[STATUS] < 500" ];
+            })
+            # A file cv-app syncs into the public webroot; "/" only redirects.
+            (mkHttpEndpoint {
+              name = "cv-share";
+              group = "productivity";
+              url = "https://cv.${config.my.tailscale.acme.domain}/fonts/OFL.txt";
             })
             (mkHttpEndpoint {
               name = "harmonia";
