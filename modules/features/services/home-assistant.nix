@@ -64,7 +64,10 @@
                 "reolink"
                 "zha"
               ];
-              customComponents = [ enphase-envoy-installer ];
+              customComponents = [
+                enphase-envoy-installer
+                pkgs.home-assistant-custom-components.localtuya
+              ];
 
               config = {
                 default_config = { };
