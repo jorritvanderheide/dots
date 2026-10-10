@@ -16,6 +16,14 @@
       torrentsDir = "${mediaDir}/torrents";
       sonarrApiKeyPath = "/run/secrets/sonarr_api_key";
       radarrApiKeyPath = "/run/secrets/radarr_api_key";
+      bazarrPasswordPath = "/run/secrets/bazarr_password";
+
+      # Login required for every client, even "local" ones: behind nginx,
+      # every visitor comes from 127.0.0.1.
+      forcedLogin = {
+        method = "Forms";
+        required = "Enabled";
+      };
 
       apps = {
         qbit = {
@@ -152,6 +160,10 @@
                       Address = "127.0.0.1";
                       Username = cfg.webuiUser;
                       Password_PBKDF2 = ''"@ByteArray(eBo1EBIF1iQdJISdjT4BDQ==:4yLawi5c8p2ez0phEqF00SBYm5ujtnQVL/w+hpSwT/nE+TZyvvyXuGZYVZbyyy52YVOpNXcLwjd/U/efG8O+BA==)"'';
+                      # Behind nginx every visitor is 127.0.0.1: without this, a
+                      # few failed logins ban everyone, the *arr apps included.
+                      ReverseProxySupportEnabled = true;
+                      TrustedReverseProxiesList = "127.0.0.1";
                     };
                     # Save downloads on the media dataset so the *arr apps
                     # (in the `media` group) can hardlink-import from the
@@ -194,32 +206,61 @@
                 enable = true;
                 openFirewall = false;
                 settings.server.bindaddress = "127.0.0.1";
+                settings.auth = forcedLogin;
               };
 
               services.sonarr = {
                 enable = true;
                 openFirewall = false;
                 settings.server.bindaddress = "127.0.0.1";
+                settings.auth = forcedLogin;
               };
 
               services.radarr = {
                 enable = true;
                 openFirewall = false;
                 settings.server.bindaddress = "127.0.0.1";
+                settings.auth = forcedLogin;
               };
 
               services.lidarr = {
                 enable = true;
                 openFirewall = false;
                 settings.server.bindaddress = "127.0.0.1";
+                settings.auth = forcedLogin;
               };
 
               # Bazarr fetches subtitles for Sonarr's + Radarr's libraries and
               # writes .srt files next to the media (so Jellyfin auto-detects).
+              # Its own defaults are every interface and no login, and then
+              # its page hands out the API key, which unlocks Sonarr's and
+              # Radarr's too.
               services.bazarr = {
                 enable = true;
                 openFirewall = false;
-                settings.general.port = apps.bazarr.port;
+                settings = {
+                  general = {
+                    ip = "127.0.0.1";
+                    inherit (apps.bazarr) port;
+                  };
+                  auth = {
+                    type = "form";
+                    username = cfg.webuiUser;
+                    # The password's md5 hex digest, which is what Bazarr compares.
+                    password._secret = bazarrPasswordPath;
+                  };
+                };
+              };
+
+              systemd.services.bazarr-secrets = inputs.self.lib.mkSopsService {
+                inherit pkgs;
+                description = "Decrypt Bazarr's login password hash from sops";
+                wantedBy = [ "multi-user.target" ];
+                extraServiceConfig.UMask = "0177";
+                script = ''
+                  install -d -m 0755 /run/secrets
+                  sops_extract bazarr_password > ${bazarrPasswordPath}
+                '';
               };
 
               # FlareSolverr: a headless-Chromium proxy that solves Cloudflare
@@ -281,14 +322,20 @@
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
                 };
-                bazarr.serviceConfig = {
-                  Restart = lib.mkForce "always";
-                  RestartSec = lib.mkForce "5s";
-                  # Repair folders created before the UMask above (or by other
-                  # means). "+" runs it as root.
-                  ExecStartPre = [
-                    "+${pkgs.findutils}/bin/find ${mediaDir}/library/series ${mediaDir}/library/movies -type d ! -perm -g+w -exec chmod g+w {} +"
-                  ];
+                bazarr = {
+                  after = [ "bazarr-secrets.service" ];
+                  wants = [ "bazarr-secrets.service" ];
+                  serviceConfig = {
+                    Restart = lib.mkForce "always";
+                    RestartSec = lib.mkForce "5s";
+                    # Repair folders created before the UMask above (or by other
+                    # means). "+" runs it as root. -h so that a folder swapped
+                    # for a symlink in the meantime (the media group can write
+                    # here) doesn't hand root's chmod to whatever it points at.
+                    ExecStartPre = [
+                      "+${pkgs.findutils}/bin/find ${mediaDir}/library/series ${mediaDir}/library/movies -type d ! -perm -g+w -exec chmod -h g+w {} +"
+                    ];
+                  };
                 };
               };
 
