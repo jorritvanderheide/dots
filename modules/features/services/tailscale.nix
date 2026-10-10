@@ -139,6 +139,17 @@
               recommendedGzipSettings = true;
               recommendedOptimisation = true;
               recommendedTlsSettings = true;
+
+              # A name no vhost claims gets no certificate and no answer,
+              # rather than whichever vhost nginx happens to list first on
+              # that address.
+              virtualHosts = lib.genAttrs [ "unknown-name" "unknown-name-tailnet" ] (name: {
+                serverName = "_";
+                default = true;
+                rejectSSL = true;
+                listenAddresses = lib.mkIf (name == "unknown-name-tailnet") [ cfg.tailnetIp ];
+                locations."/".return = "444";
+              });
             };
 
             systemd.services.nginx.serviceConfig = {

@@ -96,7 +96,7 @@
             root = config.services.new-leaf.publicDir;
             # Backups up to 50 MB. Here, not in the editor's location: nginx
             # checks it in "/", before try_files hands over to the editor.
-            extraConfig = ''
+            extraConfig = inputs.self.lib.tailnetOnly + ''
               client_max_body_size 52m;
             '';
             locations = {

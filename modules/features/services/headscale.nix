@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -20,11 +21,10 @@
         '';
       };
 
-      lanAndTailnetOnly = proxyToHeadscale // {
-        extraConfig = ''
-          allow ${cfg.subnet};
-          allow 100.64.0.0/10;
-          deny all;
+      # Not the LAN: a router that source-NATs the port forward would make
+      # the internet look like a LAN address. The CLI uses the local socket.
+      tailnetOnly = proxyToHeadscale // {
+        extraConfig = inputs.self.lib.tailnetOnly + ''
 
           proxy_buffering off;
         '';
@@ -45,15 +45,9 @@
           type = lib.types.str;
         };
 
-        subnet = lib.mkOption {
-          default = "192.168.1.0/24";
-          description = "Home LAN subnet allowed to reach the control API.";
-          type = lib.types.str;
-        };
-
         interface = lib.mkOption {
           default = "enp2s0";
-          description = "LAN interface to open the control API and STUN ports on.";
+          description = "LAN interface to open the control protocol and STUN ports on.";
           type = lib.types.str;
         };
       };
@@ -150,8 +144,8 @@
             # The admin API is the sensitive surface: it manages users, nodes
             # and preauth keys, guarded only by a bearer token. Keep it off
             # the public path. "^~" so these win over "/" above.
-            "^~ /api" = lanAndTailnetOnly;
-            "^~ /swagger" = lanAndTailnetOnly;
+            "^~ /api" = tailnetOnly;
+            "^~ /swagger" = tailnetOnly;
           };
         };
       };

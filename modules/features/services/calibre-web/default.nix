@@ -148,7 +148,11 @@
                 forceSSL = true;
                 useACMEHost = lanDomain;
 
-                locations."/" = {
+                # Only the Kobo sync API (every route of it is under
+                # /kobo/<token>), not the whole web UI with its login and admin
+                # pages: the router's port forward lands on this socket too.
+                locations."/".return = "404";
+                locations."/kobo/" = {
                   proxyPass = "http://127.0.0.1:${toString port}";
                   recommendedProxySettings = true;
                   extraConfig = ''

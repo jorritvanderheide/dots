@@ -122,6 +122,17 @@
         + script;
       };
 
+    # nginx access rules for a location or vhost only the tailnet may use.
+    # The address it binds to isn't enough: Linux accepts a packet for any
+    # local address on any interface, so a LAN device that routes
+    # 100.64.0.0/10 via the host's LAN address reaches the tailnet address
+    # too. The source can't be faked that way: tailscaled drops tailnet
+    # sources that don't arrive on tailscale0.
+    tailnetOnly = ''
+      allow 100.64.0.0/10;
+      deny all;
+    '';
+
     mkReverseProxy =
       {
         config,
@@ -164,7 +175,7 @@
           listenAddresses = [ config.my.tailscale.tailnetIp ];
           forceSSL = true;
           useACMEHost = domain;
-          extraConfig = extraHeaders;
+          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
           locations = {
             "/" = {
               proxyPass = "http://127.0.0.1:${toString port}";
