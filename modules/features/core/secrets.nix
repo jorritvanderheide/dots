@@ -5,33 +5,15 @@
 {
   flake.nixosModules.secrets =
     {
-      config,
       lib,
       pkgs,
       ...
     }:
     {
-      options.my.secrets.yubikeyIdentityFile = lib.mkOption {
-        type = lib.types.path;
-        default = inputs.self + "/secrets/yubikey-identity.txt";
-        description = ''
-          Path to this host's age-plugin-yubikey identity pointer. Each host
-          decrypts with whichever physical YubiKey is plugged into it, so
-          this must point at that key's own identity file (not secret -- the
-          private key never leaves the hardware), not necessarily the shared
-          default used by other hosts.
-        '';
-      };
-
       config = {
-        # Path (not secret -- the YubiKey's key never leaves the hardware)
-        # that mkSopsService's sops_extract points SOPS_AGE_KEY_FILE at.
-        # /etc is regenerated from the store every activation, so this
-        # needs no persistence entry. Deliberately not sops-nix's own
-        # sops.age.keyFile/sops.defaultSopsFile: nothing in this repo uses
-        # sops.secrets (see mkSopsService for why), so that module would
-        # just be dead config left importing dead activation-script code.
-        environment.etc."sops/yubikey-identity.txt".source = config.my.secrets.yubikeyIdentityFile;
+        # Secrets are decrypted by lib.sopsExtract, with whichever YubiKey is
+        # plugged in. Deliberately not sops-nix: nothing in this repo uses
+        # sops.secrets (see mkSopsService for why).
 
         # age-plugin-yubikey needs pcscd running and itself on PATH to reach
         # the hardware.

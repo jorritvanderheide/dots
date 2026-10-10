@@ -61,6 +61,28 @@
       ExecStartPre = "-systemctl reset-failed pcscd.service pcscd.socket";
     };
 
+    # Prints one secret from secrets.yaml, decrypted with whichever YubiKey
+    # is plugged in: every key is a recipient of every secret, so any of
+    # them works on any host. Callers need HOME set for age-plugin-yubikey.
+    #
+    # The lock serializes every caller against the same physical YubiKey --
+    # without it, several mkSopsService units all start concurrently after
+    # pcscd.service at boot and race for exclusive PC/SC access, so most of
+    # them fail every single attempt until they exhaust their restart budget
+    # (observed: 35 failures in a row), not just an occasional transient miss.
+    sopsExtract =
+      pkgs:
+      pkgs.writeShellScript "sops-extract" ''
+        set -euo pipefail
+        exec 9>/run/lock/sops-yubikey.lock
+        ${lib.getExe' pkgs.util-linux "flock"} 9
+        identity=$(${lib.getExe' pkgs.coreutils "mktemp"})
+        trap 'rm -f "$identity"' EXIT
+        export PATH=${pkgs.age-plugin-yubikey}/bin:$PATH
+        age-plugin-yubikey --identity >"$identity" 2>/dev/null || true
+        SOPS_AGE_KEY_FILE=$identity ${lib.getExe' pkgs.sops "sops"} -d --extract "[\"$1\"]" ${inputs.self}/secrets/secrets.yaml
+      '';
+
     # A oneshot service that decrypts sops secrets via the YubiKey identity
     # and does something with them -- the shape shared by
     # set-password-root/set-password-<user>/tpm2-luks-enroll/wireless-secrets.
@@ -91,17 +113,10 @@
           // {
             Type = "oneshot";
           };
-        path = [ pkgs.age-plugin-yubikey ];
         script = ''
           set -euo pipefail
-          # flock serializes every mkSopsService caller against the same
-          # physical YubiKey -- without it, several of these all start
-          # concurrently after pcscd.service at boot and race for exclusive
-          # PC/SC access, so most of them fail every single attempt until
-          # they exhaust their restart budget (observed: 35 failures in a
-          # row), not just an occasional transient miss.
           sops_extract() {
-            SOPS_AGE_KEY_FILE=/etc/sops/yubikey-identity.txt ${lib.getExe' pkgs.util-linux "flock"} /run/lock/sops-yubikey.lock ${lib.getExe' pkgs.sops "sops"} -d --extract "[\"$1\"]" ${inputs.self}/secrets/secrets.yaml
+            ${inputs.self.lib.sopsExtract pkgs} "$1"
           }
         ''
         + script;

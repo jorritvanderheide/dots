@@ -13,9 +13,10 @@ Any one of them can decrypt on its own. sops's default
 is additive, not a replacement.
 
 The YubiKeys use no PIN and no touch: physical possession is the only gate,
-the same as FIDO2 LUKS unlock at boot. Each host reads its identity from
-`/etc/sops/yubikey-identity.txt`, built from `secrets/yubikey-identity.txt`
-(rocinante) or `secrets/yubikey-identity-dapple.txt` (dapple).
+the same as FIDO2 LUKS unlock at boot. The hosts, the installer and the dev
+shell decrypt with whichever YubiKey is plugged in, so any of them works on
+any host. The passphrase identity only works where `SOPS_AGE_KEY_FILE` points
+at it: the installer and `sops` by hand, not a running host's services.
 
 ## Changing a secret
 
@@ -23,8 +24,6 @@ the same as FIDO2 LUKS unlock at boot. Each host reads its identity from
 nix develop       # sops, age-plugin-yubikey, pcsclite
 sops secrets/secrets.yaml
 ```
-
-The dev shell decrypts with whichever YubiKey is plugged in, on any host.
 
 The user passwords (`user_password_<user>`) are password *hashes*, not
 plaintext. Make one with `mkpasswd -m yescrypt`.
@@ -42,10 +41,9 @@ This matches the existing keys' no-PIN, no-touch policy. Then:
    decrypt instead of either.
 2. `sops updatekeys secrets/secrets.yaml` to re-encrypt for the new set of
    recipients.
-3. Append the new `AGE-PLUGIN-YUBIKEY-...` identity line, printed by
-   `--generate`, to the host's identity file in `secrets/`.
-4. `nswitch`, so `/etc/sops/yubikey-identity.txt` picks up the new line.
-5. Verify: unplug the old key, plug in only the new one, and confirm a
+3. Push, and deploy every host (`nswitch`, `ndeploy dapple`): each decrypts
+   the `secrets.yaml` it was built with.
+4. Verify: unplug the old key, plug in only the new one, and confirm a
    secret still decrypts, for example with
    `sudo systemctl restart set-password-jorrit` and
    `journalctl -u set-password-jorrit`.
@@ -54,8 +52,7 @@ This matches the existing keys' no-PIN, no-touch policy. Then:
 
 1. Remove its recipient from `.sops.yaml`.
 2. `sops updatekeys secrets/secrets.yaml`.
-3. Remove its identity line from the host's identity file in `secrets/`.
-4. `nswitch`.
+3. Push, and deploy every host.
 
 ## Regenerating the passphrase identity
 
