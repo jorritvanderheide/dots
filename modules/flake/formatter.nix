@@ -35,6 +35,7 @@
             "**/facter.json"
             ".sops.yaml"
             "config/statix.toml"
+            "docs/**"
             "README.md"
             "secrets/**"
           ];
