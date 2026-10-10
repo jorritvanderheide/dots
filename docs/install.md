@@ -196,11 +196,11 @@ Bitwarden, the configuration is on Codeberg, the data on Storj, and the
 YubiKeys are separate devices.
 
 Each host has its own secrets file, which only some keys open
-([Secrets and keys](secrets.md)): rocinante's with its YubiKey, dapple's
-with dapple's own age key, rocinante's YubiKey (admin, with its PIN) and
-dapple's spare YubiKey. The passphrase identity opens both, for the
-installer, but a running host's services need a key of their own: rocinante
-its YubiKey, and dapple its spare YubiKey until it has a new age key (see
+([Secrets and keys](secrets.md)): rocinante's with its own age key and its
+YubiKey, dapple's with its own age key, rocinante's YubiKey (admin, with
+its PIN) and dapple's spare YubiKey. The passphrase identity opens both,
+for the installer, but a reinstalled host's services need a key of their
+own: a YubiKey that opens its file until it has a new age key (see
 [A new host key](secrets.md#a-new-host-key)). Without one, a host boots but
 can't set its passwords or reach its backup.
 

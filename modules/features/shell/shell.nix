@@ -52,12 +52,11 @@
                 "zoxide init fish | source"
               ];
 
-              # Activation (boot/switch/test) restarts the sops-secret
-              # services (see mkSopsService), which need the YubiKey present
-              # to decrypt -- without it they retry for up to 5 minutes
-              # before nixos-rebuild reports the failure. Catch that upfront
-              # instead. Only meaningful for the local host: ndeploy activates
-              # remotely, where this machine's YubiKey state is irrelevant.
+              # Rebuilds want the YubiKey in. The sops-secret services (see
+              # mkSopsService) decrypt with the host's own age key now, so
+              # activation itself doesn't need it any more; the check stays
+              # by choice, so the key is at hand whenever the system changes.
+              # Only for the local host: ndeploy activates remotely.
               functions.check-yubikey = ''
                 if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
                   echo "YubiKey not detected -- plug it in before rebuilding (needed to decrypt secrets during activation)." >&2

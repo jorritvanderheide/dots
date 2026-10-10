@@ -1,8 +1,11 @@
 keys:
+  # rocinante's own age key, /persist/system/var/lib/sops/age.key on its
+  # encrypted disk -- how it decrypts at boot.
+  - &rocinante_host age17999s298suylaqgmvh7ac0lwhzwjhft9jqztd0nlthc8ersd7awqtjeha7
+
   # YubiKey, serial 29635974 PIV slot 1 -- rocinante's day-to-day recipient,
-  # and how it decrypts at boot. pin-policy=never, touch-policy=never --
-  # physical possession is the only gate, matching FIDO2 LUKS unlock's own
-  # no-PIN/no-touch boot.
+  # how you edit its secrets. pin-policy=never, touch-policy=never --
+  # physical possession is the only gate.
   - &rocinante_yubikey age1yubikey1qgejl25v5v97z9xl7y75qlagjenwk73awsc045skya7an5znsnp0z2pu7k7
 
   # The same YubiKey, another slot, with pin-policy=once and
@@ -29,6 +32,7 @@ creation_rules:
   - path_regex: secrets/rocinante\.yaml$
     key_groups:
       - age:
+          - *rocinante_host
           - *rocinante_yubikey
           - *jorrit_passphrase
 

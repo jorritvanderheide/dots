@@ -62,9 +62,9 @@
     };
 
     # Where a host keeps an age key of its own (sopsExtract), straight on
-    # /persist like the SSH host key. On LUKS, so it's as safe as the disk;
-    # the server's alternative is a YubiKey left plugged in, which a thief
-    # takes along.
+    # /persist like the SSH host key. On LUKS, so it's as safe as the disk
+    # (the TPM only unlocks under our secure boot); the alternative is a
+    # YubiKey needed at every boot, or left plugged in for a thief.
     hostAgeKey = "/persist/system/var/lib/sops/age.key";
 
     # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,

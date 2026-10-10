@@ -62,9 +62,9 @@ secrets, home-manager, and fish.
   brings back only the files and folders that are declared, from `/persist`.
   State nobody declared doesn't survive a reboot.
 - **Secrets** are in `secrets/<host>.yaml`, one file per host, encrypted
-  with sops for that host's key (rocinante's YubiKey, dapple's own age key),
-  a PIN-protected admin key and a passphrase fallback. They are decrypted at
-  boot by the service that needs them, never written to the Nix store. See
+  with sops for that host's own age key, a YubiKey (PIN-protected for the
+  server's) and a passphrase fallback. They are decrypted at boot by the
+  service that needs them, never written to the Nix store. See
   [Secrets and keys](docs/secrets.md).
 - **The server** answers on its tailnet address, with only Headscale and New
   Leaf's share links open to the internet. A Headscale policy limits what

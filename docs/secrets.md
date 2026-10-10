@@ -5,17 +5,20 @@ Each host has its own secrets file, `secrets/<host>.yaml`, encrypted with
 A host only ever decrypts its own file (`/etc/sops/secrets.yaml` points at
 it), so one host taken over doesn't give up the other's secrets.
 
+Each host decrypts at boot with an age key of its own, in
+`/persist/system/var/lib/sops/age.key` on its encrypted disk, readable by
+root only. The disk unlocks with the TPM only under our own secure boot,
+so the key is as safe as that binding. No host needs a YubiKey to boot.
+
 `secrets/rocinante.yaml`:
 
-- **rocinante's YubiKey**, its no-PIN identity, which the laptop decrypts
-  with at boot and you edit with.
+- **rocinante's own age key.**
+- **rocinante's YubiKey**, its no-PIN identity, which you edit with.
 - **A passphrase identity**, as a fallback, kept in Bitwarden.
 
 `secrets/dapple.yaml`:
 
-- **dapple's own age key**, in `/persist/system/var/lib/sops/age.key` on
-  its encrypted disk, which the server decrypts with at boot. The disk
-  unlocks with the TPM, so the key is as safe as the TPM binding.
+- **dapple's own age key.**
 - **The admin identity**, on rocinante's YubiKey, with PIN and touch: how
   you edit the server's secrets. The laptop's own no-PIN identity can't, so
   a stolen laptop with its YubiKey doesn't open the server.
@@ -95,9 +98,11 @@ it. Revoke old ones with `uplink access revoke --access owner <name>`.
 
 ## A new host key
 
-dapple's own key is a plain `age-keygen` identity. A reinstalled dapple
+A host's own key is a plain `age-keygen` identity. A reinstalled host
 needs a new one: the installer decrypts with a YubiKey or the passphrase,
-and the first boot does too, with dapple's spare YubiKey plugged in. Then:
+and the first boot does too, with a YubiKey that opens the host's file
+plugged in (rocinante's own; dapple's spare, or rocinante's with its PIN).
+Then, on the host:
 
 ```sh
 sudo install -d -m 0700 /persist/system/var/lib/sops
@@ -105,9 +110,10 @@ sudo nix shell nixpkgs#age -c age-keygen -o /persist/system/var/lib/sops/age.key
 sudo chmod 0400 /persist/system/var/lib/sops/age.key
 ```
 
-Replace `dapple_host` in `.sops.yaml` with the printed `age1...` key, run
-`sops updatekeys secrets/dapple.yaml` from rocinante (PIN and touch), push,
-and `ndeploy dapple`.
+Replace `<host>_host` in `.sops.yaml` with the printed `age1...` key, run
+`sops updatekeys secrets/<host>.yaml` from rocinante (for dapple's, with
+the admin key's PIN and a touch), push, and deploy (`nswitch`, or
+`ndeploy dapple`).
 
 ## Revoking a lost or compromised key
 
