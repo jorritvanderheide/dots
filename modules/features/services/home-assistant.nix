@@ -72,9 +72,11 @@
               config = {
                 default_config = { };
                 homeassistant = {
-                  latitude = 51.8425;
-                  longitude = 5.8528;
-                  elevation = 19;
+                  # The home's location: from secrets.yaml (below), as this
+                  # repository is public.
+                  latitude = "!secret latitude";
+                  longitude = "!secret longitude";
+                  elevation = "!secret elevation";
                   unit_system = "metric";
                   time_zone = config.time.timeZone;
                 };
@@ -378,6 +380,23 @@
               # the host's traffic. Bluetooth over BlueZ's D-Bus still works.
               AmbientCapabilities = lib.mkForce [ "" ];
               CapabilityBoundingSet = lib.mkForce [ "" ];
+            };
+
+            # What the configuration takes with !secret, from sops: a YAML
+            # document under home_assistant_secrets.
+            systemd.services.home-assistant-secrets = inputs.self.lib.mkSopsService {
+              inherit pkgs;
+              description = "Decrypt Home Assistant's secrets.yaml from sops";
+              wantedBy = [ "multi-user.target" ];
+              extraServiceConfig.UMask = "0177";
+              script = ''
+                sops_extract home_assistant_secrets > ${config.services.home-assistant.configDir}/secrets.yaml
+                chown hass:hass ${config.services.home-assistant.configDir}/secrets.yaml
+              '';
+            };
+            systemd.services.home-assistant = {
+              after = [ "home-assistant-secrets.service" ];
+              wants = [ "home-assistant-secrets.service" ];
             };
 
             # The include above stops HA from starting if the file is
