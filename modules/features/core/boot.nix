@@ -16,6 +16,8 @@
       allLuksDevices = [ luksDevice ] ++ cfg.extraLuksDevices;
     in
     {
+      imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
+
       options.my.boot.extraLuksDevices = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -59,8 +61,10 @@
             # older generation is ever needed instead.
             timeout = 0;
 
+            # Lanzaboote installs systemd-boot instead (below), with these
+            # settings.
             systemd-boot = {
-              enable = true;
+              enable = lib.mkForce false;
               configurationLimit = 32;
               # The TPM unlocks the disk before anything asks for a password,
               # so an edited command line (init=/bin/sh,
@@ -68,7 +72,23 @@
               editor = false;
             };
           };
+
+          # Secure boot with our own keys: the firmware only starts what they
+          # signed, and the TPM (bound to PCR 7, below) only unlocks the
+          # disk for that. Lanzaboote generates the keys on the first boot
+          # and stages them on the ESP; systemd-boot enrolls them by itself
+          # at the next boot with the firmware in setup mode. Microsoft's
+          # keys are enrolled too, for the option ROMs of the hardware.
+          # Straight on /persist, like the SSH host key.
+          lanzaboote = {
+            enable = true;
+            pkiBundle = "/persist/system/var/lib/sbctl";
+            autoGenerateKeys.enable = true;
+            autoEnrollKeys.enable = true;
+          };
         };
+
+        environment.systemPackages = [ pkgs.sbctl ]; # sbctl status
 
         # Leave the splash's last frame on screen when plymouth quits, until
         # the session draws over it, instead of a bare console in between.
@@ -95,14 +115,21 @@
             "${config.system.nixos.release}.${date}-${rev}";
         };
 
-        # Binds a LUKS TPM2 keyslot, on the first boot after an install (the
-        # state flag skips it after that). `sudo nix run /etc/nixos#enroll-tpm`
-        # re-enrolls, e.g. after a TPM/firmware reset (see docs/install.md).
+        # Binds a LUKS TPM2 keyslot to PCR 7 (secure boot's state and keys),
+        # on the first boot with secure boot on (the state flag skips it
+        # after that). Not before: bound with secure boot still off, the
+        # slot would stop unlocking the moment it comes on. Unbound, it
+        # would unlock for any system booted on the machine.
+        # `sudo nix run /etc/nixos#enroll-tpm` re-enrolls, e.g. after a
+        # firmware update or TPM reset (see docs/install.md).
         systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Bind a LUKS TPM2 keyslot for unlock";
           wantedBy = [ "multi-user.target" ];
-          extraUnitConfig.ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
+          extraUnitConfig = {
+            ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
+            ConditionSecurity = "uefi-secureboot";
+          };
           extraServiceConfig.StateDirectory = "tpm2-luks-enroll";
 
           # wipe-slot is a separate call so systemd-cryptenroll can't
@@ -114,6 +141,7 @@
                 --wipe-slot=tpm2 "$dev" 2>/dev/null || true
               PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
                 --tpm2-device=auto \
+                --tpm2-pcrs=7 \
                 "$dev"
             done
             ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done

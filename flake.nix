@@ -25,6 +25,12 @@
       url = "github:nix-community/home-manager";
     };
 
+    # Secure boot. A release, not main: it signs what the firmware boots.
+    lanzaboote = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/lanzaboote/v1.2.0";
+    };
+
     # Deliberately not following the shared nixpkgs: niri-flake's package
     # build currently needs libdisplay-info_0_2, already removed from
     # nixos-unstable, so pinning it to the shared input breaks the build.

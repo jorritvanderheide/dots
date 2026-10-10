@@ -9,8 +9,12 @@ nix build .#iso
 sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
 ```
 
-Boot the target machine from it, with network (a cable, or `nmtui` on its
-console) and a YubiKey plugged in: any of them, such as the host's own. Then,
+Put the machine's firmware in setup mode first (see
+[Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
+makes new keys. Boot the target machine from it, with network (a cable, or
+`nmtui` on its console) and a YubiKey plugged in that opens the host's
+secrets ([Secrets and keys](secrets.md)): rocinante's for either host
+(dapple's with its PIN), or dapple's spare for dapple. Then,
 from any computer with Bitwarden's SSH agent (it holds the key the ISO
 accepts):
 
@@ -45,10 +49,39 @@ The installer:
 5. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
    remote (pushing over SSH), ready for `jj`.
 
-Then reboot, with the YubiKey still in, and type the LUKS password. That is
-the only time: the first boot enrolls the TPM, and later boots unlock by
-themselves. After a firmware or TPM reset, re-enroll with
-`sudo nix run /etc/nixos#enroll-tpm`.
+Then reboot, with the YubiKey still in, and type the LUKS password. Until
+secure boot is on, every boot asks for it: the first boot makes the secure
+boot keys, the next one enrolls them ([Secure boot](#secure-boot)), and the
+first boot with secure boot on binds the TPM, after which boots unlock by
+themselves.
+
+## Secure boot
+
+Both hosts boot with secure boot, with keys of their own
+([lanzaboote](https://github.com/nix-community/lanzaboote)), and the TPM
+only unlocks the disk for a boot that has it on with those keys (PCR 7). The
+firmware takes the keys once, in setup mode:
+
+1. Switch to a configuration with lanzaboote, or install one. Its first boot
+   (or the switch) makes the keys, in `/persist/system/var/lib/sbctl`, and
+   puts them on the ESP for enrolling.
+2. In the firmware's setup, put secure boot in setup mode (usually "reset to
+   setup mode" or "clear secure boot keys").
+3. Reboot. systemd-boot enrolls the keys by itself, with Microsoft's for the
+   hardware's option ROMs, and reboots.
+4. In the firmware's setup, turn secure boot on if it isn't, and set an
+   administrator password, so the keys can't be cleared or replaced without
+   it.
+5. Boot. `bootctl status` shows `Secure Boot: enabled (user)`. On a fresh
+   install, that boot binds the TPM by itself. On a host that had a TPM
+   slot already, rebind it: `sudo nix run /etc/nixos#enroll-tpm`.
+6. Check: `sudo cryptsetup luksDump /dev/disk/by-partlabel/disk-main-luks`
+   lists PCR 7 under the `systemd-tpm2` token, and a reboot unlocks by
+   itself.
+
+A firmware update (fwupd, on rocinante) or a new revocation list can change
+PCR 7. The next boot asks for the LUKS password then; after it, rebind with
+`sudo nix run /etc/nixos#enroll-tpm`. That's also the fix after a TPM reset.
 
 ## Why the accounts start locked
 

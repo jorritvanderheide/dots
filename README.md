@@ -28,9 +28,10 @@ ssh -t root@dots-installer.local install-host <hostname>
 
 It shows the disk it is about to wipe and waits for a `yes`, installs the
 host, and clones this repository to `/etc/nixos`. Reboot with the YubiKey
-still in and type the LUKS password once: that boot enrolls the TPM, so
-later boots unlock by themselves. Then `sudo offsite-restore` brings back its
-data, and with it its place on the tailnet. A new host
+still in and type the LUKS password until
+[secure boot](docs/install.md#secure-boot) is on: its first boot binds the
+TPM, so later boots unlock by themselves. Then `sudo offsite-restore` brings
+back its data, and with it its place on the tailnet. A new host
 [joins the tailnet](docs/install.md#joining-the-tailnet) once instead.
 
 [Installing a host](docs/install.md) has the details, the steps for a new
@@ -118,7 +119,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix develop` | A shell with sops, age and the YubiKey plugin |
 | `nix build .#iso` | The installer ISO, with SSH and `install-host` |
 | `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
-| `sudo nix run .#enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, after a firmware or TPM reset |
+| `sudo nix run .#enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, bound to secure boot (PCR 7), after a firmware update or TPM reset |
 | `sudo offsite-restore [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
 
 <br/>
