@@ -40,9 +40,17 @@
             };
           };
 
-          # Quiet hides the kernel's own log spam
+          # Quiet hides the kernel's own log spam. The rest keeps the console
+          # silent, so nothing draws over the splash that plymouth leaves on
+          # screen (below): no systemd or udev status lines, no cursor. They
+          # still go to the journal.
           kernelParams = [
             "quiet"
+            "rd.systemd.show_status=false"
+            "systemd.show_status=false"
+            "rd.udev.log_level=3"
+            "udev.log_level=3"
+            "vt.global_cursor_default=0"
           ];
 
           loader = {
@@ -57,6 +65,13 @@
             };
           };
         };
+
+        # Leave the splash's last frame on screen when plymouth quits, until
+        # the session draws over it, instead of a bare console in between.
+        systemd.services.plymouth-quit.serviceConfig.ExecStart = [
+          ""
+          "-${config.boot.plymouth.package}/bin/plymouth quit --retain-splash"
+        ];
 
         # Bound /var/log growth (preserved across reboots).
         services.journald.settings.Journal = {
