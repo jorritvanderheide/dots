@@ -6,3 +6,6 @@ result
 
 # direnv's cache of the dev shell (`use flake` in .envrc)
 .direnv
+
+# ruff's cache, left by `nix fmt` formatting the Python files
+.ruff_cache
