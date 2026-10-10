@@ -62,6 +62,10 @@
             systemd-boot = {
               enable = true;
               configurationLimit = 32;
+              # The TPM unlocks the disk before anything asks for a password,
+              # so an edited command line (init=/bin/sh,
+              # rd.systemd.debug_shell) would be a root shell on it.
+              editor = false;
             };
           };
         };
