@@ -92,6 +92,12 @@
           settings = {
             server_url = "https://${cfg.domain}";
 
+            # Who may reach what; see the file. Without it, everything.
+            policy = {
+              mode = "file";
+              path = ./headscale-policy.hujson;
+            };
+
             database = {
               sqlite.path = "/var/lib/headscale/db.sqlite";
               type = "sqlite";

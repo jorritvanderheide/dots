@@ -1,0 +1,36 @@
+// Who may reach what on the tailnet. Without a policy Headscale allows
+// everything: every device could reach every port on every other, and the
+// whole home LAN through dapple's subnet route.
+{
+  "tagOwners": {
+    // dapple. Tagged rather than owned by a person, so it isn't one of
+    // anyone's own devices below (and New Leaf doesn't take it for one).
+    "tag:server": ["jorrit@"],
+  },
+
+  "hosts": {
+    "dapple": "100.64.0.1",
+    "rocinante": "100.64.0.2",
+    "pixel-10-pro": "100.64.0.5",
+    "pixel-jeltje": "100.64.0.4",
+    "lan": "192.168.1.0/24",
+  },
+
+  "autoApprovers": {
+    "routes": {
+      "192.168.1.0/24": ["tag:server"],
+    },
+  },
+
+  "grants": [
+    // Every device: the services on dapple, over HTTPS.
+    {"src": ["autogroup:member"], "dst": ["dapple"], "ip": ["tcp:443"]},
+    // A person's own devices reach each other, as without a policy.
+    {"src": ["autogroup:member"], "dst": ["autogroup:self"], "ip": ["*"]},
+    // The laptop: SSH on dapple.
+    {"src": ["rocinante"], "dst": ["dapple"], "ip": ["tcp:22"]},
+    // The home LAN, through dapple: the laptop, and the phones for the
+    // camera.
+    {"src": ["rocinante", "pixel-10-pro", "pixel-jeltje"], "dst": ["lan"], "ip": ["*"]},
+  ],
+}

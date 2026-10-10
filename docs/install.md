@@ -77,7 +77,18 @@ sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Head
 ```
 
 It prints a link; the page behind it shows a `headscale nodes register`
-command. Run that on dapple, with the user the device belongs to.
+command. Run that on dapple, with the user the device belongs to. dapple
+itself is then made a server rather than someone's device, which the
+access policy (`modules/features/services/headscale-policy.hujson`)
+counts on:
+
+```sh
+sudo headscale nodes list                       # dapple's ID
+sudo headscale nodes tag -i <id> -t tag:server
+```
+
+A new device gets the services on dapple. If it also needs SSH or the LAN,
+add its address to the policy's `hosts` and grants.
 
 A reinstalled dapple needs both `headscale` and `tailscale` restored before
 the tailnet works again: until then, reach it over the LAN

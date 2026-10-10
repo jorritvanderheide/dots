@@ -152,7 +152,10 @@ There, only two things answer:
 A name no vhost claims gets no certificate and no answer.
 
 **From the tailnet**, every service in [section 6](#6-services-on-dapple),
-over HTTPS on dapple's tailnet address, and SSH. Their vhosts are bound to
+over HTTPS on dapple's tailnet address. SSH and the home LAN (through
+dapple's subnet route) only from the devices the
+[access policy](modules/features/services/headscale-policy.hujson) names:
+rocinante, and two phones for the LAN. The services' vhosts are bound to
 that address and refuse any source outside the tailnet, so they answer
 neither on the public address nor to a LAN device that routes the tailnet
 address through dapple. The firewall is nftables, so its tailnet rules hold
