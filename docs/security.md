@@ -100,7 +100,8 @@ any system booted on the same board.
     Cloudflare, so it refuses everyone.)
   - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
     address.
-  - Vaultwarden's invitations are off, unless you're inviting someone.
+  - Vaultwarden's admin page doesn't switch invitations back on: what it
+    saves overrides the configuration, which has them off.
 
   Checked on 2026-10-10: Vaultwarden's `ADMIN_TOKEN` is an argon2 hash,
   Calibre-Web's admin password isn't the default, and qBittorrent's password
