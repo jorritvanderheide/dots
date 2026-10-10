@@ -27,6 +27,7 @@ in
         firmware
         locale
         networking
+        wifi
         power
         sound
         ssh
