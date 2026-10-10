@@ -353,12 +353,24 @@
               # Written directly rather than via gtk.gtk{3,4}.extraCss, which
               # stylix warns about even with its gtk colors disabled. The
               # built-in gtk hook only checks that noctalia.css is imported.
-              xdg.configFile = lib.genAttrs [ "gtk-3.0/gtk.css" "gtk-4.0/gtk.css" ] (_: {
-                text = ''
-                  @import url("noctalia.css");
-                  @import url("noctalia-overrides.css");
-                '';
-              });
+              xdg.configFile =
+                lib.genAttrs [ "gtk-3.0/gtk.css" "gtk-4.0/gtk.css" ] (_: {
+                  text = ''
+                    @import url("noctalia.css");
+                    @import url("noctalia-overrides.css");
+                  '';
+                })
+                // {
+                  # home-manager validates ghostty's config whenever it changed,
+                  # which at boot is always (the home folder starts empty), and
+                  # that's before noctalia has written its theme: validate once
+                  # the theme exists.
+                  "ghostty/config".onChange = lib.mkForce ''
+                    if [[ -e ${config.xdg.configHome}/ghostty/themes/noctalia-terminal ]]; then
+                      ${lib.getExe config.programs.ghostty.package} +validate-config --config-file=${config.xdg.configHome}/ghostty/config
+                    fi
+                  '';
+                };
 
               programs.zed-editor.userSettings.theme = {
                 mode = "system";
