@@ -378,7 +378,10 @@
             # ZHA: let HA open the Zigbee dongle's serial port.
             users.users.hass.extraGroups = [ "dialout" ];
 
-            my.offsite-backup.entries.home-assistant.paths = [ "/var/lib/hass" ];
+            my.offsite-backup.entries.home-assistant = {
+              paths = [ "/var/lib/hass" ];
+              units = [ "home-assistant.service" ];
+            };
 
             my.preservation.systemDirectories = [
               {

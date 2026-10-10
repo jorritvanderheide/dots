@@ -113,7 +113,13 @@
               };
             };
 
-            my.offsite-backup.entries.calibre-web.paths = [ "/var/lib/calibre-web" ];
+            my.offsite-backup.entries.calibre-web = {
+              paths = [ "/var/lib/calibre-web" ];
+              units = [
+                "calibre-web.service"
+                "calibre-web-comics-to-kepub.timer"
+              ];
+            };
 
             my.preservation.systemDirectories = [
               {

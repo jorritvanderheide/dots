@@ -53,9 +53,27 @@ sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Head
 It prints a link; the page behind it shows a `headscale nodes register`
 command. Run that on dapple, with the user the device belongs to.
 
-A reinstalled dapple starts with an empty Headscale, unless
-`/var/lib/headscale` is restored from a backup first. Then every device has
-to join again.
+A reinstalled dapple starts with an empty Headscale. Restore it first (see
+below), and the other devices keep working; only dapple itself joins again.
+
+## Restoring data
+
+A reinstalled host starts without its services' data. Bring it back from the
+offsite backup on Storj, once the host is up:
+
+```sh
+sudo offsite-restore              # everything
+sudo offsite-restore immich       # or only what's named; --help lists them
+```
+
+It downloads first, so a failed download changes nothing. Then it stops the
+services, swaps their data in, puts back what is backed up as a dump or a
+copy (Immich's database, Vaultwarden), and starts them again. What it replaced is kept
+in `/persist/.offsite-restore-old-<time>` until you delete it. The same
+command repairs a single service on a running host.
+
+To check a backup without changing anything,
+`sudo offsite-restore --target /tmp/restore-test <entry>` only downloads.
 
 ## A new host
 

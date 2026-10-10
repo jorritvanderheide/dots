@@ -60,7 +60,10 @@
               };
             };
 
-            my.offsite-backup.entries.contacts.paths = [ "/var/lib/radicale" ];
+            my.offsite-backup.entries.contacts = {
+              paths = [ "/var/lib/radicale" ];
+              units = [ "radicale.service" ];
+            };
 
             my.preservation.systemDirectories = [
               {
