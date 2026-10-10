@@ -294,6 +294,9 @@
                 "d ${torrentsDir}/audiobooks 2775 root media -"
                 # Lidarr's import target; Jellyfin's Music library reads it.
                 "d ${mediaDir}/library/music 2775 root media -"
+                # Preservation creates the parent of Prowlarr's 0777 state
+                # directory (below) 0755, which would let anyone in.
+                "z /persist/system/var/lib/private 0700 root root -"
               ];
 
               systemd.services = {
@@ -409,7 +412,8 @@
                 # Prowlarr is DynamicUser, so its state lives under /var/lib/private,
                 # owned by a UID allocated fresh each boot -- there's no fixed
                 # username to chown the persisted directory to. Mode 0777 instead;
-                # /var/lib/private itself is 0700 root, so nothing but root can
+                # /var/lib/private itself is 0700 root, and so is its copy on
+                # /persist (the tmpfiles rule above), so nothing but root can
                 # even traverse in to exploit the open permissions on this subdir.
                 # /var/lib/prowlarr is a symlink that systemd recreates each start.
                 {

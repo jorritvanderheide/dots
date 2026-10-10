@@ -107,7 +107,8 @@ main() {
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key' EXIT
   for attempt in $(seq 1 10); do
-    sops -d --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key && break
+    # Created owner-only, not world-readable until the chmod below.
+    (umask 077 && sops -d --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key) && break
     [[ $attempt -lt 10 ]] || die "Failed to decrypt luks_password after 10 attempts"
     log_info "Decrypt attempt ${attempt} failed, retrying in 2s (pcscd/YubiKey enumeration can race transiently)..."
     sleep 2

@@ -181,7 +181,11 @@
               script = ''
                 install -d -m 0755 -o gatus -g gatus /run/gatus
                 TOKEN="$(sops_extract gatus_push_token)"
-                sed "s|${tokenPlaceholder}|$TOKEN|g" ${configTemplate} > ${configPath}
+                # In bash rather than sed, whose arguments (the token) any
+                # local user could read in /proc. The replacement is quoted so
+                # bash takes it literally (unquoted, & means the match).
+                template="$(<${configTemplate})"
+                printf '%s\n' "''${template//${tokenPlaceholder}/"$TOKEN"}" > ${configPath}
                 chown gatus:gatus ${configPath}
               '';
             };
@@ -205,6 +209,10 @@
                 Group = "gatus";
                 StateDirectory = "gatus";
                 RuntimeDirectory = "gatus";
+                # The rendered config lives here, and gatus-secrets only
+                # renders it once a boot: systemd's default cleanup on stop
+                # would leave a restarted gatus without one.
+                RuntimeDirectoryPreserve = "yes";
                 Restart = "always";
                 RestartSec = "10s";
 

@@ -84,6 +84,7 @@
             systemd.services.calibre-web.serviceConfig = {
               Restart = lib.mkForce "always";
               RestartSec = lib.mkForce "5s";
+              UMask = "0077";
             };
 
             # See comics-to-kepub.py. Picks up new uploads on a timer rather
@@ -126,6 +127,9 @@
                 directory = "/var/lib/calibre-web";
                 user = "calibre-web";
                 group = "calibre-web";
+                # app.db holds password hashes, Kobo sync tokens and the SMTP
+                # password.
+                mode = "0700";
               }
             ];
           }

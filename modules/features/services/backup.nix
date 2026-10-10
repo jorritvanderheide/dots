@@ -106,7 +106,9 @@
             report() {
               ${lib.optionalString (cfg.healthcheckUrl != null) (
                 if cfg.healthcheckTokenFile != null then
-                  ''curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $(<${cfg.healthcheckTokenFile})" "${cfg.healthcheckUrl}?success=$1" || true''
+                  # The header on stdin, not in curl's arguments, which any
+                  # local user can read.
+                  ''curl -X POST -fsS -o /dev/null --config - "${cfg.healthcheckUrl}?success=$1" <<<"header = \"Authorization: Bearer $(<${cfg.healthcheckTokenFile})\"" || true''
                 else
                   ''curl -X POST -fsS -o /dev/null "${cfg.healthcheckUrl}?success=$1" || true''
               )}
@@ -144,12 +146,11 @@
                 # See lib.mkSopsService for why this doesn't use sops-nix's
                 # own sops.secrets: this key must be readable before real
                 # systemd/pcscd exist, and needs the YubiKey identity, not
-                # sops.age.sshKeyPaths.
-                KEYFILE="$(mktemp)"
-                trap 'shred -u "$KEYFILE" 2>/dev/null || rm -f "$KEYFILE"' EXIT
-                ${inputs.self.lib.sopsExtract pkgs} usb_backup_luks_key > "$KEYFILE"
+                # sops.age.sshKeyPaths. Piped, not via a file: /tmp is on ZFS,
+                # where shred can't overwrite anything.
                 echo "Opening LUKS container $DEV"
-                cryptsetup open --key-file "$KEYFILE" "$DEV" ${luksName}
+                ${inputs.self.lib.sopsExtract pkgs} usb_backup_luks_key |
+                  cryptsetup open --key-file=- "$DEV" ${luksName}
               fi
             ''}
 

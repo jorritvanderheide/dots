@@ -259,8 +259,10 @@
           script =
             let
               ping =
+                # The header on stdin, not in curl's arguments, which any
+                # local user can read.
                 if cfg.healthcheckTokenFile != null then
-                  ''curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $TOKEN" "$HEALTHCHECK_URL"''
+                  ''curl -X POST -fsS -o /dev/null --config - "$HEALTHCHECK_URL" <<<"header = \"Authorization: Bearer $TOKEN\""''
                 else
                   ''curl -fsS -o /dev/null "$HEALTHCHECK_URL"'';
             in

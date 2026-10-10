@@ -34,6 +34,9 @@
         services.openssh = {
           enable = true;
           allowSFTP = false;
+          # Only the keys declared here: ~/.ssh outlives the root wipe, so a
+          # key planted there would too.
+          authorizedKeysInHomedir = false;
           # Not on every interface: the tailnet here, and the host adds its
           # LAN if it wants it.
           openFirewall = false;
