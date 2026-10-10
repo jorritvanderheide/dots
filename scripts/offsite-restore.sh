@@ -10,6 +10,10 @@
 #
 # The offsite-backup module puts entry_paths, entry_units, persisted and
 # run_hook in front of this, from the host's entries.
+#
+# --no-lock: the host's credentials can't delete, so restic couldn't
+# refresh a lock and would give up on a restore longer than 22 minutes.
+# Nothing removes data meanwhile: only offsite-prune can, from rocinante.
 
 staging=/persist/.offsite-restore
 
@@ -68,7 +72,7 @@ for path in "${paths[@]}"; do
 done
 
 if [[ -n $target ]]; then
-  restic-offsite restore latest --target "$target" "${includes[@]}"
+  restic-offsite restore --no-lock latest --target "$target" "${includes[@]}"
   exit 0
 fi
 
@@ -85,7 +89,7 @@ exec > >(tee --output-error=warn -a "$log") 2>&1
 echo "Restoring ${names[*]}, $(date). Also logged to ${log}."
 
 rm -rf "$staging"
-restic-offsite restore latest --target "$staging" "${includes[@]}"
+restic-offsite restore --no-lock latest --target "$staging" "${includes[@]}"
 for path in "${paths[@]}"; do
   if [[ ! -d $staging$path ]]; then
     echo "${path} is not in the backup. Nothing was changed." >&2

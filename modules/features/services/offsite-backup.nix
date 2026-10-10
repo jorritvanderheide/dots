@@ -216,7 +216,18 @@
             "offsite-backup-healthcheck.service"
           ];
 
-          serviceConfig.BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
+          serviceConfig = {
+            BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
+
+            # restic refreshes its lock every 5 minutes by deleting the old
+            # one, which these credentials can't, and gives up after 22.5
+            # minutes ("failed to refresh lock in time"); `backup` has no
+            # --no-lock. It saves its index every 10 minutes, so a retry goes
+            # on where the last one stopped: a long run (the first one, a big
+            # import) finishes in steps.
+            Restart = "on-failure";
+            RestartSec = "5min";
+          };
         };
 
         # A unit of its own: every command of the backup's unit, even a "+"
