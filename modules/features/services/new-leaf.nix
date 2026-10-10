@@ -127,15 +127,6 @@
             group = "new-leaf";
             mode = "0755";
           }
-          # New Leaf was called cv-app: its data is copied from here to
-          # /var/lib/new-leaf on the first start. Remove this entry (and
-          # the directory) once that went well.
-          {
-            directory = "/var/lib/cv-app";
-            user = "root";
-            group = "root";
-            mode = "0755";
-          }
         ];
       };
     };
