@@ -11,7 +11,7 @@ modules/
   features/<area>/<feature>.nix   one NixOS module each: flake.nixosModules.<feature>
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
-  flake/                          checks, formatter, dev shell, apps, lib
+  flake/                          checks, formatter, dev shell, apps, lib, installer ISO
 scripts/                          install, enroll-tpm, and scripts used by modules
 secrets/                          secrets.yaml (sops) and the YubiKey identities
 docs/                             this, install and secrets

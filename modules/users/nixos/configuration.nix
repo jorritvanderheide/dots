@@ -8,9 +8,7 @@
 
     withModules = [
       {
-        my.ssh-server.authorizedKeys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"
-        ];
+        my.ssh-server.authorizedKeys = inputs.self.lib.authorizedKeys;
       }
     ];
   };

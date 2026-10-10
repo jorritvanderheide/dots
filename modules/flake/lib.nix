@@ -5,6 +5,11 @@
 }:
 {
   flake.lib = {
+    # Keys that may SSH into the hosts (the nixos user) and the installer ISO.
+    authorizedKeys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"
+    ];
+
     # The disk the installer wipes, from the facter report: the first one
     # that isn't on USB (a report gathered from a live ISO lists the
     # installer stick too). `device` is its /dev/disk/by-id/<model>_<serial>

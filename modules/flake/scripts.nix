@@ -21,7 +21,6 @@
           jujutsu
           kmod
           nix
-          nixos-facter
           pcsclite
           sops
           util-linux
@@ -31,9 +30,8 @@
         # is a USB CCID device) -- the script starts pcscd itself.
         runtimeEnv.PCSCLITE_HP_DROPDIR = "${pkgs.ccid}/pcsc/drivers";
 
-        # Default source tree, read-only -- lets install run with no local
-        # checkout. Override with INSTALL_HOST_FLAKE_DIR for a new host,
-        # whose facter.json needs to be written back to a real clone.
+        # The flake it was run from, read-only -- lets install run with no
+        # local checkout.
         runtimeEnv.INSTALL_HOST_FLAKE_DEFAULT = "${inputs.self}";
 
         text = builtins.readFile (inputs.self + "/scripts/install.sh");
