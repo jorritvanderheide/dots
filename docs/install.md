@@ -75,6 +75,21 @@ command repairs a single service on a running host.
 To check a backup without changing anything,
 `sudo offsite-restore --target /tmp/restore-test <entry>` only downloads.
 
+On a running dapple, restore `headscale` over the LAN
+(`ssh nixos@192.168.1.162`), not over the tailnet: while Headscale is
+stopped, or if the backup is older than a device's registration, the tailnet
+may not carry your SSH session.
+
+To undo a restore, put the replaced data back. For example, for Headscale:
+
+```fish
+sudo systemctl stop headscale
+set old (ls -d /persist/.offsite-restore-old-* | tail -n 1)
+sudo find /persist/system/var/lib/headscale -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+sudo find "$old"/var/lib/headscale -mindepth 1 -maxdepth 1 -exec mv -t /persist/system/var/lib/headscale {} +
+sudo systemctl start headscale
+```
+
 ## A new host
 
 A host with no `modules/hosts/<hostname>/facter.json` committed yet needs a
