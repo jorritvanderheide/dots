@@ -94,12 +94,7 @@
             pkgs.sanoid
           ]
           ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl
-          ++ lib.optionals cfg.luks [
-            pkgs.age-plugin-yubikey
-            pkgs.cryptsetup
-            pkgs.sops
-            pkgs.util-linux
-          ];
+          ++ lib.optional cfg.luks pkgs.cryptsetup;
 
           script = ''
             ${lib.optionalString cfg.luks ''
@@ -152,8 +147,7 @@
                 # sops.age.sshKeyPaths.
                 KEYFILE="$(mktemp)"
                 trap 'shred -u "$KEYFILE" 2>/dev/null || rm -f "$KEYFILE"' EXIT
-                SOPS_AGE_KEY_FILE=/etc/sops/yubikey-identity.txt flock /run/lock/sops-yubikey.lock \
-                  sops -d --extract '["usb_backup_luks_key"]' ${inputs.self}/secrets/secrets.yaml > "$KEYFILE"
+                ${inputs.self.lib.sopsExtract pkgs} usb_backup_luks_key > "$KEYFILE"
                 echo "Opening LUKS container $DEV"
                 cryptsetup open --key-file "$KEYFILE" "$DEV" ${luksName}
               fi

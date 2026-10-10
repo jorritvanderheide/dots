@@ -148,27 +148,25 @@ Nothing needed to recover lives only on rocinante: the SSH keys are in
 Bitwarden, the configuration is on Codeberg, the data on Storj, and the
 YubiKeys are separate devices.
 
-One limit to keep in mind: the installer decrypts with any YubiKey or the
-passphrase identity, but an installed host only decrypts with its own
-YubiKey, the one in its identity file in `secrets/`. Without it, the host
-boots but can't set its passwords or reach its backup.
+Every host decrypts with any of your YubiKeys. The passphrase identity works
+for the installer, but a running host's services need a YubiKey: without
+one, it boots but can't set its passwords or reach its backup.
 
-- **rocinante.** On its replacement, with rocinante's YubiKey: boot the ISO
+- **rocinante.** On its replacement, with a YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
   boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
   rocinante's backup holds comes back: Zotero, and its place on the tailnet.
-- **A YubiKey.** Enroll a replacement for its host first, as in
-  [Secrets and keys](secrets.md), decrypting with the other YubiKey or the
-  passphrase identity. On the ISO, `nix shell nixpkgs#sops
-  nixpkgs#age-plugin-yubikey` has the tools. Push it; then the host works
-  with the new key.
+- **A YubiKey.** The other one works on every host meanwhile. Revoke the lost
+  key and enroll a new one, as in [Secrets and keys](secrets.md).
 - **Both machines.** Vaultwarden runs on dapple, so Bitwarden only has the
   offline copy on your phone. It holds the passphrase identity, the SSH keys
-  and your Codeberg login. If dapple's YubiKey is gone too, enroll a
-  replacement for dapple first (as above). Then install dapple with
+  and your Codeberg login. With a YubiKey left, install dapple with
   `install-host --new-hardware dapple` and `sudo offsite-restore`, which
   brings Vaultwarden back, and rocinante can follow.
+  If no YubiKey is left, enroll a new one first, with the passphrase
+  identity: on the ISO, `nix shell nixpkgs#sops nixpkgs#age-plugin-yubikey`
+  has the tools.
 
 That last case depends on your phone. An offline copy of the passphrase
 identity and your Bitwarden recovery details, kept somewhere safe, removes

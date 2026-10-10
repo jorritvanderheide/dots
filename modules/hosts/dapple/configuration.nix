@@ -75,9 +75,6 @@ in
             services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated. Re-test on the next nixpkgs bump.
             system.stateVersion = "26.05";
 
-            # dapple has its own physical YubiKey, separate from jorrit's.
-            my.secrets.yubikeyIdentityFile = inputs.self + "/secrets/yubikey-identity-dapple.txt";
-
             ## Other
             environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
 

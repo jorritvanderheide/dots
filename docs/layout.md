@@ -13,7 +13,7 @@ modules/
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
 scripts/                          install, enroll-tpm, and scripts used by modules
-secrets/                          secrets.yaml (sops) and the YubiKey identities
+secrets/                          secrets.yaml, encrypted with sops
 docs/                             this, install and secrets
 ```
 
