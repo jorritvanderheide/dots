@@ -88,6 +88,15 @@ in
               iifname "enp2s0" ip saddr 192.168.1.0/24 tcp dport 22 accept
             '';
 
+            # A trusted nix user can add unsigned store paths and set
+            # root-run build hooks, which makes it root without sudo's
+            # password. So only root, and what `ndeploy` copies here must be
+            # signed by rocinante instead (its secret-key-files).
+            nix.settings = {
+              trusted-users = lib.mkForce [ "root" ];
+              trusted-public-keys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
+            };
+
             ## Other
             environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
 

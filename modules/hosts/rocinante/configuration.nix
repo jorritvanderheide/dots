@@ -101,6 +101,11 @@ in
                 "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
                 "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
               ];
+              # Signs what this host builds, so dapple accepts what
+              # `ndeploy` copies to it without trusting the user who copies
+              # it. Straight on /persist, like the SSH host key; generated
+              # with `nix key generate-secret --key-name rocinante-1`.
+              secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
             };
 
             my.desktop-shell.lockOnStartup = true;
