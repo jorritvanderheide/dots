@@ -145,24 +145,28 @@ There, only two things answer:
 
 - **Headscale** at `vpn`: the control protocol and the DERP relay, which a
   device away from home needs to join the tailnet. Its admin API
-  (`/api`, `/swagger`) is refused unless the request comes from the LAN or
-  the tailnet.
+  (`/api`, `/swagger`) is refused unless the request comes from the tailnet.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
 
+A name no vhost claims gets no certificate and no answer.
+
 **From the tailnet**, every service in [section 6](#6-services-on-dapple),
-over HTTPS on dapple's tailnet address. Their vhosts are bound to that
-address only, so they don't answer on the public one.
+over HTTPS on dapple's tailnet address, and SSH. Their vhosts are bound to
+that address and refuse any source outside the tailnet, so they answer
+neither on the public address nor to a LAN device that routes the tailnet
+address through dapple. The firewall is nftables, so its tailnet rules hold
+even though tailscaled accepts all tailnet traffic in its own table.
 
-**From the LAN** (`enp2s0`), besides the above:
+**From the LAN** (`enp2s0`), besides the internet's ports:
 
-- Jellyfin on 8096/tcp, and 7359/udp for clients to discover it.
-- Home Assistant on 8123/tcp, plain HTTP.
-- `kobo.bw20.nl` on 443, for the Kobo's sync, allowed for the LAN subnet
-  only.
+- SSH on 22, from the LAN subnet only.
+- `kobo.bw20.nl` on 443, the Kobo sync API only (`/kobo/`), allowed for the
+  LAN subnet only.
 
-**On every interface**, behind the router: SSH on 22, public key only, for
-the `nixos` user; and Tailscale's WireGuard on 41641/udp.
+SSH is public key only, for the `nixos` user, with keys from this repository
+only (not `~/.ssh`). Tailscale's WireGuard is on 41641/udp on every
+interface.
 
 **rocinante** opens no ports but Tailscale's 41641/udp, and 5353/udp for
 mDNS, to find the installer ISO.

@@ -15,8 +15,11 @@ is additive, not a replacement.
 The YubiKeys use no PIN and no touch: physical possession is the only gate,
 the same as FIDO2 LUKS unlock at boot. The hosts, the installer and the dev
 shell decrypt with whichever YubiKey is plugged in, so any of them works on
-any host. The passphrase identity only works where `SOPS_AGE_KEY_FILE` points
-at it: the installer and `sops` by hand, not a running host's services.
+any host. On a running host only root (the services that decrypt) and a
+desktop session can reach the YubiKey: any other process could otherwise
+decrypt everything. The passphrase identity only works where
+`SOPS_AGE_KEY_FILE` points at it: the installer and `sops` by hand, not a
+running host's services.
 
 ## Changing a secret
 
@@ -52,7 +55,17 @@ This matches the existing keys' no-PIN, no-touch policy. Then:
 
 1. Remove its recipient from `.sops.yaml`.
 2. `sops updatekeys secrets/secrets.yaml`.
-3. Push, and deploy every host.
+3. `sops rotate -i secrets/secrets.yaml`. `updatekeys` alone keeps the same
+   data key, and the lost key still unwraps that key from any old copy of
+   the file, such as the repository's history on Codeberg. With it, the
+   key also decrypts every value written after the revocation. `rotate`
+   makes a new data key.
+4. Change the secrets themselves: the old copies still open with the lost
+   key. In particular, change the LUKS password (`cryptsetup luksChangeKey`
+   on every disk, then `sudo nix run .#enroll-tpm`), the restic password
+   (`restic key add`, then `restic key remove` the old one), the Storj
+   credentials, the user password hashes, and the tokens and API keys.
+5. Push, and deploy every host.
 
 ## Regenerating the passphrase identity
 
