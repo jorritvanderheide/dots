@@ -138,11 +138,6 @@
 
               security.acme.certs.${lanDomain} = { };
 
-              systemd.services.nginx = {
-                wants = [ "acme-finished-${lanDomain}.target" ];
-                after = [ "acme-finished-${lanDomain}.target" ];
-              };
-
               # Kobo firmware's sync/connectivity check requires HTTPS -- plain
               # HTTP gets reported as "no internet access". DNS-01 (Cloudflare)
               # issues a real cert regardless of what IP the name points to, so

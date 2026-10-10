@@ -77,11 +77,6 @@
 
         security.acme.certs.${domain} = { };
 
-        systemd.services.nginx = {
-          wants = [ "acme-finished-${domain}.target" ];
-          after = [ "acme-finished-${domain}.target" ];
-        };
-
         services.nginx.virtualHosts = {
           ${domain} = {
             forceSSL = true;

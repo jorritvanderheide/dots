@@ -154,11 +154,6 @@
             "^~ /swagger" = lanAndTailnetOnly;
           };
         };
-
-        systemd.services.nginx = {
-          wants = [ "acme-finished-${cfg.domain}.target" ];
-          after = [ "acme-finished-${cfg.domain}.target" ];
-        };
       };
     };
 }
