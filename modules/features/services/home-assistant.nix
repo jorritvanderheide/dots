@@ -37,28 +37,36 @@
       # One ventilator pair to medium while its master reads high CO2, back to
       # low once it settles. The units' own anti-CO2 function would switch the
       # pair to supply instead, which loses heat recovery and has both units
-      # blowing in; this keeps them in whatever mode they are in.
+      # blowing in; this keeps them in whatever mode they are in. With that
+      # function off the unit ignores its CO2 target, so the target is reused
+      # here: medium above target + 100, low again below the target. 800 if
+      # it can't be read.
       co2Speed =
         {
           id,
           alias,
           sensor,
+          target,
           fan,
         }:
         {
           inherit id alias;
           triggers = [
             {
-              trigger = "numeric_state";
-              entity_id = sensor;
-              above = 900;
+              trigger = "template";
+              value_template = ''
+                {{ states('${sensor}') | float(0)
+                   > states('${target}') | float(800) + 100 }}
+              '';
               for.minutes = 5;
               id = "high";
             }
             {
-              trigger = "numeric_state";
-              entity_id = sensor;
-              below = 800;
+              trigger = "template";
+              value_template = ''
+                {{ states('${sensor}') | float(9999)
+                   < states('${target}') | float(800) }}
+              '';
               for.minutes = 10;
               id = "normal";
             }
@@ -401,12 +409,14 @@
                     id = "kitchen_co2_speed";
                     alias = "Kitchen: more air when CO2 is high";
                     sensor = "sensor.living_room_ventilator_uitvoer_co2";
+                    target = "number.living_room_ventilator_co2_target";
                     fan = "fan.kitchen_fan";
                   })
                   (co2Speed {
                     id = "bedroom_co2_speed";
                     alias = "Bedroom: more air when CO2 is high";
                     sensor = "sensor.bedroom_co2";
+                    target = "number.bedroom_ventilator_co2_target";
                     fan = "fan.bedroom_fan";
                   })
                 ];
