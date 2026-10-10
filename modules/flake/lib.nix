@@ -116,6 +116,16 @@
       }:
       {
         inherit description wantedBy;
+        # The script reads /etc/sops/secrets.yaml, so it doesn't change
+        # when a secret does, and a switch would leave the old value in
+        # place until the next boot. A copy of just secrets/ changes exactly
+        # when a secret does (unlike the whole flake, every commit).
+        restartTriggers = [
+          (builtins.path {
+            path = inputs.self + "/secrets";
+            name = "secrets";
+          })
+        ];
         after = [ "pcscd.service" ];
         wants = [ "pcscd.service" ];
         unitConfig = inputs.self.lib.sopsRetryUnitConfig // extraUnitConfig;
