@@ -53,7 +53,8 @@ secrets, home-manager, and fish.
 ## 3 Safety
 
 - **Disks** are ZFS on LUKS. They unlock with the TPM2, with the LUKS
-  password as the fallback.
+  password as the fallback. The TPM isn't bound to secure boot yet: see
+  [Security](docs/security.md#still-open).
 - **The root is wiped on every boot**: `zroot/root` rolls back to an empty
   snapshot, and [preservation](https://github.com/nix-community/preservation)
   brings back only the files and folders that are declared, from `/persist`.
@@ -64,8 +65,12 @@ secrets, home-manager, and fish.
   boot by the service that needs them, never written to the Nix store. See
   [Secrets and keys](docs/secrets.md).
 - **The server** answers on its tailnet address, with only Headscale and New
-  Leaf's share links open to the internet. [Section 7](#7-network-exposure)
-  lists exactly what is reachable from where.
+  Leaf's share links open to the internet. A Headscale policy limits what
+  each tailnet device reaches. [Section 7](#7-network-exposure) lists
+  exactly what is reachable from where, and [Security](docs/security.md) who
+  is kept out of what, and what is still open.
+- **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
+  user but root, so the sudo password can't be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
 
@@ -85,8 +90,11 @@ secrets, home-manager, and fish.
 - [**Installing a host**](docs/install.md) - The ISO and the installer, why
   accounts start locked, joining the tailnet, restoring data, new hosts, and
   losing a machine.
-- [**Secrets and keys**](docs/secrets.md) - Changing a secret, adding or
-  revoking a YubiKey, and the passphrase fallback.
+- [**Secrets and keys**](docs/secrets.md) - The per-host files and their
+  keys, changing a secret, adding or revoking a key, and the passphrase
+  fallback.
+- [**Security**](docs/security.md) - Who is kept out of what, what is still
+  open, what is accepted on purpose, and how to check it.
 - [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
   and the shared helpers.
 
@@ -102,7 +110,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
 | `nbuild` | Build only |
-| `ndeploy <host> [switch\|boot]` | Build here and activate on another host over SSH |
+| `ndeploy <host> [switch\|boot]` | Build here, signed with rocinante's deploy key, and activate on another host over SSH |
 | `nrollback` | Go back to the previous generation |
 | `nupdate` | Update `flake.lock` |
 | `nix fmt` | Format everything (nixfmt, deadnix, statix, shfmt, ruff) |

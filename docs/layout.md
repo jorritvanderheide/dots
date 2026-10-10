@@ -14,7 +14,7 @@ modules/
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
 scripts/                          install, enroll-tpm, and scripts used by modules
 secrets/                          <host>.yaml, encrypted with sops
-docs/                             this, install and secrets
+docs/                             this, install, secrets and security
 ```
 
 ## Features
@@ -44,8 +44,12 @@ same groups as the folders (Core, System, Services, ...), and sets the
   key enumerates). See
   [Installing a host](install.md#why-the-accounts-start-locked) for why
   secrets are not installed by sops-nix at activation.
+- **`sopsExtract`**: prints one secret from the host's own file
+  (`/etc/sops/secrets.yaml`), with the host's age key (`hostAgeKey`) or a
+  YubiKey. `mkSopsService` scripts call it as `sops_extract <key>`.
 - **`mkReverseProxy`**: an nginx vhost at `<subdomain>.bw20.nl`, with an ACME
-  certificate, bound to the tailnet address only.
+  certificate, bound to the tailnet address and refusing other sources
+  (`tailnetOnly`, also usable on its own).
 - **`mkUser`**: a user with fish, home-manager, and a password set from
   `user_password_<user>` at boot.
 
