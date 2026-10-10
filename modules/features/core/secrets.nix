@@ -26,15 +26,16 @@
         # pcscd unprivileged and denies every client -- including mkSopsService's
         # root-run scripts -- unless polkit explicitly authorizes them. The
         # default policy only allows an "active" local session, which a
-        # headless box connected over SSH never has. Physical possession of
-        # the YubiKey is already this repo's trust boundary (see
-        # pin-policy=never/touch-policy=never in .sops.yaml), so authorize
-        # PC/SC access unconditionally rather than requiring a session that
-        # will never exist here.
+        # headless box connected over SSH never has. Authorize root, which
+        # every decrypting service runs as. Not anyone: with no PIN and no
+        # touch on the key (.sops.yaml), any process that reaches pcscd would
+        # decrypt every secret. A desktop session still gets in through the
+        # default policy.
         security.polkit.extraConfig = ''
           polkit.addRule(function(action, subject) {
-            if (action.id == "org.debian.pcsc-lite.access_pcsc" ||
-                action.id == "org.debian.pcsc-lite.access_card") {
+            if ((action.id == "org.debian.pcsc-lite.access_pcsc" ||
+                 action.id == "org.debian.pcsc-lite.access_card") &&
+                subject.user == "root") {
               return polkit.Result.YES;
             }
           });
