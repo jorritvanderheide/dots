@@ -1,9 +1,8 @@
-# Nix
+# nix build's output link
 result
 
-# Source control
+# jj's own state; the repo is colocated with git
 .jj
 
-# Tools
+# direnv's cache of the dev shell (`use flake` in .envrc)
 .direnv
-.envrc
