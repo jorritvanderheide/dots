@@ -93,16 +93,21 @@ any system booted on the same board.
   `--tpm2-pcrs=7`. Check with `sudo cryptsetup luksDump
   /dev/disk/by-partlabel/disk-main-luks`: the `tpm2` token should list PCR 7.
 - **To check by hand**, since the configuration doesn't say:
-  - Vaultwarden's `ADMIN_TOKEN` is unset or an argon2 hash, and invitations
-    are off.
-  - Calibre-Web's `admin` account doesn't have its default password.
-  - The Cloudflare token can only edit DNS in `bw20.nl`: with more, it can
-    point `vpn` elsewhere and get a valid certificate for it.
-  - From mobile data, `https://vpn.bw20.nl/api/v1/apikey` answers 403.
+  - The Cloudflare token can only read the `bw20.nl` zone and edit its DNS:
+    with more, it can point `vpn` elsewhere and get a valid certificate for
+    it.
+  - The router doesn't hide internet visitors behind a LAN address, which
+    the Kobo vhost would let in. From mobile data, with the home address:
+    `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
+    answers 403. (Headscale's `/api` can't tell: `vpn` goes through
+    Cloudflare, so it refuses everyone.)
   - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
     address.
-  - qBittorrent's password is long and random: its hash is in the
-    repository (below).
+  - Vaultwarden's invitations are off, unless you're inviting someone.
+
+  Checked on 2026-10-10: Vaultwarden's `ADMIN_TOKEN` is an argon2 hash,
+  Calibre-Web's admin password isn't the default, and qBittorrent's password
+  is long and random.
 
 ## Accepted on purpose
 
@@ -119,8 +124,8 @@ any system booted on the same board.
   logs list their names. The names aren't secret; the services aren't
   reachable from the internet.
 - **qBittorrent's password hash is in the repository** (PBKDF2, in its
-  declared config), which is fine as long as the password is long and
-  random.
+  declared config), which is fine with a long, random password like its
+  own.
 - **Headscale's `/version` is public**, with its exact version.
 
 ## Checking it
