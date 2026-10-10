@@ -2,7 +2,8 @@
 # entry of my.offsite-backup, or the ones named. It downloads everything
 # first, so a failed download changes nothing. Then it stops the entries'
 # units, swaps their data in, runs their restore commands and starts them
-# again. What it replaced is kept under /persist/.offsite-restore-old-<time>.
+# again. What it replaced is kept under /persist/.offsite-restore-old-<time>,
+# and the run is logged to /var/log/offsite-restore.log.
 #
 # Usage: offsite-restore [--target DIR] [ENTRY...]
 #   --target DIR   only download into DIR, and change nothing else
@@ -74,6 +75,14 @@ fi
 echo "This replaces the data of: ${names[*]}"
 read -rp "Type 'yes' to continue: " confirm
 [[ $confirm == "yes" ]] || exit 1
+
+# From here on, survive a dropped SSH session: restoring Tailscale or
+# Headscale can cut your own. Hangups are ignored, and tee keeps writing
+# the output to the log when the terminal is gone.
+log=/var/log/offsite-restore.log
+trap '' HUP
+exec > >(tee --output-error=warn -a "$log") 2>&1
+echo "Restoring ${names[*]}, $(date). Also logged to ${log}."
 
 rm -rf "$staging"
 restic-offsite restore latest --target "$staging" "${includes[@]}"
