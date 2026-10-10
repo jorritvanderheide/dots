@@ -75,9 +75,12 @@ firmware takes the keys once, in setup mode:
 5. Boot. `bootctl status` shows `Secure Boot: enabled (user)`. On a fresh
    install, that boot binds the TPM by itself. On a host that had a TPM
    slot already, rebind it: `sudo enroll-tpm`.
-6. Check: `sudo cryptsetup luksDump /dev/disk/by-partlabel/disk-main-luks`
-   lists PCR 7 under the `systemd-tpm2` token, and a reboot unlocks by
-   itself.
+6. Check that the TPM slot is bound to PCR 7 (`luksDump` doesn't show
+   PCRs), and that a reboot unlocks by itself:
+   ```sh
+   sudo sh -c 'for i in 0 1 2; do cryptsetup token export --token-id $i /dev/disk/by-partlabel/disk-main-luks; echo; done 2>/dev/null' | grep -o '"tpm2-pcrs":\[[^]]*\]'
+   ```
+   It should print `"tpm2-pcrs":[7]`.
 
 A firmware update (fwupd, on rocinante) or a new revocation list can change
 PCR 7. The next boot asks for the LUKS password then; after it, rebind with

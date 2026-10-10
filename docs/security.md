@@ -82,6 +82,8 @@ from Bitwarden: `nix run .#offsite-prune -- <host>`.
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
 a debug shell at boot. On rocinante, secure boot runs with our own keys and
 the TPM only unlocks the disk for that ([Secure boot](install.md#secure-boot)).
+Its disk also opens with the YubiKey's FIDO2 slot, which needs the key's
+PIN and a touch, so the laptop and the key together still aren't enough.
 dapple isn't there yet: see below.
 
 ## Still open
@@ -90,9 +92,7 @@ dapple isn't there yet: see below.
   finished (rocinante's is). Its LUKS keyslot isn't bound to PCR 7 yet, so
   a thief who boots another system on it gets the disk unlocked, with
   dapple's age key, and with that `secrets/dapple.yaml`. The steps are in
-  [Secure boot](install.md#secure-boot). Check with `sudo cryptsetup
-  luksDump /dev/disk/by-partlabel/disk-main-luks`: the `systemd-tpm2` token
-  should list PCR 7.
+  [Secure boot](install.md#secure-boot), with the check at its end.
 
 ## Checked by hand
 
