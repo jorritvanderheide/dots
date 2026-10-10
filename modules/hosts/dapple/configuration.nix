@@ -86,8 +86,9 @@ in
             environment.etc."offsite-backup-healthcheck-url".text =
               "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?success=true";
 
-            # gatus's push token, shared with offsite-backup's healthcheck
-            # ping (see gatus.nix for why this can't be sops.secrets).
+            # gatus's push token, shared with the healthcheck pings of
+            # offsite-backup and the USB backup (see gatus.nix for why this
+            # can't be sops.secrets).
             systemd.services.offsite-backup-healthcheck-token = inputs.self.lib.mkSopsService {
               inherit pkgs;
               description = "Decrypt gatus push token for offsite-backup's healthcheck ping";
@@ -117,7 +118,8 @@ in
             my.backup = {
               enable = true;
               luks = true;
-              notifyUrl = "https://alerts.bw20.nl/usb-backup";
+              healthcheckTokenFile = "/run/secrets/gatus_push_token";
+              healthcheckUrl = "https://status.bw20.nl/api/v1/endpoints/backups_usb-backup/external";
               usbSerial = "3248831116939333057";
             };
 

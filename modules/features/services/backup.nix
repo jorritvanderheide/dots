@@ -25,10 +25,17 @@
           description = "USB drive serial number to match (find with: lsblk -o NAME,SERIAL). If null, any USB block device triggers an import attempt.";
         };
 
-        notifyUrl = lib.mkOption {
+        healthcheckUrl = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "ntfy topic URL to notify on backup completion or failure";
+          example = "https://status.example.com/api/v1/endpoints/backups_usb-backup/external";
+          description = "Gatus external endpoint to report each backup to, with ?success=true or ?success=false appended. Null disables reporting.";
+        };
+
+        healthcheckTokenFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to a file whose contents are the bearer token for healthcheckUrl, read at runtime so it stays out of the store.";
         };
 
         luks = lib.mkEnableOption ''
@@ -86,7 +93,7 @@
             config.boot.zfs.package
             pkgs.sanoid
           ]
-          ++ lib.optional (cfg.notifyUrl != null) pkgs.curl
+          ++ lib.optional (cfg.healthcheckUrl != null) pkgs.curl
           ++ lib.optionals cfg.luks [
             pkgs.age-plugin-yubikey
             pkgs.cryptsetup
@@ -100,11 +107,15 @@
               export HOME=/root
             ''}
 
-            notify() {
-              ${lib.optionalString (cfg.notifyUrl != null) ''
-                curl -fsS -d "$1" "${cfg.notifyUrl}" || true
-              ''}
-              : # ensure non-empty body when notifyUrl is null
+            # Reports to Gatus; a failed report must not fail the backup.
+            report() {
+              ${lib.optionalString (cfg.healthcheckUrl != null) (
+                if cfg.healthcheckTokenFile != null then
+                  ''curl -X POST -fsS -o /dev/null -H "Authorization: Bearer $(<${cfg.healthcheckTokenFile})" "${cfg.healthcheckUrl}?success=$1" || true''
+                else
+                  ''curl -X POST -fsS -o /dev/null "${cfg.healthcheckUrl}?success=$1" || true''
+              )}
+              : # ensure non-empty body when healthcheckUrl is null
             }
 
             luks_close() {
@@ -169,10 +180,10 @@
               zpool export zbackup
               luks_close
               echo "Pool exported, safe to unplug"
-              notify "USB backup complete. Safe to unplug."
+              report true
             else
               echo "Backup failed"
-              notify "USB backup FAILED"
+              report false
               zpool export -f zbackup 2>/dev/null || true
               luks_close
               exit 1

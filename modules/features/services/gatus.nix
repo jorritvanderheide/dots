@@ -139,6 +139,11 @@
               group = "backups";
               token = tokenPlaceholder;
             }
+            {
+              name = "usb-backup";
+              group = "backups";
+              token = tokenPlaceholder;
+            }
           ];
         }
       );
@@ -171,7 +176,7 @@
               script = ''
                 install -d -m 0755 -o gatus -g gatus /run/gatus
                 TOKEN="$(sops_extract gatus_push_token)"
-                sed "s|${tokenPlaceholder}|$TOKEN|" ${configTemplate} > ${configPath}
+                sed "s|${tokenPlaceholder}|$TOKEN|g" ${configTemplate} > ${configPath}
                 chown gatus:gatus ${configPath}
               '';
             };
