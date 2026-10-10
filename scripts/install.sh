@@ -20,6 +20,8 @@ die() {
 readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DIR:-${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}}"
 readonly SECRETS_FILE="${FLAKE_DIR}/secrets/secrets.yaml"
 readonly NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
+readonly REPO_URL="https://codeberg.org/BW20/dots.git"
+readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
 
 export SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-${FLAKE_DIR}/secrets/yubikey-identity.txt}"
 
@@ -43,6 +45,12 @@ main() {
   nixos_gid=$($NIX eval "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid" 2>/dev/null) ||
     die "No nixosConfigurations.${hostname} found in flake"
 
+  # The disk disko will wipe, by its model and serial (see lib.mainDisk).
+  # Not there means the facter report is from other hardware.
+  local disk
+  disk=$($NIX eval --raw "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
+  [[ -e $disk ]] || die "Disk ${disk} not found: is this ${hostname}?"
+
   # disko needs the LUKS password as a plaintext file before the OS (and
   # sops-nix) exist. Every other secret is decrypted directly by the
   # systemd service that needs it (see secrets.nix / lib.nix / boot.nix),
@@ -59,9 +67,12 @@ main() {
   done
   chmod 400 /tmp/secret.key
 
-  log_info "Partitioning + formatting (disko) -- this wipes the disk..."
+  log_info "Partitioning + formatting (disko). This wipes:"
+  lsblk -o PATH,MODEL,SERIAL,SIZE "$disk"
   read -rp "Type 'yes' to continue: " confirm
   [[ $confirm == "yes" ]] || die "Aborted."
+  # zpool create can't load the module itself on the live ISO.
+  modprobe zfs
   local disko_script
   disko_script=$($NIX build --no-link --print-out-paths \
     "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.system.build.diskoScript")
@@ -76,20 +87,32 @@ main() {
   log_info "Installing NixOS..."
   nixos-install --no-root-password --flake "${FLAKE_DIR}#${hostname}"
 
-  log_info "Copying config to /etc/nixos..."
-  mkdir -p /mnt/persist/system/etc/nixos
-  tar -C "$FLAKE_DIR" --exclude='.direnv' --exclude='result' --exclude='result-*' -cf - . |
-    tar -C /mnt/persist/system/etc/nixos -xf -
-  diff -rq --exclude='.direnv' --exclude='result' --exclude='result-*' \
-    "$FLAKE_DIR" /mnt/persist/system/etc/nixos ||
-    die "Copied config does not match source -- installation may be corrupted"
-  chown -R "0:${nixos_gid}" /mnt/persist/system/etc/nixos
+  local etc_nixos=/mnt/persist/system/etc/nixos
+  mkdir -p "$(dirname "$etc_nixos")"
+  if [[ -n ${INSTALL_HOST_FLAKE_DIR:-} ]]; then
+    # A local checkout: copy it as it is, with its repository and the new
+    # host's uncommitted facter.json.
+    log_info "Copying ${FLAKE_DIR} to /etc/nixos..."
+    mkdir -p "$etc_nixos"
+    tar -C "$FLAKE_DIR" --exclude='.direnv' --exclude='result' --exclude='result-*' -cf - . |
+      tar -C "$etc_nixos" -xf -
+    diff -rq --exclude='.direnv' --exclude='result' --exclude='result-*' \
+      "$FLAKE_DIR" "$etc_nixos" ||
+      die "Copied config does not match source -- installation may be corrupted"
+  else
+    # The flake fetched from Codeberg has no repository, so clone one to
+    # commit and push from. jj fills in your name on the first commit.
+    log_info "Cloning ${REPO_URL} to /etc/nixos..."
+    jj git clone --colocate --remote codeberg "$REPO_URL" "$etc_nixos"
+    jj -R "$etc_nixos" git remote set-url codeberg "$REPO_PUSH_URL"
+  fi
+  chown -R "0:${nixos_gid}" "$etc_nixos"
   # Symmetric owner/group perms -- g+rwX alone leaves files owner-only-read
   # (444 base), which self-locks the first time a nixos-group member's own
   # edit reassigns owner to themselves (owner bits then apply instead of
-  # group bits, and owner never had write).
-  find /mnt/persist/system/etc/nixos -type f -exec chmod 664 {} +
-  find /mnt/persist/system/etc/nixos -type d -exec chmod 2775 {} +
+  # group bits, and owner never had write). X keeps executables executable.
+  chmod -R u+rwX,g+rwX "$etc_nixos"
+  find "$etc_nixos" -type d -exec chmod g+s {} +
 
   # preservation.nix symlinks /etc/machine-id to here. On a true first boot
   # that target doesn't exist yet, so the symlink is dangling -- systemd's
@@ -104,7 +127,7 @@ main() {
   chmod 0444 /mnt/persist/system/etc/machine-id
 
   log_success "Installation complete! Reboot when ready."
-  log_info "First boot needs the LUKS password typed by hand. Once logged in, run 'nix run .#enroll-tpm' to enroll TPM2 auto-unlock."
+  log_info "Type the LUKS password on the first boot, with the YubiKey still in: that boot enrolls the TPM, so later boots unlock by themselves. Then join the tailnet (docs/install.md)."
 }
 
 main "$@"

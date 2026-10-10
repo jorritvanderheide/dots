@@ -488,32 +488,11 @@
         "nixpkgs-zotero": "nixpkgs-zotero",
         "noctalia": "noctalia",
         "preservation": "preservation",
-        "sops-nix": "sops-nix",
         "stylix": "stylix",
         "system76-scheduler-niri": "system76-scheduler-niri",
         "systems": "systems_2",
         "treefmt-nix": "treefmt-nix",
         "zen-browser": "zen-browser"
-      }
-    },
-    "sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791103873,
-        "narHash": "sha256-nFxM+pKoZ8LJAEnUXARyCaOAloWgaW9kZQOSjWzKcTE=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "dcd241ba97088c22569d1573286e1b9daad340c0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "type": "github"
       }
     },
     "stylix": {

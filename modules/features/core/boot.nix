@@ -76,14 +76,13 @@
             "${config.system.nixos.release}.${date}-${rev}";
         };
 
-        # Binds a LUKS TPM2 keyslot. Not started automatically at boot --
-        # run by hand once, after first login: `nix run .#enroll-tpm` on
-        # the host itself (see docs/install.md). Same command re-enrolls later
-        # (e.g. after a TPM/firmware reset). State flag makes repeat runs
-        # idempotent.
+        # Binds a LUKS TPM2 keyslot, on the first boot after an install (the
+        # state flag skips it after that). `sudo nix run /etc/nixos#enroll-tpm`
+        # re-enrolls, e.g. after a TPM/firmware reset (see docs/install.md).
         systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Bind a LUKS TPM2 keyslot for unlock";
+          wantedBy = [ "multi-user.target" ];
           extraUnitConfig.ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
           extraServiceConfig.StateDirectory = "tpm2-luks-enroll";
 

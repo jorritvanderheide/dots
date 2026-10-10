@@ -17,10 +17,14 @@
           age
           age-plugin-yubikey
           ccid
+          git
+          jujutsu
+          kmod
           nix
           nixos-facter
           pcsclite
           sops
+          util-linux
         ];
 
         # pcscd needs this to find the CCID driver (YubiKey's PIV interface
@@ -50,7 +54,7 @@
       apps.enroll-tpm = {
         type = "app";
         program = lib.getExe enroll-tpm;
-        meta.description = "Enroll (or re-enroll) the TPM2 LUKS keyslot, run on the installed host itself.";
+        meta.description = "Re-enroll the TPM2 LUKS keyslot, as root on the installed host itself.";
       };
 
       packages.install = install;

@@ -40,11 +40,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:Mic92/sops-nix";
-    };
-
     stylix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:danth/stylix";
