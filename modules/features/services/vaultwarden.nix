@@ -68,7 +68,20 @@
               "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
             ];
 
-            my.offsite-backup.entries.vaultwarden.paths = [ "/var/backup/vaultwarden" ];
+            # The backup is Vaultwarden's own copy of its data (backupDir), so
+            # a restore puts that copy back into the data folder.
+            my.offsite-backup.entries.vaultwarden = {
+              paths = [ config.services.vaultwarden.backupDir ];
+              units = [
+                "vaultwarden.service"
+                "backup-vaultwarden.timer"
+              ];
+              restore = ''
+                rm -f /var/lib/vaultwarden/db.sqlite3-wal /var/lib/vaultwarden/db.sqlite3-shm
+                cp -a ${config.services.vaultwarden.backupDir}/. /var/lib/vaultwarden/
+                chown -R vaultwarden:vaultwarden /var/lib/vaultwarden
+              '';
+            };
 
             my.preservation.systemDirectories = [
               {

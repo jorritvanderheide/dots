@@ -7,6 +7,7 @@
   flake.nixosModules.immich =
     {
       config,
+      pkgs,
       ...
     }:
     let
@@ -43,7 +44,25 @@
               RestartSec = lib.mkForce "5s";
             };
 
-            my.offsite-backup.entries.immich.paths = [ "/var/lib/immich" ];
+            # The database is in Postgres, not in these files: a restore loads
+            # Immich's newest nightly dump of it, the way Immich's docs do.
+            my.offsite-backup.entries.immich = {
+              paths = [ config.services.immich.mediaLocation ];
+              units = [
+                "immich-server.service"
+                "immich-machine-learning.service"
+              ];
+              restore = ''
+                dump=$(find ${config.services.immich.mediaLocation}/backups -name 'immich-db-backup-*.sql.gz' | sort | tail -n 1)
+                if [[ -z $dump ]]; then
+                  echo "No Immich database dump in ${config.services.immich.mediaLocation}/backups." >&2
+                  exit 1
+                fi
+                ${pkgs.gzip}/bin/gunzip --stdout "$dump" |
+                  ${pkgs.gnused}/bin/sed "s/SELECT pg_catalog.set_config('search_path', ''', false);/SELECT pg_catalog.set_config('search_path', 'public, pg_catalog', true);/g" |
+                  ${pkgs.util-linux}/bin/runuser -u postgres -- ${config.services.postgresql.package}/bin/psql --quiet --dbname=postgres
+              '';
+            };
 
             my.preservation.systemDirectories = [
               # Originals, thumbnails, encoded videos and the built-in nightly

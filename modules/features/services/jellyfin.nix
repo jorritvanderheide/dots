@@ -191,6 +191,7 @@
             # fetched again.
             my.offsite-backup.entries.jellyfin = {
               paths = [ config.services.jellyfin.dataDir ];
+              units = [ "jellyfin.service" ];
               exclude = [
                 "${config.services.jellyfin.dataDir}/metadata"
                 config.services.jellyfin.logDir

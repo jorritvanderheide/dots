@@ -107,6 +107,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix develop` | A shell with sops, age and the YubiKey plugin |
 | `nix run .#install -- <host>` | Install a host, from a live ISO |
 | `sudo nix run .#enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, after a firmware or TPM reset |
+| `sudo offsite-restore [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
 
 <br/>
 

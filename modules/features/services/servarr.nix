@@ -303,6 +303,14 @@
                   "/var/lib/bazarr"
                   "/var/lib/private/prowlarr"
                 ];
+                units = [
+                  "qbittorrent.service"
+                  "sonarr.service"
+                  "radarr.service"
+                  "lidarr.service"
+                  "bazarr.service"
+                  "prowlarr.service"
+                ];
                 exclude =
                   lib.concatMap
                     (app: [

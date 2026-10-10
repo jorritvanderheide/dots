@@ -59,7 +59,10 @@
       };
 
       config = lib.mkIf cfg.enable {
-        my.offsite-backup.entries.headscale.paths = [ "/var/lib/headscale" ];
+        my.offsite-backup.entries.headscale = {
+          paths = [ "/var/lib/headscale" ];
+          units = [ "headscale.service" ];
+        };
 
         my.preservation.systemDirectories = [
           {

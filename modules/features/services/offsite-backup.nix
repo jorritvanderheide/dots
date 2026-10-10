@@ -24,12 +24,55 @@
       persistDataset = config.fileSystems."/persist".device;
       snapshot = "${persistDataset}@restic";
       snapshotDir = "/run/offsite-backup-snapshot";
-      inSnapshot =
-        path:
-        if lib.hasPrefix "/persist/" path then
-          "${snapshotDir}/${lib.removePrefix "/persist/" path}"
-        else
-          "${snapshotDir}/system${path}";
+      # Where a path's data lives on /persist: system paths are preserved
+      # under /persist/system.
+      inPersist = path: if lib.hasPrefix "/persist/" path then path else "/persist/system${path}";
+      inSnapshot = path: snapshotDir + lib.removePrefix "/persist" (inPersist path);
+
+      # Paths outside the entries are restored as one more, without units.
+      restoreEntries =
+        cfg.entries
+        // lib.optionalAttrs (cfg.paths != [ ]) {
+          other = {
+            inherit (cfg) paths;
+            units = [ ];
+            restore = "";
+          };
+        };
+      quote = lib.escapeShellArg;
+      restoreCommand = pkgs.writeShellApplication {
+        name = "offsite-restore";
+        runtimeInputs = with pkgs; [
+          coreutils
+          findutils
+          systemd
+        ];
+        text = ''
+          declare -A entry_paths=(${
+            lib.concatMapAttrsStringSep " " (
+              name: entry: "[${quote name}]=${quote (toString entry.paths)}"
+            ) restoreEntries
+          })
+          declare -A entry_units=(${
+            lib.concatMapAttrsStringSep " " (
+              name: entry: "[${quote name}]=${quote (toString entry.units)}"
+            ) restoreEntries
+          })
+          declare -A persisted=(${
+            lib.concatMapStringsSep " " (path: "[${quote path}]=${quote (inPersist path)}") paths
+          })
+          run_hook() {
+            case $1 in
+            ${lib.concatMapAttrsStringSep "\n" (name: entry: ''
+              ${quote name})
+              ${if entry.restore == "" then ":" else entry.restore}
+              ;;
+            '') restoreEntries}
+            esac
+          }
+        ''
+        + builtins.readFile (inputs.self + "/scripts/offsite-restore.sh");
+      };
     in
     {
       options.my.offsite-backup = {
@@ -64,6 +107,18 @@
                   type = lib.types.listOf lib.types.str;
                   default = [ ];
                   description = "restic exclude patterns within those paths, for what the service rebuilds itself (caches, logs).";
+                };
+
+                units = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  default = [ ];
+                  description = "Units that use those paths, stopped while `offsite-restore` replaces them (timers too, so nothing writes halfway).";
+                };
+
+                restore = lib.mkOption {
+                  type = lib.types.lines;
+                  default = "";
+                  description = "Commands `offsite-restore` runs after putting the paths back, with the units still stopped. For data that is restored from a dump of it, like a database.";
                 };
               };
             }
@@ -113,6 +168,8 @@
             } > ${resticEnvPath}
           '';
         };
+
+        environment.systemPackages = [ restoreCommand ];
 
         services.restic.backups.offsite = {
           # Storj's S3-compatible gateway (not Amazon; same endpoint the old

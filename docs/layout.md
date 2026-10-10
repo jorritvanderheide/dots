@@ -27,7 +27,9 @@ take settings there, like `my.compositor.outputs`.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
 survives a reboot, and in `my.offsite-backup.entries`, so it survives a lost
-disk. Backups read a ZFS snapshot of `/persist`, not the live files.
+disk. Backups read a ZFS snapshot of `/persist`, not the live files. An
+entry also names the units to stop for `offsite-restore`, and any commands
+to load a dump back.
 
 A host picks its features by name from `inputs.self.nixosModules`, in the
 same groups as the folders (Core, System, Services, ...), and sets the
