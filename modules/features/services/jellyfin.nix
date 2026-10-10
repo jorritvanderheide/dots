@@ -187,6 +187,16 @@
               RestartSec = lib.mkForce "5s";
             };
 
+            # Users, watch history and libraries; the artwork in metadata is
+            # fetched again.
+            my.offsite-backup.entries.jellyfin = {
+              paths = [ config.services.jellyfin.dataDir ];
+              exclude = [
+                "${config.services.jellyfin.dataDir}/metadata"
+                config.services.jellyfin.logDir
+              ];
+            };
+
             my.preservation.systemDirectories = [
               {
                 directory = "/var/lib/jellyfin";

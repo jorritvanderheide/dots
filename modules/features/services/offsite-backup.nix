@@ -14,6 +14,22 @@
       cfg = config.my.offsite-backup;
       resticPasswordPath = "/run/secrets/restic_password";
       resticEnvPath = "/run/secrets/restic-s3-env";
+
+      paths = cfg.paths ++ lib.concatMap (entry: entry.paths) (lib.attrValues cfg.entries);
+
+      # restic reads a snapshot of /persist instead of the live files, so a
+      # database written to mid-backup is copied as it was at one moment.
+      # Each path is bind-mounted from the snapshot over itself, so restic
+      # still sees (and records) the usual paths.
+      persistDataset = config.fileSystems."/persist".device;
+      snapshot = "${persistDataset}@restic";
+      snapshotDir = "/run/offsite-backup-snapshot";
+      inSnapshot =
+        path:
+        if lib.hasPrefix "/persist/" path then
+          "${snapshotDir}/${lib.removePrefix "/persist/" path}"
+        else
+          "${snapshotDir}/system${path}";
     in
     {
       options.my.offsite-backup = {
@@ -28,7 +44,32 @@
         paths = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Local paths to back up";
+          description = ''
+            Local paths to back up, besides the entries. Each must be
+            persisted: a system path like /var/lib/foo, or a path under
+            /persist (home directories: /persist/home/<user>/...).
+          '';
+        };
+
+        entries = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options = {
+                paths = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  description = "Persisted paths the service needs back after a reinstall, as for `paths`.";
+                };
+
+                exclude = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  default = [ ];
+                  description = "restic exclude patterns within those paths, for what the service rebuilds itself (caches, logs).";
+                };
+              };
+            }
+          );
+          default = { };
+          description = "What each service needs backed up, declared by the service's own module.";
         };
 
         healthcheckUrlFile = lib.mkOption {
@@ -81,7 +122,8 @@
           passwordFile = resticPasswordPath;
           environmentFile = resticEnvPath;
 
-          inherit (cfg) paths;
+          inherit paths;
+          exclude = lib.concatMap (entry: entry.exclude) (lib.attrValues cfg.entries);
           initialize = true;
 
           timerConfig = {
@@ -108,11 +150,49 @@
         # unit's own backupCleanupCommand maps to ExecStopPost (runs on failure
         # too), so use OnSuccess to gate the ping on success.
         systemd.services.restic-backups-offsite = {
-          after = [ "offsite-backup-secrets.service" ];
+          after = [
+            "offsite-backup-secrets.service"
+            "offsite-backup-snapshot.service"
+          ];
           wants = [ "offsite-backup-secrets.service" ];
+          requires = [ "offsite-backup-snapshot.service" ];
           unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrlFile != null) [
             "offsite-backup-healthcheck.service"
           ];
+
+          serviceConfig.BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
+        };
+
+        # A unit of its own: every command of the backup's unit, even a "+"
+        # one, starts with the mounts from the snapshot, so the snapshot has
+        # to be mounted before that unit starts. Mounted by hand, not reached
+        # through /persist/.zfs: ZFS can't automount it while systemd sets up
+        # the backup's mounts. Destroyed once the backup has stopped and no
+        # longer needs it.
+        systemd.services.offsite-backup-snapshot = {
+          description = "ZFS snapshot of /persist for the offsite backup";
+          unitConfig.StopWhenUnneeded = true;
+          path = [
+            config.boot.zfs.package
+            pkgs.util-linux
+          ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+          };
+          # The first two clean up after an interrupted run.
+          script = ''
+            umount ${snapshotDir} 2>/dev/null || true
+            zfs destroy ${snapshot} 2>/dev/null || true
+            zfs snapshot ${snapshot}
+            mkdir -p ${snapshotDir}
+            mount.zfs -o ro ${snapshot} ${snapshotDir}
+          '';
+          preStop = ''
+            umount ${snapshotDir}
+            rmdir ${snapshotDir}
+            zfs destroy ${snapshot}
+          '';
         };
 
         systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrlFile != null) {

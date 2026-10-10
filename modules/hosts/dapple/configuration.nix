@@ -148,16 +148,6 @@ in
               enable = true;
               healthcheckTokenFile = "/run/secrets/gatus_push_token";
               healthcheckUrlFile = "/etc/offsite-backup-healthcheck-url";
-
-              paths = [
-                "/var/backup/vaultwarden"
-                "/var/lib/calibre-web"
-                "/var/lib/hass"
-                "/var/lib/headscale"
-                "/var/lib/immich"
-                "/var/lib/new-leaf/users"
-                "/var/lib/radicale"
-              ];
             };
 
             my.servarr = {

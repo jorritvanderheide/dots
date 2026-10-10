@@ -43,6 +43,8 @@
               RestartSec = lib.mkForce "5s";
             };
 
+            my.offsite-backup.entries.immich.paths = [ "/var/lib/immich" ];
+
             my.preservation.systemDirectories = [
               # Originals, thumbnails, encoded videos and the built-in nightly
               # database dumps (/var/lib/immich/backups).
