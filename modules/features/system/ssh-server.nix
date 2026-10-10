@@ -34,6 +34,9 @@
         services.openssh = {
           enable = true;
           allowSFTP = false;
+          # Not on every interface: the tailnet here, and the host adds its
+          # LAN if it wants it.
+          openFirewall = false;
 
           extraConfig = ''
             AllowAgentForwarding no
@@ -57,6 +60,8 @@
             PermitRootLogin = "no";
           };
         };
+
+        networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
 
         # Apply authorized keys from home-manager user configs
         users.users = collectAuthorizedKeys;

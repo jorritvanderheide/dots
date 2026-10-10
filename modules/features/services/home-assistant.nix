@@ -86,6 +86,9 @@
                   server_port = port;
                   use_x_forwarded_for = true;
                   trusted_proxies = [ "127.0.0.1" ];
+                  # Ban an address after 5 failed logins (HA's default never does).
+                  ip_ban_enabled = true;
+                  login_attempts_threshold = 5;
                 };
 
                 # Automations made in the UI live in automations.yaml, next
@@ -367,7 +370,15 @@
               };
             };
 
-            systemd.services.home-assistant.serviceConfig.Restart = lib.mkForce "always";
+            systemd.services.home-assistant.serviceConfig = {
+              Restart = lib.mkForce "always";
+              # Upstream grants these for default_config's DHCP sniffing and
+              # raw Bluetooth, neither of which this needs. With them, a
+              # compromised integration could rewrite the firewall or sniff
+              # the host's traffic. Bluetooth over BlueZ's D-Bus still works.
+              AmbientCapabilities = lib.mkForce [ "" ];
+              CapabilityBoundingSet = lib.mkForce [ "" ];
+            };
 
             # The include above stops HA from starting if the file is
             # missing. "f" only creates it; existing content is left alone.

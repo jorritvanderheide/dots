@@ -75,6 +75,20 @@ in
             services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated. Re-test on the next nixpkgs bump.
             system.stateVersion = "26.05";
 
+            # With iptables, tailscaled's own INPUT rules accept everything
+            # from tailscale0 before NixOS's get to drop it, so only the
+            # tailnet's per-interface ports below would be decoration. In
+            # nftables, a drop in NixOS's table holds whatever tailscaled's
+            # table accepts.
+            networking.nftables.enable = true;
+
+            # SSH from the home LAN by source address, not just by interface:
+            # the router's port forward arrives on enp2s0 too. The tailnet
+            # gets it from my.ssh-server.
+            networking.firewall.extraInputRules = ''
+              iifname "enp2s0" ip saddr 192.168.1.0/24 tcp dport 22 accept
+            '';
+
             ## Other
             environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
 
@@ -104,10 +118,7 @@ in
             };
             my.contacts.enable = true;
             my.gatus.enable = true;
-            my.home-assistant = {
-              enable = true;
-              lanAccess.enable = true;
-            };
+            my.home-assistant.enable = true;
             my.harmonia.enable = true;
             my.immich.enable = true;
             my.vaultwarden.enable = true;
@@ -127,7 +138,6 @@ in
 
             my.jellyfin = {
               enable = true;
-              lanAccess.enable = true;
               # Dedicated SSD for the Jellyfin media library (zmedia pool).
               mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
               mediaGroupUsers = [ "nixos" ];
