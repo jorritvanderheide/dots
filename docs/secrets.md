@@ -96,6 +96,26 @@ uplink access register <host>-backup --format env > $XDG_RUNTIME_DIR/storj.env
 Copy the two values from that file into `secrets/<host>.yaml`, then delete
 it. Revoke old ones with `uplink access revoke --access owner <name>`.
 
+### A first or very large backup
+
+Without delete rights, restic can't refresh its lock, and gives up after
+22.5 minutes. A daily run is far shorter, and a cut-off run resumes on the
+retry, but a first backup (of a reinstalled host) or an import of tens of
+GB can loop: each retry re-sends what the last one hadn't indexed, and is
+cut off again just before saving its snapshot. Then run it once with the
+owner's key, through the normal service (so it still reads a snapshot of
+`/persist`), on the host:
+
+```sh
+sudo systemctl stop restic-backups-offsite
+sudo bash -c 'umask 077; read -p "owner access key: " a; read -sp "owner secret key: " s; echo; printf "AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n" "$a" "$s" > /run/secrets/restic-s3-env'
+sudo systemctl start --no-block restic-backups-offsite
+journalctl -fu restic-backups-offsite         # until: snapshot ... saved
+sudo systemctl restart offsite-backup-secrets  # the host's own key again
+```
+
+Don't deploy meanwhile: that can put the host's key back halfway.
+
 ## A new host key
 
 A host's own key is a plain `age-keygen` identity. A reinstalled host
