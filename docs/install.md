@@ -11,11 +11,14 @@ sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
 
 Boot the target machine from it, with network (a cable, or `nmtui` on its
 console) and a YubiKey plugged in: any of them, such as the host's own. Then,
-from rocinante:
+from any computer with Bitwarden's SSH agent (it holds the key the ISO
+accepts):
 
 ```sh
 ssh -t root@dots-installer.local install-host <hostname>
 ```
+
+Or run `install-host <hostname>` on the ISO's own console.
 
 Without a host name, it asks which one to install. It runs in tmux, so if
 the SSH connection drops, the same command takes you back to it.
@@ -121,8 +124,8 @@ sudo systemctl start headscale
 ## A new host
 
 Write `modules/hosts/<hostname>/configuration.nix` first, starting from an
-existing host's. Boot the new machine from the ISO, and from rocinante, get
-its hardware report:
+existing host's. Boot the new machine from the ISO, and from a computer with
+Bitwarden's SSH agent, get its hardware report:
 
 ```sh
 ssh root@dots-installer.local nixos-facter > modules/hosts/<hostname>/facter.json
@@ -132,3 +135,41 @@ Commit both files and push them to Codeberg. Then install it like any other
 host. The installer refuses a host without a `facter.json`. The report lists
 the USB stick as a disk too; the installer skips USB disks when it picks the
 one to wipe.
+
+Without a second computer, as with a replacement laptop, run
+`install-host --new-hardware <hostname>` on the ISO's console instead, once
+the host's `configuration.nix` is on Codeberg. It gathers the report on the
+machine itself and installs with it. After the first boot, commit and push
+`modules/hosts/<hostname>/facter.json` from `/etc/nixos`.
+
+## Losing a machine
+
+Nothing needed to recover lives only on rocinante: the SSH keys are in
+Bitwarden, the configuration is on Codeberg, the data on Storj, and the
+YubiKeys are separate devices.
+
+One limit to keep in mind: the installer decrypts with any YubiKey or the
+passphrase identity, but an installed host only decrypts with its own
+YubiKey, the one in its identity file in `secrets/`. Without it, the host
+boots but can't set its passwords or reach its backup.
+
+- **rocinante.** On its replacement, with rocinante's YubiKey: boot the ISO
+  (a stock NixOS ISO with the `nix run` command above works too), and run
+  `install-host --new-hardware rocinante` on its console. After the first
+  boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
+  rocinante's backup holds comes back: Zotero, and its place on the tailnet.
+- **A YubiKey.** Enroll a replacement for its host first, as in
+  [Secrets and keys](secrets.md), decrypting with the other YubiKey or the
+  passphrase identity. On the ISO, `nix shell nixpkgs#sops
+  nixpkgs#age-plugin-yubikey` has the tools. Push it; then the host works
+  with the new key.
+- **Both machines.** Vaultwarden runs on dapple, so Bitwarden only has the
+  offline copy on your phone. It holds the passphrase identity, the SSH keys
+  and your Codeberg login. If dapple's YubiKey is gone too, enroll a
+  replacement for dapple first (as above). Then install dapple with
+  `install-host --new-hardware dapple` and `sudo offsite-restore`, which
+  brings Vaultwarden back, and rocinante can follow.
+
+That last case depends on your phone. An offline copy of the passphrase
+identity and your Bitwarden recovery details, kept somewhere safe, removes
+that dependency.

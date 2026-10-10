@@ -20,7 +20,7 @@ repository, encrypted for a YubiKey. See [Installation](#1-installation).
 
 Write the installer ISO (`nix build .#iso`) to a USB stick and boot the
 target machine from it, with network and a YubiKey plugged in. Then, from
-rocinante:
+any computer with your SSH key (it's in Bitwarden), or on its own console:
 
 ```sh
 ssh -t root@dots-installer.local install-host <hostname>
@@ -29,11 +29,12 @@ ssh -t root@dots-installer.local install-host <hostname>
 It shows the disk it is about to wipe and waits for a `yes`, installs the
 host, and clones this repository to `/etc/nixos`. Reboot with the YubiKey
 still in and type the LUKS password once: that boot enrolls the TPM, so
-later boots unlock by themselves. Then
-[join the tailnet](docs/install.md#joining-the-tailnet).
+later boots unlock by themselves. Then `sudo offsite-restore` brings back its
+data, and with it its place on the tailnet. A new host
+[joins the tailnet](docs/install.md#joining-the-tailnet) once instead.
 
-[Installing a host](docs/install.md) has the details, and the steps for a
-new host.
+[Installing a host](docs/install.md) has the details, the steps for a new
+host, and what to do after losing a machine.
 
 <br/>
 
@@ -80,8 +81,9 @@ secrets, home-manager, and fish.
 
 ## 4 Documentation
 
-- [**Installing a host**](docs/install.md) - The installer, why accounts start
-  locked, the errors to expect, and onboarding a new host.
+- [**Installing a host**](docs/install.md) - The ISO and the installer, why
+  accounts start locked, joining the tailnet, restoring data, new hosts, and
+  losing a machine.
 - [**Secrets and keys**](docs/secrets.md) - Changing a secret, adding or
   revoking a YubiKey, and the passphrase fallback.
 - [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
