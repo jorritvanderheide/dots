@@ -68,7 +68,7 @@
         '';
 
         # Value must be a password *hash* (mkpasswd -m yescrypt), not
-        # plaintext -- see README.md to set it. Same bare-chroot limitation
+        # plaintext -- see docs/secrets.md to set it. Same bare-chroot limitation
         # install.sh works around for nixos-install (see mkSopsService for
         # why this isn't sops.secrets + hashedPasswordFile/neededForUsers),
         # but here it bites on every single boot, not just first boot.

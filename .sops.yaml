@@ -5,7 +5,7 @@ keys:
   - &rocinante_yubikey age1yubikey1qgejl25v5v97z9xl7y75qlagjenwk73awsc045skya7an5znsnp0z2pu7k7
 
   # Passphrase identity -- fallback only, kept in the password manager.
-  # See README.md to regenerate.
+  # See docs/secrets.md to regenerate.
   - &jorrit_passphrase age1j0qgknt0tlez0c3cvfuq30zv0vwp48c9q4q4wl4htgqngvcdkfdq6nr0v5
 
   # dapple's own physical YubiKey, plugged in permanently for headless boot.

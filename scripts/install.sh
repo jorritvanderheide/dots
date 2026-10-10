@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install a NixOS host locally -- run while booted on the target machine
-# itself (e.g. from a live ISO). See README.md for the full walkthrough.
+# itself (e.g. from a live ISO). See docs/install.md for the full walkthrough.
 #
 # Usage: sudo ./scripts/install.sh <hostname>
 set -euo pipefail
@@ -47,7 +47,7 @@ main() {
   # sops-nix) exist. Every other secret is decrypted directly by the
   # systemd service that needs it (see secrets.nix / lib.nix / boot.nix),
   # once real systemd + pcscd are up -- not via sops-nix's own
-  # activation-time install, which never works on this host (see README.md).
+  # activation-time install, which never works on this host (see docs/install.md).
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key' EXIT
   local attempt
@@ -72,7 +72,7 @@ main() {
   # mkUser) once booted for real, not during this install. Neither can
   # reliably decrypt inside nixos-install's bare chroot -- no systemd there,
   # so pcscd's socket activation for the YubiKey doesn't apply, and that's
-  # true on every real boot too (see README.md), not just here.
+  # true on every real boot too (see docs/install.md), not just here.
   log_info "Installing NixOS..."
   nixos-install --no-root-password --flake "${FLAKE_DIR}#${hostname}"
 

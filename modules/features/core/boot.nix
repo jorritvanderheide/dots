@@ -78,7 +78,7 @@
 
         # Binds a LUKS TPM2 keyslot. Not started automatically at boot --
         # run by hand once, after first login: `nix run .#enroll-tpm` on
-        # the host itself (see README.md). Same command re-enrolls later
+        # the host itself (see docs/install.md). Same command re-enrolls later
         # (e.g. after a TPM/firmware reset). State flag makes repeat runs
         # idempotent.
         systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {

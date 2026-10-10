@@ -1,131 +1,165 @@
-<div align="center">
-   <img src="https://raw.githubusercontent.com/NixOS/nixos-artwork/master/logo/nix-snowflake-colours.svg" width="96px" height="96px" />
-   <br>
-   <br>
-   <h1>
-      Jorrit's NixOS configuration & dots
-      <br>
-      <br>
-   </h1>
-</div>
+# <img src="https://raw.githubusercontent.com/NixOS/nixos-artwork/master/logo/nix-snowflake-colours.svg" width="48" align="absmiddle" /> Dots
 
+**Jorrit's NixOS configuration: a laptop to work on, and a server for the home.**
 
-Minimal, reproducible NixOS flake for rocinante (and eventually dapple).
-flake-parts + `import-tree` auto-discovery, ZFS-on-LUKS with `preservation`
-for root-rollback impermanence, TPM2 auto-unlock, and secrets encrypted in
-git with sops-nix.
+One flake for two machines. rocinante is a Framework laptop with a niri
+desktop; dapple is the home server, with photos, media, passwords and a
+self-hosted tailnet. Both wipe their root on every boot and keep only what is
+declared, their disks unlock with the TPM, and their secrets are in this
+repository, encrypted for a YubiKey. See [Installation](#1-installation).
 
-## Install
+<br/>
 
-Boot a NixOS live ISO on the target machine (network + YubiKey plugged in),
-then, with no local checkout needed:
+![NixOS unstable](https://img.shields.io/badge/NixOS-unstable-5277c3?style=flat-square&logo=nixos&logoColor=white)
+![Hosts: rocinante and dapple](https://img.shields.io/badge/hosts-rocinante%20%7C%20dapple-5277c3?style=flat-square)
+![flake-parts and import-tree](https://img.shields.io/badge/built%20with-flake--parts%20%2B%20import--tree-5277c3?style=flat-square)
 
-```
+<br/>
+
+## 1 Installation
+
+Boot a NixOS live ISO on the target machine, with network and the YubiKey
+plugged in, and run:
+
+```sh
 sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-This partitions/formats the disk (disko, after a `yes` confirmation since it
-wipes the disk) and runs `nixos-install` with no interactive root-password
-prompt. First boot needs the LUKS password typed by hand once. TPM2
-auto-unlock is *not* enrolled automatically -- once logged in, run
-`nix run .#enroll-tpm` on the host itself to bind a keyslot. Same command
-re-enrolls later (e.g. after a firmware/TPM reset).
+It wipes and formats the disk (after you confirm with `yes`) and installs the
+host. Type the LUKS password once on the first boot, log in, and run
+`nix run .#enroll-tpm` to unlock with the TPM from then on.
 
-Neither `root` nor `jorrit` can reliably get their sops-encrypted password inside
-`nixos-install`'s bare chroot (no systemd there, so pcscd's socket
-activation for the YubiKey doesn't apply) -- both accounts are left locked
-by the installer. The same bare-chroot limitation applies on *every* real
-boot too, not just install: `boot.initrd.systemd.enable` (needed for the
-ZFS rollback) means each boot's activation runs chrooted into /sysroot from
-the initrd, before real systemd/pcscd exist there. So `set-password-root`,
-`set-password-jorrit`, and `tpm2-luks-enroll` don't rely on sops-nix's
-activation-time install at all -- each decrypts its own secret directly
-(`sops -d --extract`) once it's running as a real service under the booted
-system's own systemd, after `pcscd.service`. Log in as `jorrit` (or `root`)
-once that's had a moment to run after boot.
+The installer prints an error about `setupSecrets` that is expected, and a
+new host needs a local checkout. [Installing a host](docs/install.md) has
+the details.
 
-For the same bare-chroot reason, `nixos-install` prints `Activation script
-snippet 'setupSecrets' failed (1)` / "0 successful groups required, got 0"
-and finishes with "finalized with 1 error" -- expected, not a sign the
-install failed. Only `luks_password` needs to decrypt during install, and
-`install.sh` extracts that one separately (with pcscd started by hand)
-before `nixos-install` ever runs.
+<br/>
 
-If disko's `zpool create` fails with "The ZFS modules cannot be auto-loaded",
-just run the same `install` command again -- the module is loaded as a
-side effect of the first attempt, so the retry succeeds.
+## 2 Hosts
 
-Onboarding a brand-new host (one with no `modules/hosts/<hostname>/facter.json`
-committed yet) needs a local, writable checkout instead -- the script writes
-the gathered hardware report back to the repo, which a read-only fetched
-flake can't do:
+| Host | What it is | Runs |
+| --- | --- | --- |
+| **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Noctalia shell, Stylix theming, Zen, Zed, Zotero and Obsidian |
+| **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to USB and to Storj |
 
-```
-git clone <repo> && cd dots
-sudo INSTALL_HOST_FLAKE_DIR="$PWD" nix run .#install -- <hostname>
-```
-then commit and push the new `facter.json` before reinstalling that host.
+Both get the same core: ZFS on LUKS, a root that rolls back on boot, sops
+secrets, home-manager, and fish.
 
-## Key management
+<br/>
 
-Secrets in `secrets/secrets.yaml` are encrypted for two recipients declared
-in `.sops.yaml`: the YubiKey (day-to-day) and a passphrase-based identity
-kept as a fallback. Either can decrypt independently (sops's default
-`shamir-secret-sharing-threshold=0` means no threshold is enforced within a
-`key_groups` entry), so losing the YubiKey doesn't lock you out, and adding
-a second YubiKey is additive, not a replacement.
+## 3 Safety
 
-### Enrolling an additional YubiKey
+- **Disks** are ZFS on LUKS. They unlock with the TPM2, with the LUKS
+  password as the fallback.
+- **The root is wiped on every boot**: `zroot/root` rolls back to an empty
+  snapshot, and [preservation](https://github.com/nix-community/preservation)
+  brings back only the files and folders that are declared, from `/persist`.
+  State nobody declared doesn't survive a reboot.
+- **Secrets** are in `secrets/secrets.yaml`, encrypted with sops for each
+  host's YubiKey and a passphrase fallback. They are decrypted at boot by the
+  service that needs them, never written to the Nix store. See
+  [Secrets and keys](docs/secrets.md).
+- **The server** answers on its tailnet address, with only Headscale and New
+  Leaf's share links open to the internet. [Section 7](#7-network-exposure)
+  lists exactly what is reachable from where.
+- **Checks**: `nix flake check` builds both hosts and checks formatting and
+  lints. `nswitch` refuses to activate uncommitted changes.
 
-```
-age-plugin-yubikey --generate --pin-policy never --touch-policy never
-```
+<br/>
 
-matching the existing key's no-PIN/no-touch policy (physical possession is
-the only gate, same as FIDO2 LUKS unlock). Then:
+## Table of contents
 
-1. Add the new `age1yubikey1...` recipient to the *same* `key_groups` entry
-   in `.sops.yaml` (not a new group -- a new group would require *both*
-   keys to decrypt instead of either).
-2. `sops updatekeys secrets/secrets.yaml` to re-encrypt for the new
-   recipient set.
-3. Append the new `AGE-PLUGIN-YUBIKEY-...` identity line (printed by
-   `--generate`) to `secrets/yubikey-identity.txt`.
-4. `nswitch` (or `nixos-rebuild switch`) so `/etc/sops/yubikey-identity.txt`
-   picks up the new line.
-5. Verify: unplug the primary key, plug in only the new one, confirm a
-   secret still decrypts (e.g. `sudo systemctl restart set-password-jorrit`
-   and check `journalctl -u set-password-jorrit`).
+- [4 Documentation](#4-documentation)
+- [5 Commands](#5-commands)
+- [6 Services on dapple](#6-services-on-dapple)
+- [7 Network exposure](#7-network-exposure)
 
-### Revoking a lost or compromised YubiKey
+<br/>
 
-1. Remove its recipient anchor from `.sops.yaml`.
-2. `sops updatekeys secrets/secrets.yaml`.
-3. Remove its identity line from `secrets/yubikey-identity.txt`.
-4. `nswitch`.
+## 4 Documentation
 
-### Regenerating the passphrase fallback identity
+- [**Installing a host**](docs/install.md) - The installer, why accounts start
+  locked, the errors to expect, and onboarding a new host.
+- [**Secrets and keys**](docs/secrets.md) - Changing a secret, adding or
+  revoking a YubiKey, and the passphrase fallback.
+- [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
+  and the shared helpers.
 
-`jorrit_passphrase` in `.sops.yaml` is a plain `age-keygen` identity; the
-raw `AGE-SECRET-KEY-1...` text is stored as a Bitwarden secure note, not
-committed anywhere. To rotate it:
+<br/>
 
-1. `age-keygen -o new-identity.txt` to generate a fresh identity.
-2. Replace the `jorrit_passphrase` anchor in `.sops.yaml` with the new
-   `age1...` recipient printed by `age-keygen`.
-3. `sops updatekeys secrets/secrets.yaml`.
-4. Save the new `AGE-SECRET-KEY-1...` line to Bitwarden, delete the old
-   note, and delete `new-identity.txt` locally.
+## 5 Commands
 
-### Using the passphrase identity manually
+The shell aliases are defined in `modules/features/shell/shell.nix`.
 
-If the YubiKey isn't available (e.g. during a fresh install away from
-home), retrieve the secret key text from Bitwarden, save it to a local
-file, and point `SOPS_AGE_KEY_FILE` at it before running `install.sh` or
-any manual `sops -d` command -- both already read `SOPS_AGE_KEY_FILE` from
-the environment if it's set:
+| Command | What it does |
+| --- | --- |
+| `nswitch` | Build and switch to this host's configuration (YubiKey in, no uncommitted changes) |
+| `nboot` | The same, from the next boot |
+| `ntest` | Switch without making it the boot default; fine on uncommitted changes |
+| `nbuild` | Build only |
+| `ndeploy <host> [switch\|boot]` | Build here and activate on another host over SSH |
+| `nrollback` | Go back to the previous generation |
+| `nupdate` | Update `flake.lock` |
+| `nix fmt` | Format everything (nixfmt, deadnix, statix, shfmt, ruff) |
+| `nix flake check` | Build every host and run the formatting and lint checks |
+| `nix develop` | A shell with sops, age and the YubiKey plugin |
+| `nix run .#install -- <host>` | Install a host, from a live ISO |
+| `nix run .#enroll-tpm` | Bind (or rebind) the TPM2 LUKS keyslot |
 
-```
-export SOPS_AGE_KEY_FILE=/path/to/passphrase-identity.txt
-```
+<br/>
+
+## 6 Services on dapple
+
+Each service is at `<subdomain>.bw20.nl`, with its own certificate.
+
+| Service | Subdomain | What for |
+| --- | --- | --- |
+| Headscale | `vpn` | The tailnet's control server, with an embedded DERP relay |
+| Immich | `photos` | Photos |
+| Jellyfin | `media` | Films, series and music |
+| Sonarr, Radarr, Lidarr | `series`, `movies`, `music` | Fetching media for Jellyfin |
+| Prowlarr, Bazarr, qBittorrent | `prowlarr`, `bazarr`, `torrents` | Indexers, subtitles, downloads |
+| Vaultwarden | `passwords` | Passwords |
+| Calibre-Web | `books` | E-books, synced to a Kobo |
+| Radicale | `contacts` | Contacts and calendars |
+| Home Assistant | `home` | IoT in the home |
+| New Leaf | `cv` | CV editor, with public share links |
+| Harmonia | `cache` | A binary cache of dapple's store |
+| Gatus | `status` | Monitoring of all of the above |
+
+Backups: `/persist` to a LUKS-encrypted USB drive with syncoid when it is
+plugged in, and the services' data to Storj with restic, daily. Both report
+to Gatus.
+
+<br/>
+
+## 7 Network exposure
+
+**From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
+There, only two things answer:
+
+- **Headscale** at `vpn`: the control protocol and the DERP relay, which a
+  device away from home needs to join the tailnet. Its admin API
+  (`/api`, `/swagger`) is refused unless the request comes from the LAN or
+  the tailnet.
+- **New Leaf's share links** at `cv`: static pages and PDFs at random
+  addresses. The editor is not reachable from the internet.
+
+**From the tailnet**, every service in [section 6](#6-services-on-dapple),
+over HTTPS on dapple's tailnet address. Their vhosts are bound to that
+address only, so they don't answer on the public one.
+
+**From the LAN** (`enp2s0`), besides the above:
+
+- Jellyfin on 8096/tcp, and 7359/udp for clients to discover it.
+- Home Assistant on 8123/tcp, plain HTTP.
+- `kobo.bw20.nl` on 443, for the Kobo's sync, allowed for the LAN subnet
+  only.
+
+**On every interface**, behind the router: SSH on 22, public key only, for
+the `nixos` user; and Tailscale's WireGuard on 41641/udp.
+
+**rocinante** opens no ports but Tailscale's 41641/udp.
+
+**Outgoing**: restic to Storj, and ACME certificates through Cloudflare DNS.
