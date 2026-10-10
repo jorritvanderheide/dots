@@ -53,9 +53,10 @@ secrets, home-manager, and fish.
 
 ## 3 Safety
 
-- **Disks** are ZFS on LUKS. They unlock with the TPM2, with the LUKS
-  password as the fallback. The TPM isn't bound to secure boot yet: see
-  [Security](docs/security.md#still-open).
+- **Disks** are ZFS on LUKS. They unlock with the TPM2, only for a boot
+  with secure boot on and our own keys
+  ([lanzaboote](docs/install.md#secure-boot)), with the LUKS password as
+  the fallback.
 - **The root is wiped on every boot**: `zroot/root` rolls back to an empty
   snapshot, and [preservation](https://github.com/nix-community/preservation)
   brings back only the files and folders that are declared, from `/persist`.
@@ -69,7 +70,7 @@ secrets, home-manager, and fish.
   Leaf's share links open to the internet. A Headscale policy limits what
   each tailnet device reaches. [Section 7](#7-network-exposure) lists
   exactly what is reachable from where, and [Security](docs/security.md) who
-  is kept out of what, and what is still open.
+  is kept out of what.
 - **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
   user but root, so the sudo password can't be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
@@ -94,8 +95,8 @@ secrets, home-manager, and fish.
 - [**Secrets and keys**](docs/secrets.md) - The per-host files and their
   keys, changing a secret, adding or revoking a key, and the passphrase
   fallback.
-- [**Security**](docs/security.md) - Who is kept out of what, what is still
-  open, what is accepted on purpose, and how to check it.
+- [**Security**](docs/security.md) - Who is kept out of what, what was
+  checked by hand, what is accepted on purpose, and how to check it.
 - [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
   and the shared helpers.
 

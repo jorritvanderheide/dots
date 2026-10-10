@@ -11,8 +11,8 @@
   "hosts": {
     "dapple": "100.64.0.1",
     "rocinante": "100.64.0.2",
-    "pixel-10-pro": "100.64.0.5",
-    "pixel-jeltje": "100.64.0.4",
+    "phone-1": "100.64.0.5",
+    "phone-2": "100.64.0.4",
     "lan": "192.168.1.0/24",
   },
 
@@ -31,6 +31,6 @@
     {"src": ["rocinante"], "dst": ["dapple"], "ip": ["tcp:22"]},
     // The home LAN, through dapple: the laptop, and the phones for the
     // camera.
-    {"src": ["rocinante", "pixel-10-pro", "pixel-jeltje"], "dst": ["lan"], "ip": ["*"]},
+    {"src": ["rocinante", "phone-1", "phone-2"], "dst": ["lan"], "ip": ["*"]},
   ],
 }

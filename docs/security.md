@@ -3,8 +3,7 @@
 What keeps whom out of what, on both hosts, mostly dapple. The ports
 themselves are listed in the README's
 [Network exposure](../README.md#7-network-exposure), and the keys in
-[Secrets and keys](secrets.md). This page is the reasoning behind both, and
-what is still open.
+[Secrets and keys](secrets.md). This page is the reasoning behind both.
 
 ## Who is kept out of what
 
@@ -21,7 +20,7 @@ bound to dapple's tailnet address.
 
 - every device: the services on dapple, over HTTPS;
 - rocinante: SSH on dapple;
-- rocinante, pixel-10-pro and pixel-jeltje: the home LAN, through dapple's
+- rocinante and two phones: the home LAN, through dapple's
   subnet route (the phones for the camera).
 
 dapple is tagged `tag:server`, so it isn't one of anyone's own devices: no
@@ -80,19 +79,11 @@ they run by hand from rocinante, every few months, with the owner's key
 from Bitwarden: `nix run .#offsite-prune -- <host>`.
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
-a debug shell at boot. On rocinante, secure boot runs with our own keys and
-the TPM only unlocks the disk for that ([Secure boot](install.md#secure-boot)).
-Its disk also opens with the YubiKey's FIDO2 slot, which needs the key's
-PIN and a touch, so the laptop and the key together still aren't enough.
-dapple isn't there yet: see below.
-
-## Still open
-
-- **dapple's TPM still unlocks for anything**, until its secure boot is
-  finished (rocinante's is). Its LUKS keyslot isn't bound to PCR 7 yet, so
-  a thief who boots another system on it gets the disk unlocked, with
-  dapple's age key, and with that `secrets/dapple.yaml`. The steps are in
-  [Secure boot](install.md#secure-boot), with the check at its end.
+a debug shell at boot. The hosts boot with secure boot, with our own keys,
+and the TPM only unlocks a disk for that
+([Secure boot](install.md#secure-boot)). rocinante's disk also opens with
+the YubiKey's FIDO2 slot, which needs the key's PIN and a touch, so the
+laptop and the key together still aren't enough.
 
 ## Checked by hand
 
