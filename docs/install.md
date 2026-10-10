@@ -2,19 +2,20 @@
 
 ## Install
 
-Boot a NixOS live ISO on the target machine, with network and the YubiKey
-plugged in. Then, with no local checkout needed:
+Boot a NixOS live ISO on the target machine, with network and a YubiKey
+plugged in: any of them, such as the host's own. Then, with no local
+checkout needed:
 
 ```sh
 sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-The installer:
+Without a host name, it asks which one to install. The installer:
 
 1. Checks that the host's disk is there, by its model and serial. If it
    isn't, the hardware report is from another machine, and it stops.
-2. Decrypts the LUKS password with the YubiKey.
+2. Decrypts the LUKS password with the YubiKey that is plugged in.
 3. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
 4. Partitions and formats it with disko, and runs `nixos-install`.
 5. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`

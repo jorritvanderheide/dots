@@ -23,15 +23,22 @@ readonly NIX="nix --extra-experimental-features nix-command --extra-experimental
 readonly REPO_URL="https://codeberg.org/BW20/dots.git"
 readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
 
-export SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-${FLAKE_DIR}/secrets/yubikey-identity.txt}"
-
 # age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
 # pcscd by default, so start it ourselves if nothing already has.
 pgrep -x pcscd >/dev/null 2>&1 || pcscd
 
 main() {
   local hostname="${1:-}"
-  [[ -n $hostname ]] || die "Usage: install <hostname>"
+  if [[ -z $hostname ]]; then
+    local hosts
+    mapfile -t hosts < <($NIX eval --raw "${FLAKE_DIR}#nixosConfigurations" \
+      --apply 'hosts: builtins.concatStringsSep "\n" (builtins.attrNames hosts)')
+    PS3="Host to install: "
+    select hostname in "${hosts[@]}"; do
+      [[ -n $hostname ]] && break
+    done
+    [[ -n $hostname ]] || die "No host picked."
+  fi
   [[ $EUID -eq 0 ]] || die "Run as root (disko and nixos-install both need it)"
   [[ -f $SECRETS_FILE ]] || die "Missing ${SECRETS_FILE}"
 
@@ -51,6 +58,21 @@ main() {
   disk=$($NIX eval --raw "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
   [[ -e $disk ]] || die "Disk ${disk} not found: is this ${hostname}?"
 
+  # Decrypt with whichever YubiKey is plugged in: each host has its own,
+  # and all of them are recipients. SOPS_AGE_KEY_FILE overrides it, e.g.
+  # with the passphrase identity (see docs/secrets.md).
+  local attempt
+  if [[ -z ${SOPS_AGE_KEY_FILE:-} ]]; then
+    export SOPS_AGE_KEY_FILE=/tmp/yubikey-identity.txt
+    for attempt in $(seq 1 10); do
+      age-plugin-yubikey --identity 2>/dev/null >"$SOPS_AGE_KEY_FILE" || true
+      grep -q '^AGE-PLUGIN-YUBIKEY-' "$SOPS_AGE_KEY_FILE" && break
+      [[ $attempt -lt 10 ]] || die "No YubiKey found. Plug one in, or set SOPS_AGE_KEY_FILE to the passphrase identity."
+      log_info "No YubiKey yet, retrying in 2s..."
+      sleep 2
+    done
+  fi
+
   # disko needs the LUKS password as a plaintext file before the OS (and
   # sops-nix) exist. Every other secret is decrypted directly by the
   # systemd service that needs it (see secrets.nix / lib.nix / boot.nix),
@@ -58,7 +80,6 @@ main() {
   # activation-time install, which never works on this host (see docs/install.md).
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key' EXIT
-  local attempt
   for attempt in $(seq 1 10); do
     sops -d --extract '["luks_password"]' "$SECRETS_FILE" >/tmp/secret.key && break
     [[ $attempt -lt 10 ]] || die "Failed to decrypt luks_password after 10 attempts"
