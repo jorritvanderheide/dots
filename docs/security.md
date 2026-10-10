@@ -93,22 +93,24 @@ any system booted on the same board.
   `--tpm2-pcrs=7`. Check with `sudo cryptsetup luksDump
   /dev/disk/by-partlabel/disk-main-luks`: the `tpm2` token should list PCR 7.
 - **To check by hand**, since the configuration doesn't say:
-  - The router doesn't hide internet visitors behind a LAN address, which
-    the Kobo vhost would let in. From mobile data, with the home address:
+  - Vaultwarden's admin page doesn't switch invitations back on: what it
+    saves overrides the configuration, which has them off.
+
+  Checked on 2026-10-10:
+  - Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
+    password isn't the default, and qBittorrent's password is long and
+    random.
+  - The Cloudflare token (for ACME) can only edit DNS in `bw20.nl`: with
+    more, it could point `vpn` elsewhere and get a valid certificate for it.
+    It's the account's only API token; three leftover Cloudflare Tunnel
+    tokens, which nothing here used, were deleted.
+  - The router passes internet visitors' own addresses on, so the Kobo
+    vhost's LAN rule holds: from mobile data,
     `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
     answers 403. (Headscale's `/api` can't tell: `vpn` goes through
     Cloudflare, so it refuses everyone.)
   - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
     address.
-  - Vaultwarden's admin page doesn't switch invitations back on: what it
-    saves overrides the configuration, which has them off.
-
-  Checked on 2026-10-10: Vaultwarden's `ADMIN_TOKEN` is an argon2 hash,
-  Calibre-Web's admin password isn't the default, and qBittorrent's password
-  is long and random. The Cloudflare token (for ACME) can only edit DNS in
-  `bw20.nl`: with more, it could point `vpn` elsewhere and get a valid
-  certificate for it. It's the account's only API token; three leftover
-  Cloudflare Tunnel tokens, which nothing here used, were deleted.
 
 ## Accepted on purpose
 
