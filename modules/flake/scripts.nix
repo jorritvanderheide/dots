@@ -21,6 +21,7 @@
           jujutsu
           kmod
           nix
+          nixos-facter
           pcsclite
           sops
           util-linux

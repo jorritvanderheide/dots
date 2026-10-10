@@ -2,7 +2,9 @@
 # Install a NixOS host locally -- run while booted on the target machine
 # itself (e.g. from a live ISO). See docs/install.md for the full walkthrough.
 #
-# Usage: sudo ./scripts/install.sh <hostname>
+# Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
+#   --new-hardware  gather this machine's hardware report and install with
+#                   it, for a host without a second computer to commit one
 set -euo pipefail
 
 readonly RED='\033[0;31m'
@@ -18,7 +20,6 @@ die() {
 }
 
 readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}"
-readonly SECRETS_FILE="${FLAKE_DIR}/secrets/secrets.yaml"
 readonly NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 readonly REPO_URL="https://codeberg.org/BW20/dots.git"
 readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
@@ -28,6 +29,11 @@ readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
 pgrep -x pcscd >/dev/null 2>&1 || pcscd
 
 main() {
+  local new_hardware=false
+  if [[ ${1:-} == --new-hardware ]]; then
+    new_hardware=true
+    shift
+  fi
   local hostname="${1:-}"
   if [[ -z $hostname ]]; then
     local hosts
@@ -40,20 +46,43 @@ main() {
     [[ -n $hostname ]] || die "No host picked."
   fi
   [[ $EUID -eq 0 ]] || die "Run as root (disko and nixos-install both need it)"
-  [[ -f $SECRETS_FILE ]] || die "Missing ${SECRETS_FILE}"
 
-  [[ -s "${FLAKE_DIR}/modules/hosts/${hostname}/facter.json" ]] ||
-    die "${hostname} has no facter.json yet: commit one first (docs/install.md, \"A new host\")."
+  # The repository that ends up in /etc/nixos. The flake fetched from
+  # Codeberg has no repository to commit and push from. jj fills in your
+  # name on the first commit.
+  local repo=/tmp/dots
+  rm -rf "$repo"
+  log_info "Cloning ${REPO_URL}..."
+  jj git clone --colocate --remote codeberg "$REPO_URL" "$repo"
+  jj -R "$repo" git remote set-url codeberg "$REPO_PUSH_URL"
+
+  # Installed from the flake this was started from, or with --new-hardware
+  # from the clone, with this machine's hardware report in it: there is no
+  # other computer to commit one from. It stays an uncommitted change in
+  # /etc/nixos, to commit and push after the first boot.
+  local src=$FLAKE_DIR flake=$FLAKE_DIR
+  if $new_hardware; then
+    log_info "Gathering this machine's hardware report..."
+    mkdir -p "${repo}/modules/hosts/${hostname}"
+    nixos-facter >"${repo}/modules/hosts/${hostname}/facter.json"
+    src=$repo
+    flake="path:${repo}"
+  fi
+  local secrets_file="${src}/secrets/secrets.yaml"
+  [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
+
+  [[ -s "${src}/modules/hosts/${hostname}/facter.json" ]] ||
+    die "${hostname} has no facter.json yet: commit one first, or add --new-hardware to gather it here (docs/install.md, \"A new host\")."
 
   local nixos_gid
-  nixos_gid=$($NIX eval "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid" 2>/dev/null) ||
+  nixos_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid" 2>/dev/null) ||
     die "No nixosConfigurations.${hostname} found in flake"
 
   # The disk disko will wipe, by its model and serial (see lib.mainDisk).
   # Not there means the facter report is from other hardware.
   local disk
-  disk=$($NIX eval --raw "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
-  [[ -e $disk ]] || die "Disk ${disk} not found: is this ${hostname}?"
+  disk=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
+  [[ -e $disk ]] || die "Disk ${disk} not found: is this ${hostname}? On new hardware, add --new-hardware."
 
   # Decrypt with whichever YubiKey is plugged in: each host has its own,
   # and all of them are recipients. SOPS_AGE_KEY_FILE overrides it, e.g.
@@ -78,7 +107,7 @@ main() {
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key' EXIT
   for attempt in $(seq 1 10); do
-    sops -d --extract '["luks_password"]' "$SECRETS_FILE" >/tmp/secret.key && break
+    sops -d --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key && break
     [[ $attempt -lt 10 ]] || die "Failed to decrypt luks_password after 10 attempts"
     log_info "Decrypt attempt ${attempt} failed, retrying in 2s (pcscd/YubiKey enumeration can race transiently)..."
     sleep 2
@@ -93,7 +122,7 @@ main() {
   modprobe zfs
   local disko_script
   disko_script=$($NIX build --no-link --print-out-paths \
-    "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.system.build.diskoScript")
+    "${flake}#nixosConfigurations.${hostname}.config.system.build.diskoScript")
   "$disko_script"
 
   # --no-root-password: root and jorrit both get their real passwords set by
@@ -103,15 +132,12 @@ main() {
   # so pcscd's socket activation for the YubiKey doesn't apply, and that's
   # true on every real boot too (see docs/install.md), not just here.
   log_info "Installing NixOS..."
-  nixos-install --no-root-password --flake "${FLAKE_DIR}#${hostname}"
+  nixos-install --no-root-password --flake "${flake}#${hostname}"
 
   local etc_nixos=/mnt/persist/system/etc/nixos
   mkdir -p "$(dirname "$etc_nixos")"
-  # The flake fetched from Codeberg has no repository, so clone one to
-  # commit and push from. jj fills in your name on the first commit.
-  log_info "Cloning ${REPO_URL} to /etc/nixos..."
-  jj git clone --colocate --remote codeberg "$REPO_URL" "$etc_nixos"
-  jj -R "$etc_nixos" git remote set-url codeberg "$REPO_PUSH_URL"
+  log_info "Copying the repository to /etc/nixos..."
+  cp -a "$repo" "$etc_nixos"
   chown -R "0:${nixos_gid}" "$etc_nixos"
   # Symmetric owner/group perms -- g+rwX alone leaves files owner-only-read
   # (444 base), which self-locks the first time a nixos-group member's own
@@ -133,7 +159,10 @@ main() {
   chmod 0444 /mnt/persist/system/etc/machine-id
 
   log_success "Installation complete! Reboot when ready."
-  log_info "Type the LUKS password on the first boot, with the YubiKey still in: that boot enrolls the TPM, so later boots unlock by themselves. Then join the tailnet (docs/install.md)."
+  log_info "Type the LUKS password on the first boot, with the YubiKey still in: that boot enrolls the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
+  if $new_hardware; then
+    log_info "After the first boot, commit and push modules/hosts/${hostname}/facter.json from /etc/nixos."
+  fi
 }
 
 main "$@"

@@ -26,7 +26,7 @@
                     name = "install-host";
                     runtimeInputs = [ pkgs.tmux ];
                     text = ''
-                      [[ $EUID -eq 0 ]] || exec sudo install-host "$@"
+                      [[ $EUID -eq 0 ]] || exec sudo --preserve-env=SOPS_AGE_KEY_FILE install-host "$@"
                       # In tmux, so a dropped SSH connection doesn't stop an
                       # install: running this again returns to it.
                       [[ -n ''${TMUX:-} ]] || exec tmux new-session -A -s install install-host "$@"
