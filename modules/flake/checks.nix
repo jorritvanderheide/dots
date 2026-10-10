@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   ...
 }:
 {
@@ -9,6 +10,13 @@
       pkgs,
       ...
     }:
+    let
+      # Every host built for this system, so a new host is checked without
+      # being listed here.
+      hosts = lib.filterAttrs (
+        _: host: host.pkgs.stdenv.hostPlatform.system == system
+      ) inputs.self.nixosConfigurations;
+    in
     {
       checks = {
         formatting = inputs.self.formatter.${system};
@@ -17,8 +25,9 @@
           statix check -c ${inputs.self}/config ${inputs.self}
           touch $out
         '';
-
-        rocinante-system = inputs.self.nixosConfigurations.rocinante.config.system.build.toplevel;
-      };
+      }
+      // lib.mapAttrs' (
+        name: host: lib.nameValuePair "${name}-system" host.config.system.build.toplevel
+      ) hosts;
     };
 }
