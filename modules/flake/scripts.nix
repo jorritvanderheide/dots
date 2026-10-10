@@ -37,11 +37,6 @@
 
         text = builtins.readFile (inputs.self + "/scripts/install.sh");
       };
-
-      enroll-tpm = pkgs.writeShellApplication {
-        name = "enroll-tpm";
-        text = builtins.readFile (inputs.self + "/scripts/enroll-tpm.sh");
-      };
     in
     {
       apps.install = {
@@ -50,13 +45,6 @@
         meta.description = "Install a NixOS host locally, run while booted on the target machine itself.";
       };
 
-      apps.enroll-tpm = {
-        type = "app";
-        program = lib.getExe enroll-tpm;
-        meta.description = "Re-enroll the TPM2 LUKS keyslot, as root on the installed host itself.";
-      };
-
       packages.install = install;
-      packages.enroll-tpm = enroll-tpm;
     };
 }

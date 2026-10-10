@@ -88,7 +88,17 @@
           };
         };
 
-        environment.systemPackages = [ pkgs.sbctl ]; # sbctl status
+        environment.systemPackages = [
+          pkgs.sbctl # sbctl status
+
+          # On the host itself rather than a flake app: dapple's /etc/nixos
+          # is a clone that ndeploy doesn't update.
+          (pkgs.writeShellApplication {
+            name = "enroll-tpm";
+            runtimeInputs = [ config.systemd.package ];
+            text = builtins.readFile (inputs.self + "/scripts/enroll-tpm.sh");
+          })
+        ];
 
         # Leave the splash's last frame on screen when plymouth quits, until
         # the session draws over it, instead of a bare console in between.
@@ -120,8 +130,8 @@
         # after that). Not before: bound with secure boot still off, the
         # slot would stop unlocking the moment it comes on. Unbound, it
         # would unlock for any system booted on the machine.
-        # `sudo nix run /etc/nixos#enroll-tpm` re-enrolls, e.g. after a
-        # firmware update or TPM reset (see docs/install.md).
+        # `sudo enroll-tpm` re-enrolls, e.g. after a firmware update or TPM
+        # reset (see docs/install.md).
         systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Bind a LUKS TPM2 keyslot for unlock";

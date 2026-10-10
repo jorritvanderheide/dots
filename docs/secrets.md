@@ -95,7 +95,7 @@ and `ndeploy dapple`.
    makes a new data key.
 4. Change the secrets themselves: the old copies still open with the lost
    key. In particular, change the LUKS password (`cryptsetup luksChangeKey`
-   on every disk, then `sudo nix run .#enroll-tpm`), the restic password
+   on every disk, then `sudo enroll-tpm`), the restic password
    (`restic key add`, then `restic key remove` the old one), the Storj
    credentials, the user password hashes, and the tokens and API keys.
 5. Push, and deploy every host.

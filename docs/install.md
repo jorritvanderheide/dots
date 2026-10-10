@@ -74,14 +74,14 @@ firmware takes the keys once, in setup mode:
    it.
 5. Boot. `bootctl status` shows `Secure Boot: enabled (user)`. On a fresh
    install, that boot binds the TPM by itself. On a host that had a TPM
-   slot already, rebind it: `sudo nix run /etc/nixos#enroll-tpm`.
+   slot already, rebind it: `sudo enroll-tpm`.
 6. Check: `sudo cryptsetup luksDump /dev/disk/by-partlabel/disk-main-luks`
    lists PCR 7 under the `systemd-tpm2` token, and a reboot unlocks by
    itself.
 
 A firmware update (fwupd, on rocinante) or a new revocation list can change
 PCR 7. The next boot asks for the LUKS password then; after it, rebind with
-`sudo nix run /etc/nixos#enroll-tpm`. That's also the fix after a TPM reset.
+`sudo enroll-tpm`. That's also the fix after a TPM reset.
 
 ## Why the accounts start locked
 
