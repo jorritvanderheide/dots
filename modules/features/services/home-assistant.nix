@@ -33,6 +33,54 @@
           jsonpath
         ];
       };
+
+      # One ventilator pair to medium while its master reads high CO2, back to
+      # low once it settles. The units' own anti-CO2 function would switch the
+      # pair to supply instead, which loses heat recovery and has both units
+      # blowing in; this keeps them in whatever mode they are in.
+      co2Speed =
+        {
+          id,
+          alias,
+          sensor,
+          fan,
+        }:
+        {
+          inherit id alias;
+          triggers = [
+            {
+              trigger = "numeric_state";
+              entity_id = sensor;
+              above = 900;
+              for.minutes = 5;
+              id = "high";
+            }
+            {
+              trigger = "numeric_state";
+              entity_id = sensor;
+              below = 800;
+              for.minutes = 10;
+              id = "normal";
+            }
+          ];
+          # Setting a speed turns the unit on, so leave one switched off alone.
+          conditions = [
+            {
+              condition = "state";
+              entity_id = fan;
+              state = "on";
+            }
+          ];
+          actions = [
+            {
+              # The speeds are low, medium, high: 33% is low and 66% medium,
+              # whether or not LocalTuya's speed list also counts "off".
+              action = "fan.set_percentage";
+              target.entity_id = fan;
+              data.percentage = "{{ 66 if trigger.id == 'high' else 33 }}";
+            }
+          ];
+        };
     in
     {
       options.my.home-assistant = {
@@ -349,6 +397,18 @@
                       }
                     ];
                   }
+                  (co2Speed {
+                    id = "kitchen_co2_speed";
+                    alias = "Kitchen: more air when CO2 is high";
+                    sensor = "sensor.living_room_ventilator_uitvoer_co2";
+                    fan = "fan.kitchen_fan";
+                  })
+                  (co2Speed {
+                    id = "bedroom_co2_speed";
+                    alias = "Bedroom: more air when CO2 is high";
+                    sensor = "sensor.bedroom_co2";
+                    fan = "fan.bedroom_fan";
+                  })
                 ];
                 # What "normal" bathroom humidity is right now, for spotting
                 # showers. Time-weighted, so the quick sensor updates during a
