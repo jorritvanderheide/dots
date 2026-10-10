@@ -73,6 +73,14 @@
               ];
             };
 
+            # The device's identity: restored, dapple is back on the tailnet at
+            # tailnetIp, which its vhosts and DNS records point at, without
+            # joining again.
+            my.offsite-backup.entries.tailscale = {
+              paths = [ "/var/lib/tailscale" ];
+              units = [ "tailscaled.service" ];
+            };
+
             my.preservation.systemDirectories = [
               "/var/lib/tailscale"
             ];

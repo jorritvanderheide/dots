@@ -40,6 +40,13 @@
           permitCertUid = lib.mkIf (cfg.loginServer == null) "root";
         };
 
+        # The device's identity: restored, the host is back on the tailnet as
+        # itself, at its old address, without joining again.
+        my.offsite-backup.entries.tailscale = {
+          paths = [ "/var/lib/tailscale" ];
+          units = [ "tailscaled.service" ];
+        };
+
         my.preservation.systemDirectories = [
           "/var/lib/tailscale"
         ];

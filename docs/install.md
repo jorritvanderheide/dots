@@ -64,7 +64,9 @@ in as `jorrit` (or `root`) once that has had a moment to run after boot.
 
 ## Joining the tailnet
 
-Joining is one manual step, since it needs an approval in Headscale:
+A reinstalled host doesn't join: restoring its data (below) brings back its
+Tailscale state, so it is on the tailnet as itself again, at its old address.
+A new host joins once, since Headscale has to approve it:
 
 ```sh
 sudo tailscale up --login-server=https://vpn.bw20.nl   # rocinante, or any other host
@@ -74,8 +76,12 @@ sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Head
 It prints a link; the page behind it shows a `headscale nodes register`
 command. Run that on dapple, with the user the device belongs to.
 
-A reinstalled dapple starts with an empty Headscale. Restore it first (see
-below), and the other devices keep working; only dapple itself joins again.
+A reinstalled dapple needs both `headscale` and `tailscale` restored before
+the tailnet works again: until then, reach it over the LAN
+(`ssh nixos@192.168.1.162`). Dapple has to be at 100.64.0.1, where its
+services and DNS records point. If it ever joins as a new device instead,
+delete its old one first (`headscale nodes delete`): Headscale hands out
+addresses in order, so dapple gets 100.64.0.1 again.
 
 ## Restoring data
 
@@ -96,10 +102,11 @@ command repairs a single service on a running host.
 To check a backup without changing anything,
 `sudo offsite-restore --target /tmp/restore-test <entry>` only downloads.
 
-On a running dapple, restore `headscale` over the LAN
-(`ssh nixos@192.168.1.162`), not over the tailnet: while Headscale is
-stopped, or if the backup is older than a device's registration, the tailnet
-may not carry your SSH session.
+Restoring `tailscale` or `headscale` over the tailnet can cut your own SSH
+session. The restore carries on regardless; reconnect and read
+`/var/log/offsite-restore.log`. Over the LAN (`ssh nixos@192.168.1.162`) you
+can watch it instead. A Headscale backup older than a device's registration
+logs that device out of the tailnet.
 
 To undo a restore, put the replaced data back. For example, for Headscale:
 
