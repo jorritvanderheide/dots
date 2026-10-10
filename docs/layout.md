@@ -12,7 +12,7 @@ modules/
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
-scripts/                          install, enroll-tpm, and scripts used by modules
+scripts/                          install, enroll-tpm, offsite-prune, and scripts used by modules
 secrets/                          <host>.yaml, encrypted with sops
 docs/                             this, install, secrets and security
 ```

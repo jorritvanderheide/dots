@@ -68,6 +68,31 @@ This matches the existing keys' no-PIN, no-touch policy. Then:
    `sudo systemctl restart set-password-jorrit` and
    `journalctl -u set-password-jorrit`.
 
+## Storj credentials
+
+The offsite backups are in the `offsite` bucket, one restic repository per
+host under `restic/<host>/`. Each host's `storj_access_key` and
+`storj_secret_key` are S3 credentials that reach only its own folder and
+can't delete, which on Storj also means they can't overwrite: ransomware on
+a host can't wipe its backups ([Security](security.md)). The owner's
+access grant (`offsite-owner` in the Storj console) and its S3 key can do
+everything, so they are in Bitwarden only, never on a host:
+`nix run .#offsite-prune -- <host>` asks for that key.
+
+New credentials for a host, from the owner's grant (not a new one made in
+the console):
+
+```sh
+nix shell nixpkgs#storj-uplink
+uplink access import owner -f          # the grant from Bitwarden
+uplink access restrict --access owner --readonly=false --disallow-deletes \
+    --prefix sj://offsite/restic/<host>/ --import-as <host>-backup -f >/dev/null
+uplink access register <host>-backup --format env > $XDG_RUNTIME_DIR/storj.env
+```
+
+Copy the two values from that file into `secrets/<host>.yaml`, then delete
+it. Revoke old ones with `uplink access revoke --access owner <name>`.
+
 ## A new host key
 
 dapple's own key is a plain `age-keygen` identity. A reinstalled dapple

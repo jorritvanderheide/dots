@@ -121,6 +121,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
 | `sudo enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, bound to secure boot (PCR 7), after a firmware update or TPM reset |
 | `sudo offsite-restore [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
+| `nix run .#offsite-prune -- <host>` | Prune and check a host's offsite backup, with the Storj owner key from Bitwarden (every few months) |
 
 <br/>
 
@@ -143,8 +144,9 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Gatus | `status` | Monitoring of all of the above |
 
 Backups: `/persist` to a LUKS-encrypted USB drive with syncoid when it is
-plugged in, and the services' data to Storj with restic, daily. Both report
-to Gatus.
+plugged in, and the services' data to Storj with restic, daily, with
+credentials that can't delete or overwrite (pruning is by hand, from
+rocinante). Both report to Gatus.
 
 <br/>
 

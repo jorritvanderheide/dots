@@ -80,7 +80,9 @@
 
         bucket = lib.mkOption {
           type = lib.types.str;
-          default = "backup";
+          # Not the old "backup" bucket: every host could delete from it, with
+          # credentials that are in this repository's history.
+          default = "offsite";
           description = "Storj bucket holding the restic repository.";
         };
 
@@ -189,15 +191,12 @@
             RandomizedDelaySec = "1h";
           };
 
-          # Versioned history. forget --prune runs after each backup.
-          pruneOpts = [
-            "--keep-daily 7"
-            "--keep-weekly 5"
-            "--keep-monthly 12"
-          ];
-
-          # Structural integrity check after each run (metadata only, cheap).
-          runCheck = true;
+          # No forget --prune and no check here: the host's Storj credentials
+          # can't delete, so ransomware on the host can't wipe or overwrite
+          # its backups (Storj won't overwrite without delete rights either).
+          # Pruning needs deletes and checking needs the locks gone, which
+          # each backup leaves behind for the same reason: both run by hand,
+          # from rocinante, with the owner's key (`nix run .#offsite-prune`).
 
           # Larger packs => far fewer objects/segments on Storj (default 16 MiB).
           extraBackupArgs = [ "--pack-size=64" ];

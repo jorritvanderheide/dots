@@ -37,6 +37,26 @@
 
         text = builtins.readFile (inputs.self + "/scripts/install.sh");
       };
+
+      offsite-prune = pkgs.writeShellApplication {
+        name = "offsite-prune";
+
+        runtimeInputs = with pkgs; [
+          age-plugin-yubikey
+          nix
+          restic
+          sops
+        ];
+
+        runtimeEnv = {
+          OFFSITE_PRUNE_FLAKE = "${inputs.self}";
+          # Which snapshots to keep: a week of dailies, five weeklies, a
+          # year of monthlies.
+          OFFSITE_PRUNE_KEEP = "--keep-daily 7 --keep-weekly 5 --keep-monthly 12";
+        };
+
+        text = builtins.readFile (inputs.self + "/scripts/offsite-prune.sh");
+      };
     in
     {
       apps.install = {
@@ -45,6 +65,13 @@
         meta.description = "Install a NixOS host locally, run while booted on the target machine itself.";
       };
 
+      apps.offsite-prune = {
+        type = "app";
+        program = lib.getExe offsite-prune;
+        meta.description = "Prune and check a host's offsite backup, with the Storj owner key (the hosts can't delete).";
+      };
+
       packages.install = install;
+      packages.offsite-prune = offsite-prune;
     };
 }

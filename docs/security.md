@@ -67,7 +67,18 @@ and restic passwords. rocinante doesn't take packages from dapple (there is
 no dapple cache any more), so a taken-over dapple can't push code to the
 laptop. Editing dapple's secrets from rocinante needs the admin key's PIN
 and a touch, so a stolen laptop with its YubiKey still in doesn't open the
-server.
+server. The YubiKey's PUK isn't the factory default either, or anyone
+holding the key could set a new PIN with it.
+
+**Ransomware on a host** can't take the offsite backups along. Each host's
+Storj credentials reach only its own `restic/<host>/` in the `offsite`
+bucket, and can't delete. Storj also refuses to overwrite an object without
+the right to delete it, so the host can add to its backups but not wipe,
+overwrite or encrypt them (tested on the real bucket: the repository's
+`config` can't be replaced). Pruning and `restic check` need deletes, so
+they run by hand from rocinante, every few months, with the owner's key
+from Bitwarden: `nix run .#offsite-prune -- <host>`. The USB copy only
+survives if it is unplugged at the time.
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
 a debug shell at boot. But see below: the TPM still unlocks the disks for
@@ -82,14 +93,6 @@ any system booted on the same board.
   (lanzaboote), a firmware password, and the TPM re-enrolled with
   `--tpm2-pcrs=7`. Check with `sudo cryptsetup luksDump
   /dev/disk/by-partlabel/disk-main-luks`: the `tpm2` token should list PCR 7.
-- **The offsite backups can be deleted from the hosts.** The Storj
-  credentials allow deletes (restic prunes after each backup) and are shared
-  by both hosts, so ransomware on either can wipe both hosts' backups. The
-  USB copy only survives if it is unplugged at the time. The fix: a bucket
-  with versioning and Object Lock, and a grant per host, limited to its own
-  `restic/<host>/` and without the right to remove locked versions.
-  Storj's versioning is in beta, so this needs a test on a scratch bucket
-  first.
 - **To check by hand**, since the configuration doesn't say:
   - Vaultwarden's `ADMIN_TOKEN` is unset or an argon2 hash, and invitations
     are off.
