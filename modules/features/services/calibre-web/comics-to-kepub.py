@@ -71,7 +71,9 @@ def epub_pages(epub):
             # Each image once per page: Kindle Panel View (as KCC writes it)
             # repeats the page image in four magnification regions.
             for src in dict.fromkeys(IMAGE_REF.findall(html)):
-                name = posixpath.normpath(posixpath.join(posixpath.dirname(page), unquote(src)))
+                name = posixpath.normpath(
+                    posixpath.join(posixpath.dirname(page), unquote(src))
+                )
                 pages.append((name, z.read(name)))
         direction = opf.find("opf:spine", OPF_NS).get("page-progression-direction")
     return pages, direction
@@ -106,13 +108,18 @@ def convert(book, work):
     out.mkdir()
     run(
         "kcc-c2e",
-        "--profile", "KoCC",
+        "--profile",
+        "KoCC",
         *(["--manga-style"] if rtl else []),
         "--forcecolor",
-        "--format", "EPUB",
-        "--title", book["title"],
-        "--author", book["authors"],
-        "--output", str(out),
+        "--format",
+        "EPUB",
+        "--title",
+        book["title"],
+        "--author",
+        book["authors"],
+        "--output",
+        str(out),
         cbz,
     )
     (result,) = out.glob("*.epub")
@@ -124,7 +131,14 @@ def convert(book, work):
 
 def main():
     books = json.loads(
-        calibredb("list", "--for-machine", "--fields", "title,authors,tags,formats", "--search", SEARCH)
+        calibredb(
+            "list",
+            "--for-machine",
+            "--fields",
+            "title,authors,tags,formats",
+            "--search",
+            SEARCH,
+        )
     )
     for book in books:
         print(f"Converting {book['id']}: {book['title']}", flush=True)
@@ -134,7 +148,12 @@ def main():
         except Exception as e:
             detail = e.stderr if isinstance(e, subprocess.CalledProcessError) else e
             print(f"Failed {book['id']}: {detail}", file=sys.stderr, flush=True)
-            calibredb("set_metadata", str(book["id"]), "--field", f"tags:{','.join([*book['tags'], FAILED_TAG])}")
+            calibredb(
+                "set_metadata",
+                str(book["id"]),
+                "--field",
+                f"tags:{','.join([*book['tags'], FAILED_TAG])}",
+            )
 
 
 main()
