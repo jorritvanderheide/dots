@@ -196,6 +196,13 @@ in
             };
 
             my.vpn.loginServer = "https://vpn.bw20.nl";
+
+            # Resolves .local names, to reach the installer ISO as
+            # dots-installer.local (docs/install.md).
+            services.avahi = {
+              enable = true;
+              nssmdns4 = true;
+            };
           }
         )
       ];

@@ -17,7 +17,7 @@ die() {
   exit 1
 }
 
-readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DIR:-${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}}"
+readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}"
 readonly SECRETS_FILE="${FLAKE_DIR}/secrets/secrets.yaml"
 readonly NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 readonly REPO_URL="https://codeberg.org/BW20/dots.git"
@@ -42,11 +42,8 @@ main() {
   [[ $EUID -eq 0 ]] || die "Run as root (disko and nixos-install both need it)"
   [[ -f $SECRETS_FILE ]] || die "Missing ${SECRETS_FILE}"
 
-  local facter_path="${FLAKE_DIR}/modules/hosts/${hostname}/facter.json"
-  if [[ ! -s $facter_path ]]; then
-    log_info "Gathering hardware facts..."
-    $NIX run nixpkgs#nixos-facter >"$facter_path"
-  fi
+  [[ -s "${FLAKE_DIR}/modules/hosts/${hostname}/facter.json" ]] ||
+    die "${hostname} has no facter.json yet: commit one first (docs/install.md, \"A new host\")."
 
   local nixos_gid
   nixos_gid=$($NIX eval "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid" 2>/dev/null) ||
@@ -110,23 +107,11 @@ main() {
 
   local etc_nixos=/mnt/persist/system/etc/nixos
   mkdir -p "$(dirname "$etc_nixos")"
-  if [[ -n ${INSTALL_HOST_FLAKE_DIR:-} ]]; then
-    # A local checkout: copy it as it is, with its repository and the new
-    # host's uncommitted facter.json.
-    log_info "Copying ${FLAKE_DIR} to /etc/nixos..."
-    mkdir -p "$etc_nixos"
-    tar -C "$FLAKE_DIR" --exclude='.direnv' --exclude='result' --exclude='result-*' -cf - . |
-      tar -C "$etc_nixos" -xf -
-    diff -rq --exclude='.direnv' --exclude='result' --exclude='result-*' \
-      "$FLAKE_DIR" "$etc_nixos" ||
-      die "Copied config does not match source -- installation may be corrupted"
-  else
-    # The flake fetched from Codeberg has no repository, so clone one to
-    # commit and push from. jj fills in your name on the first commit.
-    log_info "Cloning ${REPO_URL} to /etc/nixos..."
-    jj git clone --colocate --remote codeberg "$REPO_URL" "$etc_nixos"
-    jj -R "$etc_nixos" git remote set-url codeberg "$REPO_PUSH_URL"
-  fi
+  # The flake fetched from Codeberg has no repository, so clone one to
+  # commit and push from. jj fills in your name on the first commit.
+  log_info "Cloning ${REPO_URL} to /etc/nixos..."
+  jj git clone --colocate --remote codeberg "$REPO_URL" "$etc_nixos"
+  jj -R "$etc_nixos" git remote set-url codeberg "$REPO_PUSH_URL"
   chown -R "0:${nixos_gid}" "$etc_nixos"
   # Symmetric owner/group perms -- g+rwX alone leaves files owner-only-read
   # (444 base), which self-locks the first time a nixos-group member's own

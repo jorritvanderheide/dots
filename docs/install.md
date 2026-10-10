@@ -2,16 +2,37 @@
 
 ## Install
 
-Boot a NixOS live ISO on the target machine, with network and a YubiKey
-plugged in: any of them, such as the host's own. Then, with no local
-checkout needed:
+Build the installer ISO and write it to a USB stick:
+
+```sh
+nix build .#iso
+sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
+```
+
+Boot the target machine from it, with network (a cable, or `nmtui` on its
+console) and a YubiKey plugged in: any of them, such as the host's own. Then,
+from rocinante:
+
+```sh
+ssh -t root@dots-installer.local install-host <hostname>
+```
+
+Without a host name, it asks which one to install. It runs in tmux, so if
+the SSH connection drops, the same command takes you back to it.
+`install-host` runs the installer from Codeberg, so push before installing;
+the ISO itself only needs rebuilding for a newer NixOS.
+
+A machine without a screen and keyboard has to boot from the stick by itself.
+If its firmware doesn't, its boot menu needs them once.
+
+Any other NixOS live ISO works too, from its own console:
 
 ```sh
 sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-Without a host name, it asks which one to install. The installer:
+The installer:
 
 1. Checks that the host's disk is there, by its model and serial. If it
    isn't, the hardware report is from another machine, and it stops.
@@ -92,15 +113,15 @@ sudo systemctl start headscale
 
 ## A new host
 
-A host with no `modules/hosts/<hostname>/facter.json` committed yet needs a
-local, writable checkout instead, with its `configuration.nix` in it. The
-script writes the hardware report back to the repository, which a read-only
-fetched flake can't do:
+Write `modules/hosts/<hostname>/configuration.nix` first, starting from an
+existing host's. Boot the new machine from the ISO, and from rocinante, get
+its hardware report:
 
 ```sh
-git clone https://codeberg.org/BW20/dots && cd dots
-sudo INSTALL_HOST_FLAKE_DIR="$PWD" nix run .#install -- <hostname>
+ssh root@dots-installer.local nixos-facter > modules/hosts/<hostname>/facter.json
 ```
 
-The checkout is copied to `/etc/nixos` as it is, so commit and push the new
-`facter.json` from there once the host is up.
+Commit both files and push them to Codeberg. Then install it like any other
+host. The installer refuses a host without a `facter.json`. The report lists
+the USB stick as a disk too; the installer skips USB disks when it picks the
+one to wipe.

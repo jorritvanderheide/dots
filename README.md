@@ -18,12 +18,12 @@ repository, encrypted for a YubiKey. See [Installation](#1-installation).
 
 ## 1 Installation
 
-Boot a NixOS live ISO on the target machine, with network and the YubiKey
-plugged in, and run:
+Write the installer ISO (`nix build .#iso`) to a USB stick and boot the
+target machine from it, with network and a YubiKey plugged in. Then, from
+rocinante:
 
 ```sh
-sudo nix --extra-experimental-features 'nix-command flakes' \
-  run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
+ssh -t root@dots-installer.local install-host <hostname>
 ```
 
 It shows the disk it is about to wipe and waits for a `yes`, installs the
@@ -105,7 +105,8 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix fmt` | Format everything (nixfmt, deadnix, statix, shfmt, ruff) |
 | `nix flake check` | Build every host and run the formatting and lint checks |
 | `nix develop` | A shell with sops, age and the YubiKey plugin |
-| `nix run .#install -- <host>` | Install a host, from a live ISO |
+| `nix build .#iso` | The installer ISO, with SSH and `install-host` |
+| `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
 | `sudo nix run .#enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, after a firmware or TPM reset |
 | `sudo offsite-restore [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
 
@@ -162,6 +163,7 @@ address only, so they don't answer on the public one.
 **On every interface**, behind the router: SSH on 22, public key only, for
 the `nixos` user; and Tailscale's WireGuard on 41641/udp.
 
-**rocinante** opens no ports but Tailscale's 41641/udp.
+**rocinante** opens no ports but Tailscale's 41641/udp, and 5353/udp for
+mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, and ACME certificates through Cloudflare DNS.
