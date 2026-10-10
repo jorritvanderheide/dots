@@ -14,11 +14,14 @@
           (
             {
               config,
-              inputs,
+              pkgs,
               ...
             }:
             let
-              scriptsDirectory = inputs.self + "/scripts";
+              # noctalia changes the volume, with its OSD, but leaves a muted
+              # output muted: unmute first, so the keys give sound.
+              unmuteThen =
+                command: "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; noctalia msg ${command}";
             in
             {
               programs.niri.settings.binds = with config.lib.niri.actions; {
@@ -138,7 +141,7 @@
                 };
 
                 "Mod+M" = {
-                  action = spawn "sh" "${scriptsDirectory}/volume.sh" "mute";
+                  action = spawn "noctalia" "msg" "volume-mute";
                   allow-when-locked = true;
                   repeat = false;
                 };
@@ -190,7 +193,7 @@
                 };
 
                 "XF86AudioLowerVolume" = {
-                  action = spawn "sh" "${scriptsDirectory}/volume.sh" "down";
+                  action = spawn "sh" "-c" (unmuteThen "volume-down");
                   allow-when-locked = true;
                 };
 
@@ -206,7 +209,7 @@
                 };
 
                 "XF86AudioMute" = {
-                  action = spawn "sh" "${scriptsDirectory}/volume.sh" "mute";
+                  action = spawn "noctalia" "msg" "volume-mute";
                   allow-when-locked = true;
                   repeat = false;
                 };
@@ -230,7 +233,7 @@
                 };
 
                 "XF86AudioRaiseVolume" = {
-                  action = spawn "sh" "${scriptsDirectory}/volume.sh" "up";
+                  action = spawn "sh" "-c" (unmuteThen "volume-up");
                   allow-when-locked = true;
                 };
 
