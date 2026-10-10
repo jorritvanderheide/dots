@@ -97,10 +97,10 @@
                 end
                 # --use-substitutes lets the target pull cached paths from
                 # cache.nixos.org directly instead of forcing the full closure
-                # over the SSH/tailscale link.
-                # --ask-sudo-password prompts locally for the remote sudo password
-                # (target hosts require it since wheelNeedsPassword=true).
-                nixos-rebuild $action --flake /etc/nixos#$argv[1] --target-host nixos@$argv[1] --sudo --ask-sudo-password --use-substitutes
+                # over the SSH/tailscale link. nh asks for the remote sudo
+                # password itself (target hosts require it since
+                # wheelNeedsPassword=true).
+                nh os $action /etc/nixos --hostname $argv[1] --target-host nixos@$argv[1] --use-substitutes --no-nom
               '';
 
               shellAliases = {
