@@ -44,7 +44,7 @@ host, and what to do after losing a machine.
 | Host | What it is | Runs |
 | --- | --- | --- |
 | **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Noctalia shell, Stylix theming, Zen, Zed, Zotero and Obsidian |
-| **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to USB and to Storj |
+| **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to Storj |
 
 Both get the same core: ZFS on LUKS, a root that rolls back on boot, sops
 secrets, home-manager, and fish.
@@ -143,10 +143,10 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | New Leaf | `cv` | CV editor, with public share links |
 | Gatus | `status` | Monitoring of all of the above |
 
-Backups: `/persist` to a LUKS-encrypted USB drive with syncoid when it is
-plugged in, and the services' data to Storj with restic, daily, with
-credentials that can't delete or overwrite (pruning is by hand, from
-rocinante). Both report to Gatus.
+Backups: the services' data to Storj with restic, daily, with credentials
+that can't delete or overwrite (pruning is by hand, from rocinante),
+reported to Gatus. Locally, sanoid keeps hourly to yearly ZFS snapshots of
+`/persist`.
 
 <br/>
 

@@ -77,8 +77,7 @@ the right to delete it, so the host can add to its backups but not wipe,
 overwrite or encrypt them (tested on the real bucket: the repository's
 `config` can't be replaced). Pruning and `restic check` need deletes, so
 they run by hand from rocinante, every few months, with the owner's key
-from Bitwarden: `nix run .#offsite-prune -- <host>`. The USB copy only
-survives if it is unplugged at the time.
+from Bitwarden: `nix run .#offsite-prune -- <host>`.
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
 a debug shell at boot. But see below: the TPM still unlocks the disks for

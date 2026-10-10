@@ -168,9 +168,8 @@ in
               };
             };
 
-            # The laptop has no USB/ZFS backup of its own (that's dapple's
-            # my.backup), and /persist is all that survives the boot-time
-            # rollback -- so this is the only copy of anything here.
+            # /persist is all that survives the boot-time rollback, and the
+            # offsite backup (below) is its only copy off this disk.
             # The research modules declare what state they need kept but not
             # how; this machine persists it with preservation.
             my.preservation.homeDirectories = config.my.research.statePaths;
