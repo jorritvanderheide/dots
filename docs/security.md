@@ -93,9 +93,6 @@ any system booted on the same board.
   `--tpm2-pcrs=7`. Check with `sudo cryptsetup luksDump
   /dev/disk/by-partlabel/disk-main-luks`: the `tpm2` token should list PCR 7.
 - **To check by hand**, since the configuration doesn't say:
-  - The Cloudflare token can only read the `bw20.nl` zone and edit its DNS:
-    with more, it can point `vpn` elsewhere and get a valid certificate for
-    it.
   - The router doesn't hide internet visitors behind a LAN address, which
     the Kobo vhost would let in. From mobile data, with the home address:
     `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
@@ -107,7 +104,10 @@ any system booted on the same board.
 
   Checked on 2026-10-10: Vaultwarden's `ADMIN_TOKEN` is an argon2 hash,
   Calibre-Web's admin password isn't the default, and qBittorrent's password
-  is long and random.
+  is long and random. The Cloudflare token (for ACME) can only edit DNS in
+  `bw20.nl`: with more, it could point `vpn` elsewhere and get a valid
+  certificate for it. It's the account's only API token; three leftover
+  Cloudflare Tunnel tokens, which nothing here used, were deleted.
 
 ## Accepted on purpose
 
