@@ -133,16 +133,21 @@
             })
           ];
 
+          # A heartbeat turns an endpoint red when its pushes stop: a day and
+          # an hour for the daily offsite backup, and a month as a reminder to
+          # plug in the USB drive.
           external-endpoints = [
             {
               name = "offsite-backup";
               group = "backups";
               token = tokenPlaceholder;
+              heartbeat.interval = "25h";
             }
             {
               name = "usb-backup";
               group = "backups";
               token = tokenPlaceholder;
+              heartbeat.interval = "720h";
             }
           ];
         }
