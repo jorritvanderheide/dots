@@ -24,6 +24,8 @@ nix develop       # sops, age-plugin-yubikey, pcsclite
 sops secrets/secrets.yaml
 ```
 
+The dev shell decrypts with whichever YubiKey is plugged in, on any host.
+
 The user passwords (`user_password_<user>`) are password *hashes*, not
 plaintext. Make one with `mkpasswd -m yescrypt`.
 
