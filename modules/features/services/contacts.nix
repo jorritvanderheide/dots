@@ -60,6 +60,8 @@
               };
             };
 
+            my.offsite-backup.entries.contacts.paths = [ "/var/lib/radicale" ];
+
             my.preservation.systemDirectories = [
               {
                 directory = "/var/lib/radicale";

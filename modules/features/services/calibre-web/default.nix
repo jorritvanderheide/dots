@@ -113,6 +113,8 @@
               };
             };
 
+            my.offsite-backup.entries.calibre-web.paths = [ "/var/lib/calibre-web" ];
+
             my.preservation.systemDirectories = [
               {
                 directory = "/var/lib/calibre-web";

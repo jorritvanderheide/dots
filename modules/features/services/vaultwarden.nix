@@ -68,6 +68,8 @@
               "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
             ];
 
+            my.offsite-backup.entries.vaultwarden.paths = [ "/var/backup/vaultwarden" ];
+
             my.preservation.systemDirectories = [
               {
                 directory = "/var/lib/vaultwarden";

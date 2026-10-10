@@ -292,6 +292,34 @@
                 };
               };
 
+              # Indexers, profiles, history and torrents; cover art and logs are
+              # not needed back.
+              my.offsite-backup.entries.servarr = {
+                paths = [
+                  "/var/lib/qBittorrent"
+                  "/var/lib/sonarr"
+                  "/var/lib/radarr"
+                  "/var/lib/lidarr"
+                  "/var/lib/bazarr"
+                  "/var/lib/private/prowlarr"
+                ];
+                exclude =
+                  lib.concatMap
+                    (app: [
+                      "${config.services.${app}.dataDir}/MediaCover"
+                      "${config.services.${app}.dataDir}/logs"
+                    ])
+                    [
+                      "sonarr"
+                      "radarr"
+                      "lidarr"
+                    ]
+                  ++ [
+                    "/var/lib/bazarr/log"
+                    "/var/lib/private/prowlarr/logs"
+                  ];
+              };
+
               my.preservation.systemDirectories = [
                 {
                   directory = "/var/lib/qBittorrent";

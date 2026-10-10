@@ -120,6 +120,8 @@
         # Share links are public on purpose, like headscale.
         networking.firewall.interfaces.${cfg.interface}.allowedTCPPorts = [ 443 ];
 
+        my.offsite-backup.entries.new-leaf.paths = [ "/var/lib/new-leaf/users" ];
+
         my.preservation.systemDirectories = [
           {
             directory = "/var/lib/new-leaf";
