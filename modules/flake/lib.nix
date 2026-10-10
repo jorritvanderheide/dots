@@ -140,11 +140,6 @@
 
         security.acme.certs.${domain} = { };
 
-        systemd.services.nginx = {
-          wants = [ "acme-finished-${domain}.target" ];
-          after = [ "acme-finished-${domain}.target" ];
-        };
-
         services.nginx.virtualHosts.${domain} = {
           # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
           # listener for the headscale and kobo vhosts, but internal services
