@@ -130,7 +130,6 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Radicale | `contacts` | Contacts and calendars |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
-| Harmonia | `cache` | A binary cache of dapple's store |
 | Gatus | `status` | Monitoring of all of the above |
 
 Backups: `/persist` to a LUKS-encrypted USB drive with syncoid when it is

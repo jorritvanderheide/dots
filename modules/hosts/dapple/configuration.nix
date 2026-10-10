@@ -34,7 +34,6 @@ in
         calibre-web
         contacts
         gatus
-        harmonia
         headscale
         home-assistant
         immich
@@ -119,7 +118,6 @@ in
             my.contacts.enable = true;
             my.gatus.enable = true;
             my.home-assistant.enable = true;
-            my.harmonia.enable = true;
             my.immich.enable = true;
             my.vaultwarden.enable = true;
 

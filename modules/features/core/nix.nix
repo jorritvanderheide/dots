@@ -41,22 +41,12 @@
             "flakes"
           ];
 
-          substituters = [
-            "https://cache.bw20.nl"
-            "https://cache.nixos.org"
-            "https://niri.cachix.org"
-            "https://nix-community.cachix.org"
-            "https://noctalia.cachix.org"
-            "https://numtide.cachix.org"
-          ];
-
+          # Only the official cache here. A trusted key may sign any path,
+          # not just its own project's, so each extra cache is added by the
+          # module (or host) that actually needs it.
+          substituters = [ "https://cache.nixos.org" ];
           trusted-public-keys = [
-            "cache.bw20.nl-1:xkMAP0HGSNkCNnWO1Z1z+c3FrR1uwRzQCvszMZCHf+8="
             "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-            "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
-            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-            "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-            "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
           ];
         };
       };

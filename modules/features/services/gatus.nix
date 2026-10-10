@@ -122,11 +122,6 @@
               url = "https://cv.${config.my.tailscale.acme.domain}/fonts/OFL.txt";
             })
             (mkHttpEndpoint {
-              name = "harmonia";
-              group = "infra";
-              url = "https://cache.${config.my.tailscale.acme.domain}";
-            })
-            (mkHttpEndpoint {
               name = "headscale";
               group = "infra";
               url = "https://vpn.${config.my.tailscale.acme.domain}";

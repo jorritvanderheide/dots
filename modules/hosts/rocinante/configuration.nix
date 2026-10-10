@@ -90,6 +90,19 @@ in
             nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
 
+            # Community caches, for the laptop only: the server needs nothing
+            # beyond cache.nixos.org.
+            nix.settings = {
+              substituters = [
+                "https://nix-community.cachix.org"
+                "https://numtide.cachix.org"
+              ];
+              trusted-public-keys = [
+                "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+                "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
+              ];
+            };
+
             my.desktop-shell.lockOnStartup = true;
             my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
