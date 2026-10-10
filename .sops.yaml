@@ -1,21 +1,41 @@
 keys:
-  # YubiKey, serial 29635974 PIV slot 1 -- day-to-day recipient.
-  # pin-policy=never, touch-policy=never -- physical possession is the only
-  # gate, matching FIDO2 LUKS unlock's own no-PIN/no-touch boot.
+  # YubiKey, serial 29635974 PIV slot 1 -- rocinante's day-to-day recipient,
+  # and how it decrypts at boot. pin-policy=never, touch-policy=never --
+  # physical possession is the only gate, matching FIDO2 LUKS unlock's own
+  # no-PIN/no-touch boot.
   - &rocinante_yubikey age1yubikey1qgejl25v5v97z9xl7y75qlagjenwk73awsc045skya7an5znsnp0z2pu7k7
+
+  # The same YubiKey, another slot, with pin-policy=once and
+  # touch-policy=cached -- how you edit dapple's secrets. rocinante's no-PIN
+  # slot can't, so a stolen laptop with its key still in doesn't open the
+  # server.
+  - &admin_yubikey age1yubikey1qdzvztu74em2s9jmkr2jlgzuusx72mqjy30tyy49ra78y92n8vu56sx60qy
 
   # Passphrase identity -- fallback only, kept in the password manager.
   # See docs/secrets.md to regenerate.
   - &jorrit_passphrase age1j0qgknt0tlez0c3cvfuq30zv0vwp48c9q4q4wl4htgqngvcdkfdq6nr0v5
 
-  # dapple's own physical YubiKey, plugged in permanently for headless boot.
-  # pin-policy=never, touch-policy=never -- same reasoning as rocinante_yubikey.
+  # dapple's own age key, /persist/system/var/lib/sops/age.key on its
+  # encrypted disk -- how it decrypts at boot.
+  - &dapple_host age1tcp0k5tfcy3khr7zz5dal79hzfqtrp5fdvzrl5ds264fvmqp8cgq48pqrn
+
+  # dapple's physical YubiKey, pin-policy=never, touch-policy=never -- an
+  # offline spare for reinstalling the server, kept away from it.
   - &dapple_yubikey age1yubikey1qwa2sy27xlnlfdxdnhksrvkup339vr6grzfhrsj86ynsxhspn4jd6v2p0ve
 
+# One file per host, each for its own keys only: a host taken over doesn't
+# give up the other's secrets.
 creation_rules:
-  - path_regex: secrets/.*\.yaml$
+  - path_regex: secrets/rocinante\.yaml$
     key_groups:
       - age:
           - *rocinante_yubikey
+          - *jorrit_passphrase
+
+  - path_regex: secrets/dapple\.yaml$
+    key_groups:
+      - age:
+          - *dapple_host
+          - *admin_yubikey
           - *jorrit_passphrase
           - *dapple_yubikey

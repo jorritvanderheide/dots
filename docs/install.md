@@ -159,17 +159,24 @@ Nothing needed to recover lives only on rocinante: the SSH keys are in
 Bitwarden, the configuration is on Codeberg, the data on Storj, and the
 YubiKeys are separate devices.
 
-Every host decrypts with any of your YubiKeys. The passphrase identity works
-for the installer, but a running host's services need a YubiKey: without
-one, it boots but can't set its passwords or reach its backup.
+Each host has its own secrets file, which only some keys open
+([Secrets and keys](secrets.md)): rocinante's with its YubiKey, dapple's
+with dapple's own age key, rocinante's YubiKey (admin, with its PIN) and
+dapple's spare YubiKey. The passphrase identity opens both, for the
+installer, but a running host's services need a key of their own: rocinante
+its YubiKey, and dapple its spare YubiKey until it has a new age key (see
+[A new host key](secrets.md#a-new-host-key)). Without one, a host boots but
+can't set its passwords or reach its backup.
 
-- **rocinante.** On its replacement, with a YubiKey: boot the ISO
+- **rocinante.** On its replacement, with its YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
   boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
   rocinante's backup holds comes back: Zotero, and its place on the tailnet.
-- **A YubiKey.** The other one works on every host meanwhile. Revoke the lost
-  key and enroll a new one, as in [Secrets and keys](secrets.md).
+- **A YubiKey.** Revoke the lost key and enroll a new one, as in
+  [Secrets and keys](secrets.md), with the passphrase identity or the other
+  key. Losing rocinante's also loses the admin key: enroll a new admin
+  identity the same way, with a PIN.
 - **Both machines.** Vaultwarden runs on dapple, so Bitwarden only has the
   offline copy on your phone. It holds the passphrase identity, the SSH keys
   and your Codeberg login. With a YubiKey left, install dapple with

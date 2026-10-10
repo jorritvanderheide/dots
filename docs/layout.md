@@ -13,7 +13,7 @@ modules/
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
 scripts/                          install, enroll-tpm, and scripts used by modules
-secrets/                          secrets.yaml, encrypted with sops
+secrets/                          <host>.yaml, encrypted with sops
 docs/                             this, install and secrets
 ```
 
@@ -39,8 +39,9 @@ same groups as the folders (Core, System, Services, ...), and sets the
 
 `modules/flake/lib.nix` holds what several features need, as `inputs.self.lib`:
 
-- **`mkSopsService`**: a oneshot service that decrypts secrets with the
-  YubiKey after pcscd is up, retrying while the key enumerates. See
+- **`mkSopsService`**: a oneshot service that decrypts the host's secrets
+  with its own age key or a YubiKey (after pcscd is up, retrying while the
+  key enumerates). See
   [Installing a host](install.md#why-the-accounts-start-locked) for why
   secrets are not installed by sops-nix at activation.
 - **`mkReverseProxy`**: an nginx vhost at `<subdomain>.bw20.nl`, with an ACME

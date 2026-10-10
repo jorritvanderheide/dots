@@ -68,7 +68,7 @@ main() {
     src=$repo
     flake="path:${repo}"
   fi
-  local secrets_file="${src}/secrets/secrets.yaml"
+  local secrets_file="${src}/secrets/${hostname}.yaml"
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
 
   [[ -s "${src}/modules/hosts/${hostname}/facter.json" ]] ||

@@ -5,15 +5,21 @@
 {
   flake.nixosModules.secrets =
     {
+      config,
       lib,
       pkgs,
       ...
     }:
     {
       config = {
-        # Secrets are decrypted by lib.sopsExtract, with whichever YubiKey is
-        # plugged in. Deliberately not sops-nix: nothing in this repo uses
-        # sops.secrets (see mkSopsService for why).
+        # Secrets are decrypted by lib.sopsExtract, with the host's own age
+        # key or a YubiKey. Deliberately not sops-nix: nothing in this repo
+        # uses sops.secrets (see mkSopsService for why).
+
+        # Each host has a file of its own, so one host's key can't open the
+        # other's secrets.
+        environment.etc."sops/secrets.yaml".source =
+          inputs.self + "/secrets/${config.networking.hostName}.yaml";
 
         # age-plugin-yubikey needs pcscd running and itself on PATH to reach
         # the hardware.

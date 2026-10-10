@@ -61,9 +61,16 @@
       ExecStartPre = "-systemctl reset-failed pcscd.service pcscd.socket";
     };
 
-    # Prints one secret from secrets.yaml, decrypted with whichever YubiKey
-    # is plugged in: every key is a recipient of every secret, so any of
-    # them works on any host. Callers need HOME set for age-plugin-yubikey.
+    # Where a host keeps an age key of its own (sopsExtract), straight on
+    # /persist like the SSH host key. On LUKS, so it's as safe as the disk;
+    # the server's alternative is a YubiKey left plugged in, which a thief
+    # takes along.
+    hostAgeKey = "/persist/system/var/lib/sops/age.key";
+
+    # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,
+    # see secrets.nix), decrypted with the host's own age key if it has one,
+    # or else with whichever YubiKey is plugged in that is a recipient.
+    # Callers need HOME set for age-plugin-yubikey.
     #
     # The lock serializes every caller against the same physical YubiKey --
     # without it, several mkSopsService units all start concurrently after
@@ -80,7 +87,12 @@
         trap 'rm -f "$identity"' EXIT
         export PATH=${pkgs.age-plugin-yubikey}/bin:$PATH
         age-plugin-yubikey --identity >"$identity" 2>/dev/null || true
-        SOPS_AGE_KEY_FILE=$identity ${lib.getExe' pkgs.sops "sops"} -d --extract "[\"$1\"]" ${inputs.self}/secrets/secrets.yaml
+        # sops reads this on top of the file above; a command, so the key
+        # itself isn't copied to /tmp or into the environment.
+        if [[ -r ${inputs.self.lib.hostAgeKey} ]]; then
+          export SOPS_AGE_KEY_CMD="${lib.getExe' pkgs.coreutils "cat"} ${inputs.self.lib.hostAgeKey}"
+        fi
+        SOPS_AGE_KEY_FILE=$identity ${lib.getExe' pkgs.sops "sops"} -d --extract "[\"$1\"]" /etc/sops/secrets.yaml
       '';
 
     # A oneshot service that decrypts sops secrets via the YubiKey identity
