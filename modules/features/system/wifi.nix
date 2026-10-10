@@ -13,46 +13,46 @@
           environmentFiles = [ "/run/wireless-secrets.env" ];
 
           profiles = {
-            beverweg = {
+            home = {
               ipv4.method = "auto";
               ipv6.method = "auto";
 
               connection = {
                 autoconnect-priority = 10;
-                id = "Beverweg 20";
+                id = "Home";
                 type = "wifi";
                 permissions = "user:jorrit:";
               };
 
               wifi = {
                 mode = "infrastructure";
-                ssid = "Beverweg 20";
+                ssid = "$WIFI_HOME_SSID";
               };
 
               wifi-security = {
                 key-mgmt = "wpa-psk";
-                psk = "$BEVERWEG_PSK";
+                psk = "$WIFI_HOME_PSK";
               };
             };
 
-            beverweg-24 = {
+            home-24 = {
               ipv4.method = "auto";
               ipv6.method = "auto";
 
               connection = {
-                id = "Beverweg 20 2.4";
+                id = "Home 2.4";
                 type = "wifi";
                 permissions = "user:jorrit:";
               };
 
               wifi = {
                 mode = "infrastructure";
-                ssid = "Beverweg 20 2.4";
+                ssid = "$WIFI_HOME_24_SSID";
               };
 
               wifi-security = {
                 key-mgmt = "wpa-psk";
-                psk = "$BEVERWEG_PSK";
+                psk = "$WIFI_HOME_PSK";
               };
             };
 
@@ -162,13 +162,17 @@
           # written empty PSKs. A bare `VAR="$(failing_cmd)"` assignment
           # does propagate the failure.
           script = ''
-            BEVERWEG_PSK="$(sops_extract wireless_beverweg)"
+            WIFI_HOME_PSK="$(sops_extract wireless_home)"
+            WIFI_HOME_SSID="$(sops_extract wireless_home_ssid)"
+            WIFI_HOME_24_SSID="$(sops_extract wireless_home_24_ssid)"
             EDUROAM_IDENTITY="$(sops_extract wireless_eduroam_identity)"
             EDUROAM_PSK="$(sops_extract wireless_eduroam)"
             HOTSPOT_PSK="$(sops_extract wireless_hotspot)"
             IOTROAM_PSK="$(sops_extract wireless_iotroam)"
             {
-              echo "BEVERWEG_PSK=$BEVERWEG_PSK"
+              echo "WIFI_HOME_PSK=$WIFI_HOME_PSK"
+              echo "WIFI_HOME_SSID=$WIFI_HOME_SSID"
+              echo "WIFI_HOME_24_SSID=$WIFI_HOME_24_SSID"
               echo "EDUROAM_IDENTITY=$EDUROAM_IDENTITY"
               echo "EDUROAM_PSK=$EDUROAM_PSK"
               echo "HOTSPOT_PSK=$HOTSPOT_PSK"
