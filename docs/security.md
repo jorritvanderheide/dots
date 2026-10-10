@@ -80,37 +80,42 @@ they run by hand from rocinante, every few months, with the owner's key
 from Bitwarden: `nix run .#offsite-prune -- <host>`.
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
-a debug shell at boot. But see below: the TPM still unlocks the disks for
-any system booted on the same board.
+a debug shell at boot. On rocinante, secure boot runs with our own keys and
+the TPM only unlocks the disk for that ([Secure boot](install.md#secure-boot)).
+dapple isn't there yet: see below.
 
 ## Still open
 
-- **The TPM unlocks for anything.** Its LUKS keyslot isn't bound to any PCR,
-  and secure boot is off, so a thief who boots another system on the same
-  machine gets the disk unlocked, and on dapple that includes its age key,
-  and with it `secrets/dapple.yaml`. The fix: secure boot with our own keys
-  (lanzaboote), a firmware password, and the TPM re-enrolled with
-  `--tpm2-pcrs=7`. Check with `sudo cryptsetup luksDump
-  /dev/disk/by-partlabel/disk-main-luks`: the `tpm2` token should list PCR 7.
-- **To check by hand**, since the configuration doesn't say:
-  - Vaultwarden's admin page doesn't switch invitations back on: what it
-    saves overrides the configuration, which has them off.
+- **dapple's TPM still unlocks for anything**, until its secure boot is
+  finished (rocinante's is). Its LUKS keyslot isn't bound to PCR 7 yet, so
+  a thief who boots another system on it gets the disk unlocked, with
+  dapple's age key, and with that `secrets/dapple.yaml`. The steps are in
+  [Secure boot](install.md#secure-boot). Check with `sudo cryptsetup
+  luksDump /dev/disk/by-partlabel/disk-main-luks`: the `systemd-tpm2` token
+  should list PCR 7.
 
-  Checked on 2026-10-10:
-  - Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
-    password isn't the default, and qBittorrent's password is long and
-    random.
-  - The Cloudflare token (for ACME) can only edit DNS in `bw20.nl`: with
-    more, it could point `vpn` elsewhere and get a valid certificate for it.
-    It's the account's only API token; three leftover Cloudflare Tunnel
-    tokens, which nothing here used, were deleted.
-  - The router passes internet visitors' own addresses on, so the Kobo
-    vhost's LAN rule holds: from mobile data,
-    `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
-    answers 403. (Headscale's `/api` can't tell: `vpn` goes through
-    Cloudflare, so it refuses everyone.)
-  - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
-    address.
+## Checked by hand
+
+What the configuration can't say, checked on 2026-10-10. Worth checking
+again after changing the router, Cloudflare or an app's own settings.
+
+- Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
+  password isn't the default, and qBittorrent's password is long and random.
+- The Cloudflare token (for ACME) can only edit DNS in `bw20.nl`: with
+  more, it could point `vpn` elsewhere and get a valid certificate for it.
+  It's the account's only API token; three leftover Cloudflare Tunnel
+  tokens, which nothing here used, were deleted.
+- The router passes internet visitors' own addresses on, so the Kobo vhost's
+  LAN rule holds: from mobile data,
+  `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
+  answers 403. (Headscale's `/api` can't tell: `vpn` goes through
+  Cloudflare, so it refuses everyone.)
+- Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
+  address.
+
+Vaultwarden's invitations need no check: they're off in the configuration,
+which also rewrites what its admin page saves before each start, since that
+would otherwise win.
 
 ## Accepted on purpose
 
