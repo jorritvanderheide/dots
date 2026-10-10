@@ -26,13 +26,14 @@ sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-It wipes and formats the disk (after you confirm with `yes`) and installs the
-host. Type the LUKS password once on the first boot, log in, and run
-`nix run .#enroll-tpm` to unlock with the TPM from then on.
+It shows the disk it is about to wipe and waits for a `yes`, installs the
+host, and clones this repository to `/etc/nixos`. Reboot with the YubiKey
+still in and type the LUKS password once: that boot enrolls the TPM, so
+later boots unlock by themselves. Then
+[join the tailnet](docs/install.md#joining-the-tailnet).
 
-The installer prints an error about `setupSecrets` that is expected, and a
-new host needs a local checkout. [Installing a host](docs/install.md) has
-the details.
+[Installing a host](docs/install.md) has the details, and the steps for a
+new host.
 
 <br/>
 
@@ -105,7 +106,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix flake check` | Build every host and run the formatting and lint checks |
 | `nix develop` | A shell with sops, age and the YubiKey plugin |
 | `nix run .#install -- <host>` | Install a host, from a live ISO |
-| `nix run .#enroll-tpm` | Bind (or rebind) the TPM2 LUKS keyslot |
+| `sudo nix run .#enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, after a firmware or TPM reset |
 
 <br/>
 

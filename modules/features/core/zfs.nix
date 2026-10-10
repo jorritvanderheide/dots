@@ -1,4 +1,8 @@
-_: {
+{
+  inputs,
+  ...
+}:
+{
   flake.nixosModules.zfs =
     {
       config,
@@ -46,8 +50,7 @@ _: {
 
       disko.devices.zpool.zroot =
         let
-          facterReport = config.facter.report;
-          diskInfo = builtins.head facterReport.hardware.disk;
+          diskInfo = (inputs.self.lib.mainDisk config.facter.report).info;
           diskSizeResource = builtins.head (builtins.filter (r: r.type == "size") diskInfo.resources);
           diskSize = builtins.floor (
             (diskSizeResource.value_1 * diskSizeResource.value_2) / (1024 * 1024 * 1024)

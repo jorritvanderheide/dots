@@ -10,13 +10,20 @@ sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-This partitions and formats the disk (disko, after a `yes` confirmation,
-since it wipes the disk) and runs `nixos-install` without asking for a root
-password. The first boot needs the LUKS password typed by hand once.
+The installer:
 
-TPM2 auto-unlock is *not* enrolled automatically. Once logged in, run
-`nix run .#enroll-tpm` on the host itself to bind a keyslot. The same
-command re-enrolls later, for example after a firmware or TPM reset.
+1. Checks that the host's disk is there, by its model and serial. If it
+   isn't, the hardware report is from another machine, and it stops.
+2. Decrypts the LUKS password with the YubiKey.
+3. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
+4. Partitions and formats it with disko, and runs `nixos-install`.
+5. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
+   remote (pushing over SSH), ready for `jj`.
+
+Then reboot, with the YubiKey still in, and type the LUKS password. That is
+the only time: the first boot enrolls the TPM, and later boots unlock by
+themselves. After a firmware or TPM reset, re-enroll with
+`sudo nix run /etc/nixos#enroll-tpm`.
 
 ## Why the accounts start locked
 
@@ -29,33 +36,37 @@ The same limitation applies on *every* boot, not just the install.
 `boot.initrd.systemd.enable`, which the ZFS rollback needs, makes each boot's
 activation run chrooted into `/sysroot` from the initrd, before the real
 systemd and pcscd exist there. So `set-password-root`, `set-password-jorrit`
-and `tpm2-luks-enroll` don't rely on sops-nix's activation-time install. Each
-decrypts its own secret (`sops -d --extract`) as a real service under the
-booted system's systemd, after `pcscd.service`. Log in as `jorrit` (or
-`root`) once that has had a moment to run after boot.
+and `tpm2-luks-enroll` decrypt their own secret (`sops -d --extract`) as a
+real service under the booted system's systemd, after `pcscd.service`. Log
+in as `jorrit` (or `root`) once that has had a moment to run after boot.
 
-## Expected errors
+## Joining the tailnet
 
-For the same reason, `nixos-install` prints `Activation script snippet
-'setupSecrets' failed (1)` and "0 successful groups required, got 0", and
-finishes with "finalized with 1 error". That is expected, not a failed
-install. Only `luks_password` needs to decrypt during the install, and
-`install.sh` extracts that one separately, with pcscd started by hand,
-before `nixos-install` runs.
+Joining is one manual step, since it needs an approval in Headscale:
 
-If disko's `zpool create` fails with "The ZFS modules cannot be
-auto-loaded", run the same `install` command again. The first attempt loads
-the module as a side effect, so the retry succeeds.
+```sh
+sudo tailscale up --login-server=https://vpn.bw20.nl   # rocinante, or any other host
+sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Headscale
+```
+
+It prints a link; the page behind it shows a `headscale nodes register`
+command. Run that on dapple, with the user the device belongs to.
+
+A reinstalled dapple starts with an empty Headscale, unless
+`/var/lib/headscale` is restored from a backup first. Then every device has
+to join again.
 
 ## A new host
 
 A host with no `modules/hosts/<hostname>/facter.json` committed yet needs a
-local, writable checkout instead. The script writes the hardware report back
-to the repository, which a read-only fetched flake can't do:
+local, writable checkout instead, with its `configuration.nix` in it. The
+script writes the hardware report back to the repository, which a read-only
+fetched flake can't do:
 
 ```sh
 git clone https://codeberg.org/BW20/dots && cd dots
 sudo INSTALL_HOST_FLAKE_DIR="$PWD" nix run .#install -- <hostname>
 ```
 
-Then commit and push the new `facter.json` before reinstalling that host.
+The checkout is copied to `/etc/nixos` as it is, so commit and push the new
+`facter.json` from there once the host is up.
