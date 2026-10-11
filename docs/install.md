@@ -55,6 +55,11 @@ boot keys, the next one enrolls them ([Secure boot](#secure-boot)), and the
 first boot with secure boot on binds the TPM, after which boots unlock by
 themselves.
 
+Until the host has an age key of its own, its services decrypt with the
+YubiKey, so keep it in. Give it one once it's up
+([A new host key](secrets.md#a-new-host-key)); after that, it boots without
+a YubiKey.
+
 ## Secure boot
 
 Both hosts boot with secure boot, with keys of their own
@@ -88,18 +93,19 @@ PCR 7. The next boot asks for the LUKS password then; after it, rebind with
 
 ## Why the accounts start locked
 
-Neither `root` nor `jorrit` can reliably get their sops-encrypted password
-inside `nixos-install`'s bare chroot: there is no systemd there, so pcscd's
-socket activation for the YubiKey doesn't apply. The installer leaves both
-accounts locked.
+Neither `root` nor `jorrit` can get their sops-encrypted password inside
+`nixos-install`'s bare chroot: a fresh install has no age key of its own
+yet, and there is no systemd there, so pcscd's socket activation for the
+YubiKey doesn't apply. The installer leaves both accounts locked.
 
-The same limitation applies on *every* boot, not just the install.
-`boot.initrd.systemd.enable`, which the ZFS rollback needs, makes each boot's
-activation run chrooted into `/sysroot` from the initrd, before the real
-systemd and pcscd exist there. So `set-password-root`, `set-password-jorrit`
-and `tpm2-luks-enroll` decrypt their own secret (`sops -d --extract`) as a
-real service under the booted system's systemd, after `pcscd.service`. Log
-in as `jorrit` (or `root`) once that has had a moment to run after boot.
+The passwords are set by services on every boot anyway, not at activation:
+`boot.initrd.systemd.enable`, which the ZFS rollback needs, makes each
+boot's activation run chrooted into `/sysroot` from the initrd, before the
+real systemd and pcscd exist there. So `set-password-root`,
+`set-password-jorrit` and `tpm2-luks-enroll` decrypt their own secret as a
+real service under the booted system's systemd, with the host's own age key
+or, until it has one, the YubiKey (after `pcscd.service`). Log in as
+`jorrit` (or `root`) once that has had a moment to run after boot.
 
 ## Joining the tailnet
 

@@ -12,8 +12,8 @@ control protocol and DERP relay at `vpn`, and New Leaf's share links at `cv`.
 Headscale's admin API (`/api`, `/swagger`) only answers tailnet addresses,
 which never reach it through Cloudflare, so in practice nobody over the
 network: the `headscale` CLI uses a local socket. A name no vhost claims
-gets no certificate and no answer. Everything else is
-bound to dapple's tailnet address.
+gets no certificate and no answer. Everything else is bound to dapple's
+tailnet address.
 
 **A tailnet device** gets what Headscale's
 [policy](../modules/features/services/headscale-policy.hujson) grants it:
@@ -76,7 +76,9 @@ the right to delete it, so the host can add to its backups but not wipe,
 overwrite or encrypt them (tested on the real bucket: the repository's
 `config` can't be replaced). Pruning and `restic check` need deletes, so
 they run by hand from rocinante, every few months, with the owner's key
-from Bitwarden: `nix run .#offsite-prune -- <host>`.
+from Bitwarden: `nix run .#offsite-prune -- <host>`. The same goes for a
+new repository's first backup, which restic can't finish without deleting
+its own lock ([A first or very large backup](secrets.md#a-first-or-very-large-backup)).
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
 a debug shell at boot. The hosts boot with secure boot, with our own keys,

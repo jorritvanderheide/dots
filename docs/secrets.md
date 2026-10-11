@@ -31,10 +31,9 @@ Within a file, any one recipient can decrypt on its own. sops's default
 `key_groups` entry. So losing a key doesn't lock you out, and adding one is
 additive, not a replacement.
 
-The no-PIN YubiKey identities have physical possession as their only gate,
-the same as FIDO2 LUKS unlock at boot. On a running host only root (the
-services that decrypt) and a desktop session can reach the YubiKey: any
-other process could otherwise decrypt everything the key can. The
+The no-PIN YubiKey identities have physical possession as their only gate.
+On a running host only root and a desktop session can reach the YubiKey:
+any other process could otherwise decrypt everything the key can. The
 passphrase identity only works where `SOPS_AGE_KEY_FILE` points at it: the
 installer and `sops` by hand, not a running host's services.
 
@@ -66,10 +65,11 @@ This matches the existing keys' no-PIN, no-touch policy. Then:
    recipients.
 3. Push, and deploy every host (`nswitch`, `ndeploy dapple`): each decrypts
    the file it was built with.
-4. Verify: unplug the old key, plug in only the new one, and confirm a
-   secret still decrypts, for example with
-   `sudo systemctl restart set-password-jorrit` and
-   `journalctl -u set-password-jorrit`.
+4. Verify: unplug the old key, plug in only the new one, and decrypt a
+   secret in the dev shell, for example
+   `sops -d --extract '["restic_password"]' secrets/<host>.yaml >/dev/null`.
+   (The hosts' services decrypt with their own age keys, so they don't
+   tell.)
 
 ## Storj credentials
 
@@ -100,9 +100,11 @@ it. Revoke old ones with `uplink access revoke --access owner <name>`.
 
 Without delete rights, restic can't refresh its lock, and gives up after
 22.5 minutes. A daily run is far shorter, and a cut-off run resumes on the
-retry, but a first backup (of a reinstalled host) or an import of tens of
-GB can loop: each retry re-sends what the last one hadn't indexed, and is
-cut off again just before saving its snapshot. Then run it once with the
+retry, but the first backup into a new repository (a new host or bucket)
+or an import of tens of GB can loop: each retry re-sends what the last one
+hadn't indexed, and is cut off again just before saving its snapshot. (A
+reinstalled host's restored data is in its repository already.) Then run
+it once with the
 owner's key, through the normal service (so it still reads a snapshot of
 `/persist`), on the host:
 

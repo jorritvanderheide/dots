@@ -5,8 +5,9 @@
 One flake for two machines. rocinante is a Framework laptop with a niri
 desktop; dapple is the home server, with photos, media, passwords and a
 self-hosted tailnet. Both wipe their root on every boot and keep only what is
-declared, their disks unlock with the TPM, and their secrets are in this
-repository, encrypted for a YubiKey. See [Installation](#1-installation).
+declared, their disks unlock with the TPM under secure boot, and their
+secrets are in this repository, encrypted per host. See
+[Installation](#1-installation).
 
 <br/>
 
@@ -46,8 +47,8 @@ host, and what to do after losing a machine.
 | **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Noctalia shell, Stylix theming, Zen, Zed, Zotero and Obsidian |
 | **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to Storj |
 
-Both get the same core: ZFS on LUKS, a root that rolls back on boot, sops
-secrets, home-manager, and fish.
+Both get the same core: ZFS on LUKS, secure boot, a root that rolls back on
+boot, sops secrets, home-manager, and fish.
 
 <br/>
 
@@ -154,11 +155,12 @@ reported to Gatus. Locally, sanoid keeps hourly to yearly ZFS snapshots of
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, only two things answer:
+There, only two things answer, both through Cloudflare:
 
 - **Headscale** at `vpn`: the control protocol and the DERP relay, which a
   device away from home needs to join the tailnet. Its admin API
-  (`/api`, `/swagger`) is refused unless the request comes from the tailnet.
+  (`/api`, `/swagger`) only answers tailnet addresses, which never come
+  through Cloudflare: the `headscale` CLI uses a local socket.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
 
