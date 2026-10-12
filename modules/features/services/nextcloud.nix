@@ -83,6 +83,10 @@
               maxUploadSize = "16G";
               package = pkgs.nextcloud35;
 
+              # The module's 8 MB fills up; Nextcloud's admin overview asks
+              # for more.
+              phpOptions."opcache.interned_strings_buffer" = "16";
+
               config = {
                 adminpassFile = adminpassPath;
                 adminuser = "jorrit";
