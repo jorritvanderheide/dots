@@ -53,6 +53,22 @@ same groups as the folders (Core, System, Services, ...), and sets the
 - **`mkUser`**: a user with fish, home-manager, and a password set from
   `user_password_<user>` at boot.
 
+## Comments
+
+Comments say why: a constraint, a failure mode, an upstream quirk. What an
+option does goes in its `description`; what changed and when goes in the
+commit message, not in a comment about how things used to be.
+
+- A workaround says what would let it go: an issue, a version, or a test to
+  rerun ("Drop once NixOS/nixpkgs#569006 reaches nixos-unstable"), not "re-test
+  later".
+- Comments go on their own line above the code. A trailing comment is for a
+  label of a few words, like the name behind a hash.
+- Sentences are split with periods, semicolons, colons or parentheses, not
+  ` -- `.
+- Notes about a folder of non-Nix files, such as where they came from, go in
+  a README in that folder, not in the module that uses them.
+
 ## Checks
 
 `nix flake check` builds every host and checks formatting (treefmt: nixfmt,
