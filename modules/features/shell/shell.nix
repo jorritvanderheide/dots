@@ -3,15 +3,61 @@
     config = {
       programs.fish.enable = true;
 
-      my.preservation.homeDirectories = [
-        ".local/share/fish"
-      ];
-
       home-manager.sharedModules = [
         {
           programs = {
             fish = {
               enable = true;
+
+              # switch/boot activate a real generation, so they should only
+              # ever run on described, committed code. build/test are for
+              # iterating on dirty working-copy state.
+              functions.check-clean = ''
+                if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
+                  echo "Working copy has uncommitted changes -- describe them first (nswitch/nboot/ndeploy require a clean working copy; use nbuild/ntest to iterate on dirty code)." >&2
+                  return 1
+                end
+              '';
+
+              # Rebuilds want the YubiKey in. The sops-secret services (see
+              # mkSopsService) decrypt with the host's own age key now, so
+              # activation itself doesn't need it any more; the check stays
+              # by choice, so the key is at hand whenever the system changes.
+              # Only for the local host: ndeploy activates remotely.
+              functions.check-yubikey = ''
+                if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
+                  echo "YubiKey not detected -- plug it in before rebuilding (needed to decrypt secrets during activation)." >&2
+                  return 1
+                end
+              '';
+
+              functions.ndeploy = ''
+                if test (count $argv) -eq 0
+                  echo "Usage: ndeploy <hostname> [switch|boot]"
+                  return 1
+                end
+                check-clean; or return 1
+                set -l action switch
+                if test (count $argv) -ge 2
+                  switch $argv[2]
+                    case switch boot
+                      set action $argv[2]
+                    case '*'
+                      echo "Invalid action: $argv[2] (must be switch or boot)"
+                      return 1
+                  end
+                end
+                # --use-substitutes lets the target pull cached paths from
+                # cache.nixos.org directly instead of forcing the full closure
+                # over the SSH/tailscale link. nh asks for the remote sudo
+                # password itself (target hosts require it since
+                # wheelNeedsPassword=true).
+                nh os $action /etc/nixos --hostname $argv[1] --target-host nixos@$argv[1] --use-substitutes --no-nom
+              '';
+
+              functions.nrun = ''
+                nix run nixpkgs#$argv
+              '';
 
               interactiveShellInit = builtins.concatStringsSep "\n" [
                 "set -g fish_greeting"
@@ -52,56 +98,6 @@
                 "zoxide init fish | source"
               ];
 
-              # Rebuilds want the YubiKey in. The sops-secret services (see
-              # mkSopsService) decrypt with the host's own age key now, so
-              # activation itself doesn't need it any more; the check stays
-              # by choice, so the key is at hand whenever the system changes.
-              # Only for the local host: ndeploy activates remotely.
-              functions.check-yubikey = ''
-                if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
-                  echo "YubiKey not detected -- plug it in before rebuilding (needed to decrypt secrets during activation)." >&2
-                  return 1
-                end
-              '';
-
-              # switch/boot activate a real generation, so they should only
-              # ever run on described, committed code. build/test are for
-              # iterating on dirty working-copy state.
-              functions.check-clean = ''
-                if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
-                  echo "Working copy has uncommitted changes -- describe them first (nswitch/nboot/ndeploy require a clean working copy; use nbuild/ntest to iterate on dirty code)." >&2
-                  return 1
-                end
-              '';
-
-              functions.nrun = ''
-                nix run nixpkgs#$argv
-              '';
-
-              functions.ndeploy = ''
-                if test (count $argv) -eq 0
-                  echo "Usage: ndeploy <hostname> [switch|boot]"
-                  return 1
-                end
-                check-clean; or return 1
-                set -l action switch
-                if test (count $argv) -ge 2
-                  switch $argv[2]
-                    case switch boot
-                      set action $argv[2]
-                    case '*'
-                      echo "Invalid action: $argv[2] (must be switch or boot)"
-                      return 1
-                  end
-                end
-                # --use-substitutes lets the target pull cached paths from
-                # cache.nixos.org directly instead of forcing the full closure
-                # over the SSH/tailscale link. nh asks for the remote sudo
-                # password itself (target hosts require it since
-                # wheelNeedsPassword=true).
-                nh os $action /etc/nixos --hostname $argv[1] --target-host nixos@$argv[1] --use-substitutes --no-nom
-              '';
-
               shellAliases = {
                 # General
                 "c" = "clear";
@@ -128,6 +124,10 @@
             };
           };
         }
+      ];
+
+      my.preservation.homeDirectories = [
+        ".local/share/fish"
       ];
     };
   };
