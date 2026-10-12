@@ -112,6 +112,17 @@
           initrd.systemd = {
             enable = true;
 
+            # The /etc/machine-id symlink below dangles until its target
+            # exists, and systemd can't write a fresh ID through a dangling
+            # symlink. Without one, dbus-broker refuses to start, and every
+            # D-Bus service fails with it. Seeded from the hostname once
+            # /persist is mounted ("f" leaves an existing ID alone), before
+            # the real root's systemd reads it.
+            tmpfiles.settings.machine-id."/sysroot/persist/system/etc/machine-id".f = {
+              argument = builtins.substring 0 32 (builtins.hashString "sha256" config.networking.hostName);
+              mode = "0444";
+            };
+
             services.rollback = {
               before = [ "sysroot.mount" ];
               description = "Rollback ZFS root subvolume to pristine state";

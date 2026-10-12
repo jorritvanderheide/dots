@@ -147,18 +147,6 @@ main() {
   chmod -R u+rwX,g+rwX "$etc_nixos"
   find "$etc_nixos" -type d -exec chmod g+s {} +
 
-  # preservation.nix symlinks /etc/machine-id to here. On a true first boot
-  # that target doesn't exist yet, so the symlink is dangling -- systemd's
-  # machine-id commit uses O_CREAT|O_EXCL, which fails with EEXIST against a
-  # dangling symlink (the path "exists" even though its target doesn't).
-  # That kills dbus-broker (no valid machine ID), which cascades into every
-  # D-Bus-dependent service failing (polkit, pcscd, tpm2-luks-enroll,
-  # set-password-*, the sddm session). Seed it ourselves, deterministically
-  # from the hostname, so the symlink target already exists before boot.
-  log_info "Seeding persisted machine-id..."
-  echo -n "$hostname" | sha256sum | cut -c1-32 >/mnt/persist/system/etc/machine-id
-  chmod 0444 /mnt/persist/system/etc/machine-id
-
   log_success "Installation complete! Reboot when ready."
   log_info "Type the LUKS password on the first boot, with the YubiKey still in: that boot enrolls the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
   if $new_hardware; then
