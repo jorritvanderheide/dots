@@ -44,7 +44,7 @@ _: {
                 # e.g. `home-manager.users.jorrit.programs.<TAB>` completes
                 # and hovers with real docs. It can't see *into* freeform
                 # settings blobs like programs.zed-editor.userSettings
-                # itself though -- those are typed as arbitrary JSON on the
+                # itself though: those are typed as arbitrary JSON on the
                 # home-manager side, so there's no Nix-level schema for
                 # Zed's own keys (vim_mode, base_keymap, ...) to complete
                 # against.

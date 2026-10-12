@@ -28,10 +28,10 @@
         ];
 
         # pcscd needs this to find the CCID driver (YubiKey's PIV interface
-        # is a USB CCID device) -- the script starts pcscd itself.
+        # is a USB CCID device); the script starts pcscd itself.
         runtimeEnv.PCSCLITE_HP_DROPDIR = "${pkgs.ccid}/pcsc/drivers";
 
-        # The flake it was run from, read-only -- lets install run with no
+        # The flake it was run from, read-only, so install runs with no
         # local checkout.
         runtimeEnv.INSTALL_HOST_FLAKE_DEFAULT = "${inputs.self}";
 

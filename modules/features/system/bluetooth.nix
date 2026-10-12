@@ -6,7 +6,7 @@
     }:
     {
       config = {
-        # CLI tools (bluetoothctl etc.) -- the tray GUI is blueman, in
+        # CLI tools (bluetoothctl etc.); the tray GUI is blueman, in
         # compositor.nix alongside the rest of the desktop packages.
         environment.systemPackages = with pkgs; [
           bluez

@@ -142,7 +142,7 @@
 
               security.acme.certs.${lanDomain} = { };
 
-              # Kobo firmware's sync/connectivity check requires HTTPS -- plain
+              # Kobo firmware's sync/connectivity check requires HTTPS; plain
               # HTTP gets reported as "no internet access". DNS-01 (Cloudflare)
               # issues a real cert regardless of what IP the name points to, so
               # this stays a trusted cert even though the record resolves to a

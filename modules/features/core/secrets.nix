@@ -29,8 +29,8 @@
         # When security.polkit.enable is on (e.g. pulled in by NetworkManager
         # on a headless host with no desktop session of its own),
         # services.pcscd.package switches to pcscliteWithPolkit, which runs
-        # pcscd unprivileged and denies every client -- including mkSopsService's
-        # root-run scripts -- unless polkit explicitly authorizes them. The
+        # pcscd unprivileged and denies every client (including mkSopsService's
+        # root-run scripts) unless polkit explicitly authorizes them. The
         # default policy only allows an "active" local session, which a
         # headless box connected over SSH never has. Authorize root, which
         # every decrypting service runs as. Not anyone: with no PIN and no
@@ -50,14 +50,14 @@
         # pcscliteWithPolkit's pcscd also runs as an unprivileged "pcscd"
         # user, so it additionally needs its own device permission to open
         # the YubiKey over libusb (distinct from the polkit client-auth
-        # check above) -- without this it fails with LIBUSB_ERROR_ACCESS
+        # check above). Without this it fails with LIBUSB_ERROR_ACCESS
         # before any client ever gets to authenticate.
         services.udev.extraRules = ''
           SUBSYSTEM=="usb", ATTR{idVendor}=="1050", GROUP="pcscd", MODE="0660"
         '';
 
         # Value must be a password *hash* (mkpasswd -m yescrypt), not
-        # plaintext -- see docs/secrets.md to set it. Same bare-chroot limitation
+        # plaintext; see docs/secrets.md to set it. Same bare-chroot limitation
         # install.sh works around for nixos-install (see mkSopsService for
         # why this isn't sops.secrets + hashedPasswordFile/neededForUsers),
         # but here it bites on every single boot, not just first boot.

@@ -410,7 +410,7 @@
                   mode = "0700";
                 }
                 # Prowlarr is DynamicUser, so its state lives under /var/lib/private,
-                # owned by a UID allocated fresh each boot -- there's no fixed
+                # owned by a UID allocated fresh each boot, so there's no fixed
                 # username to chown the persisted directory to. Mode 0777 instead;
                 # /var/lib/private itself is 0700 root, and so is its copy on
                 # /persist (the tmpfiles rule above), so nothing but root can

@@ -84,7 +84,7 @@
         { pkgs, ... }:
         {
           # Not sops.secrets (sops-nix's own activation-time install):
-          # confirmed on this host that it never actually decrypts --
+          # confirmed on this host that it never actually decrypts:
           # /run/secrets never gets created at all, not just intermittently
           # (same root-context-can't-reach-the-YubiKey issue mkSopsService
           # exists for, evidently not limited to the initrd-chroot boot

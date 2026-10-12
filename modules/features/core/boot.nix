@@ -57,7 +57,7 @@
 
           loader = {
             efi.canTouchEfiVariables = true;
-            # No boot-menu wait -- hold a key at boot to interrupt if an
+            # No boot-menu wait; hold a key at boot to interrupt if an
             # older generation is ever needed instead.
             timeout = 0;
 

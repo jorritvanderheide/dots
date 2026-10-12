@@ -55,7 +55,7 @@
             {
               config = {
                 # noctalia inotify-watches its config dir, but that can race
-                # home-manager's activation -- nudge it explicitly instead.
+                # home-manager's activation, so nudge it explicitly instead.
                 home.activation.noctaliaConfigReload = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                   run ${lib.getExe config.programs.noctalia.package} msg config-reload || true
                 '';
@@ -74,7 +74,7 @@
                 home.file = {
                   # Marks noctalia's setup wizard as already completed. Its
                   # mere existence is the only thing checked (content is
-                  # irrelevant) -- normally written by the wizard UI on
+                  # irrelevant); normally written by the wizard UI on
                   # completion, but that never runs since setup_wizard_enabled
                   # is false below. Without it, ConfigService::
                   # firstRunWallpaperPath() unconditionally forces noctalia's
@@ -87,7 +87,7 @@
                 };
 
                 # empty = XDG_PICTURES_DIR, but that mixes wallpapers in with
-                # every other picture -- use a dedicated subfolder instead.
+                # every other picture, so use a dedicated subfolder instead.
                 programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
 
                 # Wallpapers are only changed by hand in the GUI; the pick is
@@ -157,7 +157,7 @@
 
                     # Blurred/tinted copy of the wallpaper shown via niri's
                     # backdrop layer (see compositor.nix's noctalia-backdrop
-                    # layer-rule) -- kept visible at all times via that same
+                    # layer-rule), kept visible at all times via that same
                     # rule + layout.background-color = transparent, not just
                     # in overview.
                     backdrop = {

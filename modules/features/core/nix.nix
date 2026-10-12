@@ -10,8 +10,8 @@
       nix = {
         settings.nix-path = [ "nixpkgs=${inputs.nixpkgs}" ];
 
-        # Yields to interactive work under contention, full speed when idle --
-        # preferable to capping max-jobs/cores, which slows builds always.
+        # Yields to interactive work under contention, full speed when idle.
+        # Preferable to capping max-jobs/cores, which slows builds always.
         daemonCPUSchedPolicy = "batch";
         daemonIOSchedClass = "best-effort";
         daemonIOSchedPriority = 7;

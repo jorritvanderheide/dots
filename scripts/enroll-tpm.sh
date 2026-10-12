@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Re-enroll the TPM2 LUKS keyslot -- run on the host itself, as root, any
+# Re-enroll the TPM2 LUKS keyslot. Run on the host itself, as root, any
 # time the TPM state changes (e.g. after a firmware update or reset). The
 # first boot with secure boot on enrolls it by itself.
 set -euo pipefail

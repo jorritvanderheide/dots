@@ -66,7 +66,7 @@ in
 
             # preservation.nix pins this to 3000 for install.sh's benefit on a
             # fresh install (chowning /etc/nixos before the name resolves on
-            # the live ISO). dapple already exists with this group at 997 --
+            # the live ISO). dapple already exists with this group at 997;
             # keep that, or every already-persisted file/dir owned by group
             # nixos silently orphans from the name on switch.
             users.groups.nixos.gid = lib.mkForce 997;
@@ -98,7 +98,7 @@ in
             ## Other
             environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
 
-            # Not a secret -- just a stable file path for offsite-backup's
+            # Not a secret, just a stable file path for offsite-backup's
             # healthcheckUrlFile option.
             environment.etc."offsite-backup-healthcheck-url".text =
               "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?success=true";

@@ -67,7 +67,7 @@
                 # wpa_supplicant's OpenSSL backend won't fill the gap from a
                 # local ca-cert store during a live handshake (verified: even
                 # a byte-for-byte correct bundle, extracted from RU's own
-                # eduroam CAT installer, didn't help -- see eduroam-ca.pem,
+                # eduroam CAT installer, didn't help; see eduroam-ca.pem,
                 # kept around for whenever RU's server-side issue is fixed
                 # and validation can be turned back on).
                 # ca-cert = "${./eduroam-ca.pem}";
@@ -139,7 +139,7 @@
           };
         };
 
-        # NM's own ensure-profiles unit -- just point it at the env file
+        # NM's own ensure-profiles unit; just point it at the env file
         # wireless-secrets produces, and make it wait for that.
         systemd.services.NetworkManager-ensure-profiles = {
           after = [ "wireless-secrets.service" ];
@@ -148,7 +148,7 @@
 
         # Same bare-chroot reason as set-password-root (see mkSopsService)
         # this can't use sops-nix's own sops.secrets/sops.templates for
-        # NetworkManager-ensure-profiles' environmentFiles -- decrypts
+        # NetworkManager-ensure-profiles' environmentFiles; it decrypts
         # straight into /run itself instead.
         systemd.services.wireless-secrets = inputs.self.lib.mkSopsService {
           inherit pkgs;
@@ -156,7 +156,7 @@
           extraServiceConfig.UMask = "0177";
 
           # Each extract is its own assignment statement, not inlined into
-          # the echo -- `echo "X=$(failing_cmd)"` swallows failing_cmd's
+          # the echo: `echo "X=$(failing_cmd)"` swallows failing_cmd's
           # exit status (echo itself still succeeds), so `set -e` never
           # catches a decrypt failure and the service "succeeds" having
           # written empty PSKs. A bare `VAR="$(failing_cmd)"` assignment

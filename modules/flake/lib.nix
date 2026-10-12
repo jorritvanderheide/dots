@@ -39,7 +39,7 @@
     #
     # pcscd.service Requires=polkit.service (pulled in by pcsclite-with-polkit),
     # so a polkit hiccup force-stops pcscd right along with it and can exhaust
-    # pcscd's own start-limit for the rest of the boot -- give this enough
+    # pcscd's own start-limit for the rest of the boot. Give this enough
     # attempts over enough time to outlast that, and nudge pcscd back to a
     # clean state before each retry instead of trusting it to recover alone.
     sopsRetryUnitConfig = {
@@ -51,7 +51,7 @@
       Restart = "on-failure";
       RestartSec = "3s";
       # Without this, a successful oneshot goes back to "inactive" and
-      # `nixos-rebuild switch` (not just a real boot) re-runs it -- fatal
+      # `nixos-rebuild switch` (not just a real boot) re-runs it, which is fatal
       # if the YubiKey isn't plugged in at switch time, even though the
       # secret was already applied earlier this boot.
       RemainAfterExit = true;
@@ -72,8 +72,8 @@
     # or else with whichever YubiKey is plugged in that is a recipient.
     # Callers need HOME set for age-plugin-yubikey.
     #
-    # The lock serializes every caller against the same physical YubiKey --
-    # without it, several mkSopsService units all start concurrently after
+    # The lock serializes every caller against the same physical YubiKey.
+    # Without it, several mkSopsService units all start concurrently after
     # pcscd.service at boot and race for exclusive PC/SC access, so most of
     # them fail every single attempt until they exhaust their restart budget
     # (observed: 35 failures in a row), not just an occasional transient miss.
@@ -96,12 +96,12 @@
       '';
 
     # A oneshot service that decrypts sops secrets via the YubiKey identity
-    # and does something with them -- the shape shared by
+    # and does something with them: the shape shared by
     # set-password-root/set-password-<user>/tpm2-luks-enroll/wireless-secrets.
     # Deliberately not sops-nix's own sops.secrets/activation-time install:
     # with boot.initrd.systemd.enable (needed for the ZFS rollback), *every*
     # boot's activation runs chrooted into /sysroot from the initrd, before
-    # real systemd/pcscd exist there to reach the YubiKey over PC/SC -- not a
+    # real systemd/pcscd exist there to reach the YubiKey over PC/SC. It's not a
     # first-boot-only problem. This handles that (pcscd ordering + retry) so
     # callers only write the part that's actually theirs: call
     # `sops_extract <key>` in `script` for each secret needed, then use it.
@@ -243,7 +243,7 @@
         ];
 
         # root is wiped every boot (impermanence), so this can't be a
-        # first-boot-only step -- see mkSopsService for why it's not
+        # first-boot-only step. See mkSopsService for why it's not
         # sops-nix's own sops.secrets/activation-time install.
         systemd.services = lib.mkIf usePasswordSecret {
           "set-password-${username}" = inputs.self.lib.mkSopsService {

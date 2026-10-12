@@ -202,7 +202,7 @@ in
               ];
             };
 
-            # Public halves only -- private keys live in the Bitwarden SSH
+            # Public halves only; private keys live in the Bitwarden SSH
             # agent (ssh-add -L to re-derive these if they're ever lost).
             my.ssh.identityFiles = {
               "git@codeberg.org.pub" =

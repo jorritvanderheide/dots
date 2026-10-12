@@ -16,7 +16,7 @@
       research = config.my.research;
 
       # Zotero plugins aren't packaged in nixpkgs, and both of these ship
-      # their XPI unsigned -- fine, since Zotero's greprefs.js already
+      # their XPI unsigned. That's fine, since Zotero's greprefs.js already
       # defaults xpinstall.signatures.required to false.
       #
       # home-manager links the contents of this (Firefox-app-ID) directory
@@ -60,7 +60,7 @@
           # so home-manager's generic browser-module generator produces one:
           # profiles.ini with a fixed profile path (no random name to chase)
           # plus a generated user.js. Passing wrappedPackageName rather than
-          # unwrappedPackageName matters -- zotero.override takes no `cfg`
+          # unwrappedPackageName matters: zotero.override takes no `cfg`
           # argument, so the module hands the package through untouched
           # instead of running it through wrapFirefox.
           (import "${inputs.home-manager}/modules/programs/firefox/mkFirefoxModule.nix" {
@@ -127,8 +127,8 @@
                       # parent rejects that as an illegal load and aborts the
                       # process (mozilla::ipc::FatalError). The item stays
                       # queued, so every later launch retries it and dies
-                      # again. Saving PDFs is unaffected -- those go through
-                      # indexPDF, a different path -- so turn snapshots off
+                      # again. Saving PDFs is unaffected (those go through
+                      # indexPDF, a different path), so turn snapshots off
                       # rather than disabling full-text indexing wholesale.
                       "extensions.zotero.automaticSnapshots" = false;
 
@@ -169,7 +169,7 @@
 
               # Gecko decides whether to rescan <profile>/extensions from a
               # cached directory state keyed on mtimes, and every file in
-              # the Nix store is stamped 1970 -- so a plugin added or bumped
+              # the Nix store is stamped 1970, so a plugin added or bumped
               # here never looks newer than the cache and is silently never
               # picked up, with no error and no log line. Dropping the cache
               # forces the rescan. extensions.json is deliberately left

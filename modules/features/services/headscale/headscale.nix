@@ -141,7 +141,7 @@
           locations = {
             # Public on purpose. This carries the client control protocol and
             # the embedded DERP relay, and a device off the LAN (phone on
-            # mobile data) needs both to reach the tailnet at all -- there is
+            # mobile data) needs both to reach the tailnet at all; there is
             # no way to have a self-hosted control server that is private and
             # still usable remotely. Nodes authenticate by key exchange, not
             # by network position, so this is headscale's intended posture.

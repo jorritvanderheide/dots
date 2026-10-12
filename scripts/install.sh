@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install a NixOS host locally -- run while booted on the target machine
+# Install a NixOS host locally. Run while booted on the target machine
 # itself (e.g. from a live ISO). See docs/install.md for the full walkthrough.
 #
 # Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
@@ -102,7 +102,7 @@ main() {
   # disko needs the LUKS password as a plaintext file before the OS (and
   # sops-nix) exist. Every other secret is decrypted directly by the
   # systemd service that needs it (see secrets.nix / lib.nix / boot.nix),
-  # once real systemd + pcscd are up -- not via sops-nix's own
+  # once real systemd + pcscd are up, not via sops-nix's own
   # activation-time install, which never works on this host (see docs/install.md).
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key' EXIT
@@ -129,7 +129,7 @@ main() {
   # --no-root-password: root and jorrit both get their real passwords set by
   # set-password-root/set-password-jorrit (see secrets.nix / lib.nix's
   # mkUser) once booted for real, not during this install. Neither can
-  # reliably decrypt inside nixos-install's bare chroot -- no systemd there,
+  # reliably decrypt inside nixos-install's bare chroot: no systemd there,
   # so pcscd's socket activation for the YubiKey doesn't apply, and that's
   # true on every real boot too (see docs/install.md), not just here.
   log_info "Installing NixOS..."
@@ -140,7 +140,7 @@ main() {
   log_info "Copying the repository to /etc/nixos..."
   cp -a "$repo" "$etc_nixos"
   chown -R "0:${nixos_gid}" "$etc_nixos"
-  # Symmetric owner/group perms -- g+rwX alone leaves files owner-only-read
+  # Symmetric owner/group perms: g+rwX alone leaves files owner-only-read
   # (444 base), which self-locks the first time a nixos-group member's own
   # edit reassigns owner to themselves (owner bits then apply instead of
   # group bits, and owner never had write). X keeps executables executable.

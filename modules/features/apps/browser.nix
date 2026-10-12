@@ -321,8 +321,8 @@
 
                   # Keys have to be flat, quoted pref names. The module runs
                   # each top-level attribute's value through toJSON, so a
-                  # nested attrset lands in user.js as one junk pref -- e.g.
-                  # user_pref("browser", "{\"cache\":{...}}") -- and every
+                  # nested attrset lands in user.js as one junk pref, e.g.
+                  # user_pref("browser", "{\"cache\":{...}}"), and every
                   # setting inside it silently never applies.
                   settings = {
                     "browser.cache.disk.enable" = false;
@@ -395,7 +395,7 @@
               # editing the file by hand only holds until the next one
               # appears. Dropping the file before a cold start is the only
               # lever left: Zen then opens exactly one window. Pinned tabs and
-              # spaces are unaffected -- they live in zen-sessions.jsonlz4,
+              # spaces are unaffected; they live in zen-sessions.jsonlz4,
               # which ZenSessionManager reads separately. Unpinned tabs are
               # already lost on restart anyway, since browser.startup.page is
               # 1 and Zen filters restores down to pinned tabs for anything

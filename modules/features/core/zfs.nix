@@ -38,7 +38,7 @@
           in
           [
             # Hibernation needs swap large enough to hold all of RAM and
-            # surviving a power cycle -- this host only has zram swap
+            # surviving a power cycle; this host only has zram swap
             # (kernel.nix), which is neither, so disable it outright rather
             # than risk a hibernate attempt failing badly. Suspend-to-RAM
             # (see desktop-shell.nix's idle.behavior.lock-and-suspend) is
@@ -136,7 +136,7 @@
           hourly = 24;
           daily = 30;
           # A laptop that's off/asleep for stretches doesn't accumulate
-          # snapshots on a reliable cadence -- monthly=3 meant a month away
+          # snapshots on a reliable cadence: monthly=3 meant a month away
           # could (and did) collapse coverage to almost nothing. Snapshots
           # are cheap (incremental), so keep deep history instead.
           monthly = 12;

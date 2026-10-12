@@ -41,7 +41,7 @@
               # uwsm's own status/log lines would otherwise print straight to
               # the console (visible for a moment before niri takes over the
               # display) since greetd runs this with the console as its
-              # controlling tty -- route them into the journal instead.
+              # controlling tty. Route them into the journal instead.
               sessionCommand = "${lib.getExe' pkgs.systemd "systemd-cat"} --identifier=niri-session -- ${lib.getExe pkgs.uwsm} start -F -- niri --session";
             in
             {
