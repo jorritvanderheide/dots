@@ -25,28 +25,31 @@
             inherit config subdomain port;
           })
           {
-            systemd.services.radicale-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Radicale htpasswd file from sops";
-              wantedBy = [ "multi-user.target" ];
-              extraServiceConfig.UMask = "0177";
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract radicale_htpasswd > ${htpasswdPath}
-                chown radicale ${htpasswdPath}
-              '';
+            my.offsite-backup.entries.contacts = {
+              paths = [ "/var/lib/radicale" ];
+              units = [ "radicale.service" ];
             };
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/radicale";
+                group = "radicale";
+                user = "radicale";
+              }
+            ];
 
             services.radicale = {
               enable = true;
+
               settings = {
                 server.hosts = [ "127.0.0.1:${toString port}" ];
-                auth = {
-                  type = "htpasswd";
-                  htpasswd_filename = htpasswdPath;
-                  htpasswd_encryption = "bcrypt";
-                };
                 storage.filesystem_folder = "/var/lib/radicale/collections";
+
+                auth = {
+                  htpasswd_encryption = "bcrypt";
+                  htpasswd_filename = htpasswdPath;
+                  type = "htpasswd";
+                };
               };
             };
 
@@ -60,18 +63,18 @@
               };
             };
 
-            my.offsite-backup.entries.contacts = {
-              paths = [ "/var/lib/radicale" ];
-              units = [ "radicale.service" ];
-            };
+            systemd.services.radicale-secrets = inputs.self.lib.mkSopsService {
+              inherit pkgs;
+              description = "Decrypt Radicale htpasswd file from sops";
+              extraServiceConfig.UMask = "0177";
+              wantedBy = [ "multi-user.target" ];
 
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/radicale";
-                user = "radicale";
-                group = "radicale";
-              }
-            ];
+              script = ''
+                install -d -m 0755 /run/secrets
+                sops_extract radicale_htpasswd > ${htpasswdPath}
+                chown radicale ${htpasswdPath}
+              '';
+            };
           }
         ]
       );

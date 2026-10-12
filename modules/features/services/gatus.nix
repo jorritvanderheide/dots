@@ -19,10 +19,10 @@
 
       mkHttpEndpoint =
         {
-          name,
-          group,
-          url,
           conditions ? [ "[STATUS] < 400" ],
+          group,
+          name,
+          url,
         }:
         {
           inherit
@@ -31,99 +31,90 @@
             url
             conditions
             ;
+
           interval = "1m";
         };
 
       configTemplate = pkgs.writeText "gatus-config-template.yaml" (
         builtins.toJSON {
-          web = {
-            address = "127.0.0.1";
-            inherit port;
-          };
-
-          storage = {
-            type = "sqlite";
-            path = "/var/lib/gatus/data.db";
-          };
-
           endpoints = [
             (mkHttpEndpoint {
-              name = "jellyfin";
               group = "media";
+              name = "jellyfin";
               url = "https://media.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "immich";
               group = "media";
+              name = "immich";
               url = "https://photos.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "sonarr";
               group = "media";
+              name = "sonarr";
               url = "https://series.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "radarr";
               group = "media";
+              name = "radarr";
               url = "https://movies.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "lidarr";
               group = "media";
+              name = "lidarr";
               url = "https://music.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "prowlarr";
               group = "media";
+              name = "prowlarr";
               url = "https://prowlarr.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "bazarr";
               group = "media";
+              name = "bazarr";
               url = "https://bazarr.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "qbittorrent";
               group = "media";
+              name = "qbittorrent";
               url = "https://torrents.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "home-assistant";
               group = "productivity";
+              name = "home-assistant";
               url = "https://home.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "vaultwarden";
               group = "productivity";
+              name = "vaultwarden";
               url = "https://passwords.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "calibre-web";
               group = "productivity";
+              name = "calibre-web";
               url = "https://books.${config.my.tailscale.acme.domain}";
             })
             (mkHttpEndpoint {
-              name = "radicale";
               group = "productivity";
+              name = "radicale";
               url = "https://contacts.${config.my.tailscale.acme.domain}";
             })
             # /healthz needs no tailnet identity, and answers 503 when New Leaf
             # can't write CVs or share links, or run Typst.
             (mkHttpEndpoint {
-              name = "cv-editor";
-              group = "productivity";
-              url = "https://cv.${config.my.tailscale.acme.domain}/healthz";
               conditions = [ "[STATUS] == 200" ];
+              group = "productivity";
+              name = "cv-editor";
+              url = "https://cv.${config.my.tailscale.acme.domain}/healthz";
             })
             # A file New Leaf syncs into the public webroot; "/" only redirects.
             (mkHttpEndpoint {
-              name = "cv-share";
               group = "productivity";
+              name = "cv-share";
               url = "https://cv.${config.my.tailscale.acme.domain}/fonts/OFL.txt";
             })
             (mkHttpEndpoint {
-              name = "headscale";
               group = "infra";
+              name = "headscale";
               url = "https://vpn.${config.my.tailscale.acme.domain}";
             })
           ];
@@ -132,12 +123,22 @@
           # an hour for the daily offsite backup.
           external-endpoints = [
             {
-              name = "offsite-backup";
               group = "backups";
-              token = tokenPlaceholder;
               heartbeat.interval = "25h";
+              name = "offsite-backup";
+              token = tokenPlaceholder;
             }
           ];
+
+          storage = {
+            path = "/var/lib/gatus/data.db";
+            type = "sqlite";
+          };
+
+          web = {
+            inherit port;
+            address = "127.0.0.1";
+          };
         }
       );
     in
@@ -150,11 +151,53 @@
             inherit config port subdomain;
           })
           {
-            users.users.gatus = {
-              isSystemUser = true;
-              group = "gatus";
-            };
             users.groups.gatus = { };
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/gatus";
+                group = "gatus";
+                mode = "0700";
+                user = "gatus";
+              }
+            ];
+
+            systemd.services.gatus = {
+              description = "Gatus status page";
+              wantedBy = [ "multi-user.target" ];
+
+              after = [
+                "network-online.target"
+                "gatus-secrets.service"
+              ];
+
+              serviceConfig = {
+                Environment = [ "GATUS_CONFIG_PATH=${configPath}" ];
+                ExecStart = lib.getExe pkgs.gatus;
+                Group = "gatus";
+                NoNewPrivileges = true;
+                PrivateTmp = true;
+                ProtectHome = true;
+                ProtectSystem = "strict";
+                ReadWritePaths = [ "/var/lib/gatus" ];
+                Restart = "always";
+                RestartSec = "10s";
+                RuntimeDirectory = "gatus";
+
+                # The rendered config lives here, and gatus-secrets only
+                # renders it once a boot: systemd's default cleanup on stop
+                # would leave a restarted gatus without one.
+                RuntimeDirectoryPreserve = "yes";
+
+                StateDirectory = "gatus";
+                User = "gatus";
+              };
+
+              wants = [
+                "network-online.target"
+                "gatus-secrets.service"
+              ];
+            };
 
             # The upstream module renders settings to /nix/store; that's fine
             # for the endpoint list but the push token must come from sops.
@@ -164,8 +207,9 @@
             systemd.services.gatus-secrets = inputs.self.lib.mkSopsService {
               inherit pkgs;
               description = "Render Gatus config with sops-decrypted push token";
-              wantedBy = [ "multi-user.target" ];
               extraServiceConfig.UMask = "0177";
+              wantedBy = [ "multi-user.target" ];
+
               script = ''
                 install -d -m 0755 -o gatus -g gatus /run/gatus
                 TOKEN="$(sops_extract gatus_push_token)"
@@ -178,48 +222,10 @@
               '';
             };
 
-            systemd.services.gatus = {
-              description = "Gatus status page";
-              wantedBy = [ "multi-user.target" ];
-              after = [
-                "network-online.target"
-                "gatus-secrets.service"
-              ];
-              wants = [
-                "network-online.target"
-                "gatus-secrets.service"
-              ];
-
-              serviceConfig = {
-                ExecStart = lib.getExe pkgs.gatus;
-                Environment = [ "GATUS_CONFIG_PATH=${configPath}" ];
-                User = "gatus";
-                Group = "gatus";
-                StateDirectory = "gatus";
-                RuntimeDirectory = "gatus";
-                # The rendered config lives here, and gatus-secrets only
-                # renders it once a boot: systemd's default cleanup on stop
-                # would leave a restarted gatus without one.
-                RuntimeDirectoryPreserve = "yes";
-                Restart = "always";
-                RestartSec = "10s";
-
-                NoNewPrivileges = true;
-                ProtectSystem = "strict";
-                ProtectHome = true;
-                PrivateTmp = true;
-                ReadWritePaths = [ "/var/lib/gatus" ];
-              };
+            users.users.gatus = {
+              group = "gatus";
+              isSystemUser = true;
             };
-
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/gatus";
-                user = "gatus";
-                group = "gatus";
-                mode = "0700";
-              }
-            ];
           }
         ]
       );

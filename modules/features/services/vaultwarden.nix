@@ -29,17 +29,37 @@
             inherit subdomain;
           })
           {
-            systemd.services.vaultwarden-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Vaultwarden environment file from sops";
-              wantedBy = [ "multi-user.target" ];
-              extraServiceConfig.UMask = "0177";
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract vaultwarden_env > ${envPath}
-                chown vaultwarden ${envPath}
+            # The backup is Vaultwarden's own copy of its data (backupDir), so
+            # a restore puts that copy back into the data folder.
+            my.offsite-backup.entries.vaultwarden = {
+              paths = [ config.services.vaultwarden.backupDir ];
+
+              restore = ''
+                rm -f /var/lib/vaultwarden/db.sqlite3-wal /var/lib/vaultwarden/db.sqlite3-shm
+                cp -a ${config.services.vaultwarden.backupDir}/. /var/lib/vaultwarden/
+                chown -R vaultwarden:vaultwarden /var/lib/vaultwarden
               '';
+
+              units = [
+                "vaultwarden.service"
+                "backup-vaultwarden.timer"
+              ];
             };
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/vaultwarden";
+                group = "vaultwarden";
+                mode = "0700";
+                user = "vaultwarden";
+              }
+              {
+                directory = "/var/backup/vaultwarden";
+                group = "vaultwarden";
+                mode = "0700";
+                user = "vaultwarden";
+              }
+            ];
 
             services.vaultwarden = {
               enable = true;
@@ -48,13 +68,15 @@
 
               config = {
                 DOMAIN = "https://${domain}";
-                ROCKET_ADDRESS = "127.0.0.1";
-                ROCKET_PORT = port;
-                SIGNUPS_ALLOWED = false;
+
                 # Otherwise any organization owner can bring in new accounts.
                 # The admin page (/admin) still invites. Settings saved there
                 # override these, so it must not have this one switched on.
                 INVITATIONS_ALLOWED = false;
+
+                ROCKET_ADDRESS = "127.0.0.1";
+                ROCKET_PORT = port;
+                SIGNUPS_ALLOWED = false;
               };
             };
 
@@ -79,38 +101,21 @@
               };
             };
 
-            systemd.tmpfiles.rules = [
-              "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
-            ];
+            systemd.services.vaultwarden-secrets = inputs.self.lib.mkSopsService {
+              inherit pkgs;
+              description = "Decrypt Vaultwarden environment file from sops";
+              extraServiceConfig.UMask = "0177";
+              wantedBy = [ "multi-user.target" ];
 
-            # The backup is Vaultwarden's own copy of its data (backupDir), so
-            # a restore puts that copy back into the data folder.
-            my.offsite-backup.entries.vaultwarden = {
-              paths = [ config.services.vaultwarden.backupDir ];
-              units = [
-                "vaultwarden.service"
-                "backup-vaultwarden.timer"
-              ];
-              restore = ''
-                rm -f /var/lib/vaultwarden/db.sqlite3-wal /var/lib/vaultwarden/db.sqlite3-shm
-                cp -a ${config.services.vaultwarden.backupDir}/. /var/lib/vaultwarden/
-                chown -R vaultwarden:vaultwarden /var/lib/vaultwarden
+              script = ''
+                install -d -m 0755 /run/secrets
+                sops_extract vaultwarden_env > ${envPath}
+                chown vaultwarden ${envPath}
               '';
             };
 
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/vaultwarden";
-                user = "vaultwarden";
-                group = "vaultwarden";
-                mode = "0700";
-              }
-              {
-                directory = "/var/backup/vaultwarden";
-                user = "vaultwarden";
-                group = "vaultwarden";
-                mode = "0700";
-              }
+            systemd.tmpfiles.rules = [
+              "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
             ];
           }
         ]

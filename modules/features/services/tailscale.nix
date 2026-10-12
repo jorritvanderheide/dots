@@ -18,6 +18,23 @@
       options.my.tailscale = {
         enable = lib.mkEnableOption "Tailscale VPN";
 
+        acme = {
+          enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
+
+          domain = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Base domain for ACME certificates (e.g., bw20.nl). Required when acme.enable is true.";
+          };
+        };
+
+        advertiseRoutes = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "192.168.1.0/24" ];
+          description = "Subnet routes to advertise into the tailnet. Enables IP forwarding automatically.";
+        };
+
         loginServer = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
@@ -34,28 +51,23 @@
             0.0.0.0:443 listener for the headscale and kobo vhosts.
           '';
         };
-
-        advertiseRoutes = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ ];
-          example = [ "192.168.1.0/24" ];
-          description = "Subnet routes to advertise into the tailnet. Enables IP forwarding automatically.";
-        };
-
-        acme = {
-          enable = lib.mkEnableOption "ACME certificates via Cloudflare DNS challenge";
-
-          domain = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "Base domain for ACME certificates (e.g., bw20.nl). Required when acme.enable is true.";
-          };
-        };
       };
 
       config = lib.mkIf cfg.enable (
         lib.mkMerge [
           {
+            # The device's identity: restored, dapple is back on the tailnet at
+            # tailnetIp, which its vhosts and DNS records point at, without
+            # joining again.
+            my.offsite-backup.entries.tailscale = {
+              paths = [ "/var/lib/tailscale" ];
+              units = [ "tailscaled.service" ];
+            };
+
+            my.preservation.systemDirectories = [
+              "/var/lib/tailscale"
+            ];
+
             # No authKeyFile: upstream only creates tailscaled-autoconnect
             # when one is set, so joining the tailnet is a manual one-time
             # `tailscale up --login-server=...` after first boot (state then
@@ -72,18 +84,6 @@
                 cfg.loginServer
               ];
             };
-
-            # The device's identity: restored, dapple is back on the tailnet at
-            # tailnetIp, which its vhosts and DNS records point at, without
-            # joining again.
-            my.offsite-backup.entries.tailscale = {
-              paths = [ "/var/lib/tailscale" ];
-              units = [ "tailscaled.service" ];
-            };
-
-            my.preservation.systemDirectories = [
-              "/var/lib/tailscale"
-            ];
           }
 
           (lib.mkIf (cfg.advertiseRoutes != [ ]) {
@@ -98,41 +98,40 @@
           })
 
           (lib.mkIf cfg.acme.enable {
-            systemd.services.cloudflare-dns-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Cloudflare DNS API credentials for ACME from sops";
-              wantedBy = [ "multi-user.target" ];
-              extraServiceConfig.UMask = "0177";
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract cloudflare_dns_env > ${cloudflareDnsEnvPath}
-              '';
-            };
+            # Let nginx bind its internal vhosts to the tailnet IP before
+            # tailscaled has assigned it, so nginx (and thus the headscale
+            # vhost that Tailscale needs to recover) still starts when
+            # Tailscale is down at boot.
+            boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
+
+            networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
+            users.groups.acme.members = [ "nginx" ];
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/acme";
+                group = "acme";
+                user = "acme";
+              }
+            ];
 
             security.acme = {
               acceptTerms = true;
 
               defaults = {
                 dnsProvider = "cloudflare";
-                email = "jorrit+acme@bw20.nl";
-                environmentFile = cloudflareDnsEnvPath;
+
                 # Check the DNS-01 challenge against the zone's authoritative
                 # nameserver, not the system resolver (MagicDNS -> 1.1.1.1):
                 # a recursive resolver can keep serving a cached NXDOMAIN for
                 # up to the zone's 30 min negative TTL, e.g. right after a
                 # new subdomain's record was created, and the order fails.
                 dnsResolver = "clint.ns.cloudflare.com:53";
+
+                email = "jorrit+acme@bw20.nl";
+                environmentFile = cloudflareDnsEnvPath;
               };
             };
-
-            networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-            users.groups.acme.members = [ "nginx" ];
-
-            # Let nginx bind its internal vhosts to the tailnet IP before
-            # tailscaled has assigned it, so nginx (and thus the headscale
-            # vhost that Tailscale needs to recover) still starts when
-            # Tailscale is down at boot.
-            boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
             services.nginx = {
               enable = true;
@@ -144,26 +143,30 @@
               # rather than whichever vhost nginx happens to list first on
               # that address.
               virtualHosts = lib.genAttrs [ "unknown-name" "unknown-name-tailnet" ] (name: {
-                serverName = "_";
                 default = true;
-                rejectSSL = true;
                 listenAddresses = lib.mkIf (name == "unknown-name-tailnet") [ cfg.tailnetIp ];
                 locations."/".return = "444";
+                rejectSSL = true;
+                serverName = "_";
               });
+            };
+
+            systemd.services.cloudflare-dns-secrets = inputs.self.lib.mkSopsService {
+              inherit pkgs;
+              description = "Decrypt Cloudflare DNS API credentials for ACME from sops";
+              extraServiceConfig.UMask = "0177";
+              wantedBy = [ "multi-user.target" ];
+
+              script = ''
+                install -d -m 0755 /run/secrets
+                sops_extract cloudflare_dns_env > ${cloudflareDnsEnvPath}
+              '';
             };
 
             systemd.services.nginx.serviceConfig = {
               Restart = lib.mkForce "always";
               RestartSec = lib.mkForce "5s";
             };
-
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/acme";
-                user = "acme";
-                group = "acme";
-              }
-            ];
           })
         ]
       );

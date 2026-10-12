@@ -22,16 +22,16 @@
         lanSync = {
           enable = lib.mkEnableOption "LAN-only plain-HTTP access for Kobo Sync (no Tailscale needed)";
 
-          subnet = lib.mkOption {
-            type = lib.types.str;
-            default = "192.168.1.0/24";
-            description = "Home LAN subnet allowed to reach the LAN sync vhost.";
-          };
-
           interface = lib.mkOption {
             type = lib.types.str;
             default = "enp2s0";
             description = "LAN interface to open the firewall on for the LAN sync vhost.";
+          };
+
+          subnet = lib.mkOption {
+            type = lib.types.str;
+            default = "192.168.1.0/24";
+            description = "Home LAN subnet allowed to reach the LAN sync vhost.";
           };
         };
       };
@@ -41,6 +41,7 @@
           (inputs.self.lib.mkReverseProxy {
             inherit config port;
             inherit subdomain;
+
             locationExtraConfig = ''
               # nginx's 10M default rejects larger books (comics easily run
               # to hundreds of MB) with a 413 before calibre-web sees them.
@@ -53,10 +54,33 @@
             '';
           })
           {
+            my.offsite-backup.entries.calibre-web = {
+              paths = [ "/var/lib/calibre-web" ];
+
+              units = [
+                "calibre-web.service"
+                "calibre-web-comics-to-kepub.timer"
+              ];
+            };
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/calibre-web";
+                group = "calibre-web";
+
+                # app.db holds password hashes, Kobo sync tokens and the SMTP
+                # password.
+                mode = "0700";
+
+                user = "calibre-web";
+              }
+            ];
+
             nixpkgs.overlays = [
               (_final: prev: {
                 calibre-web = prev.calibre-web.overridePythonAttrs (old: {
                   dependencies = old.dependencies ++ (old.optional-dependencies.kobo or [ ]);
+
                   postPatch = (old.postPatch or "") + ''
                     python3 ${./upload-owner-tag.py}
                   '';
@@ -71,20 +95,10 @@
 
               options = {
                 calibreLibrary = "/var/lib/calibre-web/library";
-                enableBookUploading = true;
                 enableBookConversion = true;
+                enableBookUploading = true;
                 enableKepubify = true;
               };
-            };
-
-            systemd.tmpfiles.rules = [
-              "d /var/lib/calibre-web/library 0755 calibre-web calibre-web -"
-            ];
-
-            systemd.services.calibre-web.serviceConfig = {
-              Restart = lib.mkForce "always";
-              RestartSec = lib.mkForce "5s";
-              UMask = "0077";
             };
 
             # See comics-to-kepub.py. Picks up new uploads on a timer rather
@@ -100,37 +114,31 @@
               ];
 
               serviceConfig = {
-                Type = "oneshot";
-                User = "calibre-web";
-                Group = "calibre-web";
-                ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} /var/lib/calibre-web/library";
                 # calibre and KCC both want a writable home for config and
                 # scratch space; the service user has none.
-                PrivateTmp = true;
                 Environment = "HOME=/tmp";
+                PrivateTmp = true;
+
+                ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} /var/lib/calibre-web/library";
+                Group = "calibre-web";
+
                 # KCC is CPU-heavy on a few-hundred-page volume; don't let
                 # it starve the other services.
                 Nice = 19;
+
+                Type = "oneshot";
+                User = "calibre-web";
               };
             };
 
-            my.offsite-backup.entries.calibre-web = {
-              paths = [ "/var/lib/calibre-web" ];
-              units = [
-                "calibre-web.service"
-                "calibre-web-comics-to-kepub.timer"
-              ];
+            systemd.services.calibre-web.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
+              UMask = "0077";
             };
 
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/calibre-web";
-                user = "calibre-web";
-                group = "calibre-web";
-                # app.db holds password hashes, Kobo sync tokens and the SMTP
-                # password.
-                mode = "0700";
-              }
+            systemd.tmpfiles.rules = [
+              "d /var/lib/calibre-web/library 0755 calibre-web calibre-web -"
             ];
           }
           (lib.mkIf cfg.lanSync.enable (
@@ -139,7 +147,6 @@
             in
             {
               networking.firewall.interfaces.${cfg.lanSync.interface}.allowedTCPPorts = [ 443 ];
-
               security.acme.certs.${lanDomain} = { };
 
               # Kobo firmware's sync/connectivity check requires HTTPS; plain
@@ -148,17 +155,20 @@
               # this stays a trusted cert even though the record resolves to a
               # private LAN address.
               services.nginx.virtualHosts.${lanDomain} = {
-                listenAddresses = [ "0.0.0.0" ];
                 forceSSL = true;
-                useACMEHost = lanDomain;
+                listenAddresses = [ "0.0.0.0" ];
 
                 # Only the Kobo sync API (every route of it is under
                 # /kobo/<token>), not the whole web UI with its login and admin
                 # pages: the router's port forward lands on this socket too.
                 locations."/".return = "404";
+
+                useACMEHost = lanDomain;
+
                 locations."/kobo/" = {
                   proxyPass = "http://127.0.0.1:${toString port}";
                   recommendedProxySettings = true;
+
                   extraConfig = ''
                     allow ${cfg.lanSync.subnet};
                     deny all;

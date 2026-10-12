@@ -35,15 +35,6 @@
           };
         };
 
-        mediaGroupUsers = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ ];
-          description = ''
-            Users to add to the `media` group so they can write to /srv/media.
-            Jellyfin itself is added automatically.
-          '';
-        };
-
         mediaDisk = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
@@ -55,6 +46,15 @@
             declared elsewhere (e.g. by the host config).
           '';
         };
+
+        mediaGroupUsers = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = ''
+            Users to add to the `media` group so they can write to /srv/media.
+            Jellyfin itself is added automatically.
+          '';
+        };
       };
 
       config = lib.mkIf cfg.enable (
@@ -62,6 +62,7 @@
           (inputs.self.lib.mkReverseProxy {
             inherit config port;
             inherit subdomain;
+
             locationExtraConfig = ''
               # Jellyfin streams large bodies and holds long-poll connections.
               proxy_buffering off;
@@ -76,23 +77,54 @@
             disko.devices.disk.media = {
               device = cfg.mediaDisk;
               type = "disk";
+
               content = {
-                type = "luks";
                 name = "zmedia-crypt";
                 passwordFile = "/tmp/secret.key";
+                type = "luks";
+
+                content = {
+                  pool = "zmedia";
+                  type = "zfs";
+                };
+
                 settings = {
                   allowDiscards = true;
                   crypttabExtraOpts = [ "tpm2-device=auto" ];
-                };
-                content = {
-                  type = "zfs";
-                  pool = "zmedia";
                 };
               };
             };
 
             disko.devices.zpool.zmedia = {
               type = "zpool";
+
+              # Disko declaration for documentation / future reinstalls; on a
+              # running system the dataset must be created manually first.
+              # Mount is handled by the explicit fileSystems entry below (with
+              # nofail) so first-time activation doesn't break if the dataset
+              # hasn't been created yet.
+              datasets.media = {
+                type = "zfs_fs";
+
+                options = {
+                  atime = "off";
+                  canmount = "on";
+                  "com.sun:auto-snapshot" = "false";
+                  compression = "zstd-1";
+                  mountpoint = "legacy";
+
+                  # Tuned for large sequential video files: cuts metadata
+                  # overhead vs. the 128K default. Existing files keep their
+                  # original recordsize; only new writes use this.
+                  recordsize = "1M";
+                };
+              };
+
+              options = {
+                ashift = "12";
+                autotrim = "on";
+              };
+
               rootFsOptions = {
                 acltype = "posixacl";
                 canmount = "off";
@@ -104,38 +136,54 @@
                 relatime = "on";
                 xattr = "sa";
               };
-              options = {
-                ashift = "12";
-                autotrim = "on";
-              };
-
-              # Disko declaration for documentation / future reinstalls; on a
-              # running system the dataset must be created manually first.
-              # Mount is handled by the explicit fileSystems entry below (with
-              # nofail) so first-time activation doesn't break if the dataset
-              # hasn't been created yet.
-              datasets.media = {
-                type = "zfs_fs";
-                options = {
-                  atime = "off";
-                  canmount = "on";
-                  "com.sun:auto-snapshot" = "false";
-                  compression = "zstd-1";
-                  mountpoint = "legacy";
-                  # Tuned for large sequential video files: cuts metadata
-                  # overhead vs. the 128K default. Existing files keep their
-                  # original recordsize; only new writes use this.
-                  recordsize = "1M";
-                };
-              };
             };
           })
 
           {
+            users.groups.media = { };
+
             assertions = [
               {
                 assertion = cfg.mediaDisk != null;
                 message = "my.jellyfin.mediaDisk must be set to a /dev/disk/by-id/* path; jellyfin needs a dedicated `zmedia` pool";
+              }
+            ];
+
+            fileSystems.${mediaDir} = {
+              device = "zmedia/media";
+              fsType = "zfs";
+              options = [ "nofail" ];
+            };
+
+            hardware.graphics = {
+              enable = true;
+              extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
+            };
+
+            # Users, watch history and libraries; the artwork in metadata is
+            # fetched again.
+            my.offsite-backup.entries.jellyfin = {
+              paths = [ config.services.jellyfin.dataDir ];
+              units = [ "jellyfin.service" ];
+
+              exclude = [
+                "${config.services.jellyfin.dataDir}/metadata"
+                config.services.jellyfin.logDir
+              ];
+            };
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/jellyfin";
+                group = "jellyfin";
+                mode = "0700";
+                user = "jellyfin";
+              }
+              {
+                directory = "/var/cache/jellyfin";
+                group = "jellyfin";
+                mode = "0700";
+                user = "jellyfin";
               }
             ];
 
@@ -144,29 +192,9 @@
               openFirewall = false;
             };
 
-            hardware.graphics = {
-              enable = true;
-              extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
-            };
-
-            users.groups.media = { };
-            users.users = lib.mkMerge [
-              {
-                jellyfin.extraGroups = [
-                  "video"
-                  "render"
-                  "media"
-                ];
-              }
-              (lib.genAttrs cfg.mediaGroupUsers (_: {
-                extraGroups = [ "media" ];
-              }))
-            ];
-
-            fileSystems.${mediaDir} = {
-              device = "zmedia/media";
-              fsType = "zfs";
-              options = [ "nofail" ];
+            systemd.services.jellyfin.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
             };
 
             # root:media + sgid means the directory itself doesn't depend on
@@ -182,35 +210,17 @@
               "d ${mediaDir}/library/audiobooks 2775 root media -"
             ];
 
-            systemd.services.jellyfin.serviceConfig = {
-              Restart = lib.mkForce "always";
-              RestartSec = lib.mkForce "5s";
-            };
-
-            # Users, watch history and libraries; the artwork in metadata is
-            # fetched again.
-            my.offsite-backup.entries.jellyfin = {
-              paths = [ config.services.jellyfin.dataDir ];
-              units = [ "jellyfin.service" ];
-              exclude = [
-                "${config.services.jellyfin.dataDir}/metadata"
-                config.services.jellyfin.logDir
-              ];
-            };
-
-            my.preservation.systemDirectories = [
+            users.users = lib.mkMerge [
               {
-                directory = "/var/lib/jellyfin";
-                user = "jellyfin";
-                group = "jellyfin";
-                mode = "0700";
+                jellyfin.extraGroups = [
+                  "video"
+                  "render"
+                  "media"
+                ];
               }
-              {
-                directory = "/var/cache/jellyfin";
-                user = "jellyfin";
-                group = "jellyfin";
-                mode = "0700";
-              }
+              (lib.genAttrs cfg.mediaGroupUsers (_: {
+                extraGroups = [ "media" ];
+              }))
             ];
           }
 

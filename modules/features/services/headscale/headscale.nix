@@ -39,20 +39,29 @@
           type = lib.types.str;
         };
 
-        magicDnsDomain = lib.mkOption {
-          default = "vpn";
-          description = "MagicDNS base domain";
-          type = lib.types.str;
-        };
-
         interface = lib.mkOption {
           default = "enp2s0";
           description = "LAN interface to open the control protocol and STUN ports on.";
           type = lib.types.str;
         };
+
+        magicDnsDomain = lib.mkOption {
+          default = "vpn";
+          description = "MagicDNS base domain";
+          type = lib.types.str;
+        };
       };
 
       config = lib.mkIf cfg.enable {
+        security.acme.certs.${cfg.domain} = { };
+
+        assertions = [
+          {
+            assertion = config.my.tailscale.acme.enable;
+            message = "my.headscale requires my.tailscale.acme.enable for ACME certificates";
+          }
+        ];
+
         my.offsite-backup.entries.headscale = {
           paths = [ "/var/lib/headscale" ];
           units = [ "headscale.service" ];
@@ -61,16 +70,8 @@
         my.preservation.systemDirectories = [
           {
             directory = "/var/lib/headscale";
-            user = "headscale";
             group = "headscale";
-          }
-        ];
-        security.acme.certs.${cfg.domain} = { };
-
-        assertions = [
-          {
-            assertion = config.my.tailscale.acme.enable;
-            message = "my.headscale requires my.tailscale.acme.enable for ACME certificates";
+            user = "headscale";
           }
         ];
 
@@ -92,12 +93,6 @@
           settings = {
             server_url = "https://${cfg.domain}";
 
-            # Who may reach what; see the file. Without it, everything.
-            policy = {
-              mode = "file";
-              path = ./headscale-policy.hujson;
-            };
-
             database = {
               sqlite.path = "/var/lib/headscale/db.sqlite";
               type = "sqlite";
@@ -109,10 +104,10 @@
 
               server = {
                 enabled = true;
+                private_key_path = "/var/lib/headscale/derp_server_private.key";
                 region_code = "headscale";
                 region_id = 999;
                 region_name = "Headscale Embedded DERP";
-                private_key_path = "/var/lib/headscale/derp_server_private.key";
                 stun_listen_addr = "0.0.0.0:3478";
               };
             };
@@ -125,6 +120,12 @@
                 "1.0.0.1"
                 "1.1.1.1"
               ];
+            };
+
+            # Who may reach what; see the file. Without it, everything.
+            policy = {
+              mode = "file";
+              path = ./headscale-policy.hujson;
             };
 
             prefixes = {
