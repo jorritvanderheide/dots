@@ -9,6 +9,10 @@ nix build .#iso
 sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
 ```
 
+On a [Ventoy](https://www.ventoy.net) stick, copy
+`result/iso/dots-installer.iso` onto it instead, and pick it from Ventoy's
+menu at boot.
+
 Put the machine's firmware in setup mode first (see
 [Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
 makes new keys. Boot the target machine from it, with network (a cable, or
