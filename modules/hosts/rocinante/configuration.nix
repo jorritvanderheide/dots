@@ -69,6 +69,7 @@ in
         browser
         editor
         email
+        file-sync
         media-player
         photo-editor
         messaging
