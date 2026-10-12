@@ -86,31 +86,20 @@ in
         (
           { config, ... }:
           {
+            my.desktop-shell.lockOnStartup = true;
+            my.power.laptop.enable = true;
+
+            # /persist is all that survives the boot-time rollback, and the
+            # offsite backup (below) is its only copy off this disk.
+            # The research modules declare what state they need kept but not
+            # how; this machine persists it with preservation.
+            my.preservation.homeDirectories = config.my.research.statePaths;
+
+            my.session.autologinuser = "jorrit";
+            my.vpn.loginServer = "https://vpn.bw20.nl";
             networking.hostName = "rocinante";
             nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
-
-            # Community caches, for the laptop only: the server needs nothing
-            # beyond cache.nixos.org.
-            nix.settings = {
-              substituters = [
-                "https://nix-community.cachix.org"
-                "https://numtide.cachix.org"
-              ];
-              trusted-public-keys = [
-                "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-                "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
-              ];
-              # Signs what this host builds, so dapple accepts what
-              # `ndeploy` copies to it without trusting the user who copies
-              # it. Straight on /persist, like the SSH host key; generated
-              # with `nix key generate-secret --key-name rocinante-1`.
-              secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
-            };
-
-            my.desktop-shell.lockOnStartup = true;
-            my.power.laptop.enable = true;
-            my.session.autologinuser = "jorrit";
 
             my.compositor = {
               outputs = {
@@ -168,23 +157,6 @@ in
               };
             };
 
-            # /persist is all that survives the boot-time rollback, and the
-            # offsite backup (below) is its only copy off this disk.
-            # The research modules declare what state they need kept but not
-            # how; this machine persists it with preservation.
-            my.preservation.homeDirectories = config.my.research.statePaths;
-
-            my.research = {
-              vaultPath = "Git/obsidian";
-
-              institution = {
-                ezproxyPrefix = "https://login.ru.idm.oclc.org/login?qurl=";
-                openurlResolver = "https://ru.on.worldcat.org/atoztitles/link";
-                librarySearchUrl = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
-                iconUrl = "https://www.ru.nl/favicon.ico";
-              };
-            };
-
             my.offsite-backup = {
               enable = true;
 
@@ -193,13 +165,15 @@ in
               ];
             };
 
-            my.ssh.knownHosts.dapple = {
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+            my.research = {
+              vaultPath = "Git/obsidian";
 
-              hostNames = [
-                "dapple"
-                "100.64.0.1"
-              ];
+              institution = {
+                ezproxyPrefix = "https://login.ru.idm.oclc.org/login?qurl=";
+                iconUrl = "https://www.ru.nl/favicon.ico";
+                librarySearchUrl = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
+                openurlResolver = "https://ru.on.worldcat.org/atoztitles/link";
+              };
             };
 
             # Public halves only; private keys live in the Bitwarden SSH
@@ -213,7 +187,34 @@ in
                 "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
             };
 
-            my.vpn.loginServer = "https://vpn.bw20.nl";
+            my.ssh.knownHosts.dapple = {
+              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+
+              hostNames = [
+                "dapple"
+                "100.64.0.1"
+              ];
+            };
+
+            # Community caches, for the laptop only: the server needs nothing
+            # beyond cache.nixos.org.
+            nix.settings = {
+              # Signs what this host builds, so dapple accepts what
+              # `ndeploy` copies to it without trusting the user who copies
+              # it. Straight on /persist, like the SSH host key; generated
+              # with `nix key generate-secret --key-name rocinante-1`.
+              secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
+
+              substituters = [
+                "https://nix-community.cachix.org"
+                "https://numtide.cachix.org"
+              ];
+
+              trusted-public-keys = [
+                "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+                "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
+              ];
+            };
 
             # Resolves .local names, to reach the installer ISO as
             # dots-installer.local (docs/install.md).

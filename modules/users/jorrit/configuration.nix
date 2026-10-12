@@ -10,13 +10,6 @@
 
         withModules = [
           {
-            # Proton calendar accounts, rendered from sops by
-            # noctalia-calendar-secrets below.
-            programs.noctalia.settings = {
-              calendar.enabled = true;
-              include.files = [ "/run/secrets/noctalia-calendar.toml" ];
-            };
-
             accounts.email.accounts = {
               "Radboud Outlook" = {
                 address = "jorrit.vanderheide@ru.nl";
@@ -30,6 +23,12 @@
                   port = 993;
                 };
 
+                smtp = {
+                  host = "smtp.office365.com";
+                  port = 587;
+                  tls.useStartTls = true;
+                };
+
                 thunderbird = {
                   enable = true;
 
@@ -37,12 +36,6 @@
                     "mail.server.server_${id}.authMethod" = 10;
                     "mail.smtpserver.smtp_${id}.authMethod" = 10;
                   };
-                };
-
-                smtp = {
-                  host = "smtp.office365.com";
-                  port = 587;
-                  tls.useStartTls = true;
                 };
               };
 
@@ -75,6 +68,13 @@
               allowedSigningKeys = [
                 "jorrit+git@bw20.nl ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJVnWm8z0c77BQGCj65u0JMe6gcoEtGn+4yK4+CGMGHi"
               ];
+            };
+
+            # Proton calendar accounts, rendered from sops by
+            # noctalia-calendar-secrets below.
+            programs.noctalia.settings = {
+              calendar.enabled = true;
+              include.files = [ "/run/secrets/noctalia-calendar.toml" ];
             };
           }
         ];
