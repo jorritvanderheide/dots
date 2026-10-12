@@ -70,7 +70,6 @@ in
             # keep that, or every already-persisted file/dir owned by group
             # nixos silently orphans from the name on switch.
             users.groups.nixos.gid = lib.mkForce 997;
-            services.dbus.implementation = "dbus"; # TODO: dbus-broker (new nixpkgs default) hangs at boot with `launcher_run_child: no such file or directory`. Pinned back to dbus-daemon until investigated. Re-test on the next nixpkgs bump.
             system.stateVersion = "26.05";
 
             # With iptables, tailscaled's own INPUT rules accept everything
