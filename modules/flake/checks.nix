@@ -6,8 +6,8 @@
 {
   perSystem =
     {
-      system,
       pkgs,
+      system,
       ...
     }:
     let

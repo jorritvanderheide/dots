@@ -5,6 +5,12 @@
 }:
 {
   flake.lib = {
+    # Where a host keeps an age key of its own (sopsExtract), straight on
+    # /persist like the SSH host key. On LUKS, so it's as safe as the disk
+    # (the TPM only unlocks under our secure boot); the alternative is a
+    # YubiKey needed at every boot, or left plugged in for a thief.
+    hostAgeKey = "/persist/system/var/lib/sops/age.key";
+
     # Keys that may SSH into the hosts (the nixos user) and the installer ISO.
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"
@@ -33,39 +39,184 @@
             info.unix_device_names;
       };
 
-    # pcscd being up doesn't guarantee the YubiKey is enumerated over USB
-    # yet, so a first-try decrypt failure may just be a transient boot-order
-    # race, not a real problem. Retry a few times before giving up for real.
-    #
-    # pcscd.service Requires=polkit.service (pulled in by pcsclite-with-polkit),
-    # so a polkit hiccup force-stops pcscd right along with it and can exhaust
-    # pcscd's own start-limit for the rest of the boot. Give this enough
-    # attempts over enough time to outlast that, and nudge pcscd back to a
-    # clean state before each retry instead of trusting it to recover alone.
-    sopsRetryUnitConfig = {
-      StartLimitIntervalSec = 300;
-      StartLimitBurst = 20;
-    };
+    mkReverseProxy =
+      {
+        config,
+        subdomain,
+        port,
+        extraLocations ? { },
+        locationExtraConfig ? "",
+        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
+        # e.g. Vaultwarden's browser extension popup.
+        extraHeaders ? ''
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header Referrer-Policy "no-referrer" always;
+        '',
+      }:
+      let
+        acmeDomain = config.my.tailscale.acme.domain;
+        domain = "${subdomain}.${toString acmeDomain}";
+      in
+      {
+        security.acme.certs.${domain} = { };
 
-    sopsRetryServiceConfig = {
-      Restart = "on-failure";
-      RestartSec = "3s";
-      # Without this, a successful oneshot goes back to "inactive" and
-      # `nixos-rebuild switch` (not just a real boot) re-runs it, which is fatal
-      # if the YubiKey isn't plugged in at switch time, even though the
-      # secret was already applied earlier this boot.
-      RemainAfterExit = true;
-      # systemd services don't get $HOME by default; age-plugin-yubikey needs
-      # it set to find its own state, or decryption fails outright.
-      Environment = [ "HOME=/root" ];
-      ExecStartPre = "-systemctl reset-failed pcscd.service pcscd.socket";
-    };
+        assertions = [
+          {
+            assertion = config.my.tailscale.acme.enable;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
+          }
+          {
+            assertion = acmeDomain != null;
+            message = "${subdomain} reverse proxy requires my.tailscale.acme.domain to be set";
+          }
+        ];
 
-    # Where a host keeps an age key of its own (sopsExtract), straight on
-    # /persist like the SSH host key. On LUKS, so it's as safe as the disk
-    # (the TPM only unlocks under our secure boot); the alternative is a
-    # YubiKey needed at every boot, or left plugged in for a thief.
-    hostAgeKey = "/persist/system/var/lib/sops/age.key";
+        services.nginx.virtualHosts.${domain} = {
+          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
+          forceSSL = true;
+
+          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
+          # listener for the headscale and kobo vhosts, but internal services
+          # must not answer there: a connection to the public IP hits the
+          # 0.0.0.0 socket, which has no server_name match here, so these
+          # vhosts stay tailnet-only.
+          listenAddresses = [ config.my.tailscale.tailnetIp ];
+
+          useACMEHost = domain;
+
+          locations = {
+            "/" = {
+              proxyPass = "http://127.0.0.1:${toString port}";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+            }
+            // lib.optionalAttrs (locationExtraConfig != "") {
+              extraConfig = locationExtraConfig;
+            };
+          }
+          // extraLocations;
+        };
+      };
+
+    # A oneshot service that decrypts sops secrets via the YubiKey identity
+    # and does something with them: the shape shared by
+    # set-password-root/set-password-<user>/tpm2-luks-enroll/wireless-secrets.
+    # Deliberately not sops-nix's own sops.secrets/activation-time install:
+    # with boot.initrd.systemd.enable (needed for the ZFS rollback), *every*
+    # boot's activation runs chrooted into /sysroot from the initrd, before
+    # real systemd/pcscd exist there to reach the YubiKey over PC/SC. It's not a
+    # first-boot-only problem. This handles that (pcscd ordering + retry) so
+    # callers only write the part that's actually theirs: call
+    # `sops_extract <key>` in `script` for each secret needed, then use it.
+    mkSopsService =
+      {
+        description,
+        extraServiceConfig ? { },
+        extraUnitConfig ? { },
+        pkgs,
+        script,
+        wantedBy ? [ ],
+      }:
+      {
+        inherit description wantedBy;
+        after = [ "pcscd.service" ];
+        unitConfig = inputs.self.lib.sopsRetryUnitConfig // extraUnitConfig;
+        wants = [ "pcscd.service" ];
+
+        # The script reads /etc/sops/secrets.yaml, so it doesn't change
+        # when a secret does, and a switch would leave the old value in
+        # place until the next boot. A copy of just secrets/ changes exactly
+        # when a secret does (unlike the whole flake, every commit).
+        restartTriggers = [
+          (builtins.path {
+            name = "secrets";
+            path = inputs.self + "/secrets";
+          })
+        ];
+
+        script = ''
+          set -euo pipefail
+          sops_extract() {
+            ${inputs.self.lib.sopsExtract pkgs} "$1"
+          }
+        ''
+        + script;
+
+        serviceConfig =
+          inputs.self.lib.sopsRetryServiceConfig
+          // extraServiceConfig
+          // {
+            Type = "oneshot";
+          };
+      };
+
+    mkUser =
+      {
+        extraGroups ? [ ],
+        hashedPasswordFile ? null,
+        initialPassword ? null,
+        username,
+        withModules ? [ ],
+      }:
+      {
+        pkgs,
+        ...
+      }:
+      let
+        # Password precedence: explicit hashedPasswordFile > explicit
+        # initialPassword > the conventional secret for this user, decrypted
+        # and set by set-password-${username}.service at boot.
+        usePasswordSecret = hashedPasswordFile == null && initialPassword == null;
+      in
+      {
+        programs.fish.enable = true;
+
+        home-manager.users.${username} = {
+          home.stateVersion = "26.05";
+          imports = withModules;
+        };
+
+        # root is wiped every boot (impermanence), so this can't be a
+        # first-boot-only step. See mkSopsService for why it's not
+        # sops-nix's own sops.secrets/activation-time install.
+        systemd.services = lib.mkIf usePasswordSecret {
+          "set-password-${username}" = inputs.self.lib.mkSopsService {
+            inherit pkgs;
+            description = "Set ${username}'s password from sops";
+            wantedBy = [ "multi-user.target" ];
+
+            script = ''
+              HASH="$(sops_extract user_password_${username})"
+              printf '%s:%s\n' "${username}" "$HASH" | ${lib.getExe' pkgs.shadow "chpasswd"} -e
+            '';
+          };
+        };
+
+        systemd.tmpfiles.rules = [
+          "d /persist/home/${username} 0700 ${username} users -"
+        ];
+
+        users.users.${username} = {
+          isNormalUser = true;
+          shell = pkgs.fish;
+
+          extraGroups = [
+            "nixos"
+            "systemd-journal"
+            "wheel"
+          ]
+          ++ extraGroups;
+        }
+        // (
+          if hashedPasswordFile != null then
+            { inherit hashedPasswordFile; }
+          else if initialPassword != null then
+            { inherit initialPassword; }
+          else
+            { }
+        );
+      };
 
     # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,
     # see secrets.nix), decrypted with the host's own age key if it has one,
@@ -95,54 +246,36 @@
         SOPS_AGE_KEY_FILE=$identity ${lib.getExe' pkgs.sops "sops"} -d --extract "[\"$1\"]" /etc/sops/secrets.yaml
       '';
 
-    # A oneshot service that decrypts sops secrets via the YubiKey identity
-    # and does something with them: the shape shared by
-    # set-password-root/set-password-<user>/tpm2-luks-enroll/wireless-secrets.
-    # Deliberately not sops-nix's own sops.secrets/activation-time install:
-    # with boot.initrd.systemd.enable (needed for the ZFS rollback), *every*
-    # boot's activation runs chrooted into /sysroot from the initrd, before
-    # real systemd/pcscd exist there to reach the YubiKey over PC/SC. It's not a
-    # first-boot-only problem. This handles that (pcscd ordering + retry) so
-    # callers only write the part that's actually theirs: call
-    # `sops_extract <key>` in `script` for each secret needed, then use it.
-    mkSopsService =
-      {
-        pkgs,
-        description,
-        script,
-        wantedBy ? [ ],
-        extraUnitConfig ? { },
-        extraServiceConfig ? { },
-      }:
-      {
-        inherit description wantedBy;
-        # The script reads /etc/sops/secrets.yaml, so it doesn't change
-        # when a secret does, and a switch would leave the old value in
-        # place until the next boot. A copy of just secrets/ changes exactly
-        # when a secret does (unlike the whole flake, every commit).
-        restartTriggers = [
-          (builtins.path {
-            path = inputs.self + "/secrets";
-            name = "secrets";
-          })
-        ];
-        after = [ "pcscd.service" ];
-        wants = [ "pcscd.service" ];
-        unitConfig = inputs.self.lib.sopsRetryUnitConfig // extraUnitConfig;
-        serviceConfig =
-          inputs.self.lib.sopsRetryServiceConfig
-          // extraServiceConfig
-          // {
-            Type = "oneshot";
-          };
-        script = ''
-          set -euo pipefail
-          sops_extract() {
-            ${inputs.self.lib.sopsExtract pkgs} "$1"
-          }
-        ''
-        + script;
-      };
+    sopsRetryServiceConfig = {
+      # systemd services don't get $HOME by default; age-plugin-yubikey needs
+      # it set to find its own state, or decryption fails outright.
+      Environment = [ "HOME=/root" ];
+
+      ExecStartPre = "-systemctl reset-failed pcscd.service pcscd.socket";
+
+      # Without this, a successful oneshot goes back to "inactive" and
+      # `nixos-rebuild switch` (not just a real boot) re-runs it, which is fatal
+      # if the YubiKey isn't plugged in at switch time, even though the
+      # secret was already applied earlier this boot.
+      RemainAfterExit = true;
+
+      Restart = "on-failure";
+      RestartSec = "3s";
+    };
+
+    # pcscd being up doesn't guarantee the YubiKey is enumerated over USB
+    # yet, so a first-try decrypt failure may just be a transient boot-order
+    # race, not a real problem. Retry a few times before giving up for real.
+    #
+    # pcscd.service Requires=polkit.service (pulled in by pcsclite-with-polkit),
+    # so a polkit hiccup force-stops pcscd right along with it and can exhaust
+    # pcscd's own start-limit for the rest of the boot. Give this enough
+    # attempts over enough time to outlast that, and nudge pcscd back to a
+    # clean state before each retry instead of trusting it to recover alone.
+    sopsRetryUnitConfig = {
+      StartLimitBurst = 20;
+      StartLimitIntervalSec = 300;
+    };
 
     # nginx access rules for a location or vhost only the tailnet may use.
     # The address it binds to isn't enough: Linux accepts a packet for any
@@ -154,128 +287,5 @@
       allow 100.64.0.0/10;
       deny all;
     '';
-
-    mkReverseProxy =
-      {
-        config,
-        subdomain,
-        port,
-        extraLocations ? { },
-        locationExtraConfig ? "",
-        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
-        # e.g. Vaultwarden's browser extension popup.
-        extraHeaders ? ''
-          add_header X-Content-Type-Options "nosniff" always;
-          add_header X-Frame-Options "SAMEORIGIN" always;
-          add_header Referrer-Policy "no-referrer" always;
-        '',
-      }:
-      let
-        acmeDomain = config.my.tailscale.acme.domain;
-        domain = "${subdomain}.${toString acmeDomain}";
-      in
-      {
-        assertions = [
-          {
-            assertion = config.my.tailscale.acme.enable;
-            message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
-          }
-          {
-            assertion = acmeDomain != null;
-            message = "${subdomain} reverse proxy requires my.tailscale.acme.domain to be set";
-          }
-        ];
-
-        security.acme.certs.${domain} = { };
-
-        services.nginx.virtualHosts.${domain} = {
-          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
-          # listener for the headscale and kobo vhosts, but internal services
-          # must not answer there: a connection to the public IP hits the
-          # 0.0.0.0 socket, which has no server_name match here, so these
-          # vhosts stay tailnet-only.
-          listenAddresses = [ config.my.tailscale.tailnetIp ];
-          forceSSL = true;
-          useACMEHost = domain;
-          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
-          locations = {
-            "/" = {
-              proxyPass = "http://127.0.0.1:${toString port}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
-            }
-            // lib.optionalAttrs (locationExtraConfig != "") {
-              extraConfig = locationExtraConfig;
-            };
-          }
-          // extraLocations;
-        };
-      };
-
-    mkUser =
-      {
-        extraGroups ? [ ],
-        hashedPasswordFile ? null,
-        initialPassword ? null,
-        username,
-        withModules ? [ ],
-      }:
-      {
-        pkgs,
-        ...
-      }:
-      let
-        # Password precedence: explicit hashedPasswordFile > explicit
-        # initialPassword > the conventional secret for this user, decrypted
-        # and set by set-password-${username}.service at boot.
-        usePasswordSecret = hashedPasswordFile == null && initialPassword == null;
-      in
-      {
-        programs.fish.enable = true;
-
-        home-manager.users.${username} = {
-          home.stateVersion = "26.05";
-          imports = withModules;
-        };
-
-        systemd.tmpfiles.rules = [
-          "d /persist/home/${username} 0700 ${username} users -"
-        ];
-
-        # root is wiped every boot (impermanence), so this can't be a
-        # first-boot-only step. See mkSopsService for why it's not
-        # sops-nix's own sops.secrets/activation-time install.
-        systemd.services = lib.mkIf usePasswordSecret {
-          "set-password-${username}" = inputs.self.lib.mkSopsService {
-            inherit pkgs;
-            description = "Set ${username}'s password from sops";
-            wantedBy = [ "multi-user.target" ];
-            script = ''
-              HASH="$(sops_extract user_password_${username})"
-              printf '%s:%s\n' "${username}" "$HASH" | ${lib.getExe' pkgs.shadow "chpasswd"} -e
-            '';
-          };
-        };
-
-        users.users.${username} = {
-          isNormalUser = true;
-          shell = pkgs.fish;
-
-          extraGroups = [
-            "nixos"
-            "systemd-journal"
-            "wheel"
-          ]
-          ++ extraGroups;
-        }
-        // (
-          if hashedPasswordFile != null then
-            { inherit hashedPasswordFile; }
-          else if initialPassword != null then
-            { inherit initialPassword; }
-          else
-            { }
-        );
-      };
   };
 }

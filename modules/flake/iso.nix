@@ -25,6 +25,7 @@
                   installHost = pkgs.writeShellApplication {
                     name = "install-host";
                     runtimeInputs = [ pkgs.tmux ];
+
                     text = ''
                       [[ $EUID -eq 0 ]] || exec sudo --preserve-env=SOPS_AGE_KEY_FILE install-host "$@"
                       # In tmux, so a dropped SSH connection doesn't stop an
@@ -36,30 +37,12 @@
                   };
                 in
                 {
-                  nixpkgs.hostPlatform = system;
                   image.baseName = lib.mkForce "dots-installer";
                   networking.hostName = "dots-installer";
-                  nix.settings.experimental-features = [
-                    "nix-command"
-                    "flakes"
-                  ];
+                  nixpkgs.hostPlatform = system;
 
                   # Root by key only: the installer has no password.
                   users.users.root.openssh.authorizedKeys.keys = inputs.self.lib.authorizedKeys;
-                  services.openssh.settings = {
-                    PasswordAuthentication = false;
-                    KbdInteractiveAuthentication = false;
-                  };
-
-                  # Found as dots-installer.local, without looking up its IP.
-                  services.avahi = {
-                    enable = true;
-                    nssmdns4 = true;
-                    publish = {
-                      enable = true;
-                      addresses = true;
-                    };
-                  };
 
                   # No services.pcscd: with the installer's polkit, NixOS's
                   # pcscd refuses clients (see secrets.nix). The installer
@@ -68,6 +51,27 @@
                     installHost
                     pkgs.nixos-facter
                   ];
+
+                  nix.settings.experimental-features = [
+                    "nix-command"
+                    "flakes"
+                  ];
+
+                  # Found as dots-installer.local, without looking up its IP.
+                  services.avahi = {
+                    enable = true;
+                    nssmdns4 = true;
+
+                    publish = {
+                      enable = true;
+                      addresses = true;
+                    };
+                  };
+
+                  services.openssh.settings = {
+                    KbdInteractiveAuthentication = false;
+                    PasswordAuthentication = false;
+                  };
                 }
               )
             ];

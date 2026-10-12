@@ -7,14 +7,15 @@
     niri-flake.url = "github:sodiboo/niri-flake";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:nixos/nixos-hardware";
+
+    # Temporary: zotero fails to build against firefox-esr 153.4
+    # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
+    # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
+    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
-
-    new-leaf = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://codeberg.org/BW20/new-leaf";
-    };
 
     disko = {
       inputs.nixpkgs.follows = "nixpkgs";
@@ -31,14 +32,14 @@
       url = "github:nix-community/lanzaboote/v1.2.0";
     };
 
-    # Temporary: zotero fails to build against firefox-esr 153.4
-    # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
-    # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
-    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
+    new-leaf = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BW20/new-leaf";
+    };
 
     noctalia = {
-      url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:noctalia-dev/noctalia";
     };
 
     stylix = {
