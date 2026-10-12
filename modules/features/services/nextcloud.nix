@@ -12,7 +12,7 @@
     }:
     let
       cfg = config.my.nextcloud;
-      subdomain = "files";
+      subdomain = "cloud";
       domain = "${subdomain}.${toString config.my.tailscale.acme.domain}";
       adminpassPath = "/run/secrets/nextcloud_admin_password";
       dumpDir = config.services.postgresqlBackup.location;
@@ -108,6 +108,10 @@
 
                 # Heavy background jobs from 01:00 UTC, the quiet hours.
                 maintenance_window_start = 1;
+
+                # The address in links that background jobs and occ make; the
+                # installer only writes it once, so a new name needs it here.
+                "overwrite.cli.url" = "https://${domain}";
               };
             };
 
