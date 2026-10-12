@@ -61,7 +61,8 @@ in
           {
             ## System
             networking.hostName = "dapple";
-            networking.useNetworkd = lib.mkForce false; # Realtek rtw89 driver incompatible with networkd's BPF DHCP client
+            # The Realtek rtw89 driver is incompatible with networkd's BPF DHCP client.
+            networking.useNetworkd = lib.mkForce false;
             nixpkgs.hostPlatform = facterReport.system;
 
             # preservation.nix pins this to 3000 for install.sh's benefit on a
@@ -96,7 +97,8 @@ in
             };
 
             ## Other
-            environment.systemPackages = [ pkgs.ghostty.terminfo ]; # Terminfo for Ghostty so SSH sessions from rocinante render correctly.
+            # Terminfo for Ghostty, so SSH sessions from rocinante render correctly.
+            environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
             # Not a secret, just a stable file path for offsite-backup's
             # healthcheckUrlFile option.

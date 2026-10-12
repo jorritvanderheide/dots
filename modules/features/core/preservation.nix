@@ -104,7 +104,8 @@
         # live ISO, where the name "nixos" doesn't resolve.
         users.groups.nixos.gid = 3000;
 
-        systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ]; # Systemd-machine-id-commit would fail with a bind-mounted machine-id
+        # systemd-machine-id-commit would fail with a bind-mounted machine-id.
+        systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
 
         boot = {
           tmp.cleanOnBoot = lib.mkDefault true;

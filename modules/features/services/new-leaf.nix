@@ -14,7 +14,8 @@
       domain = "${cfg.subdomain}.${config.my.tailscale.acme.domain}";
       editor = {
         proxyPass = "http://unix:${config.services.new-leaf.socket}";
-        recommendedProxySettings = true; # X-Real-IP, which New Leaf asks Tailscale about
+        # Sets X-Real-IP, which New Leaf asks Tailscale about.
+        recommendedProxySettings = true;
         extraConfig = ''
           proxy_read_timeout 120s; # fitting pages renders the PDF a few times
         '';

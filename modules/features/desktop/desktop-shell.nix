@@ -192,7 +192,6 @@
                       sidebar_section = "none";
                     };
 
-                    # Replaces the old standalone swayidle-based my.idle module --
                     # noctalia's own idle manager uses the ext-idle-notify Wayland
                     # protocol natively and already locks before any sleep via its
                     # logind PrepareForSleep inhibitor, so there's no separate
