@@ -140,7 +140,6 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Prowlarr, Bazarr, qBittorrent | `prowlarr`, `bazarr`, `torrents` | Indexers, subtitles, downloads |
 | Vaultwarden | `passwords` | Passwords |
 | Calibre-Web | `books` | E-books, synced to a Kobo |
-| Radicale | `contacts` | Contacts and calendars |
 | Nextcloud | `cloud` | Files and contacts, synced to rocinante |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |

@@ -95,11 +95,6 @@
             })
             (mkHttpEndpoint {
               group = "productivity";
-              name = "radicale";
-              url = "https://contacts.${config.my.tailscale.acme.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "productivity";
               name = "nextcloud";
               url = "https://cloud.${config.my.tailscale.acme.domain}/status.php";
             })
