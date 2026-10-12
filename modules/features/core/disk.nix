@@ -30,6 +30,7 @@
                   format = "vfat";
                   mountpoint = "/boot";
                   type = "filesystem";
+
                   mountOptions = [
                     "defaults"
                     "umask=0077"
@@ -42,18 +43,21 @@
 
                 content = {
                   name = "crypted";
+
                   # Written by install.sh (sops -d'd from luks_password) right
                   # before disko runs; nothing else creates this file.
                   passwordFile = "/tmp/secret.key";
-                  settings = {
-                    allowDiscards = true;
-                    crypttabExtraOpts = [ "tpm2-device=auto" ];
-                  };
+
                   type = "luks";
 
                   content = {
-                    type = "zfs";
                     pool = "zroot";
+                    type = "zfs";
+                  };
+
+                  settings = {
+                    allowDiscards = true;
+                    crypttabExtraOpts = [ "tpm2-device=auto" ];
                   };
                 };
               };

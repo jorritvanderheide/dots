@@ -23,8 +23,8 @@
 
         # age-plugin-yubikey needs pcscd running and itself on PATH to reach
         # the hardware.
-        services.pcscd.enable = true;
         environment.systemPackages = [ pkgs.age-plugin-yubikey ];
+        services.pcscd.enable = true;
 
         # When security.polkit.enable is on (e.g. pulled in by NetworkManager
         # on a headless host with no desktop session of its own),
@@ -65,6 +65,7 @@
           inherit pkgs;
           description = "Set root's password from sops";
           wantedBy = [ "multi-user.target" ];
+
           script = ''
             HASH="$(sops_extract user_password_root)"
             printf '%s:%s\n' root "$HASH" | ${lib.getExe' pkgs.shadow "chpasswd"} -e

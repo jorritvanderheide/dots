@@ -33,10 +33,16 @@
       ];
 
       options.my.preservation = {
-        systemFiles = lib.mkOption {
+        homeDirectories = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Additional system files to persist across reboots";
+          description = "Additional home directories to persist across reboots";
+        };
+
+        homeFiles = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "Additional home files to persist across reboots";
         };
 
         systemDirectories = lib.mkOption {
@@ -44,39 +50,45 @@
             lib.types.either lib.types.str (
               lib.types.submodule {
                 options = {
-                  directory = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Absolute path of the directory to persist across reboots.";
-                  };
-                  user = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "Owner of the persisted directory.";
-                  };
-                  group = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "Group of the persisted directory.";
-                  };
-                  mode = lib.mkOption {
-                    type = lib.types.str;
-                    default = "0755";
-                    description = "Permission bits for the persisted directory.";
-                  };
                   configureParent = lib.mkOption {
                     type = lib.types.bool;
                     default = false;
                     description = "Whether to also create/own the parent directory (needed for nested paths).";
                   };
+
+                  directory = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Absolute path of the directory to persist across reboots.";
+                  };
+
+                  group = lib.mkOption {
+                    type = lib.types.str;
+                    default = "root";
+                    description = "Group of the persisted directory.";
+                  };
+
                   how = lib.mkOption {
                     type = lib.types.str;
                     default = "bindmount";
                     description = "Preservation method passed through to the preservation module (e.g. bindmount).";
                   };
+
                   inInitrd = lib.mkOption {
                     type = lib.types.bool;
                     default = false;
                     description = "Whether the directory must be available already in the initrd.";
+                  };
+
+                  mode = lib.mkOption {
+                    type = lib.types.str;
+                    default = "0755";
+                    description = "Permission bits for the persisted directory.";
+                  };
+
+                  user = lib.mkOption {
+                    type = lib.types.str;
+                    default = "root";
+                    description = "Owner of the persisted directory.";
                   };
                 };
               }
@@ -86,16 +98,10 @@
           description = "Additional system directories to persist across reboots";
         };
 
-        homeFiles = lib.mkOption {
+        systemFiles = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          description = "Additional home files to persist across reboots";
-        };
-
-        homeDirectories = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ ];
-          description = "Additional home directories to persist across reboots";
+          description = "Additional system files to persist across reboots";
         };
       };
 
@@ -110,23 +116,12 @@
           initrd.systemd = {
             enable = true;
 
-            # The /etc/machine-id symlink below dangles until its target
-            # exists, and systemd can't write a fresh ID through a dangling
-            # symlink. Without one, dbus-broker refuses to start, and every
-            # D-Bus service fails with it. Seeded from the hostname once
-            # /persist is mounted ("f" leaves an existing ID alone), before
-            # the real root's systemd reads it.
-            tmpfiles.settings.machine-id."/sysroot/persist/system/etc/machine-id".f = {
-              argument = builtins.substring 0 32 (builtins.hashString "sha256" config.networking.hostName);
-              mode = "0444";
-            };
-
             services.rollback = {
               before = [ "sysroot.mount" ];
               description = "Rollback ZFS root subvolume to pristine state";
-              unitConfig.DefaultDependencies = "no";
               path = [ config.boot.zfs.package ];
               serviceConfig.Type = "oneshot";
+              unitConfig.DefaultDependencies = "no";
               wantedBy = [ "initrd.target" ];
 
               after = [
@@ -138,53 +133,22 @@
                 zfs rollback -r zroot/root@empty
               '';
             };
+
+            # The /etc/machine-id symlink below dangles until its target
+            # exists, and systemd can't write a fresh ID through a dangling
+            # symlink. Without one, dbus-broker refuses to start, and every
+            # D-Bus service fails with it. Seeded from the hostname once
+            # /persist is mounted ("f" leaves an existing ID alone), before
+            # the real root's systemd reads it.
+            tmpfiles.settings.machine-id."/sysroot/persist/system/etc/machine-id".f = {
+              argument = builtins.substring 0 32 (builtins.hashString "sha256" config.networking.hostName);
+              mode = "0444";
+            };
           };
         };
 
         preservation = {
           enable = true;
-
-          preserveAt."/persist/system" = {
-            commonMountOptions = [
-              "x-gvfs-hide"
-              "x-gdu.hide"
-            ];
-
-            directories = [
-              {
-                directory = "/etc/nixos";
-                group = "nixos";
-                mode = "0775";
-              }
-              "/var/log"
-              {
-                directory = "/var/lib/nixos";
-                inInitrd = true;
-                configureParent = true;
-              }
-              "/var/lib/systemd/backlight"
-              "/var/lib/systemd/coredump"
-              "/var/lib/systemd/timers"
-              "/var/lib/systemd/timesync"
-            ]
-            ++ cfg.systemDirectories;
-
-            files = [
-              {
-                file = "/etc/machine-id";
-                how = "symlink";
-                inInitrd = true;
-                configureParent = true;
-              }
-              {
-                file = "/var/lib/systemd/random-seed";
-                how = "symlink";
-                inInitrd = true;
-                configureParent = true;
-              }
-            ]
-            ++ cfg.systemFiles;
-          };
 
           preserveAt."/persist" = {
             users = lib.genAttrs normalUsers (_username: {
@@ -206,6 +170,48 @@
               ]
               ++ withParentConfig "file" cfg.homeFiles;
             });
+          };
+
+          preserveAt."/persist/system" = {
+            commonMountOptions = [
+              "x-gvfs-hide"
+              "x-gdu.hide"
+            ];
+
+            directories = [
+              {
+                directory = "/etc/nixos";
+                group = "nixos";
+                mode = "0775";
+              }
+              "/var/log"
+              {
+                configureParent = true;
+                directory = "/var/lib/nixos";
+                inInitrd = true;
+              }
+              "/var/lib/systemd/backlight"
+              "/var/lib/systemd/coredump"
+              "/var/lib/systemd/timers"
+              "/var/lib/systemd/timesync"
+            ]
+            ++ cfg.systemDirectories;
+
+            files = [
+              {
+                configureParent = true;
+                file = "/etc/machine-id";
+                how = "symlink";
+                inInitrd = true;
+              }
+              {
+                configureParent = true;
+                file = "/var/lib/systemd/random-seed";
+                how = "symlink";
+                inInitrd = true;
+              }
+            ]
+            ++ cfg.systemFiles;
           };
         };
 

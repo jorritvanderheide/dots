@@ -31,6 +31,7 @@
         boot = {
           # Suppress raw kernel log messages on the console too
           consoleLogLevel = 0;
+
           plymouth.enable = true;
 
           initrd = {
@@ -55,24 +56,6 @@
             "vt.global_cursor_default=0"
           ];
 
-          loader = {
-            efi.canTouchEfiVariables = true;
-            # No boot-menu wait; hold a key at boot to interrupt if an
-            # older generation is ever needed instead.
-            timeout = 0;
-
-            # Lanzaboote installs systemd-boot instead (below), with these
-            # settings.
-            systemd-boot = {
-              enable = lib.mkForce false;
-              configurationLimit = 32;
-              # The TPM unlocks the disk before anything asks for a password,
-              # so an edited command line (init=/bin/sh,
-              # rd.systemd.debug_shell) would be a root shell on it.
-              editor = false;
-            };
-          };
-
           # Secure boot with our own keys: the firmware only starts what they
           # signed, and the TPM (bound to PCR 7, below) only unlocks the
           # disk for that. Lanzaboote generates the keys on the first boot
@@ -82,9 +65,29 @@
           # Straight on /persist, like the SSH host key.
           lanzaboote = {
             enable = true;
-            pkiBundle = "/persist/system/var/lib/sbctl";
-            autoGenerateKeys.enable = true;
             autoEnrollKeys.enable = true;
+            autoGenerateKeys.enable = true;
+            pkiBundle = "/persist/system/var/lib/sbctl";
+          };
+
+          loader = {
+            efi.canTouchEfiVariables = true;
+
+            # No boot-menu wait; hold a key at boot to interrupt if an
+            # older generation is ever needed instead.
+            timeout = 0;
+
+            # Lanzaboote (boot.lanzaboote) installs systemd-boot instead, with these
+            # settings.
+            systemd-boot = {
+              enable = lib.mkForce false;
+              configurationLimit = 32;
+
+              # The TPM unlocks the disk before anything asks for a password,
+              # so an edited command line (init=/bin/sh,
+              # rd.systemd.debug_shell) would be a root shell on it.
+              editor = false;
+            };
           };
         };
 
@@ -100,17 +103,14 @@
           })
         ];
 
-        # Leave the splash's last frame on screen when plymouth quits, until
-        # the session draws over it, instead of a bare console in between.
-        systemd.services.plymouth-quit.serviceConfig.ExecStart = [
-          ""
-          "-${config.boot.plymouth.package}/bin/plymouth quit --retain-splash"
+        my.preservation.systemDirectories = [
+          "/var/lib/tpm2-luks-enroll"
         ];
 
         # Bound /var/log growth (preserved across reboots).
         services.journald.settings.Journal = {
-          SystemMaxUse = "2G";
           SystemMaxFileSize = "100M";
+          SystemMaxUse = "2G";
         };
 
         # Names each generation after the flake revision it was built from.
@@ -125,6 +125,13 @@
             "${config.system.nixos.release}.${date}-${rev}";
         };
 
+        # Leave the splash's last frame on screen when plymouth quits, until
+        # the session draws over it, instead of a bare console in between.
+        systemd.services.plymouth-quit.serviceConfig.ExecStart = [
+          ""
+          "-${config.boot.plymouth.package}/bin/plymouth quit --retain-splash"
+        ];
+
         # Binds a LUKS TPM2 keyslot to PCR 7 (secure boot's state and keys),
         # on the first boot with secure boot on (the state flag skips it
         # after that). Not before: bound with secure boot still off, the
@@ -135,12 +142,13 @@
         systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Bind a LUKS TPM2 keyslot for unlock";
+          extraServiceConfig.StateDirectory = "tpm2-luks-enroll";
           wantedBy = [ "multi-user.target" ];
+
           extraUnitConfig = {
             ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
             ConditionSecurity = "uefi-secureboot";
           };
-          extraServiceConfig.StateDirectory = "tpm2-luks-enroll";
 
           # wipe-slot is a separate call so systemd-cryptenroll can't
           # short-circuit ("already enrolled") and leave a stale token.
@@ -157,10 +165,6 @@
             ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done
           '';
         };
-
-        my.preservation.systemDirectories = [
-          "/var/lib/tpm2-luks-enroll"
-        ];
       };
     };
 }
