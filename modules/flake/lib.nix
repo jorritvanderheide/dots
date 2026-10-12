@@ -297,8 +297,7 @@
 
     # An nginx vhost at <domain> that only the tailnet reaches: an ACME
     # certificate, and bound to the tailnet IP with tailnetOnly. Its
-    # locations are the caller's (mkReverseProxy's proxy, or a module that
-    # brings its own vhost, like Nextcloud's).
+    # locations are the caller's (mkReverseProxy's proxy).
     tailnetVhost =
       {
         config,
