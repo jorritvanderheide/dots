@@ -8,18 +8,7 @@
       config,
       ...
     }:
-    let
-      cfg = config.my.virtualization;
-    in
     {
-      options.my.virtualization.docker = {
-        storageDriver = lib.mkOption {
-          default = "zfs";
-          description = "Docker storage driver";
-          type = lib.types.nullOr lib.types.str;
-        };
-      };
-
       config = {
         # Skip NixOS firewall on the docker bridge so Docker's own iptables
         # rules govern container traffic. Containers can reach host services;
@@ -45,7 +34,7 @@
         virtualisation.docker = {
           enable = true;
           enableOnBoot = false; # Socket-activated for faster boot
-          storageDriver = lib.mkIf (cfg.docker.storageDriver != null) cfg.docker.storageDriver;
+          storageDriver = "zfs";
 
           autoPrune = {
             enable = true;

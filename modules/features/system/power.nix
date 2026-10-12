@@ -38,26 +38,16 @@
     {
       options.my.power = {
         laptop.enable = lib.mkEnableOption "laptop-specific power optimizations";
-
-        cpuGovernor = lib.mkOption {
-          default = "powersave";
-          description = "CPU frequency scaling governor";
-
-          # intel_pstate=active / amd-pstate=active (set below) only support
-          # these two governors; the legacy ondemand/conservative/schedutil
-          # require acpi-cpufreq, which we don't use on modern CPUs.
-          type = lib.types.enum [
-            "performance"
-            "powersave"
-          ];
-        };
       };
 
       config = lib.mkMerge [
         {
           powerManagement = {
             enable = true;
-            cpuFreqGovernor = lib.mkDefault cfg.cpuGovernor;
+
+            # intel_pstate=active and amd_pstate=active only offer
+            # performance and powersave; the others need acpi-cpufreq.
+            cpuFreqGovernor = lib.mkDefault "powersave";
           };
         }
 

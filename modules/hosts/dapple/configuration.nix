@@ -1,12 +1,7 @@
 {
   inputs,
-  lib,
   ...
 }:
-let
-  facterPath = inputs.self + "/modules/hosts/dapple/facter.json";
-  facterReport = lib.importJSON facterPath;
-in
 {
   flake.nixosConfigurations.dapple = inputs.nixpkgs.lib.nixosSystem {
     modules =
@@ -83,8 +78,6 @@ in
 
             # The Realtek rtw89 driver is incompatible with networkd's BPF DHCP client.
             networking.useNetworkd = lib.mkForce false;
-
-            nixpkgs.hostPlatform = facterReport.system;
 
             # Shared by Immich and Nextcloud. Not the usual quarter of RAM:
             # ZFS's ARC (a quarter already) caches the same files again.

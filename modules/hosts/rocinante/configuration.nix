@@ -1,12 +1,7 @@
 {
   inputs,
-  lib,
   ...
 }:
-let
-  facterPath = inputs.self + "/modules/hosts/rocinante/facter.json";
-  facterReport = lib.importJSON facterPath;
-in
 {
   flake.nixosConfigurations.rocinante = inputs.nixpkgs.lib.nixosSystem {
     modules =
@@ -99,7 +94,6 @@ in
             my.session.autologinuser = "jorrit";
             my.vpn.loginServer = "https://vpn.bw20.nl";
             networking.hostName = "rocinante";
-            nixpkgs.hostPlatform = facterReport.system;
             system.stateVersion = "26.05";
 
             my.compositor = {
@@ -167,8 +161,6 @@ in
             };
 
             my.research = {
-              vaultPath = "Git/obsidian";
-
               institution = {
                 ezproxyPrefix = "https://login.ru.idm.oclc.org/login?qurl=";
                 iconUrl = "https://www.ru.nl/favicon.ico";

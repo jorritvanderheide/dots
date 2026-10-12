@@ -46,7 +46,6 @@ in
           sessionVariables.NIXOS_OZONE_WL = "1";
 
           systemPackages = with pkgs; [
-            alacritty
             batsignal
             blueman
             brightnessctl
@@ -236,18 +235,6 @@ in
                 };
               };
 
-              # niri-flake's settings schema predates niri 26.04's background
-              # effects, so this window rule is added as raw KDL. Defining it
-              # at mkOptionDefault (the same priority as the settings-rendered
-              # default) appends it to that document instead of replacing it.
-              # programs.niri.config = lib.mkOptionDefault (
-              #   with inputs.niri-flake.lib.kdl;
-              #   [
-              #     (plain "window-rule" [
-              #       (plain "background-effect" [ (leaf "blur" true) ])
-              #     ])
-              #   ]
-              # );
             }
           )
         ];

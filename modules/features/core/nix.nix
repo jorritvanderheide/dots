@@ -14,8 +14,6 @@
         daemonIOSchedClass = "best-effort";
         daemonIOSchedPriority = 7;
 
-        settings.nix-path = [ "nixpkgs=${inputs.nixpkgs}" ];
-
         gc = {
           automatic = true;
           dates = "weekly";
@@ -33,6 +31,8 @@
           # doesn't fill the disk while waiting for Sunday.
           max-free = 15 * 1024 * 1024 * 1024;
           min-free = 5 * 1024 * 1024 * 1024;
+
+          nix-path = [ "nixpkgs=${inputs.nixpkgs}" ];
 
           # Only the official cache here. A trusted key may sign any path,
           # not just its own project's, so each extra cache is added by the
