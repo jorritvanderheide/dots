@@ -140,6 +140,7 @@
 
               hostNames = [
                 "dapple"
+                inputs.self.lib.site.dapple.lanIp
                 inputs.self.lib.site.dapple.tailnetIp
               ];
             };

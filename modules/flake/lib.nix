@@ -216,13 +216,17 @@
 
     # Facts more than one host needs.
     site = {
-      # Headscale hands out addresses in order, and dapple joined first
-      # (docs/install.md).
-      dapple.tailnetIp = "100.64.0.1";
-
       domain = "bw20.nl";
       lan.subnet = "192.168.1.0/24";
       vpnDomain = "vpn.bw20.nl";
+
+      dapple = {
+        lanIp = "192.168.1.162";
+
+        # Headscale hands out addresses in order, and dapple joined first
+        # (docs/install.md).
+        tailnetIp = "100.64.0.1";
+      };
     };
 
     # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,
