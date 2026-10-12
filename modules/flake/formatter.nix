@@ -50,14 +50,19 @@
             ];
           };
 
+          # Noctalia's templates carry {{ }} placeholders a formatter could
+          # break.
           global.excludes = [
+            "**/*.hujson"
             "**/assets/**"
             "**/facter.json"
+            "**/noctalia-templates/**"
             ".sops.yaml"
             "config/statix.toml"
             "docs/**"
             "README.md"
             "secrets/**"
+            "TODO.md"
           ];
         };
       };
