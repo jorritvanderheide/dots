@@ -128,6 +128,9 @@ would otherwise win.
   declared config), which is fine with a long, random password like its
   own.
 - **Headscale's `/version` is public**, with its exact version.
+- **rocinante's keyring has an empty password**, since the session logs in
+  automatically and has no password to unlock it with. LUKS protects it on
+  disk; while logged in, an unlocked keyring is just as readable.
 
 ## Checking it
 

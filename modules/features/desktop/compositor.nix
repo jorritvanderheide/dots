@@ -32,6 +32,10 @@ in
         # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
 
+        # The prompt gnome-keyring shows when an app first stores a secret,
+        # which is where the keyring gets its (empty) password.
+        services.dbus.packages = [ pkgs.gcr_3 ];
+
         # Niri auto-enables gnome-keyring at system level, which also pulls in
         # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
         # We disable the system-level service and run gnome-keyring-daemon via
@@ -57,15 +61,24 @@ in
         home-manager.sharedModules = [
           system76SchedulerModule
           {
-            # Override gnome-keyring to exclude ssh component (conflicts with Bitwarden SSH agent)
-            systemd.user.services.gnome-keyring.Service.ExecStart =
-              lib.mkForce "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --start --foreground --components=secrets,pkcs11";
-
             # Mask gcr-ssh-agent to prevent it from overriding SSH_AUTH_SOCK
             xdg.configFile."systemd/user/gcr-ssh-agent.service".source =
               builtins.toFile "gcr-ssh-agent.service" "";
             xdg.configFile."systemd/user/gcr-ssh-agent.socket".source =
               builtins.toFile "gcr-ssh-agent.socket" "";
+
+            # Without the ssh component, which conflicts with the Bitwarden SSH
+            # agent. The keyring has an empty password: the session logs in
+            # automatically, so there is no password to unlock it with, and
+            # LUKS protects it on disk.
+            services.gnome-keyring = {
+              enable = true;
+
+              components = [
+                "pkcs11"
+                "secrets"
+              ];
+            };
           }
           (
             {
