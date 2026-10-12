@@ -12,7 +12,10 @@
       config = {
         home-manager.sharedModules = [
           {
+            # Gelly is a desktop client for the same Jellyfin library; it
+            # keeps its password in the keyring.
             home.packages = with pkgs; [
+              gelly
               jellyfin-tui
             ];
 
