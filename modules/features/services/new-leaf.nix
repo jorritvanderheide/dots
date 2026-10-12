@@ -57,6 +57,22 @@
 
         security.acme.certs.${domain} = { };
 
+        my.gatus.endpoints = {
+          # /healthz needs no tailnet identity, and answers 503 when New Leaf
+          # can't write CVs or share links, or run Typst.
+          cv-editor = {
+            conditions = [ "[STATUS] == 200" ];
+            group = "productivity";
+            url = "https://${domain}/healthz";
+          };
+
+          # A file New Leaf syncs into the public webroot; "/" only redirects.
+          cv-share = {
+            group = "productivity";
+            url = "https://${domain}/fonts/OFL.txt";
+          };
+        };
+
         my.offsite-backup.entries.new-leaf = {
           paths = [ "/var/lib/new-leaf/users" ];
           units = [ "new-leaf.service" ];

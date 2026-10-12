@@ -34,6 +34,11 @@
             '';
           })
           {
+            my.gatus.endpoints.immich = {
+              group = "media";
+              url = "https://${subdomain}.${config.my.ingress.domain}";
+            };
+
             # The database is in Postgres, not in these files: a restore loads
             # Immich's newest nightly dump of it, the way Immich's docs do.
             my.offsite-backup.entries.immich = {

@@ -62,6 +62,11 @@
           }
         ];
 
+        my.gatus.endpoints.headscale = {
+          group = "infra";
+          url = "https://${cfg.domain}";
+        };
+
         my.offsite-backup.entries.headscale = {
           paths = [ "/var/lib/headscale" ];
           units = [ "headscale.service" ];

@@ -32,6 +32,11 @@
             extraHeaders = "";
           })
           {
+            my.gatus.endpoints.nextcloud = {
+              group = "productivity";
+              url = "https://${domain}/status.php";
+            };
+
             # Files are in /var/lib/nextcloud, the database in its nightly
             # dump. A restore loads the dump into a fresh database, then
             # rescans the files (the dump can be a day older than they are)

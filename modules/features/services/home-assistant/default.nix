@@ -53,6 +53,11 @@
             # ZHA: let HA open the Zigbee dongle's serial port.
             users.users.hass.extraGroups = [ "dialout" ];
 
+            my.gatus.endpoints.home-assistant = {
+              group = "productivity";
+              url = "https://${subdomain}.${config.my.ingress.domain}";
+            };
+
             my.offsite-backup.entries.home-assistant = {
               paths = [ "/var/lib/hass" ];
               units = [ "home-assistant.service" ];

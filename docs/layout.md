@@ -40,6 +40,9 @@ disk. Backups read a ZFS snapshot of `/persist`, not the live files. An
 entry also names the units to stop for `offsite-restore`, and any commands
 to load a dump back.
 
+A service with a web page also declares what the status page checks, in
+`my.gatus.endpoints` (so it needs the gatus feature on its host).
+
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup, whose entries any feature may
 declare. A host with a screen adds `desktop`: the desktop features, which

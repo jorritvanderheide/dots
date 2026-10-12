@@ -41,7 +41,7 @@
           subdomain = "prowlarr";
         };
 
-        qbit = {
+        qbittorrent = {
           port = 8080;
           subdomain = "torrents";
         };
@@ -163,6 +163,11 @@
 
               # Indexers, profiles, history and torrents; cover art and logs are
               # not needed back.
+              my.gatus.endpoints = lib.mapAttrs (_name: app: {
+                group = "media";
+                url = "https://${app.subdomain}.${config.my.ingress.domain}";
+              }) apps;
+
               my.offsite-backup.entries.servarr = {
                 exclude =
                   lib.concatMap
@@ -293,7 +298,7 @@
               services.qbittorrent = {
                 enable = true;
                 openFirewall = false;
-                webuiPort = apps.qbit.port;
+                webuiPort = apps.qbittorrent.port;
 
                 serverConfig = {
                   # Private trackers: seed indefinitely (no ratio/time cap)

@@ -29,6 +29,11 @@
             inherit subdomain;
           })
           {
+            my.gatus.endpoints.vaultwarden = {
+              group = "productivity";
+              url = "https://${domain}";
+            };
+
             # The backup is Vaultwarden's own copy of its data (backupDir), so
             # a restore puts that copy back into the data folder.
             my.offsite-backup.entries.vaultwarden = {

@@ -37,11 +37,6 @@
             ...
           }:
           {
-            # Not a secret, just a stable file path for offsite-backup's
-            # healthcheckUrlFile option.
-            environment.etc."offsite-backup-healthcheck-url".text =
-              "https://status.bw20.nl/api/v1/endpoints/backups_offsite-backup/external?success=true";
-
             # Terminfo for Ghostty, so SSH sessions from rocinante render correctly.
             environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
@@ -52,6 +47,7 @@
             my.ingress.enable = true;
             my.lan.interface = "enp2s0";
             my.nextcloud.enable = true;
+            my.offsite-backup.enable = true;
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             my.vaultwarden.enable = true;
             networking.hostName = "dapple";
@@ -102,12 +98,6 @@
               ];
             };
 
-            my.offsite-backup = {
-              enable = true;
-              healthcheckTokenFile = "/run/secrets/gatus_push_token";
-              healthcheckUrlFile = "/etc/offsite-backup-healthcheck-url";
-            };
-
             my.servarr = {
               enable = true;
               recyclarr.enable = true;
@@ -133,20 +123,6 @@
             nix.settings = {
               trusted-public-keys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
               trusted-users = lib.mkForce [ "root" ];
-            };
-
-            # gatus's push token, for offsite-backup's healthcheck ping (see
-            # gatus.nix for why this can't be sops.secrets).
-            systemd.services.offsite-backup-healthcheck-token = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt gatus push token for offsite-backup's healthcheck ping";
-              extraServiceConfig.UMask = "0177";
-              wantedBy = [ "multi-user.target" ];
-
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract gatus_push_token > /run/secrets/gatus_push_token
-              '';
             };
           }
         )

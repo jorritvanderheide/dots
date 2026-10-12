@@ -14,6 +14,7 @@
       cfg = config.my.offsite-backup;
       resticPasswordPath = "/run/secrets/restic_password";
       resticEnvPath = "/run/secrets/restic-s3-env";
+      healthcheckTokenPath = "/run/secrets/offsite-backup-healthcheck-token";
 
       paths = cfg.paths ++ lib.concatMap (entry: entry.paths) (lib.attrValues cfg.entries);
 
@@ -121,24 +122,13 @@
           description = "What each service needs backed up, declared by the service's own module.";
         };
 
-        healthcheckTokenFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
+        healthcheckUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
-            Path to a file whose contents are the bearer token for the
-            healthcheck push endpoint. Required when using Gatus 5.x push
-            endpoints which expect Authorization: Bearer <token>.
-          '';
-        };
-
-        healthcheckUrlFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = ''
-            Path to a file whose contents are the full URL to POST to on
-            successful backup. Read at runtime so the URL with token can
-            come from sops without being baked into the store.
-            Set to null to disable health pings.
+            A Gatus external endpoint to POST to after each successful
+            backup, with the sops secret gatus_push_token as its bearer token.
+            The gatus feature sets it on its own host.
           '';
         };
 
@@ -186,26 +176,17 @@
           };
         };
 
-        systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrlFile != null) {
+        systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrl != null) {
           description = "Notify gatus that the offsite backup succeeded";
           path = [ pkgs.curl ];
           serviceConfig.Type = "oneshot";
 
-          script =
-            let
-              ping =
-                # The header on stdin, not in curl's arguments, which any
-                # local user can read.
-                if cfg.healthcheckTokenFile != null then
-                  ''curl -X POST -fsS -o /dev/null --config - "$HEALTHCHECK_URL" <<<"header = \"Authorization: Bearer $TOKEN\""''
-                else
-                  ''curl -fsS -o /dev/null "$HEALTHCHECK_URL"'';
-            in
-            ''
-              HEALTHCHECK_URL="$(<${cfg.healthcheckUrlFile})"
-              ${lib.optionalString (cfg.healthcheckTokenFile != null) ''TOKEN="$(<${cfg.healthcheckTokenFile})"''}
-              ${ping}
-            '';
+          # The header on stdin, not in curl's arguments, which any local
+          # user can read.
+          script = ''
+            TOKEN="$(<${healthcheckTokenPath})"
+            curl -X POST -fsS -o /dev/null --config - ${lib.escapeShellArg cfg.healthcheckUrl} <<<"header = \"Authorization: Bearer $TOKEN\""
+          '';
         };
 
         # restic reads its S3 credentials from the environment and its repo
@@ -225,6 +206,9 @@
               printf 'AWS_ACCESS_KEY_ID=%s\n' "$(sops_extract storj_access_key)"
               printf 'AWS_SECRET_ACCESS_KEY=%s\n' "$(sops_extract storj_secret_key)"
             } > ${resticEnvPath}
+          ''
+          + lib.optionalString (cfg.healthcheckUrl != null) ''
+            sops_extract gatus_push_token > ${healthcheckTokenPath}
           '';
         };
 
@@ -289,7 +273,7 @@
             RestartSec = "5min";
           };
 
-          unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrlFile != null) [
+          unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrl != null) [
             "offsite-backup-healthcheck.service"
           ];
         };

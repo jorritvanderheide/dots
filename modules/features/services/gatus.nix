@@ -17,107 +17,13 @@
       tokenPlaceholder = "@GATUS_PUSH_TOKEN@";
       configPath = "/run/gatus/config.yaml";
 
-      mkHttpEndpoint =
-        {
-          conditions ? [ "[STATUS] < 400" ],
-          group,
-          name,
-          url,
-        }:
-        {
-          inherit
-            name
-            group
-            url
-            conditions
-            ;
-
-          interval = "1m";
-        };
-
       configTemplate = pkgs.writeText "gatus-config-template.yaml" (
         builtins.toJSON {
-          endpoints = [
-            (mkHttpEndpoint {
-              group = "media";
-              name = "jellyfin";
-              url = "https://media.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "immich";
-              url = "https://photos.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "sonarr";
-              url = "https://series.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "radarr";
-              url = "https://movies.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "lidarr";
-              url = "https://music.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "prowlarr";
-              url = "https://prowlarr.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "bazarr";
-              url = "https://bazarr.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "media";
-              name = "qbittorrent";
-              url = "https://torrents.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "productivity";
-              name = "home-assistant";
-              url = "https://home.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "productivity";
-              name = "vaultwarden";
-              url = "https://passwords.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "productivity";
-              name = "calibre-web";
-              url = "https://books.${config.my.ingress.domain}";
-            })
-            (mkHttpEndpoint {
-              group = "productivity";
-              name = "nextcloud";
-              url = "https://cloud.${config.my.ingress.domain}/status.php";
-            })
-            # /healthz needs no tailnet identity, and answers 503 when New Leaf
-            # can't write CVs or share links, or run Typst.
-            (mkHttpEndpoint {
-              conditions = [ "[STATUS] == 200" ];
-              group = "productivity";
-              name = "cv-editor";
-              url = "https://cv.${config.my.ingress.domain}/healthz";
-            })
-            # A file New Leaf syncs into the public webroot; "/" only redirects.
-            (mkHttpEndpoint {
-              group = "productivity";
-              name = "cv-share";
-              url = "https://cv.${config.my.ingress.domain}/fonts/OFL.txt";
-            })
-            (mkHttpEndpoint {
-              group = "infra";
-              name = "headscale";
-              url = "https://vpn.${config.my.ingress.domain}";
-            })
-          ];
+          endpoints = lib.mapAttrsToList (name: endpoint: {
+            inherit name;
+            inherit (endpoint) conditions group url;
+            interval = "1m";
+          }) cfg.endpoints;
 
           # A heartbeat turns an endpoint red when its pushes stop: a day and
           # an hour for the daily offsite backup.
@@ -143,7 +49,35 @@
       );
     in
     {
-      options.my.gatus.enable = lib.mkEnableOption "Gatus status page + monitoring";
+      options.my.gatus = {
+        enable = lib.mkEnableOption "Gatus status page + monitoring";
+
+        endpoints = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options = {
+                conditions = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  default = [ "[STATUS] < 400" ];
+                  description = "Gatus conditions the response must meet.";
+                };
+
+                group = lib.mkOption {
+                  type = lib.types.str;
+                  description = "The group it is listed under on the status page.";
+                };
+
+                url = lib.mkOption {
+                  type = lib.types.str;
+                  description = "What to check, every minute.";
+                };
+              };
+            }
+          );
+          default = { };
+          description = "What the status page checks, declared by each service's own module.";
+        };
+      };
 
       config = lib.mkIf cfg.enable (
         lib.mkMerge [
@@ -151,6 +85,10 @@
             inherit config port subdomain;
           })
           {
+            # The offsite backup reports to the heartbeat in
+            # external-endpoints.
+            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "https://${subdomain}.${config.my.ingress.domain}/api/v1/endpoints/backups_offsite-backup/external?success=true";
+
             users.groups.gatus = { };
 
             my.preservation.systemDirectories = [

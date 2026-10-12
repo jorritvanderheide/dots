@@ -39,6 +39,11 @@
             '';
           })
           {
+            my.gatus.endpoints.calibre-web = {
+              group = "productivity";
+              url = "https://${subdomain}.${config.my.ingress.domain}";
+            };
+
             my.offsite-backup.entries.calibre-web = {
               paths = [ "/var/lib/calibre-web" ];
 

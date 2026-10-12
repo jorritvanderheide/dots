@@ -151,6 +151,11 @@
               extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
             };
 
+            my.gatus.endpoints.jellyfin = {
+              group = "media";
+              url = "https://${subdomain}.${config.my.ingress.domain}";
+            };
+
             # Users, watch history and libraries; the artwork in metadata is
             # fetched again.
             my.offsite-backup.entries.jellyfin = {
