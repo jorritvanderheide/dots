@@ -53,6 +53,41 @@ same groups as the folders (Core, System, Services, ...), and sets the
 - **`mkUser`**: a user with fish, home-manager, and a password set from
   `user_password_<user>` at boot.
 
+## Ordering
+
+Inside an attribute set, an attribute's place follows from its shape and
+name only:
+
+1. Single-line attributes first, alphabetical, without blank lines between
+   them. A plain value that nixfmt wrapped onto a second line still counts
+   as single-line.
+2. Then multi-line attributes, alphabetical, with a blank line between each.
+
+A comment doesn't move an attribute: a commented one-liner keeps its
+alphabetical place among the single lines, with a blank line above its
+comment and below the line. A comment can also cover a run of one-liners
+directly below it, like `min-free` and `max-free`: the run stays together,
+alphabetical inside, in the place of its first name, with a blank line
+above the comment and below the run. A comment about the whole set sits at
+its top, followed by a blank line.
+
+Alphabetical goes by the attribute path as written, ignoring case and
+quotes, so `my.*`, `networking.*` and `services.*` each end up together.
+
+Exceptions:
+
+- `inherit` lines, then `enable`, lead their set.
+- `mkOption` arguments keep nixpkgs' order: `type`, `default`, `example`,
+  `description`.
+- A module's `imports`, `options` and `config` come in that order.
+- `let` bindings and lists keep their order: a `let` reads best top-down,
+  and in a list the order can matter.
+- Function arguments are alphabetical, with `...` last.
+
+Attribute order never changes what Nix evaluates: a reorder that leaves
+every host's closure the same, apart from the revision it's built from,
+changed nothing but the layout.
+
 ## Comments
 
 Comments say why: a constraint, a failure mode, an upstream quirk. What an
@@ -64,6 +99,8 @@ commit message, not in a comment about how things used to be.
   later".
 - Comments go on their own line above the code. A trailing comment is for a
   label of a few words, like the name behind a hash.
+- Other settings are named, not pointed at with "above" or "below":
+  sorting moves them.
 - Sentences are split with periods, semicolons, colons or parentheses, not
   ` -- `.
 - Notes about a folder of non-Nix files, such as where they came from, go in
