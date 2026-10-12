@@ -218,6 +218,10 @@
     site = {
       domain = "bw20.nl";
       lan.subnet = "192.168.1.0/24";
+
+      # Gatus, on dapple (gatus.nix): what every host reports its disks to.
+      statusPage = "https://status.bw20.nl";
+
       vpnDomain = "vpn.bw20.nl";
 
       dapple = {

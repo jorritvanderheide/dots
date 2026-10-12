@@ -20,6 +20,7 @@
       zfs
 
       # System
+      disk-health
       locale
       networking
       ssh

@@ -21,6 +21,7 @@
         jellyfin
         new-leaf
         nextcloud
+        ntfy
         servarr
         vaultwarden
 
@@ -47,6 +48,7 @@
             my.ingress.enable = true;
             my.lan.interface = "enp2s0";
             my.nextcloud.enable = true;
+            my.ntfy.enable = true;
             my.offsite-backup.enable = true;
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             my.vaultwarden.enable = true;

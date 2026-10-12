@@ -144,11 +144,14 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | Gatus | `status` | Monitoring of all of the above |
+| ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app |
 
 Backups: the services' data to Storj with restic, daily, with credentials
 that can't delete or overwrite (pruning is by hand, from rocinante),
 reported to Gatus. Locally, sanoid keeps hourly to yearly ZFS snapshots of
-`/persist`.
+`/persist`. Every host reports its disks' and pools' health to Gatus too
+(smartd and `zpool status`, hourly). Whatever Gatus sees go down, or come
+back, goes to the phone through ntfy.
 
 <br/>
 

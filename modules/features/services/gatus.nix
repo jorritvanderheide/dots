@@ -14,38 +14,85 @@
       cfg = config.my.gatus;
       subdomain = "status";
       port = 8190;
-      tokenPlaceholder = "@GATUS_PUSH_TOKEN@";
       configPath = "/run/gatus/config.yaml";
+      hosts = lib.attrNames inputs.self.nixosConfigurations;
+      alerting = config.services.ntfy-sh.enable;
+
+      # Secrets go into the config by their sops key, at service start
+      # (gatus-secrets). Every other host pushes with a token of its own, so
+      # a stolen laptop can't vouch for this host's backups.
+      placeholder = key: "@${key}@";
+      pushTokenKey =
+        host: if host == config.networking.hostName then "gatus_push_token" else "gatus_push_token_${host}";
+      secretKeys = lib.unique (map pushTokenKey hosts) ++ lib.optional alerting "ntfy_token";
+
+      # A pushed result comes hours apart and is a verdict, so it alerts at
+      # once; a check runs every minute, so it takes the default three
+      # failures in a row.
+      pushAlerts = lib.optional alerting {
+        failure-threshold = 1;
+        success-threshold = 1;
+        type = "ntfy";
+      };
 
       configTemplate = pkgs.writeText "gatus-config-template.yaml" (
-        builtins.toJSON {
-          endpoints = lib.mapAttrsToList (name: endpoint: {
-            inherit name;
-            inherit (endpoint) conditions group url;
-            interval = "1m";
-          }) cfg.endpoints;
+        builtins.toJSON (
+          {
+            endpoints = lib.mapAttrsToList (name: endpoint: {
+              inherit name;
+              inherit (endpoint) conditions group url;
+              alerts = lib.optional alerting { type = "ntfy"; };
+              interval = "1m";
+            }) cfg.endpoints;
 
-          # A heartbeat turns an endpoint red when its pushes stop: a day and
-          # an hour for the daily offsite backup.
-          external-endpoints = [
-            {
-              group = "backups";
-              heartbeat.interval = "25h";
-              name = "offsite-backup";
-              token = tokenPlaceholder;
-            }
-          ];
+            # A heartbeat turns an endpoint red when its pushes stop: a day
+            # and an hour for the daily offsite backup. Every host reports
+            # its disks hourly (disk-health.nix), but only this one's silence
+            # means something broke; a laptop's means it's off.
+            external-endpoints = [
+              {
+                alerts = pushAlerts;
+                group = "backups";
+                heartbeat.interval = "25h";
+                name = "offsite-backup";
+                token = placeholder (pushTokenKey config.networking.hostName);
+              }
+            ]
+            ++ map (
+              host:
+              {
+                alerts = pushAlerts;
+                group = "disks";
+                name = host;
+                token = placeholder (pushTokenKey host);
+              }
+              // lib.optionalAttrs (host == config.networking.hostName) {
+                heartbeat.interval = "2h";
+              }
+            ) hosts;
 
-          storage = {
-            path = "/var/lib/gatus/data.db";
-            type = "sqlite";
-          };
+            storage = {
+              path = "/var/lib/gatus/data.db";
+              type = "sqlite";
+            };
 
-          web = {
-            inherit port;
-            address = "127.0.0.1";
-          };
-        }
+            web = {
+              inherit port;
+              address = "127.0.0.1";
+            };
+          }
+          # To the phone, through ntfy on this host (ntfy.nix), straight to
+          # its port rather than through nginx.
+          // lib.optionalAttrs alerting {
+            alerting.ntfy = {
+              click = inputs.self.lib.site.statusPage;
+              default-alert.send-on-resolved = true;
+              token = placeholder "ntfy_token";
+              topic = config.my.ntfy.topic;
+              url = "http://${config.services.ntfy-sh.settings.listen-http}";
+            };
+          }
+        )
       );
     in
     {
@@ -138,24 +185,27 @@
             };
 
             # The upstream module renders settings to /nix/store; that's fine
-            # for the endpoint list but the push token must come from sops.
+            # for the endpoint list but the tokens must come from sops.
             # Render the static config at build time and substitute the
-            # runtime-decrypted token in at service start, so the token is
-            # only ever on disk in the runtime-generated file.
+            # runtime-decrypted tokens in at service start, so they are only
+            # ever on disk in the runtime-generated file.
             systemd.services.gatus-secrets = inputs.self.lib.mkSopsService {
               inherit pkgs;
-              description = "Render Gatus config with sops-decrypted push token";
+              description = "Render Gatus config with sops-decrypted tokens";
               extraServiceConfig.UMask = "0177";
               wantedBy = [ "multi-user.target" ];
 
               script = ''
                 install -d -m 0755 -o gatus -g gatus /run/gatus
-                TOKEN="$(sops_extract gatus_push_token)"
-                # In bash rather than sed, whose arguments (the token) any
+                # In bash rather than sed, whose arguments (the tokens) any
                 # local user could read in /proc. The replacement is quoted so
                 # bash takes it literally (unquoted, & means the match).
                 template="$(<${configTemplate})"
-                printf '%s\n' "''${template//${tokenPlaceholder}/"$TOKEN"}" > ${configPath}
+                for key in ${lib.escapeShellArgs secretKeys}; do
+                  value="$(sops_extract "$key")"
+                  template="''${template//@$key@/"$value"}"
+                done
+                printf '%s\n' "$template" > ${configPath}
                 chown gatus:gatus ${configPath}
               '';
             };
