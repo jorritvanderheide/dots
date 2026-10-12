@@ -87,6 +87,11 @@ in
             networking.useNetworkd = lib.mkForce false;
 
             nixpkgs.hostPlatform = facterReport.system;
+
+            # Shared by Immich and Nextcloud. Not the usual quarter of RAM:
+            # ZFS's ARC (a quarter already) caches the same files again.
+            services.postgresql.settings.shared_buffers = "1GB";
+
             system.stateVersion = "26.05";
 
             # preservation.nix pins this to 3000 for install.sh's benefit on a
