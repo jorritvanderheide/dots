@@ -57,10 +57,8 @@
         '';
 
         # Value must be a password *hash* (mkpasswd -m yescrypt), not
-        # plaintext; see docs/secrets.md to set it. Same bare-chroot limitation
-        # install.sh works around for nixos-install (see mkSopsService for
-        # why this isn't sops.secrets + hashedPasswordFile/neededForUsers),
-        # but here it bites on every single boot, not just first boot.
+        # plaintext; see docs/secrets.md to set it. Set at every boot, since
+        # the root is wiped.
         systemd.services.set-password-root = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Set root's password from sops";

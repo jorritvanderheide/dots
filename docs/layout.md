@@ -59,7 +59,9 @@ list.
 
 - **`mkSopsService`**: a oneshot service that decrypts the host's secrets
   with its own age key or a YubiKey (after pcscd is up, retrying while the
-  key enumerates). See
+  key enumerates). A secret that only needs to be a file is one of its
+  `files`, written to `/run/secrets` for its owner only; anything else
+  goes in its `script`. See
   [Installing a host](install.md#why-the-accounts-start-locked) for why
   secrets are not installed by sops-nix at activation.
 - **`sopsExtract`**: prints one secret from the host's own file

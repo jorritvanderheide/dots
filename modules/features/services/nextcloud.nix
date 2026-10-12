@@ -132,14 +132,12 @@
             systemd.services.nextcloud-secrets = inputs.self.lib.mkSopsService {
               inherit pkgs;
               description = "Decrypt Nextcloud's admin password from sops";
-              extraServiceConfig.UMask = "0177";
               wantedBy = [ "multi-user.target" ];
 
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract nextcloud_admin_password > ${adminpassPath}
-                chown nextcloud ${adminpassPath}
-              '';
+              files.${adminpassPath} = {
+                key = "nextcloud_admin_password";
+                owner = "nextcloud";
+              };
             };
 
             # The admin password is only read on the first setup.

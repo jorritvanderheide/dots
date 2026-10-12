@@ -73,6 +73,9 @@
     # A oneshot service that decrypts sops secrets via the YubiKey identity
     # and does something with them: the shape shared by
     # set-password-root/set-password-<user>/tpm2-luks-enroll/wireless-secrets.
+    # A secret that only needs to be a file is one of `files`
+    # ({ "/run/secrets/<name>" = { key; owner ? "root"; }; }), written
+    # readable by its owner only.
     # Deliberately not sops-nix's own sops.secrets/activation-time install:
     # with boot.initrd.systemd.enable (needed for the ZFS rollback), *every*
     # boot's activation runs chrooted into /sysroot from the initrd, before
@@ -85,10 +88,14 @@
         description,
         extraServiceConfig ? { },
         extraUnitConfig ? { },
+        files ? { },
         pkgs,
-        script,
+        script ? "",
         wantedBy ? [ ],
       }:
+      assert lib.assertMsg (lib.all (lib.hasPrefix "/run/secrets/") (
+        lib.attrNames files
+      )) "mkSopsService: files go in /run/secrets";
       {
         inherit description wantedBy;
         after = [ "pcscd.service" ];
@@ -112,10 +119,29 @@
             ${inputs.self.lib.sopsExtract pkgs} "$1"
           }
         ''
+        + lib.optionalString (files != { }) ''
+          install -d -m 0755 /run/secrets
+        ''
+        + lib.concatStrings (
+          lib.mapAttrsToList (
+            path:
+            {
+              key,
+              owner ? "root",
+            }:
+            ''
+              sops_extract ${key} > ${path}
+            ''
+            + lib.optionalString (owner != "root") ''
+              chown ${owner} ${path}
+            ''
+          ) files
+        )
         + script;
 
         serviceConfig =
           inputs.self.lib.sopsRetryServiceConfig
+          // lib.optionalAttrs (files != { }) { UMask = "0177"; }
           // extraServiceConfig
           // {
             Type = "oneshot";
@@ -149,8 +175,7 @@
         };
 
         # root is wiped every boot (impermanence), so this can't be a
-        # first-boot-only step. See mkSopsService for why it's not
-        # sops-nix's own sops.secrets/activation-time install.
+        # first-boot-only step.
         systemd.services = lib.mkIf usePasswordSecret {
           "set-password-${username}" = inputs.self.lib.mkSopsService {
             inherit pkgs;

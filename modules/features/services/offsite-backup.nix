@@ -196,19 +196,22 @@
         systemd.services.offsite-backup-secrets = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Decrypt Storj/restic credentials from sops";
-          extraServiceConfig.UMask = "0177";
           wantedBy = [ "multi-user.target" ];
 
+          files = {
+            ${resticPasswordPath}.key = "restic_password";
+          }
+          // lib.optionalAttrs (cfg.healthcheckUrl != null) {
+            ${healthcheckTokenPath}.key = "gatus_push_token";
+          };
+
+          # Assignments first: a failing sops_extract inside printf's
+          # arguments wouldn't stop the script (set -e only sees printf),
+          # and restic would get empty credentials.
           script = ''
-            install -d -m 0755 /run/secrets
-            sops_extract restic_password > ${resticPasswordPath}
-            {
-              printf 'AWS_ACCESS_KEY_ID=%s\n' "$(sops_extract storj_access_key)"
-              printf 'AWS_SECRET_ACCESS_KEY=%s\n' "$(sops_extract storj_secret_key)"
-            } > ${resticEnvPath}
-          ''
-          + lib.optionalString (cfg.healthcheckUrl != null) ''
-            sops_extract gatus_push_token > ${healthcheckTokenPath}
+            key_id="$(sops_extract storj_access_key)"
+            secret_key="$(sops_extract storj_secret_key)"
+            printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' "$key_id" "$secret_key" > ${resticEnvPath}
           '';
         };
 

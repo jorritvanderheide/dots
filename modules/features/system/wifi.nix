@@ -146,10 +146,6 @@
           wants = [ "wireless-secrets.service" ];
         };
 
-        # Same bare-chroot reason as set-password-root (see mkSopsService)
-        # this can't use sops-nix's own sops.secrets/sops.templates for
-        # NetworkManager-ensure-profiles' environmentFiles; it decrypts
-        # straight into /run itself instead.
         systemd.services.wireless-secrets = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Decrypt wireless PSKs for NetworkManager's declarative profiles";

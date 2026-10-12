@@ -97,13 +97,8 @@
         systemd.services.cloudflare-dns-secrets = inputs.self.lib.mkSopsService {
           inherit pkgs;
           description = "Decrypt Cloudflare DNS API credentials for ACME from sops";
-          extraServiceConfig.UMask = "0177";
+          files.${cloudflareDnsEnvPath}.key = "cloudflare_dns_env";
           wantedBy = [ "multi-user.target" ];
-
-          script = ''
-            install -d -m 0755 /run/secrets
-            sops_extract cloudflare_dns_env > ${cloudflareDnsEnvPath}
-          '';
         };
 
         systemd.services.nginx.serviceConfig = {

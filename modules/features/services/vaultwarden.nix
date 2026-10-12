@@ -109,14 +109,12 @@
             systemd.services.vaultwarden-secrets = inputs.self.lib.mkSopsService {
               inherit pkgs;
               description = "Decrypt Vaultwarden environment file from sops";
-              extraServiceConfig.UMask = "0177";
               wantedBy = [ "multi-user.target" ];
 
-              script = ''
-                install -d -m 0755 /run/secrets
-                sops_extract vaultwarden_env > ${envPath}
-                chown vaultwarden ${envPath}
-              '';
+              files.${envPath} = {
+                key = "vaultwarden_env";
+                owner = "vaultwarden";
+              };
             };
 
             systemd.tmpfiles.rules = [

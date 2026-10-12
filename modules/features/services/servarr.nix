@@ -141,14 +141,12 @@
               systemd.services.recyclarr-secrets = inputs.self.lib.mkSopsService {
                 inherit pkgs;
                 description = "Decrypt Sonarr/Radarr API keys for recyclarr from sops";
-                extraServiceConfig.UMask = "0177";
                 wantedBy = [ "multi-user.target" ];
 
-                script = ''
-                  install -d -m 0755 /run/secrets
-                  sops_extract sonarr_api_key > ${sonarrApiKeyPath}
-                  sops_extract radarr_api_key > ${radarrApiKeyPath}
-                '';
+                files = {
+                  ${radarrApiKeyPath}.key = "radarr_api_key";
+                  ${sonarrApiKeyPath}.key = "sonarr_api_key";
+                };
               };
             })
             {
@@ -423,13 +421,8 @@
               systemd.services.bazarr-secrets = inputs.self.lib.mkSopsService {
                 inherit pkgs;
                 description = "Decrypt Bazarr's login password hash from sops";
-                extraServiceConfig.UMask = "0177";
+                files.${bazarrPasswordPath}.key = "bazarr_password";
                 wantedBy = [ "multi-user.target" ];
-
-                script = ''
-                  install -d -m 0755 /run/secrets
-                  sops_extract bazarr_password > ${bazarrPasswordPath}
-                '';
               };
 
               systemd.tmpfiles.rules = [
