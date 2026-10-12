@@ -65,13 +65,6 @@
                 mode = "0700";
                 user = "immich";
               }
-              # All Immich metadata (albums, faces, ML embeddings) lives here.
-              {
-                directory = "/var/lib/postgresql";
-                group = "postgres";
-                mode = "0750";
-                user = "postgres";
-              }
               # Job queue; without this a reboot drops queued background jobs.
               {
                 directory = "/var/lib/redis-immich";

@@ -147,6 +147,17 @@
           };
         };
 
+        # Every database of whichever services turn PostgreSQL on (Immich,
+        # Nextcloud) lives here; declared once, so no two services claim it.
+        my.preservation.systemDirectories = lib.mkIf config.services.postgresql.enable [
+          {
+            directory = "/var/lib/postgresql";
+            group = "postgres";
+            mode = "0750";
+            user = "postgres";
+          }
+        ];
+
         preservation = {
           enable = true;
 
