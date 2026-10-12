@@ -16,7 +16,7 @@ gets no certificate and no answer. Everything else is bound to dapple's
 tailnet address.
 
 **A tailnet device** gets what Headscale's
-[policy](../modules/features/services/headscale-policy.hujson) grants it:
+[policy](../modules/features/services/headscale/headscale-policy.hujson) grants it:
 
 - every device: the services on dapple, over HTTPS;
 - rocinante: SSH on dapple;

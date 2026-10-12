@@ -121,7 +121,7 @@ sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Head
 It prints a link; the page behind it shows a `headscale nodes register`
 command. Run that on dapple, with the user the device belongs to. dapple
 itself is then made a server rather than someone's device, which the
-access policy (`modules/features/services/headscale-policy.hujson`)
+access policy (`modules/features/services/headscale/headscale-policy.hujson`)
 counts on:
 
 ```sh
