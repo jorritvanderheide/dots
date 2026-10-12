@@ -9,6 +9,7 @@ flakes only see tracked files.
 ```
 modules/
   features/<area>/<feature>.nix   one NixOS module each: flake.nixosModules.<feature>
+  features/<area>/<feature>/      a feature too big for one file, and the files it reads
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
@@ -24,6 +25,13 @@ A feature is one NixOS module, named after the file, that sets up one thing:
 through `home-manager.sharedModules`. Options live under `my.<feature>`:
 services do nothing until `my.<service>.enable` is set, and other features
 take settings there, like `my.compositor.outputs`.
+
+A feature too big for one file becomes a folder. Each `.nix` file in it
+defines the same `flake.nixosModules.<feature>`, and flake-parts merges
+them into one module: `services/home-assistant/` keeps the service in
+`default.nix` and the house's automations in `automations.nix`;
+`desktop/theming/` has Zen's part in `zen.nix`. The folder also holds the
+non-Nix files the feature reads, like theming's `noctalia-templates/`.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
 survives a reboot, and in `my.offsite-backup.entries`, so it survives a lost
