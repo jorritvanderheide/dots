@@ -14,7 +14,7 @@
               # iterating on dirty working-copy state.
               functions.check-clean = ''
                 if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
-                  echo "Working copy has uncommitted changes -- describe them first (nswitch/nboot/ndeploy require a clean working copy; use nbuild/ntest to iterate on dirty code)." >&2
+                  echo "Working copy has uncommitted changes. Describe them first." >&2
                   return 1
                 end
               '';
@@ -26,7 +26,7 @@
               # Only for the local host: ndeploy activates remotely.
               functions.check-yubikey = ''
                 if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
-                  echo "YubiKey not detected -- plug it in before rebuilding (needed to decrypt secrets during activation)." >&2
+                  echo "YubiKey not detected. Plug it in before rebuilding." >&2
                   return 1
                 end
               '';
