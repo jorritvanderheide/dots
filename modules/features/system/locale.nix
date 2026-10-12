@@ -9,6 +9,8 @@
       cfg = config.my.locale;
     in
     {
+      config.time.timeZone = cfg.timezone;
+
       options.my.locale = {
         timezone = lib.mkOption {
           default = "Europe/Amsterdam";
@@ -16,7 +18,5 @@
           type = lib.types.str;
         };
       };
-
-      config.time.timeZone = cfg.timezone;
     };
 }

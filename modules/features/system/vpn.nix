@@ -31,15 +31,6 @@
       };
 
       config = {
-        services.tailscale = {
-          enable = true;
-          openFirewall = true;
-
-          # Only needed for official Tailscale's HTTPS cert issuance; a
-          # self-hosted login server handles certs its own way.
-          permitCertUid = lib.mkIf (cfg.loginServer == null) "root";
-        };
-
         # The device's identity: restored, the host is back on the tailnet as
         # itself, at its old address, without joining again.
         my.offsite-backup.entries.tailscale = {
@@ -50,6 +41,15 @@
         my.preservation.systemDirectories = [
           "/var/lib/tailscale"
         ];
+
+        services.tailscale = {
+          enable = true;
+          openFirewall = true;
+
+          # Only needed for official Tailscale's HTTPS cert issuance; a
+          # self-hosted login server handles certs its own way.
+          permitCertUid = lib.mkIf (cfg.loginServer == null) "root";
+        };
       };
     };
 }

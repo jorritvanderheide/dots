@@ -13,6 +13,45 @@
           environmentFiles = [ "/run/wireless-secrets.env" ];
 
           profiles = {
+            eduroam = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
+
+              "802-1x" = {
+                anonymous-identity = "anonymous@ru.nl";
+
+                # ca-cert intentionally left unset: RU's RADIUS backend is
+                # inconsistent about sending its intermediate cert chain, and
+                # wpa_supplicant's OpenSSL backend won't fill the gap from a
+                # local ca-cert store during a live handshake (verified: even
+                # a byte-for-byte correct bundle, extracted from RU's own
+                # eduroam CAT installer, didn't help; see eduroam-ca.pem,
+                # kept around for whenever RU's server-side issue is fixed
+                # and validation can be turned back on).
+                # ca-cert = "${./eduroam-ca.pem}";
+                eap = "peap";
+
+                identity = "$EDUROAM_IDENTITY";
+                password = "$EDUROAM_PSK";
+                phase2-auth = "mschapv2";
+              };
+
+              connection = {
+                id = "eduroam";
+                permissions = "user:jorrit:";
+                type = "wifi";
+              };
+
+              wifi = {
+                mode = "infrastructure";
+                ssid = "eduroam";
+              };
+
+              wifi-security = {
+                key-mgmt = "wpa-eap";
+              };
+            };
+
             home = {
               ipv4.method = "auto";
               ipv6.method = "auto";
@@ -20,8 +59,8 @@
               connection = {
                 autoconnect-priority = 10;
                 id = "Home";
-                type = "wifi";
                 permissions = "user:jorrit:";
+                type = "wifi";
               };
 
               wifi = {
@@ -41,8 +80,8 @@
 
               connection = {
                 id = "Home 2.4";
-                type = "wifi";
                 permissions = "user:jorrit:";
+                type = "wifi";
               };
 
               wifi = {
@@ -56,43 +95,6 @@
               };
             };
 
-            eduroam = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
-
-              "802-1x" = {
-                anonymous-identity = "anonymous@ru.nl";
-                # ca-cert intentionally left unset: RU's RADIUS backend is
-                # inconsistent about sending its intermediate cert chain, and
-                # wpa_supplicant's OpenSSL backend won't fill the gap from a
-                # local ca-cert store during a live handshake (verified: even
-                # a byte-for-byte correct bundle, extracted from RU's own
-                # eduroam CAT installer, didn't help; see eduroam-ca.pem,
-                # kept around for whenever RU's server-side issue is fixed
-                # and validation can be turned back on).
-                # ca-cert = "${./eduroam-ca.pem}";
-                eap = "peap";
-                identity = "$EDUROAM_IDENTITY";
-                password = "$EDUROAM_PSK";
-                phase2-auth = "mschapv2";
-              };
-
-              connection = {
-                id = "eduroam";
-                type = "wifi";
-                permissions = "user:jorrit:";
-              };
-
-              wifi = {
-                mode = "infrastructure";
-                ssid = "eduroam";
-              };
-
-              wifi-security = {
-                key-mgmt = "wpa-eap";
-              };
-            };
-
             hotspot = {
               ipv4.method = "auto";
               ipv6.method = "auto";
@@ -100,8 +102,8 @@
               connection = {
                 autoconnect-priority = 100;
                 id = "Jorrit's Fairphone";
-                type = "wifi";
                 permissions = "user:jorrit:";
+                type = "wifi";
               };
 
               wifi = {
@@ -122,8 +124,8 @@
               connection = {
                 autoconnect-priority = 10;
                 id = "iotroam";
-                type = "wifi";
                 permissions = "user:jorrit:";
+                type = "wifi";
               };
 
               wifi = {

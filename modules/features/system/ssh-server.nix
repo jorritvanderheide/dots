@@ -31,12 +31,37 @@
       };
 
       config = lib.mkIf cfg.enable {
+        networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
+
+        # Apply authorized keys from home-manager user configs
+        users.users = collectAuthorizedKeys;
+
+        # Home-manager
+        home-manager.sharedModules = [
+          {
+            options.my.ssh-server = {
+              authorizedKeys = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [ ];
+                description = "Authorized SSH public keys for remote login";
+              };
+            };
+          }
+        ];
+
+        # Preserve state
+        my.preservation.systemFiles = [
+          "/etc/ssh/ssh_host_ed25519_key.pub"
+        ];
+
         services.openssh = {
           enable = true;
           allowSFTP = false;
+
           # Only the keys declared here: ~/.ssh outlives the root wipe, so a
           # key planted there would too.
           authorizedKeysInHomedir = false;
+
           # Not on every interface: the tailnet here, and the host adds its
           # LAN if it wants it.
           openFirewall = false;
@@ -63,29 +88,6 @@
             PermitRootLogin = "no";
           };
         };
-
-        networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
-
-        # Apply authorized keys from home-manager user configs
-        users.users = collectAuthorizedKeys;
-
-        # Preserve state
-        my.preservation.systemFiles = [
-          "/etc/ssh/ssh_host_ed25519_key.pub"
-        ];
-
-        # Home-manager
-        home-manager.sharedModules = [
-          {
-            options.my.ssh-server = {
-              authorizedKeys = lib.mkOption {
-                type = lib.types.listOf lib.types.str;
-                default = [ ];
-                description = "Authorized SSH public keys for remote login";
-              };
-            };
-          }
-        ];
       };
     };
 }

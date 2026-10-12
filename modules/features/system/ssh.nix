@@ -51,12 +51,6 @@
       };
 
       config = {
-        programs.ssh = {
-          inherit (cfg) knownHosts;
-          # mkDefault lets the password-manager module override this
-          startAgent = lib.mkDefault true;
-        };
-
         # Home manager
         home-manager.sharedModules = [
           {
@@ -74,8 +68,8 @@
 
                 "codeberg" = {
                   host = "codeberg.org";
-                  identityFile = "~/.ssh/git@codeberg.org.pub";
                   identitiesOnly = true;
+                  identityFile = "~/.ssh/git@codeberg.org.pub";
                   user = "git";
                 };
 
@@ -87,23 +81,23 @@
 
                 "github" = {
                   host = "github.com";
-                  identityFile = "~/.ssh/git@github.com.pub";
                   identitiesOnly = true;
+                  identityFile = "~/.ssh/git@github.com.pub";
                   user = "git";
                 };
 
                 "gitlab" = {
                   host = "gitlab.science.ru.nl";
-                  identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                   identitiesOnly = true;
+                  identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                   user = "git";
                 };
 
                 "ilab1" = {
                   host = "ilab1";
                   hostname = "ilab1.ihub.ru.nl";
-                  identityFile = "~/Git/ops/ssh/id_ilab";
                   identitiesOnly = true;
+                  identityFile = "~/Git/ops/ssh/id_ilab";
                   proxyJump = "lilo";
                   user = "ilab";
                 };
@@ -111,8 +105,8 @@
                 "ilab2" = {
                   host = "ilab2";
                   hostname = "ilab2.ihub.ru.nl";
-                  identityFile = "~/Git/ops/ssh/id_ilab";
                   identitiesOnly = true;
+                  identityFile = "~/Git/ops/ssh/id_ilab";
                   proxyJump = "lilo";
                   user = "ilab";
                 };
@@ -126,8 +120,8 @@
                 "pubhubs-vm" = {
                   host = "ph";
                   hostname = "ph.ihub.ru.nl";
-                  identityFile = "~/Git/ops/ssh/id_ilab";
                   identitiesOnly = true;
+                  identityFile = "~/Git/ops/ssh/id_ilab";
                   proxyJump = "lilo";
                   user = "ilab";
                 };
@@ -135,8 +129,8 @@
                 "radboud-hub" = {
                   host = "radboud-hub";
                   hostname = "pubhubs.ru.nl";
-                  identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                   identitiesOnly = true;
+                  identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                   proxyJump = "lilo";
                   user = "jvanderheide";
                 };
@@ -148,6 +142,13 @@
         my.preservation.homeDirectories = [
           ".ssh"
         ];
+
+        programs.ssh = {
+          inherit (cfg) knownHosts;
+
+          # mkDefault lets the password-manager module override this
+          startAgent = lib.mkDefault true;
+        };
       };
     };
 }

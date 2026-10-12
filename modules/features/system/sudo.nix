@@ -25,13 +25,8 @@
       };
 
       config = {
-        services.fprintd.enable = lib.mkIf cfg.fingerprintAuth true;
         security.pam.services.sudo.fprintAuth = lib.mkIf cfg.fingerprintAuth true;
-
-        security.sudo = {
-          execWheelOnly = true;
-          wheelNeedsPassword = true;
-        };
+        services.fprintd.enable = lib.mkIf cfg.fingerprintAuth true;
 
         my.preservation.systemDirectories = lib.mkIf config.services.fprintd.enable [
           {
@@ -39,6 +34,11 @@
             mode = "0700";
           }
         ];
+
+        security.sudo = {
+          execWheelOnly = true;
+          wheelNeedsPassword = true;
+        };
       };
     };
 }
