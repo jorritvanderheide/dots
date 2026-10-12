@@ -26,10 +26,21 @@
         # acceptable since the Docker daemon already runs as root.
         networking.firewall.trustedInterfaces = [ "docker0" ];
 
+        my.preservation.systemDirectories = [
+          "/var/lib/docker"
+        ];
+
         # Enable Docker socket for on-demand activation
         systemd.sockets.docker = {
           wantedBy = [ "sockets.target" ];
         };
+
+        # Every normal user on a host that imports this module gets access to
+        # docker, instead of requiring each user definition to opt in via
+        # extraGroups.
+        users.groups.docker.members = lib.attrNames (
+          lib.filterAttrs (_: user: user.isNormalUser) config.users.users
+        );
 
         virtualisation.docker = {
           enable = true;
@@ -41,17 +52,6 @@
             dates = "weekly";
           };
         };
-
-        my.preservation.systemDirectories = [
-          "/var/lib/docker"
-        ];
-
-        # Every normal user on a host that imports this module gets access to
-        # docker, instead of requiring each user definition to opt in via
-        # extraGroups.
-        users.groups.docker.members = lib.attrNames (
-          lib.filterAttrs (_: user: user.isNormalUser) config.users.users
-        );
       };
     };
 }

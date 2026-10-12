@@ -65,8 +65,8 @@
                     safe.directory = [ "/etc/nixos" ];
 
                     user = {
-                      name = cfg.userName;
                       email = cfg.userEmail;
+                      name = cfg.userName;
                     };
                   };
 
@@ -87,14 +87,15 @@
                       backend = "ssh";
                       backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
                       behavior = "own";
+
                       # Use file path with .pub extension instead of inline key
                       # This fixes Bitwarden SSH agent compatibility with jj
                       key = "~/.ssh/signing-key.pub";
                     };
 
                     user = {
-                      name = cfg.userName;
                       email = cfg.userEmail;
+                      name = cfg.userName;
                     };
                   };
                 };
