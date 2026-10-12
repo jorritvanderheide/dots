@@ -39,53 +39,25 @@
             info.unix_device_names;
       };
 
+    # A tailnetVhost at <subdomain>.<acme domain> that proxies to a local port.
     mkReverseProxy =
       {
         config,
-        subdomain,
-        port,
+        extraHeaders ? null,
         extraLocations ? { },
         locationExtraConfig ? "",
-        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
-        # e.g. Vaultwarden's browser extension popup.
-        extraHeaders ? ''
-          add_header X-Content-Type-Options "nosniff" always;
-          add_header X-Frame-Options "SAMEORIGIN" always;
-          add_header Referrer-Policy "no-referrer" always;
-        '',
+        port,
+        subdomain,
       }:
       let
-        acmeDomain = config.my.tailscale.acme.domain;
-        domain = "${subdomain}.${toString acmeDomain}";
+        domain = "${subdomain}.${toString config.my.tailscale.acme.domain}";
       in
-      {
-        security.acme.certs.${domain} = { };
-
-        assertions = [
-          {
-            assertion = config.my.tailscale.acme.enable;
-            message = "${subdomain} reverse proxy requires my.tailscale.acme.enable";
-          }
-          {
-            assertion = acmeDomain != null;
-            message = "${subdomain} reverse proxy requires my.tailscale.acme.domain to be set";
-          }
-        ];
-
-        services.nginx.virtualHosts.${domain} = {
-          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
-          forceSSL = true;
-
-          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
-          # listener for the headscale and kobo vhosts, but internal services
-          # must not answer there: a connection to the public IP hits the
-          # 0.0.0.0 socket, which has no server_name match here, so these
-          # vhosts stay tailnet-only.
-          listenAddresses = [ config.my.tailscale.tailnetIp ];
-
-          useACMEHost = domain;
-
-          locations = {
+      lib.recursiveUpdate
+        (inputs.self.lib.tailnetVhost (
+          { inherit config domain; } // lib.optionalAttrs (extraHeaders != null) { inherit extraHeaders; }
+        ))
+        {
+          services.nginx.virtualHosts.${domain}.locations = {
             "/" = {
               proxyPass = "http://127.0.0.1:${toString port}";
               proxyWebsockets = true;
@@ -97,7 +69,6 @@
           }
           // extraLocations;
         };
-      };
 
     # A oneshot service that decrypts sops secrets via the YubiKey identity
     # and does something with them: the shape shared by
@@ -287,5 +258,50 @@
       allow 100.64.0.0/10;
       deny all;
     '';
+
+    # An nginx vhost at <domain> that only the tailnet reaches: an ACME
+    # certificate, and bound to the tailnet IP with tailnetOnly. Its
+    # locations are the caller's (mkReverseProxy's proxy, or a module that
+    # brings its own vhost, like Nextcloud's).
+    tailnetVhost =
+      {
+        config,
+        domain,
+        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
+        # e.g. Vaultwarden's browser extension popup.
+        extraHeaders ? ''
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header Referrer-Policy "no-referrer" always;
+        '',
+      }:
+      {
+        security.acme.certs.${domain} = { };
+
+        assertions = [
+          {
+            assertion = config.my.tailscale.acme.enable;
+            message = "${domain} requires my.tailscale.acme.enable";
+          }
+          {
+            assertion = config.my.tailscale.acme.domain != null;
+            message = "${domain} requires my.tailscale.acme.domain to be set";
+          }
+        ];
+
+        services.nginx.virtualHosts.${domain} = {
+          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
+          forceSSL = true;
+
+          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
+          # listener for the headscale and kobo vhosts, but internal services
+          # must not answer there: a connection to the public IP hits the
+          # 0.0.0.0 socket, which has no server_name match here, so these
+          # vhosts stay tailnet-only.
+          listenAddresses = [ config.my.tailscale.tailnetIp ];
+
+          useACMEHost = domain;
+        };
+      };
   };
 }
