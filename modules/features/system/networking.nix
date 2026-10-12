@@ -3,8 +3,10 @@
     { pkgs, ... }:
     {
       config = {
-        # Standalone GUI for viewing/editing NetworkManager connection profiles
-        # (e.g. ad-hoc Wi-Fi not declared in wifi.nix); no systray needed.
+        # nm-connection-editor, for viewing/editing NetworkManager connection
+        # profiles (e.g. ad-hoc Wi-Fi not declared in wifi.nix). The package
+        # also autostarts nm-applet in a desktop session; notifications.nix
+        # turns off its connect notifications.
         environment.systemPackages = [ pkgs.networkmanagerapplet ];
 
         networking = {
