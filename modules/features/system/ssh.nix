@@ -50,6 +50,10 @@
                 "*" = { };
 
                 "dapple" = {
+                  # Only reachable over the tailnet. Without tailscale the
+                  # address routes nowhere, and ssh (so ndeploy) would wait
+                  # out the kernel's TCP retries instead of failing.
+                  connectTimeout = 10;
                   host = "dapple";
                   hostname = inputs.self.lib.site.dapple.tailnetIp;
                   user = "nixos";
