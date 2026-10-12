@@ -13,7 +13,6 @@ Where they come from:
   `zen-colors.css`.
 - `ghostty`, `qtct.conf`: own, replacing noctalia's built-in Ghostty and Qt
   templates (noctalia 5.2.1).
-- `fish.fish`: own, prompt accent only.
 - `eza-theme.yml`: own, directory accent only.
 - `gtk3-overrides.css`, `gtk4-overrides.css`: own, layered on top of the
   built-in GTK templates, which stay enabled.

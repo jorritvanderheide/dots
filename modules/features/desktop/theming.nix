@@ -208,12 +208,6 @@
                         output_path = "${config.xdg.configHome}/eza/theme.yml";
                       };
 
-                      fish = {
-                        input_path = "${./noctalia-templates/fish.fish}";
-                        output_path = "${config.xdg.cacheHome}/noctalia/fish-colors.fish";
-                        post_hook = "${lib.getExe config.programs.fish.package} ${config.xdg.cacheHome}/noctalia/fish-colors.fish";
-                      };
-
                       # Own template instead of the built-in one, whose ANSI
                       # colors come from the wallpaper (magenta == green, ...).
                       # Different theme name: switching the built-in off runs its
@@ -422,12 +416,13 @@
               # every app noctalia now colors, so the two don't both write
               # the same files.
               stylix.targets = {
-                # These three use the terminal's ANSI colors instead,
+                # These use the terminal's ANSI colors instead,
                 # so they follow the same palette as Ghostty. Stylix's
                 # hard-coded Dracula hex values made bat's text near-white,
                 # unreadable on a light terminal.
                 bat.colors.enable = false;
                 fzf.colors.enable = false;
+                starship.colors.enable = false;
                 tmux.colors.enable = false;
 
                 # base16-fish rewrites the terminal palette with escape

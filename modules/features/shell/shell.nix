@@ -124,6 +124,33 @@
             };
           };
         }
+
+        (
+          { lib, pkgs, ... }:
+          let
+            jj-starship = lib.getExe pkgs.jj-starship;
+          in
+          {
+            # The prompt, in the terminal's ANSI colors. jj-starship shows
+            # the jj change (or the git branch, outside jj) in place of
+            # starship's own git modules, which would show git twice.
+            programs.starship = {
+              enable = true;
+
+              settings = {
+                git_branch.disabled = true;
+                git_commit.disabled = true;
+                git_status.disabled = true;
+
+                custom.jj = {
+                  format = "$output ";
+                  shell = [ jj-starship ];
+                  when = "${jj-starship} detect";
+                };
+              };
+            };
+          }
+        )
       ];
 
       my.preservation.homeDirectories = [
