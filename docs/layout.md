@@ -84,9 +84,11 @@ Exceptions:
   and in a list the order can matter.
 - Function arguments are alphabetical, with `...` last.
 
-Attribute order never changes what Nix evaluates: a reorder that leaves
-every host's closure the same, apart from the revision it's built from,
-changed nothing but the layout.
+`nix fmt` applies this order (`scripts/nix-order.py`, before nixfmt), so
+the flake check fails on a file that is out of order. Attribute order never
+changes what Nix evaluates: a reorder that leaves every host's closure the
+same, apart from the revision it's built from, changed nothing but the
+layout.
 
 ## Comments
 
@@ -108,5 +110,5 @@ commit message, not in a comment about how things used to be.
 
 ## Checks
 
-`nix flake check` builds every host and checks formatting (treefmt: nixfmt,
-deadnix, statix, shfmt, ruff) and statix's lints. `nix fmt` formats.
+`nix flake check` builds every host and checks formatting (treefmt: nix-order,
+nixfmt, deadnix, statix, shfmt, ruff) and statix's lints. `nix fmt` formats.
