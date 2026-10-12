@@ -99,7 +99,6 @@
                   bind ctrl-r fzf-history-global
                   bind up fzf-history-global
                 ''
-                "zoxide init fish | source"
               ];
 
               shellAliases = {
