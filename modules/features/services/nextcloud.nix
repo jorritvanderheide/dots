@@ -76,6 +76,12 @@
 
             services.nextcloud = {
               enable = true;
+
+              # Apps from the config come with the package; the app store
+              # stays on for trying others (off by default once there are
+              # extraApps).
+              appstoreEnable = true;
+
               configureRedis = true;
               database.createLocally = true;
               hostName = domain;
@@ -91,6 +97,10 @@
                 adminpassFile = adminpassPath;
                 adminuser = "jorrit";
                 dbtype = "pgsql";
+              };
+
+              extraApps = {
+                inherit (pkgs.nextcloud35Packages.apps) contacts;
               };
 
               settings = {
