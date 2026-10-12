@@ -30,6 +30,11 @@
                   repeat = false;
                 };
 
+                "Mod+Alt+Down" = {
+                  action = move-window-to-monitor-down;
+                  repeat = false;
+                };
+
                 "Mod+Alt+F" = {
                   action = toggle-windowed-fullscreen;
                   repeat = false;
@@ -60,8 +65,8 @@
                   repeat = false;
                 };
 
-                "Mod+Alt+Down" = {
-                  action = move-window-to-monitor-down;
+                "Mod+Alt+Right" = {
+                  action = move-column-right-or-to-monitor-right;
                   repeat = false;
                 };
 
@@ -70,23 +75,13 @@
                   repeat = false;
                 };
 
-                "Mod+Alt+Right" = {
-                  action = move-column-right-or-to-monitor-right;
-                  repeat = false;
-                };
-
                 "Mod+Backspace" = {
                   action = spawn "loginctl" "lock-session";
                   repeat = false;
                 };
 
-                "Mod+Return" = {
-                  action = spawn "app2unit" "-s" "a" "--" "ghostty";
-                  repeat = false;
-                };
-
-                "Mod+Space" = {
-                  action = spawn "noctalia" "msg" "panel-toggle" "launcher";
+                "Mod+Down" = {
+                  action = focus-window-or-monitor-down;
                   repeat = false;
                 };
 
@@ -125,21 +120,6 @@
                   repeat = false;
                 };
 
-                "Mod+Down" = {
-                  action = focus-window-or-monitor-down;
-                  repeat = false;
-                };
-
-                "Mod+Up" = {
-                  action = focus-window-or-monitor-up;
-                  repeat = false;
-                };
-
-                "Mod+Right" = {
-                  action = focus-column-or-monitor-right;
-                  repeat = false;
-                };
-
                 "Mod+M" = {
                   action = spawn "noctalia" "msg" "volume-mute";
                   allow-when-locked = true;
@@ -147,11 +127,12 @@
                 };
 
                 "Mod+O" = {
+                  repeat = false;
+
                   action = spawn "sh" "-c" ''
                     hex=$(niri msg pick-color | sed -n 's/^Hex: //p')
                     [ -n "$hex" ] && noctalia msg clipboard-copy "$hex"
                   '';
-                  repeat = false;
                 };
 
                 "Mod+P" = {
@@ -169,8 +150,23 @@
                   repeat = false;
                 };
 
-                "Mod+V" = {
-                  action = spawn "noctalia" "msg" "panel-toggle" "clipboard";
+                "Mod+Return" = {
+                  action = spawn "app2unit" "-s" "a" "--" "ghostty";
+                  repeat = false;
+                };
+
+                "Mod+Right" = {
+                  action = focus-column-or-monitor-right;
+                  repeat = false;
+                };
+
+                "Mod+Shift+W" = {
+                  action = spawn "noctalia" "msg" "wallpaper-previous";
+                  repeat = false;
+                };
+
+                "Mod+Space" = {
+                  action = spawn "noctalia" "msg" "panel-toggle" "launcher";
                   repeat = false;
                 };
 
@@ -182,25 +178,24 @@
                   repeat = false;
                 };
 
-                "Mod+W" = {
-                  action = spawn "noctalia" "msg" "wallpaper-next";
+                "Mod+Up" = {
+                  action = focus-window-or-monitor-up;
                   repeat = false;
                 };
 
-                "Mod+Shift+W" = {
-                  action = spawn "noctalia" "msg" "wallpaper-previous";
+                "Mod+V" = {
+                  action = spawn "noctalia" "msg" "panel-toggle" "clipboard";
+                  repeat = false;
+                };
+
+                "Mod+W" = {
+                  action = spawn "noctalia" "msg" "wallpaper-next";
                   repeat = false;
                 };
 
                 "XF86AudioLowerVolume" = {
                   action = spawn "sh" "-c" (unmuteThen "volume-down");
                   allow-when-locked = true;
-                };
-
-                "XF86AudioNext" = {
-                  action = spawn "playerctl" "next";
-                  allow-when-locked = true;
-                  repeat = false;
                 };
 
                 "XF86AudioMedia" = {
@@ -210,6 +205,12 @@
 
                 "XF86AudioMute" = {
                   action = spawn "noctalia" "msg" "volume-mute";
+                  allow-when-locked = true;
+                  repeat = false;
+                };
+
+                "XF86AudioNext" = {
+                  action = spawn "playerctl" "next";
                   allow-when-locked = true;
                   repeat = false;
                 };
@@ -227,8 +228,8 @@
                 };
 
                 "XF86AudioPrev" = {
-                  allow-when-locked = true;
                   action = spawn "playerctl" "previous";
+                  allow-when-locked = true;
                   repeat = false;
                 };
 

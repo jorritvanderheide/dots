@@ -23,6 +23,19 @@
       config = {
         systemd.services.greetd.wants = [ "home-manager-${cfg.autologinuser}.service" ];
 
+        home-manager.sharedModules = [
+          {
+            programs.niri.settings.spawn-at-startup = [
+              {
+                command = [
+                  "uwsm"
+                  "finalize"
+                ];
+              }
+            ];
+          }
+        ];
+
         programs.uwsm = {
           enable = true;
 
@@ -64,19 +77,6 @@
           before = [ "greetd.service" ];
           wantedBy = lib.mkForce [ "multi-user.target" ];
         };
-
-        home-manager.sharedModules = [
-          {
-            programs.niri.settings.spawn-at-startup = [
-              {
-                command = [
-                  "uwsm"
-                  "finalize"
-                ];
-              }
-            ];
-          }
-        ];
       };
     };
 }

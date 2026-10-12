@@ -24,9 +24,9 @@
         # avoid Alt/Super misfires; index-finger Shift can be fast.
         # Values from the kanata community consensus (discussion #1656).
         holdTimes = {
-          shift = lib.mkOption {
-            default = 225;
-            description = "Hold timeout (ms) for the index-finger Shift mods (f/j)";
+          alt = lib.mkOption {
+            default = 450;
+            description = "Hold timeout (ms) for the ring-finger Alt mods (s/l)";
             type = lib.types.int;
           };
 
@@ -36,15 +36,15 @@
             type = lib.types.int;
           };
 
-          alt = lib.mkOption {
-            default = 450;
-            description = "Hold timeout (ms) for the ring-finger Alt mods (s/l)";
-            type = lib.types.int;
-          };
-
           meta = lib.mkOption {
             default = 500;
             description = "Hold timeout (ms) for the pinky Super mods (a/;)";
+            type = lib.types.int;
+          };
+
+          shift = lib.mkOption {
+            default = 225;
+            description = "Hold timeout (ms) for the index-finger Shift mods (f/j)";
             type = lib.types.int;
           };
         };
@@ -73,37 +73,6 @@
         boot.kernelModules = [ "uinput" ];
         hardware.uinput.enable = true;
         users.groups.uinput = { };
-
-        # Configure udev rules for uinput access
-        services.udev.extraRules = ''
-          # Allow uinput group to access the uinput device
-          KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
-        '';
-
-        # Configure Kanata service with proper permissions and restart policy
-        systemd.services.kanata-main = {
-          # Delay startup until after graphical session (compositor/lockscreen)
-          # This saves ~2s from critical boot path
-          after = [ "graphical.target" ];
-          wantedBy = lib.mkForce [ "graphical.target" ];
-
-          # Allow a few retries for keyboards to appear during boot
-          unitConfig = {
-            StartLimitIntervalSec = 60;
-            StartLimitBurst = 10;
-          };
-
-          serviceConfig = {
-            # Restart if Kanata exits (e.g., no keyboards found at boot)
-            Restart = "on-failure";
-            RestartSec = "2s";
-
-            SupplementaryGroups = [
-              "input"
-              "uinput"
-            ];
-          };
-        };
 
         # Enable and configure Kanata with homerow mods and navigation layer
         services.kanata = {
@@ -290,6 +259,37 @@
               linux-output-device-name "kanata"
               process-unmapped-keys yes
             '';
+          };
+        };
+
+        # Configure udev rules for uinput access
+        services.udev.extraRules = ''
+          # Allow uinput group to access the uinput device
+          KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
+        '';
+
+        # Configure Kanata service with proper permissions and restart policy
+        systemd.services.kanata-main = {
+          # Delay startup until after graphical session (compositor/lockscreen)
+          # This saves ~2s from critical boot path
+          after = [ "graphical.target" ];
+          wantedBy = lib.mkForce [ "graphical.target" ];
+
+          serviceConfig = {
+            # Restart if Kanata exits (e.g., no keyboards found at boot)
+            Restart = "on-failure";
+            RestartSec = "2s";
+
+            SupplementaryGroups = [
+              "input"
+              "uinput"
+            ];
+          };
+
+          # Allow a few retries for keyboards to appear during boot
+          unitConfig = {
+            StartLimitBurst = 10;
+            StartLimitIntervalSec = 60;
           };
         };
       };

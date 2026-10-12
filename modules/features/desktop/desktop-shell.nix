@@ -38,11 +38,6 @@
           }
         ];
 
-        nix.settings = {
-          substituters = [ "https://noctalia.cachix.org" ];
-          trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
-        };
-
         home-manager.sharedModules = [
           inputs.noctalia.homeModules.default
           (
@@ -54,22 +49,15 @@
             }:
             {
               config = {
+                # empty = XDG_PICTURES_DIR, but that mixes wallpapers in with
+                # every other picture, so use a dedicated subfolder instead.
+                programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
+
                 # noctalia inotify-watches its config dir, but that can race
                 # home-manager's activation, so nudge it explicitly instead.
                 home.activation.noctaliaConfigReload = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                   run ${lib.getExe config.programs.noctalia.package} msg config-reload || true
                 '';
-
-                # Bar shows on every connected output by default; disable it on
-                # every known external monitor so it only ever appears on the
-                # laptop screen, docked or not.
-                programs.noctalia.settings.bar.main.monitor =
-                  lib.genAttrs
-                    (builtins.filter (name: name != "eDP-1") (builtins.attrNames osConfig.my.compositor.outputs))
-                    (name: {
-                      match = name;
-                      enabled = false;
-                    });
 
                 home.file = {
                   # Marks noctalia's setup wizard as already completed. Its
@@ -86,9 +74,16 @@
                   ".local/state/noctalia/.setup-complete".text = "";
                 };
 
-                # empty = XDG_PICTURES_DIR, but that mixes wallpapers in with
-                # every other picture, so use a dedicated subfolder instead.
-                programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
+                # Bar shows on every connected output by default; disable it on
+                # every known external monitor so it only ever appears on the
+                # laptop screen, docked or not.
+                programs.noctalia.settings.bar.main.monitor =
+                  lib.genAttrs
+                    (builtins.filter (name: name != "eDP-1") (builtins.attrNames osConfig.my.compositor.outputs))
+                    (name: {
+                      enabled = false;
+                      match = name;
+                    });
 
                 # Wallpapers are only changed by hand in the GUI; the pick is
                 # saved to ~/.local/state/noctalia/settings.toml, which is
@@ -161,8 +156,8 @@
                     # rule + layout.background-color = transparent, not just
                     # in overview.
                     backdrop = {
-                      enabled = true;
                       blur_intensity = 0.8;
+                      enabled = true;
                       tint_intensity = 0.3;
                     };
 
@@ -170,10 +165,6 @@
                       # Default binds right-click on empty bar space to open
                       # the control center.
                       dead_zone.actions.right = "none";
-
-                      start = [
-                        "media"
-                      ];
 
                       center = [
                         "clock"
@@ -184,6 +175,10 @@
                         "bluetooth"
                         "volume"
                         "battery"
+                      ];
+
+                      start = [
+                        "media"
                       ];
                     };
 
@@ -200,21 +195,21 @@
                     # own un-touched defaults, just flipped on.
                     idle.behavior = {
                       lock = {
+                        action = "lock";
                         enabled = true;
                         timeout = 600;
-                        action = "lock";
-                      };
-
-                      screen-off = {
-                        enabled = true;
-                        timeout = 660;
-                        action = "screen_off";
                       };
 
                       lock-and-suspend = {
+                        action = "lock_and_suspend";
                         enabled = true;
                         timeout = 900;
-                        action = "lock_and_suspend";
+                      };
+
+                      screen-off = {
+                        action = "screen_off";
+                        enabled = true;
+                        timeout = 660;
                       };
                     };
 
@@ -227,8 +222,8 @@
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";
                       niri_overview_type_to_launch_enabled = true;
                       polkit_agent = true;
-                      setup_wizard_enabled = false;
                       screenshot.directory = "${config.home.homeDirectory}/Pictures/Screenshots";
+                      setup_wizard_enabled = false;
 
                       launcher = {
                         categories = false;
@@ -237,8 +232,8 @@
                       };
 
                       panel = {
-                        launcher_placement = "attached";
                         clipboard_placement = "attached";
+                        launcher_placement = "attached";
                         open_near_click_control_center = true;
                       };
 
@@ -294,6 +289,11 @@
         my.preservation.homeDirectories = [
           ".local/state/noctalia"
         ];
+
+        nix.settings = {
+          substituters = [ "https://noctalia.cachix.org" ];
+          trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
+        };
       };
     };
 }

@@ -31,6 +31,7 @@ in
       config = {
         # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
+
         # Niri auto-enables gnome-keyring at system level, which also pulls in
         # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
         # We disable the system-level service and run gnome-keyring-daemon via
@@ -52,15 +53,6 @@ in
           ];
         };
 
-        programs.niri = {
-          enable = true;
-          # From nixpkgs, not niri-flake: niri-flake builds against its own
-          # (older) nixpkgs, so its niri links an older glibc than the system
-          # mesa in /run/opengl-driver needs. niri then can't open the GPU and
-          # the session comes up with a black screen.
-          package = pkgs.niri;
-        };
-
         # Home manager
         home-manager.sharedModules = [
           system76SchedulerModule
@@ -68,11 +60,12 @@ in
             # Override gnome-keyring to exclude ssh component (conflicts with Bitwarden SSH agent)
             systemd.user.services.gnome-keyring.Service.ExecStart =
               lib.mkForce "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --start --foreground --components=secrets,pkcs11";
+
             # Mask gcr-ssh-agent to prevent it from overriding SSH_AUTH_SOCK
-            xdg.configFile."systemd/user/gcr-ssh-agent.socket".source =
-              builtins.toFile "gcr-ssh-agent.socket" "";
             xdg.configFile."systemd/user/gcr-ssh-agent.service".source =
               builtins.toFile "gcr-ssh-agent.service" "";
+            xdg.configFile."systemd/user/gcr-ssh-agent.socket".source =
+              builtins.toFile "gcr-ssh-agent.socket" "";
           }
           (
             {
@@ -86,8 +79,10 @@ in
               programs.niri.settings = {
                 inherit (cfg) outputs;
                 clipboard.disable-primary = true;
+
                 # Allows notification actions and window activation from Noctalia.
                 debug.honor-xdg-activation-with-invalid-serial = [ ];
+
                 gestures.hot-corners.enable = false;
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
@@ -151,9 +146,9 @@ in
 
                   border = {
                     enable = true;
-                    width = 4;
                     active.color = config.lib.stylix.colors.withHashtag.base08;
                     inactive.color = config.lib.stylix.colors.withHashtag.base02;
+                    width = 4;
                   };
 
                   preset-column-widths = [
@@ -164,10 +159,10 @@ in
                   ];
 
                   struts = {
-                    top = 16.0;
-                    right = 16.0;
-                    left = 16.0;
                     bottom = 0;
+                    left = 16.0;
+                    right = 16.0;
+                    top = 16.0;
                   };
                 };
 
@@ -212,6 +207,22 @@ in
                 };
               };
 
+              xdg.mimeApps = {
+                # Without enable, defaultApplications are silently never
+                # written to mimeapps.list.
+                enable = true;
+
+                defaultApplications = {
+                  "image/bmp" = "imv-dir.desktop";
+                  "image/gif" = "imv-dir.desktop";
+                  "image/jpeg" = "imv-dir.desktop";
+                  "image/png" = "imv-dir.desktop";
+                  "image/svg+xml" = "imv-dir.desktop";
+                  "image/tiff" = "imv-dir.desktop";
+                  "image/webp" = "imv-dir.desktop";
+                };
+              };
+
               # niri-flake's settings schema predates niri 26.04's background
               # effects, so this window rule is added as raw KDL. Defining it
               # at mkOptionDefault (the same priority as the settings-rendered
@@ -224,22 +235,6 @@ in
               #     ])
               #   ]
               # );
-
-              xdg.mimeApps = {
-                # Without enable, defaultApplications are silently never
-                # written to mimeapps.list.
-                enable = true;
-
-                defaultApplications = {
-                  "image/png" = "imv-dir.desktop";
-                  "image/jpeg" = "imv-dir.desktop";
-                  "image/gif" = "imv-dir.desktop";
-                  "image/webp" = "imv-dir.desktop";
-                  "image/tiff" = "imv-dir.desktop";
-                  "image/bmp" = "imv-dir.desktop";
-                  "image/svg+xml" = "imv-dir.desktop";
-                };
-              };
             }
           )
         ];
@@ -247,6 +242,16 @@ in
         my.preservation.homeDirectories = [
           ".local/share/keyrings"
         ];
+
+        programs.niri = {
+          enable = true;
+
+          # From nixpkgs, not niri-flake: niri-flake builds against its own
+          # (older) nixpkgs, so its niri links an older glibc than the system
+          # mesa in /run/opengl-driver needs. niri then can't open the GPU and
+          # the session comes up with a black screen.
+          package = pkgs.niri;
+        };
       };
     };
 }
