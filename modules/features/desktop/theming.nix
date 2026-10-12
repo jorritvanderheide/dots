@@ -212,29 +212,15 @@
                   # pages, lists) one step further out (lightest in light mode,
                   # darker in dark mode); meaning (errors, git, ANSI, syntax)
                   # from custom_colors above; accent used as text darkened in
-                  # light mode. Each template file explains its specifics.
+                  # light mode. Each template file explains its specifics, and
+                  # noctalia-templates/README.md says where each came from.
                   #
-                  # Origin of the files in ./noctalia-templates:
-                  # - zed.json, zen-userChrome.css, zen-userContent.css:
-                  #   noctalia's community catalog
-                  #   (https://api.noctalia.dev/templates/{zed,zen-browser}),
-                  #   copied 2026-10-07 and since reworked: semantic colors,
-                  #   content/chrome tones, light-mode accent text (Zed); the
-                  #   Zen color variables moved into zen-colors.css. Vendored
-                  #   rather than enabled as community templates, which are
-                  #   downloaded at runtime and whose Zen hook rewrites
-                  #   userChrome.css/user.js, which home-manager owns
-                  #   read-only; the profile files below import the rendered
-                  #   CSS instead.
-                  # - ghostty, qtct.conf: own, replacing noctalia's built-in
-                  #   Ghostty and Qt templates (noctalia 5.2.1).
-                  # - fish.fish: own, prompt accent only.
-                  # - eza-theme.yml: own, directory accent only.
-                  # - gtk3-overrides.css, gtk4-overrides.css: own, layered on
-                  #   top of the built-in GTK templates, which stay enabled.
-                  # - obsidian-border.css: own, for the Border theme, which is
-                  #   recolored through Style Settings (see the file). Switched
-                  #   on once by hand in Settings > Appearance > CSS snippets.
+                  # The Zed and Zen templates started in noctalia's community
+                  # catalog, but are vendored rather than enabled as community
+                  # templates: those are downloaded at runtime, and the Zen
+                  # one's hook rewrites userChrome.css/user.js, which
+                  # home-manager owns read-only. The profile files below
+                  # import the rendered CSS instead.
                   enable_community_templates = false;
 
                   user =
