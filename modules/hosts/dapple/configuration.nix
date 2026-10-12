@@ -38,6 +38,7 @@ in
         immich
         jellyfin
         new-leaf
+        nextcloud
         offsite-backup
         servarr
         tailscale
@@ -71,6 +72,7 @@ in
             my.gatus.enable = true;
             my.home-assistant.enable = true;
             my.immich.enable = true;
+            my.nextcloud.enable = true;
             my.vaultwarden.enable = true;
             networking.hostName = "dapple";
 

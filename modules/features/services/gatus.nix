@@ -98,6 +98,11 @@
               name = "radicale";
               url = "https://contacts.${config.my.tailscale.acme.domain}";
             })
+            (mkHttpEndpoint {
+              group = "productivity";
+              name = "nextcloud";
+              url = "https://files.${config.my.tailscale.acme.domain}/status.php";
+            })
             # /healthz needs no tailnet identity, and answers 503 when New Leaf
             # can't write CVs or share links, or run Typst.
             (mkHttpEndpoint {
