@@ -135,17 +135,6 @@
               };
             };
 
-            # Public halves only; private keys live in the Bitwarden SSH
-            # agent (ssh-add -L to re-derive these if they're ever lost).
-            my.ssh.identityFiles = {
-              "git@codeberg.org.pub" =
-                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC git@codeberg.org";
-              "git@github.com.pub" =
-                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
-              "git@gitlab.science.ru.nl.pub" =
-                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
-            };
-
             my.ssh.knownHosts.dapple = {
               publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
 

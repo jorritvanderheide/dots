@@ -8,6 +8,7 @@
     { config, ... }:
     let
       cfg = config.my.desktop-shell;
+      inherit (config.my.compositor) outputs;
     in
     {
       options.my.desktop-shell = {
@@ -29,7 +30,6 @@
             {
               config,
               lib,
-              osConfig,
               ...
             }:
             {
@@ -63,8 +63,7 @@
                 # every known external monitor so it only ever appears on the
                 # laptop screen, docked or not.
                 programs.noctalia.settings.bar.main.monitor =
-                  lib.genAttrs
-                    (builtins.filter (name: name != "eDP-1") (builtins.attrNames osConfig.my.compositor.outputs))
+                  lib.genAttrs (builtins.filter (name: name != "eDP-1") (builtins.attrNames outputs))
                     (name: {
                       enabled = false;
                       match = name;

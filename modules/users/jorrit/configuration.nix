@@ -60,6 +60,19 @@
               };
             };
 
+            # Public halves only: the private keys live in the Bitwarden SSH
+            # agent (password-manager.nix), and IdentitiesOnly + IdentityFile
+            # only need the public half to pick one from it. `ssh-add -L`
+            # re-derives them.
+            home.file = {
+              ".ssh/git@codeberg.org.pub".text =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDBw6g7ruZDtFHuzlzPWLKmN8yeQTrrx88eC92ECMDC git@codeberg.org";
+              ".ssh/git@github.com.pub".text =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
+              ".ssh/git@gitlab.science.ru.nl.pub".text =
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
+            };
+
             my.git = {
               signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJVnWm8z0c77BQGCj65u0JMe6gcoEtGn+4yK4+CGMGHi";
               userEmail = "jorrit+git@bw20.nl";
@@ -75,6 +88,71 @@
             programs.noctalia.settings = {
               calendar.enabled = true;
               include.files = [ "/run/secrets/noctalia-calendar.toml" ];
+            };
+
+            programs.ssh.settings = {
+              "codeberg" = {
+                host = "codeberg.org";
+                identitiesOnly = true;
+                identityFile = "~/.ssh/git@codeberg.org.pub";
+                user = "git";
+              };
+
+              "github" = {
+                host = "github.com";
+                identitiesOnly = true;
+                identityFile = "~/.ssh/git@github.com.pub";
+                user = "git";
+              };
+
+              "gitlab" = {
+                host = "gitlab.science.ru.nl";
+                identitiesOnly = true;
+                identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
+                user = "git";
+              };
+
+              "ilab1" = {
+                host = "ilab1";
+                hostname = "ilab1.ihub.ru.nl";
+                identitiesOnly = true;
+                identityFile = "~/Git/ops/ssh/id_ilab";
+                proxyJump = "lilo";
+                user = "ilab";
+              };
+
+              "ilab2" = {
+                host = "ilab2";
+                hostname = "ilab2.ihub.ru.nl";
+                identitiesOnly = true;
+                identityFile = "~/Git/ops/ssh/id_ilab";
+                proxyJump = "lilo";
+                user = "ilab";
+              };
+
+              "lilo" = {
+                host = "lilo";
+                hostname = "lilo.science.ru.nl";
+                user = "jvanderheide";
+              };
+
+              "pubhubs-vm" = {
+                host = "ph";
+                hostname = "ph.ihub.ru.nl";
+                identitiesOnly = true;
+                identityFile = "~/Git/ops/ssh/id_ilab";
+                proxyJump = "lilo";
+                user = "ilab";
+              };
+
+              "radboud-hub" = {
+                host = "radboud-hub";
+                hostname = "pubhubs.ru.nl";
+                identitiesOnly = true;
+                identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
+                proxyJump = "lilo";
+                user = "jvanderheide";
+              };
             };
           }
         ];

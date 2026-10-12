@@ -1,6 +1,7 @@
 _: {
   flake.nixosModules.editor =
     {
+      config,
       pkgs,
       ...
     }:
@@ -60,7 +61,7 @@ _: {
                 lsp.nixd.settings = {
                   formatting.command = [ "nixfmt" ];
                   nixpkgs.expr = ''import (builtins.getFlake "/etc/nixos").inputs.nixpkgs { }'';
-                  options.nixos.expr = ''(builtins.getFlake "/etc/nixos").nixosConfigurations.rocinante.options'';
+                  options.nixos.expr = ''(builtins.getFlake "/etc/nixos").nixosConfigurations.${config.networking.hostName}.options'';
                 };
               };
             };

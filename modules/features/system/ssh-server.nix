@@ -10,14 +10,6 @@
     }:
     let
       cfg = config.my.ssh-server;
-
-      # Collect authorized keys from all home-manager users
-      collectAuthorizedKeys = lib.mapAttrs (
-        _username: userCfg:
-        lib.optionalAttrs (userCfg.my.ssh-server ? authorizedKeys) {
-          openssh.authorizedKeys.keys = userCfg.my.ssh-server.authorizedKeys;
-        }
-      ) config.home-manager.users;
     in
     {
       options.my.ssh-server = {
@@ -32,22 +24,6 @@
 
       config = lib.mkIf cfg.enable {
         networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
-
-        # Apply authorized keys from home-manager user configs
-        users.users = collectAuthorizedKeys;
-
-        # Home-manager
-        home-manager.sharedModules = [
-          {
-            options.my.ssh-server = {
-              authorizedKeys = lib.mkOption {
-                type = lib.types.listOf lib.types.str;
-                default = [ ];
-                description = "Authorized SSH public keys for remote login";
-              };
-            };
-          }
-        ];
 
         # Preserve state
         my.preservation.systemFiles = [

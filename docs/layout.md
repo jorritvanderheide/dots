@@ -27,6 +27,12 @@ through `home-manager.sharedModules`. Options live under `my.<feature>`:
 services do nothing until `my.<service>.enable` is set, and other features
 take settings there, like `my.compositor.outputs`.
 
+Settings for a host are NixOS options, set in the host. A home-manager
+module reads them through the enclosing NixOS module, bound in a `let`
+(the home-manager module rebinds `config`). Settings for a person, like
+their git identity or SSH keys, are set in `users/<user>`, as home-manager
+options where the feature declares some (`my.git`).
+
 A feature too big for one file becomes a folder. Each `.nix` file in it
 defines the same `flake.nixosModules.<feature>`, and flake-parts merges
 them into one module: `services/home-assistant/` keeps the service in

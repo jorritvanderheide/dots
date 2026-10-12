@@ -3,13 +3,13 @@
   ...
 }:
 {
-  flake.nixosModules.nixos = inputs.self.lib.mkUser {
-    username = "nixos";
+  flake.nixosModules.nixos = {
+    users.users.nixos.openssh.authorizedKeys.keys = inputs.self.lib.authorizedKeys;
 
-    withModules = [
-      {
-        my.ssh-server.authorizedKeys = inputs.self.lib.authorizedKeys;
-      }
+    imports = [
+      (inputs.self.lib.mkUser {
+        username = "nixos";
+      })
     ];
   };
 }
