@@ -23,21 +23,6 @@
       };
 
       config = {
-        assertions = [
-          {
-            assertion = config.my.app-launch.enable or false;
-            message = "my.desktop-shell requires the app-launch module (provides the app2unit launcher).";
-          }
-          {
-            assertion = config.my.compositor.outputs or null != null;
-            message = "my.desktop-shell requires the compositor module (reads my.compositor.outputs to place the bar).";
-          }
-          {
-            assertion = config.security.polkit.enable or false;
-            message = "my.desktop-shell requires the polkit module (its shell.polkit_agent registers against security.polkit).";
-          }
-        ];
-
         home-manager.sharedModules = [
           inputs.noctalia.homeModules.default
           (

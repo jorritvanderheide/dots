@@ -116,24 +116,6 @@
           initrd.systemd = {
             enable = true;
 
-            services.rollback = {
-              before = [ "sysroot.mount" ];
-              description = "Rollback ZFS root subvolume to pristine state";
-              path = [ config.boot.zfs.package ];
-              serviceConfig.Type = "oneshot";
-              unitConfig.DefaultDependencies = "no";
-              wantedBy = [ "initrd.target" ];
-
-              after = [
-                "systemd-cryptsetup@crypted.service"
-                "zfs-import-zroot.service"
-              ];
-
-              script = ''
-                zfs rollback -r zroot/root@empty
-              '';
-            };
-
             # The /etc/machine-id symlink below dangles until its target
             # exists, and systemd can't write a fresh ID through a dangling
             # symlink. Without one, dbus-broker refuses to start, and every

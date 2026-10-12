@@ -22,13 +22,34 @@
       boot = {
         supportedFilesystems = [ "zfs" ];
 
+        # The root starts empty on every boot; preservation brings back what
+        # is declared, from /persist.
+        initrd.systemd.services.rollback = {
+          before = [ "sysroot.mount" ];
+          description = "Rollback ZFS root subvolume to pristine state";
+          path = [ config.boot.zfs.package ];
+          serviceConfig.Type = "oneshot";
+          unitConfig.DefaultDependencies = "no";
+          wantedBy = [ "initrd.target" ];
+
+          after = [
+            "systemd-cryptsetup@crypted.service"
+            "zfs-import-zroot.service"
+          ];
+
+          script = ''
+            zfs rollback -r zroot/root@empty
+          '';
+        };
+
         kernelParams =
           let
             facterReport = config.facter.report;
             memoryBytes = (builtins.head (builtins.head facterReport.hardware.memory).resources).range;
             # ZFS's ARC defaults to using up to ~half of RAM, which starves
-            # everything else under memory pressure. A quarter is a safer cap
-            # for a laptop that's also running a browser, an editor, etc.
+            # everything else under memory pressure: the browser and editor
+            # on a laptop, the databases and media services on a server. A
+            # quarter is a safer cap.
             arcMaxBytes = memoryBytes / 4;
           in
           [

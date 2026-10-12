@@ -5,19 +5,11 @@
 {
   flake.nixosModules.file-sync =
     {
-      config,
       pkgs,
       ...
     }:
     {
       config = {
-        assertions = [
-          {
-            assertion = config.my.app-launch.enable or false;
-            message = "my.file-sync requires the app-launch module (provides the app2unit launcher).";
-          }
-        ];
-
         home-manager.sharedModules = [
           {
             home.packages = [ pkgs.nextcloud-client ];

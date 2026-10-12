@@ -5,7 +5,6 @@
 {
   flake.nixosModules.password-manager =
     {
-      config,
       pkgs,
       ...
     }:
@@ -13,13 +12,6 @@
       config = {
         # Disable standard ssh-agent in favor of Bitwarden SSH agent
         programs.ssh.startAgent = lib.mkForce false;
-
-        assertions = [
-          {
-            assertion = config.my.app-launch.enable or false;
-            message = "my.password-manager requires the app-launch module (provides the app2unit launcher).";
-          }
-        ];
 
         environment.systemPackages = [
           pkgs.bitwarden-desktop

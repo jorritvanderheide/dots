@@ -6,40 +6,16 @@
   flake.nixosConfigurations.rocinante = inputs.nixpkgs.lib.nixosSystem {
     modules =
       (with inputs.self.nixosModules; [
-        # Core
-        boot
-        disk
-        facter
-        home-manager
-        kernel
-        nix
-        preservation
-        secrets
-        zfs
+        base
+        desktop
 
         # System
         bluetooth
         firmware
-        locale
-        networking
-        wifi
         power
         sound
-        ssh
-        sudo
         vpn
-
-        # Desktop
-        app-launch
-        compositor
-        files
-        keybinds
-        keyboard-remap
-        desktop-shell
-        notifications
-        polkit
-        session
-        theming
+        wifi
 
         # Dev
         coding-agent
@@ -47,17 +23,9 @@
         git
         virtualization
 
-        # Services
-        offsite-backup
-
-        # Shell
-        cli-tools
-        shell
-
         # Research
         notes
         pdf-reader
-        research
         zotero
 
         # Apps
@@ -66,10 +34,10 @@
         email
         file-sync
         media-player
-        photo-editor
         messaging
         music-player
         password-manager
+        photo-editor
         terminal
         yubikey
 

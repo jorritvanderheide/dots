@@ -10,6 +10,7 @@ flakes only see tracked files.
 modules/
   features/<area>/<feature>.nix   one NixOS module each: flake.nixosModules.<feature>
   features/<area>/<feature>/      a feature too big for one file, and the files it reads
+  bundles/<bundle>.nix            features that come as one: flake.nixosModules.base, .desktop
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
@@ -39,9 +40,15 @@ disk. Backups read a ZFS snapshot of `/persist`, not the live files. An
 entry also names the units to stop for `offsite-restore`, and any commands
 to load a dump back.
 
-A host picks its features by name from `inputs.self.nixosModules`, in the
-same groups as the folders (Core, System, Services, ...), and sets the
-`my.*` options in its own module below the list.
+A host starts from the `base` bundle: the core, the system and shell
+features every host has, and offsite-backup, whose entries any feature may
+declare. A host with a screen adds `desktop`: the desktop features, which
+lean on each other (app2unit, niri, stylix, noctalia) and so come as one,
+and research's settings, which the app and research features read. Those
+build on `desktop`. The host picks the rest by name from
+`inputs.self.nixosModules`, in the same groups as the folders (System,
+Services, ...), and sets the `my.*` options in its own module below the
+list.
 
 ## Shared helpers
 

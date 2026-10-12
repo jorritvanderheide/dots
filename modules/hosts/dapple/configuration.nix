@@ -6,23 +6,10 @@
   flake.nixosConfigurations.dapple = inputs.nixpkgs.lib.nixosSystem {
     modules =
       (with inputs.self.nixosModules; [
-        # Core
-        boot
-        disk
-        facter
-        home-manager
-        kernel
-        nix
-        preservation
-        secrets
-        zfs
+        base
 
         # System
-        locale
-        networking
-        ssh
         ssh-server
-        sudo
 
         # Services
         calibre-web
@@ -33,14 +20,9 @@
         jellyfin
         new-leaf
         nextcloud
-        offsite-backup
         servarr
         tailscale
         vaultwarden
-
-        # Shell
-        cli-tools
-        shell
 
         # Users
         nixos
