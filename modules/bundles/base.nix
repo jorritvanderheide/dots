@@ -24,6 +24,7 @@
       networking
       ssh
       sudo
+      tailscale
 
       # Services
       offsite-backup

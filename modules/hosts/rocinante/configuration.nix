@@ -14,7 +14,6 @@
         firmware
         power
         sound
-        vpn
         wifi
 
         # Dev
@@ -60,7 +59,6 @@
             my.preservation.homeDirectories = config.my.research.statePaths;
 
             my.session.autologinuser = "jorrit";
-            my.vpn.loginServer = "https://vpn.bw20.nl";
             networking.hostName = "rocinante";
             system.stateVersion = "26.05";
 
@@ -153,7 +151,7 @@
 
               hostNames = [
                 "dapple"
-                "100.64.0.1"
+                inputs.self.lib.site.dapple.tailnetIp
               ];
             };
 

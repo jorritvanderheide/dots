@@ -11,7 +11,7 @@
     }:
     let
       cfg = config.my.new-leaf;
-      domain = "${cfg.subdomain}.${config.my.tailscale.acme.domain}";
+      domain = "${cfg.subdomain}.${config.my.ingress.domain}";
       editor = {
         proxyPass = "http://unix:${config.services.new-leaf.socket}";
 
@@ -29,15 +29,9 @@
       options.my.new-leaf = {
         enable = lib.mkEnableOption "New Leaf, the CV editor (tailnet), with public share links";
 
-        interface = lib.mkOption {
-          default = "enp2s0";
-          description = "LAN interface the router forwards public 443 to.";
-          type = lib.types.str;
-        };
-
         rootRedirect = lib.mkOption {
-          default = "https://${config.my.tailscale.acme.domain}/";
-          defaultText = lib.literalExpression ''"https://''${config.my.tailscale.acme.domain}/"'';
+          default = "https://${config.my.ingress.domain}/";
+          defaultText = lib.literalExpression ''"https://''${config.my.ingress.domain}/"'';
           description = "Where the bare domain (no share link) redirects to from outside the tailnet; the tailnet gets the editor.";
           type = lib.types.str;
         };
@@ -59,7 +53,7 @@
       # with the share links next to it.
       config = lib.mkIf cfg.enable {
         # Share links are public on purpose, like headscale.
-        networking.firewall.interfaces.${cfg.interface}.allowedTCPPorts = [ 443 ];
+        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
 
         security.acme.certs.${domain} = { };
 
@@ -84,7 +78,7 @@
           {
             name = domain;
             type = "A";
-            value = config.my.tailscale.tailnetIp;
+            value = config.my.ingress.tailnetIp;
           }
         ];
 
@@ -112,7 +106,7 @@
           # random suffix).
           "${domain}-tailnet" = {
             forceSSL = true;
-            listenAddresses = [ config.my.tailscale.tailnetIp ];
+            listenAddresses = [ config.my.ingress.tailnetIp ];
             root = config.services.new-leaf.publicDir;
             serverName = domain;
             useACMEHost = domain;

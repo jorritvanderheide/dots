@@ -24,16 +24,7 @@
     {
       options.my.jellyfin = {
         enable = lib.mkEnableOption "Jellyfin media server";
-
-        lanAccess = {
-          enable = lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
-
-          interface = lib.mkOption {
-            type = lib.types.str;
-            default = "enp2s0";
-            description = "LAN interface to open the Jellyfin and auto-discovery ports on.";
-          };
-        };
+        lanAccess.enable = lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
 
         mediaDisk = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
@@ -230,7 +221,7 @@
           # 7359/udp is the auto-discovery port clients broadcast on to work
           # out whether they are home.
           (lib.mkIf cfg.lanAccess.enable {
-            networking.firewall.interfaces.${cfg.lanAccess.interface} = {
+            networking.firewall.interfaces.${config.my.lan.interface} = {
               allowedTCPPorts = [ port ];
               allowedUDPPorts = [ 7359 ];
             };

@@ -13,7 +13,7 @@
     let
       cfg = config.my.nextcloud;
       subdomain = "cloud";
-      domain = "${subdomain}.${toString config.my.tailscale.acme.domain}";
+      domain = "${subdomain}.${config.my.ingress.domain}";
       adminpassPath = "/run/secrets/nextcloud_admin_password";
       dumpDir = config.services.postgresqlBackup.location;
       runuser = "${pkgs.util-linux}/bin/runuser";

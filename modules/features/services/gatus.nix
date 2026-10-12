@@ -41,62 +41,62 @@
             (mkHttpEndpoint {
               group = "media";
               name = "jellyfin";
-              url = "https://media.${config.my.tailscale.acme.domain}";
+              url = "https://media.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "immich";
-              url = "https://photos.${config.my.tailscale.acme.domain}";
+              url = "https://photos.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "sonarr";
-              url = "https://series.${config.my.tailscale.acme.domain}";
+              url = "https://series.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "radarr";
-              url = "https://movies.${config.my.tailscale.acme.domain}";
+              url = "https://movies.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "lidarr";
-              url = "https://music.${config.my.tailscale.acme.domain}";
+              url = "https://music.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "prowlarr";
-              url = "https://prowlarr.${config.my.tailscale.acme.domain}";
+              url = "https://prowlarr.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "bazarr";
-              url = "https://bazarr.${config.my.tailscale.acme.domain}";
+              url = "https://bazarr.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "media";
               name = "qbittorrent";
-              url = "https://torrents.${config.my.tailscale.acme.domain}";
+              url = "https://torrents.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "productivity";
               name = "home-assistant";
-              url = "https://home.${config.my.tailscale.acme.domain}";
+              url = "https://home.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "productivity";
               name = "vaultwarden";
-              url = "https://passwords.${config.my.tailscale.acme.domain}";
+              url = "https://passwords.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "productivity";
               name = "calibre-web";
-              url = "https://books.${config.my.tailscale.acme.domain}";
+              url = "https://books.${config.my.ingress.domain}";
             })
             (mkHttpEndpoint {
               group = "productivity";
               name = "nextcloud";
-              url = "https://cloud.${config.my.tailscale.acme.domain}/status.php";
+              url = "https://cloud.${config.my.ingress.domain}/status.php";
             })
             # /healthz needs no tailnet identity, and answers 503 when New Leaf
             # can't write CVs or share links, or run Typst.
@@ -104,18 +104,18 @@
               conditions = [ "[STATUS] == 200" ];
               group = "productivity";
               name = "cv-editor";
-              url = "https://cv.${config.my.tailscale.acme.domain}/healthz";
+              url = "https://cv.${config.my.ingress.domain}/healthz";
             })
             # A file New Leaf syncs into the public webroot; "/" only redirects.
             (mkHttpEndpoint {
               group = "productivity";
               name = "cv-share";
-              url = "https://cv.${config.my.tailscale.acme.domain}/fonts/OFL.txt";
+              url = "https://cv.${config.my.ingress.domain}/fonts/OFL.txt";
             })
             (mkHttpEndpoint {
               group = "infra";
               name = "headscale";
-              url = "https://vpn.${config.my.tailscale.acme.domain}";
+              url = "https://vpn.${config.my.ingress.domain}";
             })
           ];
 

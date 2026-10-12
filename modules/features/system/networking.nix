@@ -1,7 +1,26 @@
 {
+  inputs,
+  lib,
+  ...
+}:
+{
   flake.nixosModules.networking =
     { pkgs, ... }:
     {
+      options.my.lan = {
+        interface = lib.mkOption {
+          type = lib.types.str;
+          description = "The host's interface on the home LAN, where the router's port forwards arrive too. Read by the services that open a port to the LAN.";
+        };
+
+        subnet = lib.mkOption {
+          type = lib.types.str;
+          default = inputs.self.lib.site.lan.subnet;
+          defaultText = lib.literalExpression "inputs.self.lib.site.lan.subnet";
+          description = "The home LAN's subnet.";
+        };
+      };
+
       config = {
         # nm-connection-editor, for viewing/editing NetworkManager connection
         # profiles (e.g. ad-hoc Wi-Fi not declared in wifi.nix). The package

@@ -39,7 +39,7 @@
             info.unix_device_names;
       };
 
-    # A tailnetVhost at <subdomain>.<acme domain> that proxies to a local port.
+    # A tailnetVhost at <subdomain>.<my.ingress.domain> that proxies to a local port.
     mkReverseProxy =
       {
         config,
@@ -50,7 +50,7 @@
         subdomain,
       }:
       let
-        domain = "${subdomain}.${toString config.my.tailscale.acme.domain}";
+        domain = "${subdomain}.${config.my.ingress.domain}";
       in
       lib.recursiveUpdate
         (inputs.self.lib.tailnetVhost (
@@ -189,6 +189,17 @@
         );
       };
 
+    # Facts more than one host needs.
+    site = {
+      # Headscale hands out addresses in order, and dapple joined first
+      # (docs/install.md).
+      dapple.tailnetIp = "100.64.0.1";
+
+      domain = "bw20.nl";
+      lan.subnet = "192.168.1.0/24";
+      vpnDomain = "vpn.bw20.nl";
+    };
+
     # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,
     # see secrets.nix), decrypted with the host's own age key if it has one,
     # or else with whichever YubiKey is plugged in that is a recipient.
@@ -280,12 +291,8 @@
 
         assertions = [
           {
-            assertion = config.my.tailscale.acme.enable;
-            message = "${domain} requires my.tailscale.acme.enable";
-          }
-          {
-            assertion = config.my.tailscale.acme.domain != null;
-            message = "${domain} requires my.tailscale.acme.domain to be set";
+            assertion = config.my.ingress.enable;
+            message = "${domain} requires my.ingress.enable";
           }
         ];
 
@@ -298,7 +305,7 @@
           # must not answer there: a connection to the public IP hits the
           # 0.0.0.0 socket, which has no server_name match here, so these
           # vhosts stay tailnet-only.
-          listenAddresses = [ config.my.tailscale.tailnetIp ];
+          listenAddresses = [ config.my.ingress.tailnetIp ];
 
           useACMEHost = domain;
         };

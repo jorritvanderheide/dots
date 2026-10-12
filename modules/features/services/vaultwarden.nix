@@ -21,7 +21,7 @@
 
       config = lib.mkIf cfg.enable (
         let
-          domain = "${subdomain}.${config.my.tailscale.acme.domain}";
+          domain = "${subdomain}.${config.my.ingress.domain}";
         in
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {

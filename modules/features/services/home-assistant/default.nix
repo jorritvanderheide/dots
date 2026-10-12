@@ -40,16 +40,7 @@
     {
       options.my.home-assistant = {
         enable = lib.mkEnableOption "Home Assistant smart home server";
-
-        lanAccess = {
-          enable = lib.mkEnableOption "plain-HTTP access from the home LAN, for devices with no Tailscale client";
-
-          interface = lib.mkOption {
-            type = lib.types.str;
-            default = "enp2s0";
-            description = "LAN interface to open the Home Assistant port on.";
-          };
-        };
+        lanAccess.enable = lib.mkEnableOption "plain-HTTP access from the home LAN, for devices with no Tailscale client";
       };
 
       config = lib.mkIf cfg.enable (
@@ -169,7 +160,7 @@
           # Plain HTTP: this is the bare port, not the TLS vhost, so LAN
           # traffic here is unencrypted.
           (lib.mkIf cfg.lanAccess.enable {
-            networking.firewall.interfaces.${cfg.lanAccess.interface}.allowedTCPPorts = [ port ];
+            networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ port ];
           })
         ]
       );

@@ -18,22 +18,7 @@
     {
       options.my.calibre-web = {
         enable = lib.mkEnableOption "Calibre-Web e-book server";
-
-        lanSync = {
-          enable = lib.mkEnableOption "LAN-only plain-HTTP access for Kobo Sync (no Tailscale needed)";
-
-          interface = lib.mkOption {
-            type = lib.types.str;
-            default = "enp2s0";
-            description = "LAN interface to open the firewall on for the LAN sync vhost.";
-          };
-
-          subnet = lib.mkOption {
-            type = lib.types.str;
-            default = "192.168.1.0/24";
-            description = "Home LAN subnet allowed to reach the LAN sync vhost.";
-          };
-        };
+        lanSync.enable = lib.mkEnableOption "LAN-only access for Kobo Sync (no Tailscale needed)";
       };
 
       config = lib.mkIf cfg.enable (
@@ -143,10 +128,10 @@
           }
           (lib.mkIf cfg.lanSync.enable (
             let
-              lanDomain = "kobo.${config.my.tailscale.acme.domain}";
+              lanDomain = "kobo.${config.my.ingress.domain}";
             in
             {
-              networking.firewall.interfaces.${cfg.lanSync.interface}.allowedTCPPorts = [ 443 ];
+              networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
               security.acme.certs.${lanDomain} = { };
 
               # Kobo firmware's sync/connectivity check requires HTTPS; plain
@@ -170,7 +155,7 @@
                   recommendedProxySettings = true;
 
                   extraConfig = ''
-                    allow ${cfg.lanSync.subnet};
+                    allow ${config.my.lan.subnet};
                     deny all;
 
                     proxy_buffer_size 1024k;

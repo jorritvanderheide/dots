@@ -11,9 +11,10 @@
     }:
     let
       cfg = config.my.headscale;
+      port = 8085;
 
       proxyToHeadscale = {
-        proxyPass = "http://127.0.0.1:8085";
+        proxyPass = "http://127.0.0.1:${toString port}";
         proxyWebsockets = true;
 
         extraConfig = ''
@@ -35,13 +36,9 @@
         enable = lib.mkEnableOption "Headscale control server";
 
         domain = lib.mkOption {
-          description = "FQDN for the headscale server (e.g. vpn.bw20.nl)";
-          type = lib.types.str;
-        };
-
-        interface = lib.mkOption {
-          default = "enp2s0";
-          description = "LAN interface to open the control protocol and STUN ports on.";
+          default = inputs.self.lib.site.vpnDomain;
+          defaultText = lib.literalExpression "inputs.self.lib.site.vpnDomain";
+          description = "FQDN for the headscale server";
           type = lib.types.str;
         };
 
@@ -53,12 +50,15 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # The host's own client enrolls with the server next to it.
+        my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
+
         security.acme.certs.${cfg.domain} = { };
 
         assertions = [
           {
-            assertion = config.my.tailscale.acme.enable;
-            message = "my.headscale requires my.tailscale.acme.enable for ACME certificates";
+            assertion = config.my.ingress.enable;
+            message = "my.headscale requires my.ingress.enable for ACME certificates";
           }
         ];
 
@@ -79,16 +79,16 @@
         # from the router arrives, since dapple has no WAN interface of its
         # own. Public reachability is therefore governed by the router's port
         # forward and the per-location rules on the vhost below, not here.
-        # tailnet access to 443 comes from my.tailscale's acme block.
-        networking.firewall.interfaces.${cfg.interface} = {
+        # tailnet access to 443 comes from my.ingress.
+        networking.firewall.interfaces.${config.my.lan.interface} = {
           allowedTCPPorts = [ 443 ];
           allowedUDPPorts = [ 3478 ];
         };
 
         services.headscale = {
+          inherit port;
           enable = true;
           address = "127.0.0.1";
-          port = 8085;
 
           settings = {
             server_url = "https://${cfg.domain}";

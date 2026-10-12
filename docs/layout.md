@@ -62,9 +62,13 @@ list.
 - **`sopsExtract`**: prints one secret from the host's own file
   (`/etc/sops/secrets.yaml`), with the host's age key (`hostAgeKey`) or a
   YubiKey. `mkSopsService` scripts call it as `sops_extract <key>`.
-- **`mkReverseProxy`**: an nginx vhost at `<subdomain>.bw20.nl`, with an ACME
-  certificate, bound to the tailnet address and refusing other sources
-  (`tailnetOnly`, also usable on its own).
+- **`mkReverseProxy`**: an nginx vhost at `<subdomain>.<my.ingress.domain>`,
+  with an ACME certificate, bound to the tailnet address and refusing other
+  sources (`tailnetOnly`, also usable on its own). The `ingress` feature runs
+  nginx and ACME for it.
+- **`site`**: facts more than one host needs: the domain, Headscale's
+  domain, dapple's tailnet address and the LAN's subnet. The host-local
+  side, like which interface is on the LAN, is `my.lan`.
 - **`mkUser`**: a user with fish, home-manager, and a password set from
   `user_password_<user>` at boot.
 

@@ -17,11 +17,11 @@
         headscale
         home-assistant
         immich
+        ingress
         jellyfin
         new-leaf
         nextcloud
         servarr
-        tailscale
         vaultwarden
 
         # Users
@@ -31,6 +31,7 @@
         # Host configuration
         (
           {
+            config,
             lib,
             pkgs,
             ...
@@ -45,9 +46,13 @@
             environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
             my.gatus.enable = true;
+            my.headscale.enable = true;
             my.home-assistant.enable = true;
             my.immich.enable = true;
+            my.ingress.enable = true;
+            my.lan.interface = "enp2s0";
             my.nextcloud.enable = true;
+            my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             my.vaultwarden.enable = true;
             networking.hostName = "dapple";
 
@@ -77,11 +82,6 @@
             my.calibre-web = {
               enable = true;
               lanSync.enable = true;
-            };
-
-            my.headscale = {
-              enable = true;
-              domain = "vpn.bw20.nl";
             };
 
             my.jellyfin = {
@@ -119,22 +119,11 @@
               allowedUsers = [ "nixos" ];
             };
 
-            my.tailscale = {
-              enable = true;
-              advertiseRoutes = [ "192.168.1.0/24" ];
-              loginServer = "http://127.0.0.1:8085";
-
-              acme = {
-                enable = true;
-                domain = "bw20.nl";
-              };
-            };
-
             # SSH from the home LAN by source address, not just by interface:
-            # the router's port forward arrives on enp2s0 too. The tailnet
-            # gets it from my.ssh-server.
+            # the router's port forward arrives on the LAN interface too. The
+            # tailnet gets it from my.ssh-server.
             networking.firewall.extraInputRules = ''
-              iifname "enp2s0" ip saddr 192.168.1.0/24 tcp dport 22 accept
+              iifname "${config.my.lan.interface}" ip saddr ${config.my.lan.subnet} tcp dport 22 accept
             '';
 
             # A trusted nix user can add unsigned store paths and set

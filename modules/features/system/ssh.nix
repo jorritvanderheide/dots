@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -75,7 +76,7 @@
 
                 "dapple" = {
                   host = "dapple";
-                  hostname = "100.64.0.1";
+                  hostname = inputs.self.lib.site.dapple.tailnetIp;
                   user = "nixos";
                 };
 
