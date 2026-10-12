@@ -56,7 +56,6 @@
                   # answers, and ssh (so ndeploy) would wait out the kernel's
                   # TCP retries instead of failing.
                   connectTimeout = 10;
-                  host = "dapple";
                   hostname = dapple.tailnetIp;
 
                   # Its key is pinned (my.ssh.knownHosts), so a prompt only

@@ -91,29 +91,25 @@
             };
 
             programs.ssh.settings = {
-              "codeberg" = {
-                host = "codeberg.org";
+              "codeberg.org" = {
                 identitiesOnly = true;
                 identityFile = "~/.ssh/git@codeberg.org.pub";
                 user = "git";
               };
 
-              "github" = {
-                host = "github.com";
+              "github.com" = {
                 identitiesOnly = true;
                 identityFile = "~/.ssh/git@github.com.pub";
                 user = "git";
               };
 
-              "gitlab" = {
-                host = "gitlab.science.ru.nl";
+              "gitlab.science.ru.nl" = {
                 identitiesOnly = true;
                 identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
                 user = "git";
               };
 
               "ilab1" = {
-                host = "ilab1";
                 hostname = "ilab1.ihub.ru.nl";
                 identitiesOnly = true;
                 identityFile = "~/Git/ops/ssh/id_ilab";
@@ -122,7 +118,6 @@
               };
 
               "ilab2" = {
-                host = "ilab2";
                 hostname = "ilab2.ihub.ru.nl";
                 identitiesOnly = true;
                 identityFile = "~/Git/ops/ssh/id_ilab";
@@ -131,13 +126,11 @@
               };
 
               "lilo" = {
-                host = "lilo";
                 hostname = "lilo.science.ru.nl";
                 user = "jvanderheide";
               };
 
-              "pubhubs-vm" = {
-                host = "ph";
+              "ph" = {
                 hostname = "ph.ihub.ru.nl";
                 identitiesOnly = true;
                 identityFile = "~/Git/ops/ssh/id_ilab";
@@ -146,7 +139,6 @@
               };
 
               "radboud-hub" = {
-                host = "radboud-hub";
                 hostname = "pubhubs.ru.nl";
                 identitiesOnly = true;
                 identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
