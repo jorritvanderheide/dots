@@ -1,13 +1,13 @@
 /*
  * Overrides on top of noctalia's built-in GTK template (noctalia.css), imported
- * after it by gtk.css (theming.nix), so these definitions win. Only what the
+ * after it by gtk.css (theming/default.nix), so these definitions win. Only what the
  * built-in gets wrong for this setup:
  * - Content (lists, text views) at the extreme surface tone, the same as Zed's
  *   editor, Ghostty and Obsidian's notes; sidebars on the chrome tone.
  * - Accent text darkened in light mode, where the raw wallpaper accent can be
  *   too light to read. Accent fills (accent_bg_color) stay as they are.
  * - Error, warning and success from the fixed semantic colors
- *   (theming.nix custom_colors) instead of wallpaper accents.
+ *   (theming/default.nix custom_colors) instead of wallpaper accents.
  * The replace turns "light" into an empty, falsy string.
  */
 <* if {{ mode | replace: "light", "" }} *>

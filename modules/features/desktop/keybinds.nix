@@ -161,7 +161,7 @@
                 repeat = false;
               };
 
-              # Dark by default (theming.nix); light on purpose, e.g. for
+              # Dark by default (theming); light on purpose, e.g. for
               # glare. The choice is saved in noctalia's settings.toml, so it
               # survives a reboot until toggled back.
               "Mod+T" = {

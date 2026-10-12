@@ -1,7 +1,7 @@
 /*
  * Color variables for both Zen templates (zen-userChrome.css and
  * zen-userContent.css), defined once here. Not imported by
- * userChrome/userContent: Zen's autoconfig (theming.nix) registers this file
+ * userChrome/userContent: Zen's autoconfig (theming/zen.nix) registers this file
  * as a user stylesheet and swaps it whenever noctalia rewrites it, so a
  * wallpaper or light/dark change recolors open windows without a restart.
  * The two rule files only reference these variables, so they need no reload.
@@ -16,7 +16,7 @@
  * - Zen uses the accents as text (selected tab, links, icons), and the raw
  *   wallpaper accents can lack contrast: they are darkened in light mode, and
  *   secondary/tertiary lifted in dark mode.
- * - --error is the fixed semantic red (theming.nix custom_colors).
+ * - --error is the fixed semantic red (theming/default.nix custom_colors).
  */
 @-moz-document url-prefix("chrome:"), url-prefix("about:") {
   @media (prefers-color-scheme: dark) {

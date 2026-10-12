@@ -7,7 +7,7 @@
  *
  * Set here: the accent, backgrounds, text, and Border's extended colors (red,
  * orange, ...; Appearance > Extended colors), which come from the fixed
- * semantic custom_colors (theming.nix) so callouts and tags use the same red,
+ * semantic custom_colors (theming/default.nix) so callouts and tags use the same red,
  * green, ... as Zed and Ghostty. Border's pink stays (no semantic pink). Border
  * derives its accent shades, borders, hovers and interactive colors from the
  * accent.

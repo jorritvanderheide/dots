@@ -1,7 +1,7 @@
 # noctalia templates
 
-Rendered by noctalia from the wallpaper's palette. `../theming.nix` wires them
-up and holds the color rules they share; each file's header explains its
+Rendered by noctalia from the wallpaper's palette. `../default.nix` wires them
+up and holds the color rules they share (Zen's are in `../zen.nix`); each file's header explains its
 specifics.
 
 Where they come from:
