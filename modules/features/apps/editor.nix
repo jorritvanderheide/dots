@@ -14,6 +14,15 @@ _: {
 
         home-manager.sharedModules = [
           {
+            home = {
+              sessionVariables.EDITOR = "zeditor --wait";
+
+              packages = with pkgs; [
+                nixd
+                nixfmt
+              ];
+            };
+
             programs.zed-editor = {
               enable = true;
 
@@ -54,15 +63,6 @@ _: {
                   options.nixos.expr = ''(builtins.getFlake "/etc/nixos").nixosConfigurations.rocinante.options'';
                 };
               };
-            };
-
-            home = {
-              sessionVariables.EDITOR = "zeditor --wait";
-
-              packages = with pkgs; [
-                nixd
-                nixfmt
-              ];
             };
           }
         ];

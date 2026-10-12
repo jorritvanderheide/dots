@@ -17,9 +17,9 @@
               cursor-invert-fg-bg = true;
               cursor-style = "block";
               gtk-titlebar = false;
+              window-inherit-working-directory = false;
               window-padding-x = 32;
               window-padding-y = 32;
-              window-inherit-working-directory = false;
               working-directory = "home";
             };
           };

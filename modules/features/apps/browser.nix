@@ -36,16 +36,16 @@
                 policies = {
                   AutofillAddressEnabled = false;
                   AutofillCreditCardEnabled = false;
-                  BlockAboutConfig = true;
                   BlockAboutAddons = true;
+                  BlockAboutConfig = true;
                   BlockAboutProfiles = true;
                   BlockAboutSupport = true;
                   CaptivePortal = true;
                   DisableAppUpdate = true;
                   DisableFirefoxAccounts = true;
-                  DisableFormHistory = true;
                   DisableFirefoxScreenshots = true;
                   DisableFirefoxStudies = true;
+                  DisableFormHistory = true;
                   DisablePocket = true;
                   DisableProfileImport = true;
                   DisableSetDesktopBackground = true;
@@ -84,62 +84,62 @@
                       "theme"
                     ];
 
-                    "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
-                      default_area = "navbar";
-                      installation_mode = "force_installed";
-                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
-                    };
-
-                    "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
-                      default_area = "navbar";
-                      installation_mode = "force_installed";
-                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
-                    };
-
-                    "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
-                      default_area = "menupanel";
-                      installation_mode = "force_installed";
-                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
-                      private_browsing = true;
-                    };
-
                     "jid1-MnnxcxisBPnSXQ@jetpack" = {
                       default_area = "menupanel";
-                      installation_mode = "force_installed";
                       install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
+                      installation_mode = "force_installed";
                       private_browsing = true;
                     };
 
                     "uBlock0@raymondhill.net" = {
                       default_area = "menupanel";
-                      installation_mode = "force_installed";
                       install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+                      installation_mode = "force_installed";
                       private_browsing = true;
                     };
 
                     "zotero@chnm.gmu.edu" = {
                       default_area = "navbar";
-                      installation_mode = "force_installed";
                       install_url = "https://www.zotero.org/download/connector/dl?browser=firefox&channel=release";
+                      installation_mode = "force_installed";
+                    };
+
+                    "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
+                      default_area = "navbar";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+                      installation_mode = "force_installed";
+                    };
+
+                    "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
+                      default_area = "navbar";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
+                      installation_mode = "force_installed";
+                    };
+
+                    "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
+                      default_area = "menupanel";
+                      install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
+                      installation_mode = "force_installed";
+                      private_browsing = true;
                     };
                   };
 
                   FirefoxHome = {
                     Highlights = false;
+                    Locked = true;
                     Pocket = false;
                     Search = true;
                     Snippets = false;
                     SponsoredPocket = false;
                     SponsoredTopSites = false;
                     TopSites = false;
-                    Locked = true;
                   };
 
                   FirefoxSuggest = {
                     ImproveSuggest = false;
+                    Locked = true;
                     SponsoredSuggestions = false;
                     WebSuggestions = false;
-                    Locked = true;
                   };
 
                   GenerativeAI = {
@@ -148,8 +148,8 @@
                   };
 
                   Homepage = {
-                    StartPage = "homepage";
                     Locked = false;
+                    StartPage = "homepage";
                   };
 
                   HttpAllowlist = [
@@ -165,9 +165,9 @@
                     Cookies = false;
                     FormData = true;
                     History = false;
+                    Locked = false;
                     Sessions = true;
                     SiteSettings = false;
-                    Locked = false;
                   };
 
                   SearchEngines = {
@@ -177,27 +177,27 @@
                     Add = [
                       {
                         Alias = "@br";
-                        Name = "Brave";
                         IconURL = "https://search.brave.com/favicon.ico";
+                        Name = "Brave";
                         SuggestURLTemplate = "https://search.brave.com/api/suggest?q={searchTerms}";
                         URLTemplate = "https://search.brave.com/search?q={searchTerms}";
                       }
                       {
                         Alias = "@np";
-                        Name = "Nix packages";
                         IconURL = "https://wiki.nixos.org/favicon.ico";
+                        Name = "Nix packages";
                         URLTemplate = "https://search.nixos.org/packages?channel=unstable&query={searchTerms}";
                       }
                       {
                         Alias = "@ng";
-                        Name = "Noogle";
                         IconURL = "https://noogle.dev/favicon.ico";
+                        Name = "Noogle";
                         URLTemplate = "https://noogle.dev/q?term={searchTerms}";
                       }
                       {
                         Alias = "@mn";
-                        Name = "My Nixos";
                         IconURL = "https://mynixos.com/favicon.ico";
+                        Name = "My Nixos";
                         URLTemplate = "https://mynixos.com/search?q={searchTerms}";
                       }
                     ]
@@ -228,8 +228,8 @@
                     ++ [
                       {
                         Alias = "@ss";
-                        Name = "Semantic Scholar";
                         IconURL = "https://www.semanticscholar.org/favicon.ico";
+                        Name = "Semantic Scholar";
                         URLTemplate = "https://www.semanticscholar.org/search?q={searchTerms}";
                       }
                     ];
@@ -250,10 +250,10 @@
                     ExtensionRecommendations = false;
                     FeatureRecommendations = false;
                     FirefoxLabs = false;
+                    Locked = true;
                     MoreFromMozilla = false;
                     SkipOnboarding = true;
                     UrlbarInterventions = false;
-                    Locked = true;
                   };
                 };
 
@@ -275,6 +275,7 @@
                     settings = [
                       {
                         name = "Library";
+
                         bookmarks = [
                           {
                             name = "Radboud proxy";
@@ -364,14 +365,14 @@
                     in
                     {
                       "Default" = {
-                        id = "ddb6f565-10ff-4f93-86eb-33f8920aacf4";
                         container = containers."Default".id;
+                        id = "ddb6f565-10ff-4f93-86eb-33f8920aacf4";
                         position = 1000;
                       };
 
                       "PubHubs" = {
-                        id = "c0d32de6-fd82-4943-ad01-3496469506fb";
                         container = containers."Work".id;
+                        id = "c0d32de6-fd82-4943-ad01-3496469506fb";
                         position = 2000;
                       };
                     };
@@ -406,6 +407,7 @@
               freshStart = pkgs.writeShellApplication {
                 name = "zen-beta-fresh-start";
                 runtimeInputs = [ pkgs.procps ];
+
                 text = ''
                   profile="$HOME/.config/zen/default"
 

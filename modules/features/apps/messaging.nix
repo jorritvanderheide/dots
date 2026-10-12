@@ -6,16 +6,16 @@
     }:
     {
       config = {
-        my.preservation.homeDirectories = [
-          ".config/Signal"
-        ];
-
         home-manager.sharedModules = [
           {
             home.packages = with pkgs; [
               signal-desktop
             ];
           }
+        ];
+
+        my.preservation.homeDirectories = [
+          ".config/Signal"
         ];
       };
     };
