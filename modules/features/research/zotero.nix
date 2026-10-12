@@ -24,18 +24,16 @@
       # XPI up by filename, so the name has to be the add-on's own ID.
       mkZoteroPlugin =
         {
-          pname,
-          version,
-          url,
-          hash,
           addonId,
+          hash,
+          pname,
+          url,
+          version,
         }:
         pkgs.stdenvNoCC.mkDerivation {
           inherit pname version;
-
-          src = pkgs.fetchurl { inherit url hash; };
-
           dontUnpack = true;
+          src = pkgs.fetchurl { inherit url hash; };
 
           installPhase = ''
             runHook preInstall
@@ -46,11 +44,11 @@
 
       # Citekeys, which ZotLit reads for the note filenames.
       better-bibtex = mkZoteroPlugin {
-        pname = "zotero-better-bibtex";
-        version = "9.0.64";
         addonId = "better-bibtex@iris-advies.com";
-        url = "https://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.64/zotero-better-bibtex-9.0.64.xpi";
         hash = "sha256-hMS1sF/6yanH4v95ZjYSSG93gWkN1ZsSoeYq7Nz6fCc=";
+        pname = "zotero-better-bibtex";
+        url = "https://github.com/retorquere/zotero-better-bibtex/releases/download/v9.0.64/zotero-better-bibtex-9.0.64.xpi";
+        version = "9.0.64";
       };
     in
     {
@@ -64,16 +62,19 @@
           # argument, so the module hands the package through untouched
           # instead of running it through wrapFirefox.
           (import "${inputs.home-manager}/modules/programs/firefox/mkFirefoxModule.nix" {
-            modulePath = [
-              "programs"
-              "zotero"
-            ];
             name = "Zotero";
-            wrappedPackageName = "zotero";
+
             # darwin is unused here, but the generator dereferences it
             # unconditionally for darwinDefaultsId, so it can't be omitted.
             platforms.darwin.configPath = "Library/Application Support/Zotero";
             platforms.linux.configPath = ".zotero/zotero";
+
+            wrappedPackageName = "zotero";
+
+            modulePath = [
+              "programs"
+              "zotero"
+            ];
           })
           (
             {
@@ -82,8 +83,20 @@
               ...
             }:
             {
+              # Gecko decides whether to rescan <profile>/extensions from a
+              # cached directory state keyed on mtimes, and every file in
+              # the Nix store is stamped 1970, so a plugin added or bumped
+              # here never looks newer than the cache and is silently never
+              # picked up, with no error and no log line. Dropping the cache
+              # forces the rescan. extensions.json is deliberately left
+              # alone: it also holds per-plugin enable/disable state.
+              home.activation.zoteroAddonRescan = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                run rm -f ${lib.escapeShellArg "${config.home.homeDirectory}/${config.programs.zotero.profilesPath}/${config.programs.zotero.profiles.default.path}/addonStartup.json.lz4"}
+              '';
+
               programs.zotero = {
                 enable = true;
+
                 # Temporary pin, see the nixpkgs-zotero input in flake.nix.
                 package = inputs.nixpkgs-zotero.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zotero;
 
@@ -113,15 +126,6 @@
                       # it they install but sit disabled pending approval.
                       "extensions.autoDisableScopes" = 0;
 
-                      # Stops the bundled LibreOffice-integration installer
-                      # from running on every startup. It probes /opt whenever
-                      # that directory exists, and /opt is mode 0711 here, so
-                      # the scan throws NS_ERROR_FILE_ACCESS_DENIED and the
-                      # modal error dialog it raises takes the whole app down
-                      # with an IPC fatal error. Preferences > Cite still has
-                      # a manual install button, which bypasses this.
-                      "extensions.zoteroOpenOfficeIntegration.skipInstallation" = true;
-
                       # Zotero 10 segfaults indexing HTML snapshots: it loads
                       # them into a hidden browser over a blob: URL, the
                       # parent rejects that as an illegal load and aborts the
@@ -131,6 +135,21 @@
                       # indexPDF, a different path), so turn snapshots off
                       # rather than disabling full-text indexing wholesale.
                       "extensions.zotero.automaticSnapshots" = false;
+
+                      # BBT's own default, pinned rather than left implicit:
+                      # changing the key format once the library has items
+                      # re-keys all of them and breaks citation keys already
+                      # written into documents.
+                      "extensions.zotero.translators.better-bibtex.citekeyFormat" = "auth.lower + shorttitle(3,3) + year";
+
+                      # Stops the bundled LibreOffice-integration installer
+                      # from running on every startup. It probes /opt whenever
+                      # that directory exists, and /opt is mode 0711 here, so
+                      # the scan throws NS_ERROR_FILE_ACCESS_DENIED and the
+                      # modal error dialog it raises takes the whole app down
+                      # with an IPC fatal error. Preferences > Cite still has
+                      # a manual install button, which bypasses this.
+                      "extensions.zoteroOpenOfficeIntegration.skipInstallation" = true;
 
                       # Extra source for Find Available PDF, which otherwise
                       # only tries doi.org, the item's own url field, Zotero's
@@ -149,34 +168,17 @@
                       # this will miss some items in a bulk run.
                       "extensions.zotero.findPDFs.resolvers" = [
                         {
-                          name = "Semantic Scholar";
-                          method = "GET";
-                          url = "https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}?fields=openAccessPdf";
-                          mode = "json";
-                          selector = ".openAccessPdf.url";
                           automatic = true;
+                          method = "GET";
+                          mode = "json";
+                          name = "Semantic Scholar";
+                          selector = ".openAccessPdf.url";
+                          url = "https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}?fields=openAccessPdf";
                         }
                       ];
-
-                      # BBT's own default, pinned rather than left implicit:
-                      # changing the key format once the library has items
-                      # re-keys all of them and breaks citation keys already
-                      # written into documents.
-                      "extensions.zotero.translators.better-bibtex.citekeyFormat" = "auth.lower + shorttitle(3,3) + year";
                     };
                 };
               };
-
-              # Gecko decides whether to rescan <profile>/extensions from a
-              # cached directory state keyed on mtimes, and every file in
-              # the Nix store is stamped 1970, so a plugin added or bumped
-              # here never looks newer than the cache and is silently never
-              # picked up, with no error and no log line. Dropping the cache
-              # forces the rescan. extensions.json is deliberately left
-              # alone: it also holds per-plugin enable/disable state.
-              home.activation.zoteroAddonRescan = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                run rm -f ${lib.escapeShellArg "${config.home.homeDirectory}/${config.programs.zotero.profilesPath}/${config.programs.zotero.profiles.default.path}/addonStartup.json.lz4"}
-              '';
             }
           )
         ];

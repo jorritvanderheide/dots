@@ -13,27 +13,6 @@
   # makes the set portable to another machine or another person.
   flake.nixosModules.research = {
     options.my.research = {
-      vaultPath = lib.mkOption {
-        type = lib.types.str;
-        default = "Git/obsidian";
-        description = ''
-          Obsidian vault location, relative to the user's home directory.
-        '';
-      };
-
-      statePaths = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = ''
-          Home-relative directories holding research state that must survive
-          a wipe: libraries, attachments, per-document reading position.
-
-          Modules append to this rather than writing to a persistence
-          mechanism themselves. Wire it to whichever one this machine uses,
-          e.g. `my.preservation.homeDirectories = config.my.research.statePaths;`
-        '';
-      };
-
       institution = {
         ezproxyPrefix = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
@@ -49,14 +28,14 @@
           '';
         };
 
-        openurlResolver = lib.mkOption {
+        iconUrl = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          example = "https://example.on.worldcat.org/atoztitles/link";
+          example = "https://www.example.edu/favicon.ico";
           description = ''
-            OpenURL resolver for Zotero's Locate > Library Lookup. Zotero
-            keeps a directory of these at
-            zotero.org/support/locate/openurl_resolvers.
+            Icon for the library search entries. Proxy and resolver hosts
+            often serve no favicon of their own, so this usually points at
+            the university's main site.
           '';
         };
 
@@ -70,16 +49,37 @@
           '';
         };
 
-        iconUrl = lib.mkOption {
+        openurlResolver = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          example = "https://www.example.edu/favicon.ico";
+          example = "https://example.on.worldcat.org/atoztitles/link";
           description = ''
-            Icon for the library search entries. Proxy and resolver hosts
-            often serve no favicon of their own, so this usually points at
-            the university's main site.
+            OpenURL resolver for Zotero's Locate > Library Lookup. Zotero
+            keeps a directory of these at
+            zotero.org/support/locate/openurl_resolvers.
           '';
         };
+      };
+
+      statePaths = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          Home-relative directories holding research state that must survive
+          a wipe: libraries, attachments, per-document reading position.
+
+          Modules append to this rather than writing to a persistence
+          mechanism themselves. Wire it to whichever one this machine uses,
+          e.g. `my.preservation.homeDirectories = config.my.research.statePaths;`
+        '';
+      };
+
+      vaultPath = lib.mkOption {
+        type = lib.types.str;
+        default = "Git/obsidian";
+        description = ''
+          Obsidian vault location, relative to the user's home directory.
+        '';
       };
     };
   };
