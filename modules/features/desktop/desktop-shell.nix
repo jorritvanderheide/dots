@@ -171,7 +171,6 @@
                       ];
 
                       end = [
-                        "tray"
                         "network"
                         "bluetooth"
                         "volume"

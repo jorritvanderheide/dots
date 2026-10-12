@@ -22,9 +22,10 @@
           {
             home.packages = [ pkgs.nextcloud-client ];
 
-            # In the tray from login; the account is set up once in its
-            # wizard, with ~/Nextcloud as the folder, and its login kept in
-            # the keyring.
+            # Syncs from login, out of sight: the bar has no tray. Starting it
+            # again from the launcher opens its window; the account is set up
+            # once in its wizard, with ~/Nextcloud as the folder, and its login
+            # kept in the keyring.
             programs.niri.settings.spawn-at-startup = [
               {
                 command = [
