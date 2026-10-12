@@ -4,6 +4,7 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
+    niri-flake.url = "github:sodiboo/niri-flake";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:nixos/nixos-hardware";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -25,16 +26,10 @@
       url = "github:nix-community/home-manager";
     };
 
-    # Secure boot. A release, not main: it signs what the firmware boots.
     lanzaboote = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/lanzaboote/v1.2.0";
     };
-
-    # Deliberately not following the shared nixpkgs: niri-flake's package
-    # build currently needs libdisplay-info_0_2, already removed from
-    # nixos-unstable, so pinning it to the shared input breaks the build.
-    niri-flake.url = "github:sodiboo/niri-flake";
 
     # Temporary: zotero fails to build against firefox-esr 153.4
     # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
