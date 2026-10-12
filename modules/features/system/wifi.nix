@@ -20,15 +20,13 @@
               "802-1x" = {
                 anonymous-identity = "anonymous@ru.nl";
 
-                # ca-cert intentionally left unset: RU's RADIUS backend is
-                # inconsistent about sending its intermediate cert chain, and
-                # wpa_supplicant's OpenSSL backend won't fill the gap from a
-                # local ca-cert store during a live handshake (verified: even
-                # a byte-for-byte correct bundle, extracted from RU's own
-                # eduroam CAT installer, didn't help; see eduroam-ca.pem,
-                # kept around for whenever RU's server-side issue is fixed
-                # and validation can be turned back on).
-                # ca-cert = "${./eduroam-ca.pem}";
+                # No ca-cert: RU's RADIUS backend is inconsistent about
+                # sending its intermediate cert chain, and wpa_supplicant's
+                # OpenSSL backend won't fill the gap from a local CA store
+                # during a live handshake (even a byte-for-byte correct
+                # bundle from RU's own eduroam CAT installer didn't help).
+                # Set it, from that installer, once RU's server sends the
+                # whole chain.
                 eap = "peap";
 
                 identity = "$EDUROAM_IDENTITY";

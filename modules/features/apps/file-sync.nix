@@ -24,7 +24,7 @@
 
             # Syncs from login, out of sight: the bar has no tray. Starting it
             # again from the launcher opens its window; the account is set up
-            # once in its wizard, with ~/Nextcloud as the folder, and its login
+            # once in its wizard, with ~/Documents as the folder, and its login
             # kept in the keyring.
             programs.niri.settings.spawn-at-startup = [
               {
@@ -41,8 +41,8 @@
           }
         ];
 
-        # Both, or a reboot leaves the client facing an empty folder where
-        # its files were: the account and folder pairing, and the files.
+        # The account and folder pairing. The files are in ~/Documents,
+        # which preservation keeps for every user.
         my.preservation.homeDirectories = [
           ".config/Nextcloud"
         ];

@@ -272,7 +272,7 @@
                     # `keyword` would not help, since the urlbar has silently
                     # dropped keyword-invoked bookmarklets since Firefox 68
                     # (mozilla bug 1552141).
-                    settings = [
+                    settings = lib.optionals (institution.ezproxyPrefix != null) [
                       {
                         name = "Library";
 

@@ -15,38 +15,8 @@
       options.my.keyboard-remap = {
         holdTime = lib.mkOption {
           default = 300;
-          description = "Hold timeout in milliseconds for non-homerow tap-hold keys (caps, space)";
+          description = "Hold timeout in milliseconds for every tap-hold key: the homerow mods, caps and space.";
           type = lib.types.int;
-        };
-
-        # Per-finger hold timeouts for the homerow mods. Slower fingers
-        # (ring/pinky) linger on keys, so their mods need longer timeouts to
-        # avoid Alt/Super misfires; index-finger Shift can be fast.
-        # Values from the kanata community consensus (discussion #1656).
-        holdTimes = {
-          alt = lib.mkOption {
-            default = 450;
-            description = "Hold timeout (ms) for the ring-finger Alt mods (s/l)";
-            type = lib.types.int;
-          };
-
-          ctrl = lib.mkOption {
-            default = 350;
-            description = "Hold timeout (ms) for the middle-finger Ctrl mods (d/k)";
-            type = lib.types.int;
-          };
-
-          meta = lib.mkOption {
-            default = 500;
-            description = "Hold timeout (ms) for the pinky Super mods (a/;)";
-            type = lib.types.int;
-          };
-
-          shift = lib.mkOption {
-            default = 225;
-            description = "Hold timeout (ms) for the index-finger Shift mods (f/j)";
-            type = lib.types.int;
-          };
         };
 
         idleTime = lib.mkOption {

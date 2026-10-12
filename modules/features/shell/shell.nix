@@ -13,16 +13,20 @@
               # ever run on described, committed code. build/test are for
               # iterating on dirty working-copy state.
               functions.check-clean = ''
+                if not command -q jj
+                  echo "jj is not installed, so uncommitted changes can't be ruled out." >&2
+                  return 1
+                end
                 if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
                   echo "Working copy has uncommitted changes. Describe them first." >&2
                   return 1
                 end
               '';
 
-              # Rebuilds want the YubiKey in. The sops-secret services (see
-              # mkSopsService) decrypt with the host's own age key now, so
-              # activation itself doesn't need it any more; the check stays
-              # by choice, so the key is at hand whenever the system changes.
+              # Rebuilds want the YubiKey in. Activation doesn't need it (the
+              # sops-secret services, see mkSopsService, decrypt with the
+              # host's own age key); the check is by choice, so the key is at
+              # hand whenever the system changes.
               # Only for the local host: ndeploy activates remotely.
               functions.check-yubikey = ''
                 if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
