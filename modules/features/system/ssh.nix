@@ -58,6 +58,12 @@
                   connectTimeout = 10;
                   host = "dapple";
                   hostname = dapple.tailnetIp;
+
+                  # Its key is pinned (my.ssh.knownHosts), so a prompt only
+                  # means another machine, e.g. at 192.168.1.162 on a network
+                  # that isn't home: refuse it before a key or the sudo
+                  # password goes there.
+                  strictHostKeyChecking = "yes";
                   user = "nixos";
                 };
 
