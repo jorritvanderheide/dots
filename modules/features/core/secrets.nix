@@ -16,15 +16,19 @@
         # key or a YubiKey. Deliberately not sops-nix: nothing in this repo
         # uses sops.secrets (see mkSopsService for why).
 
-        # Each host has a file of its own, so one host's key can't open the
-        # other's secrets.
-        environment.etc."sops/secrets.yaml".source =
-          inputs.self + "/secrets/${config.networking.hostName}.yaml";
-
         # age-plugin-yubikey needs pcscd running and itself on PATH to reach
         # the hardware.
         environment.systemPackages = [ pkgs.age-plugin-yubikey ];
         services.pcscd.enable = true;
+
+        # Each host has a file of its own, so one host's key can't open the
+        # other's secrets. A copy of just the file: a path into the flake
+        # would bring the whole source along, and /etc would change with
+        # every commit.
+        environment.etc."sops/secrets.yaml".source = builtins.path {
+          name = "secrets.yaml";
+          path = inputs.self + "/secrets/${config.networking.hostName}.yaml";
+        };
 
         # When security.polkit.enable is on (e.g. pulled in by NetworkManager
         # on a headless host with no desktop session of its own),
