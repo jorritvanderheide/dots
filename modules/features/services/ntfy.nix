@@ -72,11 +72,6 @@
               };
             };
 
-            systemd.services.ntfy-sh = {
-              after = [ "ntfy-secrets.service" ];
-              wants = [ "ntfy-secrets.service" ];
-            };
-
             # The user's password hash (`ntfy user hash`) and Gatus's token
             # (`ntfy token generate`). Single-quoted, so systemd keeps the
             # hash's $ signs as they are.
@@ -92,6 +87,11 @@
                 install -d -m 0755 /run/secrets
                 printf "NTFY_AUTH_USERS='jorrit:%s:user'\nNTFY_AUTH_TOKENS='jorrit:%s:gatus'\n" "$hash" "$token" > ${envPath}
               '';
+            };
+
+            systemd.services.ntfy-sh = {
+              after = [ "ntfy-secrets.service" ];
+              wants = [ "ntfy-secrets.service" ];
             };
           }
         ]

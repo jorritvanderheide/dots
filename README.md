@@ -141,11 +141,14 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Vaultwarden | `passwords` | Passwords |
 | Calibre-Web | `books` | E-books, synced to a Kobo |
 | Radicale | `contacts` | Contacts and calendars |
-| Nextcloud | `cloud` | Files, synced to rocinante, with public share links |
+| Nextcloud | `cloud` | Files, with public share links |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | Gatus | `status` | Monitoring of all of the above |
 | ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app |
+
+Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
+tailnet only, without a web page of its own.
 
 Backups: the services' data to Storj with restic, daily, with credentials
 that can't delete or overwrite (pruning is by hand, from rocinante),
@@ -175,8 +178,8 @@ There, only three things answer, all through Cloudflare:
 A name no vhost claims gets no certificate and no answer.
 
 **From the tailnet**, every service in [section 6](#6-services-on-dapple),
-over HTTPS on dapple's tailnet address. SSH and the home LAN (through
-dapple's subnet route) only from the devices the
+over HTTPS on dapple's tailnet address. SSH, Syncthing (22000/tcp) and the
+home LAN (through dapple's subnet route) only from the devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson) names:
 rocinante, and two phones for the LAN. The services' vhosts are bound to
 that address and refuse any source outside the tailnet, so they answer

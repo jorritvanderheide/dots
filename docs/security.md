@@ -22,14 +22,14 @@ tailnet address.
 [policy](../modules/features/services/headscale/headscale-policy.hujson) grants it:
 
 - every device: the services on dapple, over HTTPS;
-- rocinante: SSH on dapple;
+- rocinante: SSH and Syncthing on dapple;
 - rocinante and two phones: the home LAN, through dapple's
   subnet route (the phones for the camera).
 
 dapple is tagged `tag:server`, so it isn't one of anyone's own devices: no
 blanket device-to-device access to it, and New Leaf doesn't take it for a
 person. The firewall holds the same line a second time: it is nftables, so
-its tailnet rules (443 and 22) apply even though tailscaled accepts all
+its tailnet rules (443, 22 and 22000) apply even though tailscaled accepts all
 tailnet traffic in its own table. Behind that, the apps ask for their own
 login, except Gatus's read-only status page: the *arr apps and qBittorrent
 with a forms login that a "local" address doesn't skip (behind nginx every
@@ -140,7 +140,7 @@ would otherwise win.
 From rocinante:
 
 ```sh
-curl -m5 http://100.64.0.1:6767/        # times out: only 443 and 22 on the tailnet
+curl -m5 http://100.64.0.1:6767/        # times out: only 443, 22 and 22000 on the tailnet
 curl -sk -m5 https://100.64.0.1/ -H 'Host: x'   # refused: unknown name
 ssh nixos@dapple nix store info          # Trusted: 0
 ```

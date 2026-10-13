@@ -1,42 +1,55 @@
 {
-  lib,
+  inputs,
   ...
 }:
 {
+  # ~/Documents, synced with dapple's copy (syncthing.nix) over the
+  # tailnet, and nothing else: no discovery, relays or other traffic to
+  # Syncthing's servers, and listening on loopback only, since rocinante
+  # dials dapple. Its web interface is at http://127.0.0.1:8384.
   flake.nixosModules.file-sync =
-    {
-      pkgs,
-      ...
-    }:
+    let
+      inherit (inputs.self.lib) site;
+    in
     {
       config = {
         home-manager.sharedModules = [
-          {
-            home.packages = [ pkgs.nextcloud-client ];
+          (
+            { config, ... }:
+            {
+              services.syncthing = {
+                enable = true;
 
-            # Syncs from login, out of sight: the bar has no tray. Starting it
-            # again from the launcher opens its window; the account is set up
-            # once in its wizard, with ~/Documents as the folder, and its login
-            # kept in the keyring.
-            programs.niri.settings.spawn-at-startup = [
-              {
-                command = [
-                  "app2unit"
-                  "-s"
-                  "a"
-                  "--"
-                  (lib.getExe' pkgs.nextcloud-client "nextcloud")
-                  "--background"
-                ];
-              }
-            ];
-          }
+                settings = {
+                  devices.dapple = {
+                    addresses = [ "tcp://${site.dapple.tailnetIp}:${toString site.syncthing.port}" ];
+                    id = site.syncthing.devices.dapple;
+                  };
+
+                  folders.documents = {
+                    devices = [ "dapple" ];
+                    path = "${config.home.homeDirectory}/Documents";
+                  };
+
+                  options = {
+                    crashReportingEnabled = false;
+                    globalAnnounceEnabled = false;
+                    listenAddresses = [ "tcp://127.0.0.1:${toString site.syncthing.port}" ];
+                    localAnnounceEnabled = false;
+                    natEnabled = false;
+                    relaysEnabled = false;
+                    urAccepted = -1;
+                  };
+                };
+              };
+            }
+          )
         ];
 
-        # The account and folder pairing. The files are in ~/Documents,
-        # which preservation keeps for every user.
+        # The identity dapple knows this laptop by, and the index. The
+        # files are in ~/Documents, which preservation keeps for every user.
         my.preservation.homeDirectories = [
-          ".config/Nextcloud"
+          ".local/state/syncthing"
         ];
       };
     };

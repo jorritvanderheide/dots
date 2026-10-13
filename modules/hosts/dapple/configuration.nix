@@ -24,6 +24,7 @@
         nextcloud
         ntfy
         servarr
+        syncthing
         vaultwarden
 
         # Users
@@ -52,6 +53,7 @@
             my.nextcloud.enable = true;
             my.ntfy.enable = true;
             my.offsite-backup.enable = true;
+            my.syncthing.enable = true;
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             my.vaultwarden.enable = true;
             networking.hostName = "dapple";

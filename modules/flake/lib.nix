@@ -231,6 +231,18 @@
         # (docs/install.md).
         tailnetIp = "100.64.0.1";
       };
+
+      # rocinante's documents and dapple's copy (file-sync.nix,
+      # syncthing.nix). A device's ID is the hash of its key, which is in
+      # its persisted state.
+      syncthing = {
+        port = 22000;
+
+        devices = {
+          dapple = "T5ZF3AC-HREZOUC-4MKGOWC-3PEWHOZ-WT75JQF-UTKPCZ6-2TN4TKZ-OWUXZQE";
+          rocinante = "RMKDHFZ-P6LQ5NT-OXRSEGM-5AKMNDZ-LQNUVY2-KKWQZV3-6Q2YBM5-LZALDQQ";
+        };
+      };
     };
 
     # Prints one secret from this host's secrets file (/etc/sops/secrets.yaml,
