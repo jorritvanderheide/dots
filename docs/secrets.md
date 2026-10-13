@@ -120,11 +120,18 @@ Don't deploy meanwhile: that can put the host's key back halfway.
 
 ## A new host key
 
-A host's own key is a plain `age-keygen` identity. A reinstalled host
-needs a new one: the installer decrypts with a YubiKey or the passphrase,
-and the first boot does too, with a YubiKey that opens the host's file
-plugged in (rocinante's own; dapple's spare, or rocinante's with its PIN).
-Then, on the host:
+A host's own key is a plain `age-keygen` identity. The installer makes a
+new one for every host it installs: it replaces `<host>_host` in the
+clone's `.sops.yaml` with it, re-encrypts `secrets/<host>.yaml` with the
+YubiKey (or passphrase) it decrypts with, and puts the key in
+`/persist/system/var/lib/sops/age.key`. Commit and push both files from
+`/etc/nixos` after the first boot.
+
+It has to happen there, not after the first boot: without its secrets a
+host's accounts stay locked, and no service can type the PIN that dapple's
+file needs.
+
+To replace the key of a running host by hand, on the host:
 
 ```sh
 sudo install -d -m 0700 /persist/system/var/lib/sops

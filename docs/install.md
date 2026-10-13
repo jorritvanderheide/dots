@@ -50,21 +50,24 @@ The installer:
 1. Checks that the host's disk is there, by its model and serial. If it
    isn't, the hardware report is from another machine, and it stops.
 2. Decrypts the LUKS password with the YubiKey that is plugged in.
-3. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
-4. Partitions and formats it with disko, and runs `nixos-install`.
-5. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
+3. Makes the host a new age key of its own, and re-encrypts its secrets
+   file for it, with the same YubiKey
+   ([A new host key](secrets.md#a-new-host-key)).
+4. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
+5. Partitions and formats it with disko, runs `nixos-install`, and puts the
+   age key in `/persist`.
+6. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
    remote (pushing over SSH), ready for `jj`.
 
-Then reboot, with the YubiKey still in, and type the LUKS password. Until
-secure boot is on, every boot asks for it: the first boot makes the secure
-boot keys, the next one enrolls them ([Secure boot](#secure-boot)), and the
-first boot with secure boot on binds the TPM, after which boots unlock by
-themselves.
+Then reboot and type the LUKS password. Until secure boot is on, every boot
+asks for it: the first boot makes the secure boot keys, the next one
+enrolls them ([Secure boot](#secure-boot)), and the first boot with secure
+boot on binds the TPM, after which boots unlock by themselves.
 
-Until the host has an age key of its own, its services decrypt with the
-YubiKey, so keep it in. Give it one once it's up
-([A new host key](secrets.md#a-new-host-key)); after that, it boots without
-a YubiKey.
+The host decrypts its secrets with its own age key from the first boot, so
+it needs no YubiKey. The new key's `.sops.yaml` and re-encrypted secrets
+file are uncommitted changes in `/etc/nixos`: commit and push them after
+the first boot, or the next deploy from elsewhere puts the old file back.
 
 ## Secure boot
 
@@ -109,8 +112,8 @@ The passwords are set by services on every boot anyway, not at activation:
 boot's activation run chrooted into `/sysroot` from the initrd, before the
 real systemd and pcscd exist there. So `set-password-root`,
 `set-password-jorrit` and `tpm2-luks-enroll` decrypt their own secret as a
-real service under the booted system's systemd, with the host's own age key
-or, until it has one, the YubiKey (after `pcscd.service`). Log in as
+real service under the booted system's systemd, with the host's own age key,
+which the installer put in place. Log in as
 `jorrit` (or `root`) once that has had a moment to run after boot.
 
 ## Joining the tailnet
@@ -211,10 +214,9 @@ Each host has its own secrets file, which only some keys open
 ([Secrets and keys](secrets.md)): rocinante's with its own age key and its
 YubiKey, dapple's with its own age key, rocinante's YubiKey (admin, with
 its PIN) and dapple's spare YubiKey. The passphrase identity opens both,
-for the installer, but a reinstalled host's services need a key of their
-own: a YubiKey that opens its file until it has a new age key (see
-[A new host key](secrets.md#a-new-host-key)). Without one, a host boots but
-can't set its passwords or reach its backup.
+for the installer. The installer gives a reinstalled host a new age key of
+its own ([A new host key](secrets.md#a-new-host-key)), so its services
+need no YubiKey.
 
 - **rocinante.** On its replacement, with its YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run

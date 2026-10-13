@@ -56,17 +56,16 @@ main() {
   jj git clone --colocate --remote codeberg "$REPO_URL" "$repo"
   jj -R "$repo" git remote set-url codeberg "$REPO_PUSH_URL"
 
-  # Installed from the flake this was started from, or with --new-hardware
-  # from the clone, with this machine's hardware report in it: there is no
-  # other computer to commit one from. It stays an uncommitted change in
+  # Installed from the clone, as pushed to Codeberg: the host's new age key
+  # (below) re-encrypts its secrets there, and with --new-hardware this
+  # machine's hardware report goes in it too, since there is no other
+  # computer to commit one from. They stay uncommitted changes in
   # /etc/nixos, to commit and push after the first boot.
-  local src=$FLAKE_DIR flake=$FLAKE_DIR
+  local src=$repo flake="path:${repo}"
   if $new_hardware; then
     log_info "Gathering this machine's hardware report..."
     mkdir -p "${repo}/modules/hosts/${hostname}"
     nixos-facter >"${repo}/modules/hosts/${hostname}/facter.json"
-    src=$repo
-    flake="path:${repo}"
   fi
   local secrets_file="${src}/secrets/${hostname}.yaml"
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
@@ -105,7 +104,7 @@ main() {
   # once real systemd + pcscd are up, not via sops-nix's own
   # activation-time install, which never works on this host (see docs/install.md).
   log_info "Decrypting LUKS password..."
-  trap 'rm -f /tmp/secret.key' EXIT
+  trap 'rm -f /tmp/secret.key /tmp/host-age.key' EXIT
   for attempt in $(seq 1 10); do
     # Created owner-only, not world-readable until the chmod below.
     (umask 077 && sops -d --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key) && break
@@ -114,6 +113,20 @@ main() {
     sleep 2
   done
   chmod 400 /tmp/secret.key
+
+  # The host's own age key, so its services decrypt from the first boot on.
+  # They couldn't with a YubiKey: dapple's file only opens with a PIN, which
+  # no service can type, and without their secrets the accounts stay
+  # locked. Its public half replaces the old one in .sops.yaml, and the
+  # host's file is re-encrypted for it, with the same YubiKey.
+  log_info "Making ${hostname}'s own age key..."
+  (umask 077 && age-keygen -o /tmp/host-age.key 2>/dev/null)
+  local host_key
+  host_key=$(age-keygen -y /tmp/host-age.key)
+  sed -i -E "s/(&${hostname}_host )age1[0-9a-z]+/\1${host_key}/" "${repo}/.sops.yaml"
+  grep -q "&${hostname}_host ${host_key}" "${repo}/.sops.yaml" ||
+    die "No &${hostname}_host key in .sops.yaml to replace"
+  (cd "$repo" && sops updatekeys --yes "secrets/${hostname}.yaml")
 
   log_info "Partitioning + formatting (disko). This wipes:"
   lsblk -o PATH,MODEL,SERIAL,SIZE "$disk"
@@ -135,6 +148,10 @@ main() {
   log_info "Installing NixOS..."
   nixos-install --no-root-password --flake "${flake}#${hostname}"
 
+  # lib.hostAgeKey, readable by root only.
+  install -d -m 0700 /mnt/persist/system/var/lib/sops
+  install -m 0400 /tmp/host-age.key /mnt/persist/system/var/lib/sops/age.key
+
   local etc_nixos=/mnt/persist/system/etc/nixos
   mkdir -p "$(dirname "$etc_nixos")"
   log_info "Copying the repository to /etc/nixos..."
@@ -148,9 +165,10 @@ main() {
   find "$etc_nixos" -type d -exec chmod g+s {} +
 
   log_success "Installation complete! Reboot when ready."
-  log_info "Type the LUKS password on the first boot, with the YubiKey still in: that boot enrolls the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
+  log_info "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
+  log_info "After the first boot, commit and push .sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos."
   if $new_hardware; then
-    log_info "After the first boot, commit and push modules/hosts/${hostname}/facter.json from /etc/nixos."
+    log_info "Commit modules/hosts/${hostname}/facter.json with them."
   fi
 }
 
