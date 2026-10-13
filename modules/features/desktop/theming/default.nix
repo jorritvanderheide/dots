@@ -51,6 +51,62 @@
         home-manager.sharedModules = [
           (
             { config, lib, ... }:
+            let
+              # Numix's folder icons are fixed colors, so a separate theme on
+              # top of Numix-Circle carries recolored ones. This is its
+              # skeleton: Numix's custom folder set, whose colors are
+              # placeholders, under every name that resolves to the default
+              # (orange) set.
+              numixFolders = pkgs.runCommand "numix-folders" { } ''
+                cd ${pkgs.numix-icon-theme}/share/icons/Numix
+                mkdir $out
+                sed -e 's/^Name=.*/Name=Numix Circle Noctalia/' -e 's/^Inherits=.*/Inherits=Numix-Circle/' \
+                  index.theme > $out/index.theme
+                for size in 16 22 24 32 48 64; do
+                  ln -s $size $out/$size@2x
+                done
+                folders() {
+                  find 16 22 24 32 48 64 "$@" \( -path '*/places/*' -o -path '*/actions/*' \)
+                }
+                folders -type f -name 'custom-*' -exec cp --parents --no-preserve=mode -t $out {} +
+                # Resolved in one batch: one realpath per link takes minutes.
+                folders -type l > $TMPDIR/links
+                xargs -a $TMPDIR/links -d '\n' realpath --relative-to=. > $TMPDIR/targets
+                paste -d ' ' $TMPDIR/links $TMPDIR/targets | while read -r link target; do
+                  # target: <size>/<context>/<file>, the context kept for the link
+                  context=''${target#*/}
+                  case ''${target##*/} in
+                    default-*) ln -s ../''${context/default-/custom-} $out/$link ;;
+                  esac
+                done
+              '';
+
+              # Recolors a fresh copy of the skeleton and swaps it in: a new
+              # theme directory is also what makes running GTK apps reload
+              # their icons.
+              numixFoldersApply = pkgs.writeShellApplication {
+                name = "numix-folders-apply";
+
+                runtimeInputs = with pkgs; [
+                  coreutils
+                  findutils
+                  gnused
+                ];
+
+                text = ''
+                  theme=${config.xdg.dataHome}/icons/Numix-Circle-Noctalia
+                  mkdir -p ${config.xdg.dataHome}/icons
+                  new=$(mktemp -d "$theme.XXXXXX")
+                  cp -rT --no-preserve=mode ${numixFolders} "$new"
+                  find "$new" -type f -name '*.svg' -exec sed -i -f "$1" {} +
+                  chmod 755 "$new"
+                  rm -rf "$theme.old"
+                  if [[ -e $theme ]]; then mv "$theme" "$theme.old"; fi
+                  mv "$new" "$theme"
+                  rm -rf "$theme.old"
+                '';
+              };
+            in
             {
               home.sessionVariables.XCURSOR_THEME = config.stylix.cursor.name;
               programs.bat.config.theme = "ansi";
@@ -230,6 +286,12 @@
                         output_path = "${config.xdg.configHome}/gtk-4.0/noctalia-overrides.css";
                       };
 
+                      numix_folders = {
+                        input_path = "${./noctalia-templates/numix-folders.sed}";
+                        output_path = "${config.xdg.cacheHome}/noctalia/numix-folders.sed";
+                        post_hook = "${lib.getExe numixFoldersApply} ${config.xdg.cacheHome}/noctalia/numix-folders.sed";
+                      };
+
                       # Different file name: switching the built-in Qt template
                       # off runs its undo hook, which deletes colors/noctalia.conf.
                       qt = {
@@ -286,7 +348,11 @@
 
               stylix.icons = {
                 enable = true;
-                dark = "Numix-Circle";
+
+                # Numix-Circle with the folders in the wallpaper's colors
+                # (numixFolders above). Only dark is used: stylix's polarity
+                # stays dark, and noctalia doesn't switch icon themes.
+                dark = "Numix-Circle-Noctalia";
                 light = "Numix-Circle-Light";
                 package = pkgs.numix-icon-theme-circle;
               };

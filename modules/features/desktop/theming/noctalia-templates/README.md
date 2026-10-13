@@ -14,6 +14,8 @@ Where they come from:
 - `ghostty`, `qtct.conf`: own, replacing noctalia's built-in Ghostty and Qt
   templates (noctalia 5.2.1).
 - `eza-theme.yml`: own, directory accent only.
+- `numix-folders.sed`: own, recolors Numix's folder icons (its post hook
+  builds the Numix-Circle-Noctalia icon theme).
 - `gtk3-overrides.css`, `gtk4-overrides.css`: own, layered on top of the
   built-in GTK templates, which stay enabled.
 - `obsidian-border.css`: own, for the Border theme, which is recolored
