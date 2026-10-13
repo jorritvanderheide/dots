@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -12,7 +11,6 @@
     }:
     let
       cfg = config.my.home-assistant;
-      subdomain = "home";
       port = 8123;
 
       hass-py = pkgs.home-assistant.python3Packages;
@@ -42,18 +40,18 @@
         lib.mkEnableOption "plain-HTTP access from the home LAN, for devices with no Tailscale client";
 
       config = lib.mkMerge [
-        (inputs.self.lib.mkReverseProxy {
-          inherit config port;
-          inherit subdomain;
-
-          status = {
-            group = "productivity";
-            name = "home-assistant";
-          };
-        })
         {
           # ZHA: let HA open the Zigbee dongle's serial port.
           users.users.hass.extraGroups = [ "dialout" ];
+
+          my.ingress.proxies.home = {
+            inherit port;
+
+            status = {
+              group = "productivity";
+              name = "home-assistant";
+            };
+          };
 
           my.offsite-backup.entries.home-assistant = {
             paths = [ "/var/lib/hass" ];

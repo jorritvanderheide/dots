@@ -7,6 +7,7 @@
   flake.nixosModules.gatus =
     {
       config,
+      options,
       pkgs,
       ...
     }:
@@ -125,9 +126,14 @@
 
       config = lib.mkIf cfg.enable (
         lib.mkMerge [
-          (inputs.self.lib.mkReverseProxy {
-            inherit config port subdomain;
-            status = null;
+          # Every host imports gatus (base), but only a host with the
+          # ingress feature has my.ingress, and defining an option that
+          # doesn't exist is an error even under mkIf.
+          (lib.optionalAttrs (options.my ? ingress) {
+            my.ingress.proxies.${subdomain} = {
+              inherit port;
+              status = null;
+            };
           })
           {
             # The offsite backup reports to the heartbeat in
@@ -136,6 +142,13 @@
 
             sops.secrets = lib.genAttrs secretKeys (_: { });
             users.groups.gatus = { };
+
+            assertions = [
+              {
+                assertion = config.my ? ingress;
+                message = "gatus needs the ingress feature";
+              }
+            ];
 
             my.preservation.systemDirectories = [
               {

@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -12,7 +11,6 @@
     }:
     let
       cfg = config.my.jellyfin;
-      subdomain = "media";
       port = 8096;
 
       # Pick VAAPI driver(s) based on the host's actual GPU(s) per facter.
@@ -25,23 +23,6 @@
         lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
 
       config = lib.mkMerge [
-        (inputs.self.lib.mkReverseProxy {
-          inherit config port;
-          inherit subdomain;
-
-          locationExtraConfig = ''
-            # Jellyfin streams large bodies and holds long-poll connections.
-            proxy_buffering off;
-            proxy_read_timeout 1h;
-            client_max_body_size 20M;
-          '';
-
-          status = {
-            group = "media";
-            name = "jellyfin";
-          };
-        })
-
         {
           assertions = [
             {
@@ -53,6 +34,22 @@
           hardware.graphics = {
             enable = true;
             extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
+          };
+
+          my.ingress.proxies.media = {
+            inherit port;
+
+            extraConfig = ''
+              # Jellyfin streams large bodies and holds long-poll connections.
+              proxy_buffering off;
+              proxy_read_timeout 1h;
+              client_max_body_size 20M;
+            '';
+
+            status = {
+              group = "media";
+              name = "jellyfin";
+            };
           };
 
           # Users, watch history and libraries; the artwork in metadata is

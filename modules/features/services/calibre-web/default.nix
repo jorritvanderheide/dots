@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -12,7 +11,6 @@
     }:
     let
       cfg = config.my.calibre-web;
-      subdomain = "books";
       port = 8083;
     in
     {
@@ -20,27 +18,27 @@
         lib.mkEnableOption "LAN-only access for Kobo Sync (no Tailscale needed)";
 
       config = lib.mkMerge [
-        (inputs.self.lib.mkReverseProxy {
-          inherit config port;
-          inherit subdomain;
-
-          locationExtraConfig = ''
-            # nginx's 10M default rejects larger books (comics easily run
-            # to hundreds of MB) with a 413 before calibre-web sees them.
-            client_max_body_size 2G;
-
-            proxy_buffer_size 1024k;
-            proxy_buffers 4 512k;
-            proxy_busy_buffers_size 1024k;
-            proxy_set_header X-Scheme $scheme;
-          '';
-
-          status = {
-            group = "productivity";
-            name = "calibre-web";
-          };
-        })
         {
+          my.ingress.proxies.books = {
+            inherit port;
+
+            extraConfig = ''
+              # nginx's 10M default rejects larger books (comics easily run
+              # to hundreds of MB) with a 413 before calibre-web sees them.
+              client_max_body_size 2G;
+
+              proxy_buffer_size 1024k;
+              proxy_buffers 4 512k;
+              proxy_busy_buffers_size 1024k;
+              proxy_set_header X-Scheme $scheme;
+            '';
+
+            status = {
+              group = "productivity";
+              name = "calibre-web";
+            };
+          };
+
           my.offsite-backup.entries.calibre-web = {
             paths = [ "/var/lib/calibre-web" ];
 

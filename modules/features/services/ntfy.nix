@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -31,60 +30,59 @@
         let
           domain = "${subdomain}.${config.my.ingress.domain}";
         in
-        lib.mkMerge [
-          (inputs.self.lib.mkReverseProxy {
-            inherit config port subdomain;
+        {
+          sops.secrets.ntfy_password_hash = { };
+          sops.secrets.ntfy_token = { };
+
+          my.ingress.proxies.${subdomain} = {
+            inherit port;
 
             status = {
               group = "infra";
               name = "ntfy";
               path = "/v1/health";
             };
-          })
-          {
-            sops.secrets.ntfy_password_hash = { };
-            sops.secrets.ntfy_token = { };
+          };
 
-            # DynamicUser, like Prowlarr (servarr/default.nix): no fixed owner to
-            # give the persisted directory. The cache is what a phone that
-            # was off the tailnet catches up from, so it survives a reboot.
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/private/ntfy-sh";
-                mode = "0777";
-              }
-            ];
+          # DynamicUser, like Prowlarr (servarr/default.nix): no fixed owner to
+          # give the persisted directory. The cache is what a phone that
+          # was off the tailnet catches up from, so it survives a reboot.
+          my.preservation.systemDirectories = [
+            {
+              directory = "/var/lib/private/ntfy-sh";
+              mode = "0777";
+            }
+          ];
 
-            services.ntfy-sh = {
-              enable = true;
-              environmentFile = config.sops.templates."ntfy.env".path;
+          services.ntfy-sh = {
+            enable = true;
+            environmentFile = config.sops.templates."ntfy.env".path;
 
-              settings = {
-                auth-access = [ "jorrit:${cfg.topic}:rw" ];
-                auth-default-access = "deny-all";
-                base-url = "https://${domain}";
-                behind-proxy = true;
+            settings = {
+              auth-access = [ "jorrit:${cfg.topic}:rw" ];
+              auth-default-access = "deny-all";
+              base-url = "https://${domain}";
+              behind-proxy = true;
 
-                # Three days instead of twelve hours: a phone off the tailnet
-                # over a weekend still gets what it missed.
-                cache-duration = "72h";
+              # Three days instead of twelve hours: a phone off the tailnet
+              # over a weekend still gets what it missed.
+              cache-duration = "72h";
 
-                listen-http = "127.0.0.1:${toString port}";
-              };
+              listen-http = "127.0.0.1:${toString port}";
             };
+          };
 
-            # The user's password hash (`ntfy user hash`) and Gatus's token
-            # (`ntfy token generate`). Single-quoted, so systemd keeps the
-            # hash's $ signs as they are.
-            sops.templates."ntfy.env" = {
-              restartUnits = [ "ntfy-sh.service" ];
+          # The user's password hash (`ntfy user hash`) and Gatus's token
+          # (`ntfy token generate`). Single-quoted, so systemd keeps the
+          # hash's $ signs as they are.
+          sops.templates."ntfy.env" = {
+            restartUnits = [ "ntfy-sh.service" ];
 
-              content = ''
-                NTFY_AUTH_USERS='jorrit:${config.sops.placeholder.ntfy_password_hash}:user'
-                NTFY_AUTH_TOKENS='jorrit:${config.sops.placeholder.ntfy_token}:gatus'
-              '';
-            };
-          }
-        ];
+            content = ''
+              NTFY_AUTH_USERS='jorrit:${config.sops.placeholder.ntfy_password_hash}:user'
+              NTFY_AUTH_TOKENS='jorrit:${config.sops.placeholder.ntfy_token}:gatus'
+            '';
+          };
+        };
     };
 }

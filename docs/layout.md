@@ -52,9 +52,12 @@ disk. Backups read a ZFS snapshot of `/persist`, not the live files. An
 entry also names the units to stop for `offsite-restore`, and any commands
 to load a dump back.
 
-A service with a web page also declares what the status page checks: the
-`status` of its `mkReverseProxy`, or `my.gatus.endpoints` directly for one
-without.
+A service with a web page declares it in `my.ingress.proxies.<subdomain>`:
+its port, any nginx directives, and the `status` the status page checks.
+The `ingress` feature makes each one a vhost at
+`<subdomain>.<my.ingress.domain>` with an ACME certificate, bound to the
+tailnet address and refusing other sources. A service without such a page
+declares its check in `my.gatus.endpoints` directly.
 
 A service that needs a secret declares it in `sops.secrets`, by its key in
 the host's file, and reads it from `config.sops.secrets.<key>.path`; one
@@ -77,16 +80,14 @@ list.
 
 `modules/flake/lib.nix` holds what several features need, as `inputs.self.lib`:
 
-- **`mkReverseProxy`**: an nginx vhost at `<subdomain>.<my.ingress.domain>`,
-  with an ACME certificate, bound to the tailnet address and refusing other
-  sources (`tailnetOnly`, also usable on its own), and its `status`: the
-  name and group the status page checks it under. The `ingress` feature
-  runs nginx and ACME for it.
+- **`tailnetOnly`**: nginx access rules that let in only the tailnet, for a
+  vhost or location a service writes itself (headscale's API, new-leaf);
+  the proxies above have them already.
 - **`site`**: facts more than one host needs: the domain, Headscale's
   domain, dapple's tailnet address and the LAN's subnet. The host-local
   side, like which interface is on the LAN, is `my.lan`.
-- **`mkUser`**: a user with fish, home-manager, and a password set from
-  `user_password_<user>` at boot.
+- **`mkUser`**: a user with fish, home-manager, and the password hash in
+  `user_password_<user>`, set by sops-nix at activation.
 
 ## Ordering
 

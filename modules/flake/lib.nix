@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   ...
 }:
@@ -39,50 +38,6 @@
           lib.findFirst stable (throw "disk ${info.model or "?"} has no stable by-id name")
             info.unix_device_names;
       };
-
-    # A tailnetVhost at <subdomain>.<my.ingress.domain> that proxies to a local port,
-    # and what the status page checks there: `status` is
-    # { name; group; path ? ""; }, the endpoint's name in Gatus and its
-    # group, and null only for the status page itself. Not optional, so a
-    # service can't go unwatched by leaving it out.
-    mkReverseProxy =
-      {
-        config,
-        extraHeaders ? null,
-        extraLocations ? { },
-        locationExtraConfig ? "",
-        port,
-        status,
-        subdomain,
-      }:
-      let
-        domain = "${subdomain}.${config.my.ingress.domain}";
-      in
-      lib.recursiveUpdate
-        (inputs.self.lib.tailnetVhost (
-          { inherit config domain; } // lib.optionalAttrs (extraHeaders != null) { inherit extraHeaders; }
-        ))
-        (
-          {
-            services.nginx.virtualHosts.${domain}.locations = {
-              "/" = {
-                proxyPass = "http://127.0.0.1:${toString port}";
-                proxyWebsockets = true;
-                recommendedProxySettings = true;
-              }
-              // lib.optionalAttrs (locationExtraConfig != "") {
-                extraConfig = locationExtraConfig;
-              };
-            }
-            // extraLocations;
-          }
-          // lib.optionalAttrs (status != null) {
-            my.gatus.endpoints.${status.name} = {
-              inherit (status) group;
-              url = "https://${domain}${status.path or ""}";
-            };
-          }
-        );
 
     mkUser =
       {
@@ -173,45 +128,5 @@
       allow 100.64.0.0/10;
       deny all;
     '';
-
-    # An nginx vhost at <domain> that only the tailnet reaches: an ACME
-    # certificate, and bound to the tailnet IP with tailnetOnly. Its
-    # locations are the caller's (mkReverseProxy's proxy).
-    tailnetVhost =
-      {
-        config,
-        domain,
-        # SAMEORIGIN (not DENY) so apps that rely on same-origin iframes still work,
-        # e.g. Vaultwarden's browser extension popup.
-        extraHeaders ? ''
-          add_header X-Content-Type-Options "nosniff" always;
-          add_header X-Frame-Options "SAMEORIGIN" always;
-          add_header Referrer-Policy "no-referrer" always;
-        '',
-      }:
-      {
-        security.acme.certs.${domain} = { };
-
-        assertions = [
-          {
-            assertion = config.my ? ingress;
-            message = "${domain} needs the ingress feature";
-          }
-        ];
-
-        services.nginx.virtualHosts.${domain} = {
-          extraConfig = inputs.self.lib.tailnetOnly + extraHeaders;
-          forceSSL = true;
-
-          # Bind only to the tailnet IP. nginx still keeps a 0.0.0.0:443
-          # listener for the headscale and kobo vhosts, but internal services
-          # must not answer there: a connection to the public IP hits the
-          # 0.0.0.0 socket, which has no server_name match here, so these
-          # vhosts stay tailnet-only.
-          listenAddresses = [ config.my.ingress.tailnetIp ];
-
-          useACMEHost = domain;
-        };
-      };
   };
 }
