@@ -119,6 +119,11 @@ would otherwise win.
   YubiKeys' sudo keys. While you're connected, anything on dapple running
   as `nixos` can ask it to sign, and run sudo if you touch the key. The
   YubiKey blinks when asked, so only touch it right after you ran sudo.
+- **sudo on dapple remembers a touch (or password) for 5 minutes across
+  all of `nixos`'s sessions**, not just the terminal it was typed in, so a
+  deploy takes one touch instead of one for each of nh's sudo calls. In that
+  window, anything running as `nixos` can use sudo too, but only what you
+  start over SSH runs as `nixos`: every service has a user of its own.
 - **Headscale listens on 127.0.0.1:8085**, a port any local process could
   take while Headscale restarts, and then act as control server. Moving it
   below 1024 would need dapple's own node to re-authenticate, the node every
