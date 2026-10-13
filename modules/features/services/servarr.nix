@@ -26,8 +26,8 @@
       };
 
       # nixpkgs' own sandbox for Sonarr and Radarr (servarr/sonarr.nix), for
-      # the apps whose modules come without one. Not its UMask: each app
-      # keeps its own.
+      # the apps whose modules come without one: Lidarr and Prowlarr (Bazarr
+      # has its own). Not its UMask: each app keeps its own.
       sandbox = {
         CapabilityBoundingSet = "";
         LockPersonality = true;
@@ -412,7 +412,7 @@
                   after = [ "bazarr-secrets.service" ];
                   wants = [ "bazarr-secrets.service" ];
 
-                  serviceConfig = sandbox // {
+                  serviceConfig = {
                     Restart = lib.mkForce "always";
                     RestartSec = lib.mkForce "5s";
 
