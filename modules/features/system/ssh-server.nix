@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -23,12 +24,28 @@
       };
 
       config = lib.mkIf cfg.enable {
+        # sudo over SSH takes a touch of a YubiKey on the machine you came
+        # from: one of lib.sudoKeys, in the agent forwarded for it, signs
+        # pam_rssh's challenge. Not the login keys, which stay in Bitwarden's
+        # agent. Without that agent (or a touch), the password.
+        environment.etc."ssh/sudo_keys".text = lib.concatLines inputs.self.lib.sudoKeys;
+
         networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
+        security.pam.services.sudo.rssh = true;
 
         # Preserve state
         my.preservation.systemFiles = [
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
+
+        security.pam.rssh = {
+          enable = true;
+
+          settings = {
+            auth_key_file = "/etc/ssh/sudo_keys";
+            cue = true;
+          };
+        };
 
         services.openssh = {
           enable = true;
@@ -42,8 +59,9 @@
           # LAN if it wants it.
           openFirewall = false;
 
+          # Agent forwarding only for sudo's keys (below): rocinante forwards
+          # an agent with nothing else in it.
           extraConfig = ''
-            AllowAgentForwarding no
             AllowStreamLocalForwarding no
             AllowTcpForwarding no
             AuthenticationMethods publickey

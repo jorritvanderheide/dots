@@ -56,9 +56,12 @@ tailnet sources that don't arrive on `tailscale0`.
 - in Home Assistant's case, can't rewrite the firewall or sniff traffic:
   it runs without `CAP_NET_ADMIN` and `CAP_NET_RAW`.
 
-**Someone with the `nixos` SSH key** still needs the sudo password: Nix
-isn't a way around it any more, and what `ndeploy` copies over has to be
-signed by rocinante's deploy key (`rocinante-1`).
+**Someone with the `nixos` SSH key** still needs the sudo password, or one
+of the YubiKeys and a touch: sudo on dapple also takes a signature from a
+FIDO2 key on either (`pam_rssh`), through an agent rocinante forwards with
+only those keys in it. The login key isn't one of them. Nix isn't a way
+around it any more, and what `ndeploy` copies over has to be signed by
+rocinante's deploy key (`rocinante-1`).
 
 **One host taken over** doesn't give up the other's secrets: each host has a
 file of its own, readable by its own key, and each has its own LUKS, root
@@ -112,6 +115,10 @@ would otherwise win.
 
 ## Accepted on purpose
 
+- **rocinante forwards an SSH agent to dapple**, the one with only the
+  YubiKeys' sudo keys. While you're connected, anything on dapple running
+  as `nixos` can ask it to sign, and run sudo if you touch the key. The
+  YubiKey blinks when asked, so only touch it right after you ran sudo.
 - **Headscale listens on 127.0.0.1:8085**, a port any local process could
   take while Headscale restarts, and then act as control server. Moving it
   below 1024 would need dapple's own node to re-authenticate, the node every
@@ -140,6 +147,7 @@ From rocinante:
 curl -m5 http://100.64.0.1:6767/        # times out: only 443, 22 and 22000 on the tailnet
 curl -sk -m5 https://100.64.0.1/ -H 'Host: x'   # refused: unknown name
 ssh nixos@dapple nix store info          # Trusted: 0
+ssh -t dapple sudo -k true               # a YubiKey touch, no password
 ```
 
 On dapple:

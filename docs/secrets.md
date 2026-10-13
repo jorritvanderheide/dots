@@ -74,6 +74,14 @@ sudo systemd-cryptenroll --fido2-device=/dev/hidrawN --fido2-with-client-pin=yes
   --fido2-with-user-presence=yes /dev/disk/by-partlabel/disk-main-luks
 ```
 
+And its FIDO2 key for sudo on dapple, whose `.pub` goes in
+`lib.sudoKeys` (then `systemctl --user restart ssh-agent-sudo` loads it):
+
+```sh
+ssh-keygen -t ed25519-sk -O application=ssh:dapple-sudo -N "" \
+  -f ~/.ssh/dapple-sudo-<serial>
+```
+
 Then:
 
 1. Add the no-PIN `age1yubikey1...` recipient to `rocinante.yaml`'s

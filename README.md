@@ -113,7 +113,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
 | `nbuild` | Build only |
-| `ndeploy <host> [switch\|boot]` | Build here, signed with rocinante's deploy key, and activate on another host over SSH |
+| `ndeploy <host> [switch\|boot]` | Build here, signed with rocinante's deploy key, and activate on another host over SSH (at the sudo prompt, any character, then a YubiKey touch for each sudo) |
 | `nrollback` | Go back to the previous generation |
 | `nupdate` | Update `flake.lock` |
 | `nix fmt` | Format everything (nixfmt, deadnix, statix, shfmt, ruff) |

@@ -54,8 +54,10 @@
                 # --use-substitutes lets the target pull cached paths from
                 # cache.nixos.org directly instead of forcing the full closure
                 # over the SSH/tailscale link. nh asks for the remote sudo
-                # password itself (target hosts require it since
-                # wheelNeedsPassword=true).
+                # password itself, whatever its elevation strategy, but sudo
+                # on dapple tries a YubiKey touch first (ssh-server.nix): at
+                # the prompt, any character (nh refuses an empty one) and a
+                # touch for each sudo will do.
                 nh os $action /etc/nixos --hostname $argv[1] --target-host nixos@$argv[1] --use-substitutes --no-nom
               '';
 

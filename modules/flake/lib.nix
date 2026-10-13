@@ -304,6 +304,14 @@
       StartLimitIntervalSec = 300;
     };
 
+    # Keys that may run sudo on dapple (ssh-server.nix), instead of the
+    # password: a FIDO2 key on each YubiKey, which signs only with a touch.
+    # rocinante forwards an agent with just these (yubikey.nix).
+    sudoKeys = [
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIMYYBraKSjuNIGKNBS+PZbBgt62xtBdI8sM7db+48RVGAAAAD3NzaDpkYXBwbGUtc3Vkbw== sudo on dapple, YubiKey 29635974"
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIHm7J1sZHLzDlApmO/AvVs6l8Dlj0hiCSoPsNzOirNKgAAAAD3NzaDpkYXBwbGUtc3Vkbw== sudo on dapple, YubiKey 38555351"
+    ];
+
     # nginx access rules for a location or vhost only the tailnet may use.
     # The address it binds to isn't enough: Linux accepts a packet for any
     # local address on any interface, so a LAN device that routes
