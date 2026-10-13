@@ -38,71 +38,78 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
-        # Let nginx bind its internal vhosts to the tailnet IP before
-        # tailscaled has assigned it, so nginx (and thus the headscale
-        # vhost that Tailscale needs to recover) still starts when
-        # Tailscale is down at boot.
-        boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
-
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-        users.groups.acme.members = [ "nginx" ];
-
-        my.preservation.systemDirectories = [
+      config = lib.mkIf cfg.enable (
+        lib.mkMerge [
+          # Every certificate's order and renewal reads these, as its
+          # EnvironmentFile.
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Cloudflare DNS API credentials for ACME from sops";
+            files.${cloudflareDnsEnvPath}.key = "cloudflare_dns_env";
+            for = map (cert: "acme-order-renew-${cert}") (lib.attrNames config.security.acme.certs);
+            name = "cloudflare-dns-secrets";
+            wantedBy = [ "multi-user.target" ];
+          })
           {
-            directory = "/var/lib/acme";
-            group = "acme";
-            user = "acme";
+            # Let nginx bind its internal vhosts to the tailnet IP before
+            # tailscaled has assigned it, so nginx (and thus the headscale
+            # vhost that Tailscale needs to recover) still starts when
+            # Tailscale is down at boot.
+            boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
+
+            networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
+            users.groups.acme.members = [ "nginx" ];
+
+            my.preservation.systemDirectories = [
+              {
+                directory = "/var/lib/acme";
+                group = "acme";
+                user = "acme";
+              }
+            ];
+
+            security.acme = {
+              acceptTerms = true;
+
+              defaults = {
+                dnsProvider = "cloudflare";
+
+                # Check the DNS-01 challenge against the zone's authoritative
+                # nameserver, not the system resolver (MagicDNS -> 1.1.1.1):
+                # a recursive resolver can keep serving a cached NXDOMAIN for
+                # up to the zone's 30 min negative TTL, e.g. right after a
+                # new subdomain's record was created, and the order fails.
+                dnsResolver = "clint.ns.cloudflare.com:53";
+
+                email = "jorrit+acme@bw20.nl";
+                environmentFile = cloudflareDnsEnvPath;
+              };
+            };
+
+            services.nginx = {
+              enable = true;
+              recommendedGzipSettings = true;
+              recommendedOptimisation = true;
+              recommendedTlsSettings = true;
+
+              # A name no vhost claims gets no certificate and no answer,
+              # rather than whichever vhost nginx happens to list first on
+              # that address.
+              virtualHosts = lib.genAttrs [ "unknown-name" "unknown-name-tailnet" ] (name: {
+                default = true;
+                listenAddresses = lib.mkIf (name == "unknown-name-tailnet") [ cfg.tailnetIp ];
+                locations."/".return = "444";
+                rejectSSL = true;
+                serverName = "_";
+              });
+            };
+
+            systemd.services.nginx.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
+            };
           }
-        ];
-
-        security.acme = {
-          acceptTerms = true;
-
-          defaults = {
-            dnsProvider = "cloudflare";
-
-            # Check the DNS-01 challenge against the zone's authoritative
-            # nameserver, not the system resolver (MagicDNS -> 1.1.1.1):
-            # a recursive resolver can keep serving a cached NXDOMAIN for
-            # up to the zone's 30 min negative TTL, e.g. right after a
-            # new subdomain's record was created, and the order fails.
-            dnsResolver = "clint.ns.cloudflare.com:53";
-
-            email = "jorrit+acme@bw20.nl";
-            environmentFile = cloudflareDnsEnvPath;
-          };
-        };
-
-        services.nginx = {
-          enable = true;
-          recommendedGzipSettings = true;
-          recommendedOptimisation = true;
-          recommendedTlsSettings = true;
-
-          # A name no vhost claims gets no certificate and no answer,
-          # rather than whichever vhost nginx happens to list first on
-          # that address.
-          virtualHosts = lib.genAttrs [ "unknown-name" "unknown-name-tailnet" ] (name: {
-            default = true;
-            listenAddresses = lib.mkIf (name == "unknown-name-tailnet") [ cfg.tailnetIp ];
-            locations."/".return = "444";
-            rejectSSL = true;
-            serverName = "_";
-          });
-        };
-
-        systemd.services.cloudflare-dns-secrets = inputs.self.lib.mkSopsService {
-          inherit pkgs;
-          description = "Decrypt Cloudflare DNS API credentials for ACME from sops";
-          files.${cloudflareDnsEnvPath}.key = "cloudflare_dns_env";
-          wantedBy = [ "multi-user.target" ];
-        };
-
-        systemd.services.nginx.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
-        };
-      };
+        ]
+      );
     };
 }
