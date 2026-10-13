@@ -24,6 +24,15 @@
 
         users.users.root.hashedPasswordFile = config.sops.secrets.user_password_root.path;
 
+        # sops-install-secrets isn't on cache.nixos.org but is on
+        # nix-community's: rocinante substitutes it from there, so it carries
+        # only that cache's signature, not rocinante's, and dapple accepts it
+        # from `ndeploy` (or fetches it itself) only with this key.
+        nix.settings = {
+          substituters = [ "https://nix-community.cachix.org" ];
+          trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+        };
+
         # With security.polkit.enable on (pulled in by NetworkManager),
         # services.pcscd.package is pcscliteWithPolkit, whose pcscd runs as an
         # unprivileged "pcscd" user and needs its own device permission to

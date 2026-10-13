@@ -145,8 +145,8 @@
               ];
             };
 
-            # Community caches, for the laptop only: the server needs nothing
-            # beyond cache.nixos.org.
+            # numtide's cache, for the laptop only (nix-community's is in
+            # secrets.nix, for every host).
             nix.settings = {
               # Signs what this host builds, so dapple accepts what
               # `ndeploy` copies to it without trusting the user who copies
@@ -154,15 +154,8 @@
               # with `nix key generate-secret --key-name rocinante-1`.
               secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
 
-              substituters = [
-                "https://nix-community.cachix.org"
-                "https://numtide.cachix.org"
-              ];
-
-              trusted-public-keys = [
-                "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-                "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
-              ];
+              substituters = [ "https://numtide.cachix.org" ];
+              trusted-public-keys = [ "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=" ];
             };
 
             # Resolves .local names, to reach the installer ISO as
