@@ -50,6 +50,7 @@
             my.home-assistant.enable = true;
             my.immich.enable = true;
             my.ingress.enable = true;
+            my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;
             my.lan.interface = "enp2s0";
             my.ntfy.enable = true;
             my.offsite-backup.enable = true;

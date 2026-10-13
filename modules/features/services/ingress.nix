@@ -29,8 +29,6 @@
 
         tailnetIp = lib.mkOption {
           type = lib.types.str;
-          default = inputs.self.lib.site.dapple.tailnetIp;
-          defaultText = lib.literalExpression "inputs.self.lib.site.dapple.tailnetIp";
           description = ''
             This host's stable tailnet IPv4 address. Internal reverse-proxy
             vhosts (mkReverseProxy) bind here instead of 0.0.0.0 so they are
