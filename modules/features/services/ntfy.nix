@@ -44,7 +44,7 @@
               url = "https://${domain}/v1/health";
             };
 
-            # DynamicUser, like Prowlarr (servarr.nix): no fixed owner to
+            # DynamicUser, like Prowlarr (servarr/default.nix): no fixed owner to
             # give the persisted directory. The cache is what a phone that
             # was off the tailnet catches up from, so it survives a reboot.
             my.preservation.systemDirectories = [

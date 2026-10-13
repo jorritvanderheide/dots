@@ -21,6 +21,7 @@
         immich
         ingress
         jellyfin
+        media-library
         new-leaf
         ntfy
         servarr
@@ -51,6 +52,7 @@
             my.immich.enable = true;
             my.ingress.enable = true;
             my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;
+            my.jellyfin.enable = true;
             my.lan.interface = "enp2s0";
             my.ntfy.enable = true;
             my.offsite-backup.enable = true;
@@ -87,13 +89,13 @@
               lanSync.enable = true;
             };
 
-            my.jellyfin = {
+            my.media-library = {
               enable = true;
 
-              # Dedicated SSD for the Jellyfin media library (zmedia pool).
-              mediaDisk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
+              # Dedicated SSD for the media library (zmedia pool).
+              disk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
 
-              mediaGroupUsers = [ "nixos" ];
+              groupUsers = [ "nixos" ];
             };
 
             my.new-leaf = {

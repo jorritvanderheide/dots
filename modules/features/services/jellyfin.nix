@@ -14,7 +14,6 @@
       cfg = config.my.jellyfin;
       subdomain = "media";
       port = 8096;
-      mediaDir = "/srv/media";
 
       # Pick VAAPI driver(s) based on the host's actual GPU(s) per facter.
       # AMD/Mesa needs nothing extra; Intel needs intel-media-driver (Broadwell+).
@@ -25,27 +24,6 @@
       options.my.jellyfin = {
         enable = lib.mkEnableOption "Jellyfin media server";
         lanAccess.enable = lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
-
-        mediaDisk = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          example = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
-          description = ''
-            /dev/disk/by-id/* path to a dedicated drive for the media library.
-            When set, the module declares a LUKS+ZFS `zmedia` pool on that disk
-            (TPM2-bound, like zroot). When null, a `zmedia` pool must be
-            declared elsewhere (e.g. by the host config).
-          '';
-        };
-
-        mediaGroupUsers = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ ];
-          description = ''
-            Users to add to the `media` group so they can write to /srv/media.
-            Jellyfin itself is added automatically.
-          '';
-        };
       };
 
       config = lib.mkIf cfg.enable (
@@ -62,89 +40,13 @@
             '';
           })
 
-          (lib.mkIf (cfg.mediaDisk != null) {
-            my.boot.extraLuksDevices = [ cfg.mediaDisk ];
-
-            disko.devices.disk.media = {
-              device = cfg.mediaDisk;
-              type = "disk";
-
-              content = {
-                name = "zmedia-crypt";
-                passwordFile = "/tmp/secret.key";
-                type = "luks";
-
-                content = {
-                  pool = "zmedia";
-                  type = "zfs";
-                };
-
-                settings = {
-                  allowDiscards = true;
-                  crypttabExtraOpts = [ "tpm2-device=auto" ];
-                };
-              };
-            };
-
-            disko.devices.zpool.zmedia = {
-              type = "zpool";
-
-              # Disko declaration for documentation / future reinstalls; on a
-              # running system the dataset must be created manually first.
-              # Mount is handled by the explicit fileSystems entry below (with
-              # nofail) so first-time activation doesn't break if the dataset
-              # hasn't been created yet.
-              datasets.media = {
-                type = "zfs_fs";
-
-                options = {
-                  atime = "off";
-                  canmount = "on";
-                  "com.sun:auto-snapshot" = "false";
-                  compression = "zstd-1";
-                  mountpoint = "legacy";
-
-                  # Tuned for large sequential video files: cuts metadata
-                  # overhead vs. the 128K default. Existing files keep their
-                  # original recordsize; only new writes use this.
-                  recordsize = "1M";
-                };
-              };
-
-              options = {
-                ashift = "12";
-                autotrim = "on";
-              };
-
-              rootFsOptions = {
-                acltype = "posixacl";
-                canmount = "off";
-                checksum = "fletcher4";
-                compression = "zstd";
-                dnodesize = "auto";
-                mountpoint = "none";
-                normalization = "formD";
-                relatime = "on";
-                xattr = "sa";
-              };
-            };
-          })
-
           {
-            users.groups.media = { };
-
             assertions = [
               {
-                assertion = cfg.mediaDisk != null;
-                message = "my.jellyfin.mediaDisk must be set to a /dev/disk/by-id/* path; jellyfin needs a dedicated `zmedia` pool";
+                assertion = config.my.media-library.enable;
+                message = "my.jellyfin requires my.media-library.enable";
               }
             ];
-
-            fileSystems.${mediaDir} = {
-              device = "zmedia/media";
-              fsType = "zfs";
-              options = [ "nofail" ];
-            };
 
             hardware.graphics = {
               enable = true;
@@ -193,30 +95,10 @@
               RestartSec = lib.mkForce "5s";
             };
 
-            # root:media + sgid means the directory itself doesn't depend on
-            # any specific user existing; new files inherit the media group.
-            systemd.tmpfiles.rules = [
-              "d ${mediaDir} 2775 root media -"
-              "d ${mediaDir}/library 2775 root media -"
-              "d ${mediaDir}/library/movies 2775 root media -"
-              "d ${mediaDir}/library/series 2775 root media -"
-              # Audiobooks aren't managed by any *arr; files are dropped here
-              # manually and picked up by a Jellyfin library of type "Books",
-              # the only type that tracks listening position.
-              "d ${mediaDir}/library/audiobooks 2775 root media -"
-            ];
-
-            users.users = lib.mkMerge [
-              {
-                jellyfin.extraGroups = [
-                  "video"
-                  "render"
-                  "media"
-                ];
-              }
-              (lib.genAttrs cfg.mediaGroupUsers (_: {
-                extraGroups = [ "media" ];
-              }))
+            users.users.jellyfin.extraGroups = [
+              "video"
+              "render"
+              "media"
             ];
           }
 

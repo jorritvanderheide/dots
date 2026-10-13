@@ -210,6 +210,10 @@
 
         systemd.tmpfiles.rules = [
           "d /persist/home 0755 root root -"
+          # A DynamicUser service's state (Prowlarr's, ntfy's) has no fixed
+          # owner, so it is persisted 0777. Preservation creates its parent
+          # 0755, which would let anyone in. "z" leaves a host without one alone.
+          "z /persist/system/var/lib/private 0700 root root -"
         ];
       };
     };
