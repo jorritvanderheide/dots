@@ -61,26 +61,13 @@
         ];
       };
 
+      # Each app's subdomain. Their ports are nixpkgs' defaults, read back
+      # from their settings.
       apps = {
-        lidarr = {
-          port = 8686;
-          subdomain = "music";
-        };
-
-        prowlarr = {
-          port = 9696;
-          subdomain = "prowlarr";
-        };
-
-        radarr = {
-          port = 7878;
-          subdomain = "movies";
-        };
-
-        sonarr = {
-          port = 8989;
-          subdomain = "series";
-        };
+        lidarr = "music";
+        prowlarr = "prowlarr";
+        radarr = "movies";
+        sonarr = "series";
       };
     in
     {
@@ -96,10 +83,10 @@
       config = lib.mkIf cfg.enable (
         lib.mkMerge (
           (lib.mapAttrsToList (
-            name:
-            { port, subdomain }:
+            name: subdomain:
             inputs.self.lib.mkReverseProxy {
-              inherit config port subdomain;
+              inherit config subdomain;
+              port = config.services.${name}.settings.server.port;
 
               status = {
                 inherit name;
