@@ -81,29 +81,41 @@
                 done
               '';
 
-              # Recolors a fresh copy of the skeleton and swaps it in: a new
-              # theme directory is also what makes running GTK apps reload
-              # their icons.
+              # Recolors a fresh copy of the skeleton and points the theme at
+              # it. Running GTK apps (Nautilus) only reload their icons when
+              # the theme's name changes, so the theme goes by two names,
+              # both pointing at the new copy, and each run switches dconf to
+              # the other one. Nothing ever shows the old colors in between.
               numixFoldersApply = pkgs.writeShellApplication {
                 name = "numix-folders-apply";
 
                 runtimeInputs = with pkgs; [
                   coreutils
+                  dconf
                   findutils
                   gnused
                 ];
 
                 text = ''
-                  theme=${config.xdg.dataHome}/icons/Numix-Circle-Noctalia
-                  mkdir -p ${config.xdg.dataHome}/icons
-                  new=$(mktemp -d "$theme.XXXXXX")
+                  icons=${config.xdg.dataHome}/icons
+                  copies=${config.xdg.cacheHome}/noctalia/numix-folders
+                  mkdir -p "$icons" "$copies"
+                  new=$(mktemp -d "$copies/XXXXXX")
                   cp -rT --no-preserve=mode ${numixFolders} "$new"
                   find "$new" -type f -name '*.svg' -exec sed -i -f "$1" {} +
                   chmod 755 "$new"
-                  rm -rf "$theme.old"
-                  if [[ -e $theme ]]; then mv "$theme" "$theme.old"; fi
-                  mv "$new" "$theme"
-                  rm -rf "$theme.old"
+                  for name in Numix-Circle-Noctalia Numix-Circle-Noctalia-Reload; do
+                    ln -sfn "$new" "$icons/$name.new"
+                    mv -T "$icons/$name.new" "$icons/$name"
+                  done
+                  find "$copies" -mindepth 1 -maxdepth 1 ! -path "$new" -exec rm -rf {} +
+
+                  key=/org/gnome/desktop/interface/icon-theme
+                  if [[ $(dconf read $key) == "'Numix-Circle-Noctalia'" ]]; then
+                    dconf write $key "'Numix-Circle-Noctalia-Reload'"
+                  else
+                    dconf write $key "'Numix-Circle-Noctalia'"
+                  fi
                 '';
               };
             in
@@ -350,7 +362,9 @@
                 enable = true;
 
                 # Numix-Circle with the folders in the wallpaper's colors
-                # (numixFolders above). Only dark is used: stylix's polarity
+                # (numixFolders above), the name GTK's settings and Qt keep;
+                # dconf flips between it and its -Reload twin (see
+                # numixFoldersApply). Only dark is used: stylix's polarity
                 # stays dark, and noctalia doesn't switch icon themes.
                 dark = "Numix-Circle-Noctalia";
                 light = "Numix-Circle-Light";
