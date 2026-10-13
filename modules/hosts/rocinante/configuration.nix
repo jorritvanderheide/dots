@@ -148,10 +148,11 @@
             # numtide's cache, for the laptop only (nix-community's is in
             # secrets.nix, for every host).
             nix.settings = {
-              # Signs what this host builds, so dapple accepts what
-              # `ndeploy` copies to it without trusting the user who copies
-              # it. Straight on /persist, like the SSH host key; generated
-              # with `nix key generate-secret --key-name rocinante-1`.
+              # Signs what this host builds, so the hosts it deploys to accept
+              # what `ndeploy` copies without trusting the user who copies it
+              # (ssh-server.nix, lib.deployKeys). Straight on /persist, like
+              # the SSH host key; generated with
+              # `nix key generate-secret --key-name rocinante-1`.
               secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
 
               substituters = [ "https://numtide.cachix.org" ];

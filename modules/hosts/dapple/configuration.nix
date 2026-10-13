@@ -36,19 +36,16 @@
           {
             config,
             lib,
-            pkgs,
             ...
           }:
           {
-            # Terminfo for Ghostty, so SSH sessions from rocinante render correctly.
-            environment.systemPackages = [ pkgs.ghostty.terminfo ];
-
             my.calibre-web.lanSync.enable = true;
             my.gatus.enable = true;
             my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;
             my.lan.interface = "enp2s0";
             my.offsite-backup.enable = true;
             my.ssh-server.allowedUsers = [ "nixos" ];
+            my.ssh-server.lanAccess.enable = true;
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             networking.hostName = "dapple";
 
@@ -61,10 +58,6 @@
 
             # The Realtek rtw89 driver is incompatible with networkd's BPF DHCP client.
             networking.useNetworkd = lib.mkForce false;
-
-            # Immich's. Not the usual quarter of RAM:
-            # ZFS's ARC (a quarter already) caches the same files again.
-            services.postgresql.settings.shared_buffers = "1GB";
 
             system.stateVersion = "26.05";
 
@@ -90,22 +83,6 @@
             my.servarr = {
               recyclarr.enable = true;
               webuiUser = "jorrit";
-            };
-
-            # SSH from the home LAN by source address, not just by interface:
-            # the router's port forward arrives on the LAN interface too. The
-            # tailnet gets it from my.ssh-server.
-            networking.firewall.extraInputRules = ''
-              iifname "${config.my.lan.interface}" ip saddr ${config.my.lan.subnet} tcp dport 22 accept
-            '';
-
-            # A trusted nix user can add unsigned store paths and set
-            # root-run build hooks, which makes it root without sudo's
-            # password. So only root, and what `ndeploy` copies here must be
-            # signed by rocinante instead (its secret-key-files).
-            nix.settings = {
-              trusted-public-keys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
-              trusted-users = lib.mkForce [ "root" ];
             };
           }
         )

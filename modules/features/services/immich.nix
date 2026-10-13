@@ -14,6 +14,10 @@
     in
     {
       config = {
+        # Its database. Not the usual quarter of RAM: ZFS's ARC (a quarter
+        # already) caches the same files again.
+        services.postgresql.settings.shared_buffers = "1GB";
+
         my.ingress.proxies.photos = {
           inherit port;
 

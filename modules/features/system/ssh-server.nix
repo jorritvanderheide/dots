@@ -7,6 +7,7 @@
   flake.nixosModules.ssh-server =
     {
       config,
+      pkgs,
       ...
     }:
     let
@@ -14,6 +15,7 @@
     in
     {
       options.my.ssh-server = {
+        lanAccess.enable = lib.mkEnableOption "SSH from the home LAN's subnet (my.lan), besides the tailnet";
 
         allowedUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -29,6 +31,9 @@
         # agent. Without that agent (or a touch), the password.
         environment.etc."ssh/sudo_keys".text = lib.concatLines inputs.self.lib.sudoKeys;
 
+        # So SSH sessions from Ghostty render correctly.
+        environment.systemPackages = [ pkgs.ghostty.terminfo ];
+
         networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
         security.pam.services.sudo.rssh = true;
 
@@ -36,6 +41,22 @@
         my.preservation.systemFiles = [
           "/etc/ssh/ssh_host_ed25519_key.pub"
         ];
+
+        # By source address, not just by interface: the router's port
+        # forward arrives on the LAN interface too.
+        networking.firewall.extraInputRules = lib.mkIf cfg.lanAccess.enable ''
+          iifname "${config.my.lan.interface}" ip saddr ${config.my.lan.subnet} tcp dport 22 accept
+        '';
+
+        # A host reached over SSH is one `ndeploy` deploys to. A trusted nix
+        # user can add unsigned store paths and set root-run build hooks,
+        # which makes it root without sudo's password. So only root, and
+        # what `ndeploy` copies here must be signed by one of
+        # lib.deployKeys instead.
+        nix.settings = {
+          trusted-public-keys = inputs.self.lib.deployKeys;
+          trusted-users = lib.mkForce [ "root" ];
+        };
 
         security.pam.rssh = {
           enable = true;
@@ -62,8 +83,8 @@
           # key planted there would too.
           authorizedKeysInHomedir = false;
 
-          # Not on every interface: the tailnet here, and the host adds its
-          # LAN if it wants it.
+          # Not on every interface: the tailnet here, and the home LAN with
+          # lanAccess.
           openFirewall = false;
 
           # Agent forwarding only for sudo's keys (below): rocinante forwards

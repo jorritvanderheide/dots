@@ -2,6 +2,11 @@ _: {
   # Facts and keys more than one feature or host needs, in inputs.self.lib
   # with the functions of lib.nix.
   flake.lib = {
+    # Nix signing keys whose store paths a host you deploy to accepts
+    # (ssh-server.nix): rocinante's, whose secret half is in its
+    # secret-key-files.
+    deployKeys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
+
     # Keys that may SSH into the hosts (the nixos user) and the installer ISO.
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"

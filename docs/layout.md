@@ -94,8 +94,9 @@ What several features need is in `inputs.self.lib`, from two files in
 - **`site`**: facts more than one host needs: the domain, Headscale's
   domain, dapple's addresses, the LAN's subnet and the Syncthing devices.
   The host-local side, like which interface is on the LAN, is `my.lan`.
-- **`authorizedKeys`** and **`sudoKeys`**: who may SSH in, and which
-  YubiKeys may run sudo on dapple.
+- **`authorizedKeys`**, **`sudoKeys`** and **`deployKeys`**: who may SSH in,
+  which YubiKeys may run sudo on dapple, and whose signed store paths a
+  host deployed to accepts.
 
 ## Ordering
 
