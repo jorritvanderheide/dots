@@ -24,9 +24,12 @@ docs/                             this, install, secrets and security
 
 A feature is one NixOS module, named after the file, that sets up one thing:
 `terminal`, `zfs`, `immich`. Desktop and app features configure the user
-through `home-manager.sharedModules`. Options live under `my.<feature>`:
-services do nothing until `my.<service>.enable` is set, and other features
-take settings there, like `my.compositor.outputs`.
+through `home-manager.sharedModules`. A feature is on when the host
+imports it. Its settings live under `my.<feature>`, like
+`my.compositor.outputs`. Only offsite-backup and gatus also wait for
+`my.<feature>.enable`, since every host imports them (below). A feature that
+needs another checks that it is imported, with an assertion, like
+jellyfin's `config.my ? media-library`.
 
 Settings for a host are NixOS options, set in the host. A home-manager
 module reads them through the enclosing NixOS module, bound in a `let`

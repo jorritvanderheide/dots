@@ -16,7 +16,6 @@
     in
     {
       options.my.ingress = {
-        enable = lib.mkEnableOption "nginx with ACME certificates via Cloudflare DNS challenge";
 
         domain = lib.mkOption {
           type = lib.types.str;
@@ -36,7 +35,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         # Let nginx bind its internal vhosts to the tailnet IP before
         # tailscaled has assigned it, so nginx (and thus the headscale
         # vhost that Tailscale needs to recover) still starts when

@@ -19,7 +19,6 @@
     in
     {
       options.my.ntfy = {
-        enable = lib.mkEnableOption "ntfy push notification server";
 
         topic = lib.mkOption {
           type = lib.types.str;
@@ -28,7 +27,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable (
+      config =
         let
           domain = "${subdomain}.${config.my.ingress.domain}";
         in
@@ -86,7 +85,6 @@
               '';
             };
           }
-        ]
-      );
+        ];
     };
 }

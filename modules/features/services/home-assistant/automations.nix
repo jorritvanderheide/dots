@@ -2,11 +2,7 @@
 # use. The service itself is in default.nix.
 {
   flake.nixosModules.home-assistant =
-    {
-      config,
-      lib,
-      ...
-    }:
+    _:
     let
       # One ventilator pair to medium while its master reads high CO2, back to
       # low once it settles. The units' own anti-CO2 function would switch the
@@ -72,7 +68,7 @@
         };
     in
     {
-      config = lib.mkIf config.my.home-assistant.enable {
+      config = {
         services.home-assistant.config = {
           # The ventilators are master/slave pairs (kitchen + office,
           # bedroom + bathroom): a master's mode and "powerful" boost

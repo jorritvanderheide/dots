@@ -33,7 +33,6 @@
     in
     {
       options.my.headscale = {
-        enable = lib.mkEnableOption "Headscale control server";
 
         domain = lib.mkOption {
           default = inputs.self.lib.site.vpnDomain;
@@ -49,7 +48,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         # The host's own client enrolls with the server next to it.
         my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
 
@@ -57,8 +56,8 @@
 
         assertions = [
           {
-            assertion = config.my.ingress.enable;
-            message = "my.headscale requires my.ingress.enable for ACME certificates";
+            assertion = config.my ? ingress;
+            message = "headscale needs the ingress feature, for ACME certificates";
           }
         ];
 

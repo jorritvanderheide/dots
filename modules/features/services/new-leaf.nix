@@ -27,8 +27,6 @@
       imports = [ inputs.new-leaf.nixosModules.default ];
 
       options.my.new-leaf = {
-        enable = lib.mkEnableOption "New Leaf, the CV editor (tailnet), with public share links";
-
         rootRedirect = lib.mkOption {
           default = "https://${config.my.ingress.domain}/";
           defaultText = lib.literalExpression ''"https://''${config.my.ingress.domain}/"'';
@@ -51,7 +49,7 @@
       # Headscale has no Funnel, so dapple serves New Leaf itself, on one
       # domain: the internet gets the share links, the tailnet the editor
       # with the share links next to it.
-      config = lib.mkIf cfg.enable {
+      config = {
         # Share links are public on purpose, like headscale.
         networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
 

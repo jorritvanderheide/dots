@@ -43,21 +43,13 @@
             # Terminfo for Ghostty, so SSH sessions from rocinante render correctly.
             environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
-            my.contacts.enable = true;
-            my.filebrowser.enable = true;
+            my.calibre-web.lanSync.enable = true;
             my.gatus.enable = true;
-            my.headscale.enable = true;
-            my.home-assistant.enable = true;
-            my.immich.enable = true;
-            my.ingress.enable = true;
             my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;
-            my.jellyfin.enable = true;
             my.lan.interface = "enp2s0";
-            my.ntfy.enable = true;
             my.offsite-backup.enable = true;
-            my.syncthing.enable = true;
+            my.ssh-server.allowedUsers = [ "nixos" ];
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
-            my.vaultwarden.enable = true;
             networking.hostName = "dapple";
 
             # With iptables, tailscaled's own INPUT rules accept everything
@@ -83,38 +75,21 @@
             # nixos silently orphans from the name on switch.
             users.groups.nixos.gid = lib.mkForce 997;
 
-            my.calibre-web = {
-              enable = true;
-              lanSync.enable = true;
-            };
-
             my.media-library = {
-              enable = true;
-
               # Dedicated SSD for the media library (zmedia pool).
               disk = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
 
               groupUsers = [ "nixos" ];
             };
 
-            my.new-leaf = {
-              enable = true;
-
-              users = [
-                "jeltje"
-                "jorrit"
-              ];
-            };
+            my.new-leaf.users = [
+              "jeltje"
+              "jorrit"
+            ];
 
             my.servarr = {
-              enable = true;
               recyclarr.enable = true;
               webuiUser = "jorrit";
-            };
-
-            my.ssh-server = {
-              enable = true;
-              allowedUsers = [ "nixos" ];
             };
 
             # SSH from the home LAN by source address, not just by interface:

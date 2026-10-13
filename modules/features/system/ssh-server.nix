@@ -14,7 +14,6 @@
     in
     {
       options.my.ssh-server = {
-        enable = lib.mkEnableOption "OpenSSH server (opens port 22, hardened to pubkey-only)";
 
         allowedUsers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -23,7 +22,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         # sudo over SSH takes a touch of a YubiKey on the machine you came
         # from: one of lib.sudoKeys, in the agent forwarded for it, signs
         # pam_rssh's challenge. Not the login keys, which stay in Bitwarden's

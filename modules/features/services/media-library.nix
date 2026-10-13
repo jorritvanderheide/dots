@@ -17,7 +17,6 @@
     in
     {
       options.my.media-library = {
-        enable = lib.mkEnableOption "the media library on its own disk, at /srv/media";
 
         dir = lib.mkOption {
           type = lib.types.str;
@@ -42,7 +41,7 @@
         };
       };
 
-      config = lib.mkIf cfg.enable {
+      config = {
         my.boot.extraLuksDevices = [ cfg.disk ];
         users.groups.media = { };
 

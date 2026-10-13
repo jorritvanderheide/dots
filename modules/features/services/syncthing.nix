@@ -9,20 +9,14 @@
   # over the tailnet: no discovery, relays or other traffic to Syncthing's
   # servers, and the web interface on a socket only the service can use.
   flake.nixosModules.syncthing =
-    {
-      config,
-      ...
-    }:
+    _:
     let
-      cfg = config.my.syncthing;
       inherit (inputs.self.lib) site;
       dataDir = "/var/lib/syncthing";
       listenAddress = "tcp://${site.dapple.tailnetIp}:${toString site.syncthing.port}";
     in
     {
-      options.my.syncthing.enable = lib.mkEnableOption "Syncthing, dapple's copy of the synced documents";
-
-      config = lib.mkIf cfg.enable {
+      config = {
         networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ site.syncthing.port ];
 
         my.gatus.endpoints.syncthing = {

@@ -194,8 +194,8 @@
 
         assertions = [
           {
-            assertion = config.my.ingress.enable;
-            message = "${domain} requires my.ingress.enable";
+            assertion = config.my ? ingress;
+            message = "${domain} needs the ingress feature";
           }
         ];
 

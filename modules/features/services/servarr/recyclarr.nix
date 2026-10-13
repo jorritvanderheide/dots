@@ -22,7 +22,7 @@
         first-run setup. Enable only after both apps are reachable.
       '';
 
-      config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
+      config = lib.mkIf cfg.recyclarr.enable {
         sops.secrets.radarr_api_key = { };
         sops.secrets.sonarr_api_key = { };
 

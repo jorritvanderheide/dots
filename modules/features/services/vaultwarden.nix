@@ -11,14 +11,11 @@
       ...
     }:
     let
-      cfg = config.my.vaultwarden;
       subdomain = "passwords";
       port = 8222;
     in
     {
-      options.my.vaultwarden.enable = lib.mkEnableOption "Vaultwarden password manager server";
-
-      config = lib.mkIf cfg.enable (
+      config =
         let
           domain = "${subdomain}.${config.my.ingress.domain}";
         in
@@ -109,7 +106,6 @@
               "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
             ];
           }
-        ]
-      );
+        ];
     };
 }
