@@ -18,6 +18,8 @@
             zenCache = "${config.xdg.cacheHome}/noctalia/zen-browser";
           in
           {
+            stylix.targets.zen-browser.colors.enable = false;
+
             programs.noctalia.settings.theme.templates.user = {
               zen_browser_chrome = {
                 input_path = "${./noctalia-templates/zen-userChrome.css}";

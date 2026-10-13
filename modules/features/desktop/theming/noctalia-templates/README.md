@@ -1,8 +1,9 @@
 # noctalia templates
 
-Rendered by noctalia from the wallpaper's palette. `../default.nix` wires them
-up and holds the color rules they share (Zen's are in `../zen.nix`); each file's header explains its
-specifics.
+Rendered by noctalia from the wallpaper's palette. Each is wired up by the
+module named after its target (`../terminal.nix`, `../gtk.nix`, `../zen.nix`,
+...), and `../default.nix` holds the color rules they share; each file's
+header explains its specifics.
 
 Where they come from:
 

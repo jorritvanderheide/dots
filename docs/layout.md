@@ -38,10 +38,10 @@ A feature too big for one file becomes a folder. Each `.nix` file in it
 defines the same `flake.nixosModules.<feature>`, and flake-parts merges
 them into one module: `services/home-assistant/` keeps the service in
 `default.nix` and the house's automations in `automations.nix`;
-`services/servarr/` has a file per app; `desktop/theming/` has Zen's part in
-`zen.nix`. The folder also holds the non-Nix files the feature reads, like
-theming's `noctalia-templates/` or keyboard-remap's `main.kbd`. A user
-can be split the same way.
+`services/servarr/` has a file per app, `desktop/theming/` a file per themed
+target (`gtk.nix`, `zen.nix`, ...). The folder also holds the non-Nix files
+the feature reads, like theming's `noctalia-templates/` or keyboard-remap's
+`main.kbd`. A user can be split the same way.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
 survives a reboot, and in `my.offsite-backup.entries`, so it survives a lost

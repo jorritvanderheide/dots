@@ -1,4 +1,4 @@
-# sed script rendered by noctalia (theming/default.nix). Its post hook runs it
+# sed script rendered by noctalia (theming/icons.nix). Its post hook runs it
 # over Numix's custom folder icons, whose colors are placeholders: 1 is the
 # front, 2 the back, 3 the symbol on the front. Same tones in both modes, like
 # Numix's own folders, and the same steps between them as its orange set

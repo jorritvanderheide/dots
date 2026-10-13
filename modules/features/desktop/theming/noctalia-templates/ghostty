@@ -1,4 +1,4 @@
-# Ghostty theme rendered by noctalia (theming/default.nix). Background, text, cursor
+# Ghostty theme rendered by noctalia (theming/terminal.nix). Background, text, cursor
 # and selection follow the wallpaper; ANSI 1-6 use the fixed semantic
 # custom_colors, so red/green/yellow keep their meaning on every wallpaper.
 # Bright variants are the on_<name>_container tone: lighter in dark mode,

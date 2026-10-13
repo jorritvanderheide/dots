@@ -1,6 +1,6 @@
 /*
  * Overrides on top of noctalia's built-in GTK template (noctalia.css), imported
- * after it by gtk.css (theming/default.nix), so these definitions win. Only what the
+ * after it by gtk.css (theming/gtk.nix), so these definitions win. Only what the
  * built-in gets wrong for this setup:
  * - Content (lists, text views) at the extreme surface tone, the same as Zed's
  *   editor, Ghostty and Obsidian's notes; sidebars on the chrome tone.
