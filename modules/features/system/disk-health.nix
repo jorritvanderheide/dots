@@ -66,7 +66,8 @@
         ];
 
         # The header on stdin, not in curl's arguments, which any local user
-        # can read.
+        # can read. Retried for about five minutes: the timer fires the
+        # moment a laptop wakes, before its Wi-Fi is back.
         script = ''
           shopt -s nullglob
           problems=()
@@ -95,7 +96,7 @@
           fi
 
           TOKEN="$(<${tokenPath})"
-          curl -X POST -G -fsS -o /dev/null --config - ${lib.escapeShellArg url} "''${query[@]}" <<<"header = \"Authorization: Bearer $TOKEN\""
+          curl -X POST -G -fsS -o /dev/null --retry 10 --retry-all-errors --retry-delay 30 --config - ${lib.escapeShellArg url} "''${query[@]}" <<<"header = \"Authorization: Bearer $TOKEN\""
         '';
 
         wants = [
