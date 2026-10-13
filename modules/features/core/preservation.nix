@@ -15,23 +15,35 @@
 
       # Nested paths (those containing a /) need their parent dir created too.
       withParentConfig =
-        key: entries:
+        key:
         map (
-          entry:
-          if lib.isString entry && lib.hasInfix "/" entry then
+          path:
+          if lib.hasInfix "/" path then
             {
-              ${key} = entry;
+              ${key} = path;
               configureParent = true;
             }
           else
-            entry
-        ) entries;
+            path
+        );
     in
     {
       imports = [
         inputs.preservation.nixosModules.preservation
+
+        # Short names for the system's lists in preservation's own options,
+        # which take a path or an attrset ({ directory; user; mode; ... }).
+        (lib.mkAliasOptionModule
+          [ "my" "preservation" "systemDirectories" ]
+          [ "preservation" "preserveAt" "/persist/system" "directories" ]
+        )
+        (lib.mkAliasOptionModule
+          [ "my" "preservation" "systemFiles" ]
+          [ "preservation" "preserveAt" "/persist/system" "files" ]
+        )
       ];
 
+      # Every normal user gets these, under their home.
       options.my.preservation = {
         homeDirectories = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -43,65 +55,6 @@
           type = lib.types.listOf lib.types.str;
           default = [ ];
           description = "Additional home files to persist across reboots";
-        };
-
-        systemDirectories = lib.mkOption {
-          type = lib.types.listOf (
-            lib.types.either lib.types.str (
-              lib.types.submodule {
-                options = {
-                  configureParent = lib.mkOption {
-                    type = lib.types.bool;
-                    default = false;
-                    description = "Whether to also create/own the parent directory (needed for nested paths).";
-                  };
-
-                  directory = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Absolute path of the directory to persist across reboots.";
-                  };
-
-                  group = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "Group of the persisted directory.";
-                  };
-
-                  how = lib.mkOption {
-                    type = lib.types.str;
-                    default = "bindmount";
-                    description = "Preservation method passed through to the preservation module (e.g. bindmount).";
-                  };
-
-                  inInitrd = lib.mkOption {
-                    type = lib.types.bool;
-                    default = false;
-                    description = "Whether the directory must be available already in the initrd.";
-                  };
-
-                  mode = lib.mkOption {
-                    type = lib.types.str;
-                    default = "0755";
-                    description = "Permission bits for the persisted directory.";
-                  };
-
-                  user = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "Owner of the persisted directory.";
-                  };
-                };
-              }
-            )
-          );
-          default = [ ];
-          description = "Additional system directories to persist across reboots";
-        };
-
-        systemFiles = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ ];
-          description = "Additional system files to persist across reboots";
         };
       };
 
@@ -187,8 +140,7 @@
               "/var/lib/systemd/coredump"
               "/var/lib/systemd/timers"
               "/var/lib/systemd/timesync"
-            ]
-            ++ cfg.systemDirectories;
+            ];
 
             files = [
               {
@@ -203,8 +155,7 @@
                 how = "symlink";
                 inInitrd = true;
               }
-            ]
-            ++ cfg.systemFiles;
+            ];
           };
         };
 
