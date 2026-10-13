@@ -13,6 +13,7 @@
 
         # Services
         calibre-web
+        contacts
         gatus
         headscale
         home-assistant
@@ -41,6 +42,7 @@
             # Terminfo for Ghostty, so SSH sessions from rocinante render correctly.
             environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
+            my.contacts.enable = true;
             my.gatus.enable = true;
             my.headscale.enable = true;
             my.home-assistant.enable = true;
