@@ -24,14 +24,22 @@
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port subdomain;
+
+            status = {
+              group = "media";
+              name = "bazarr";
+            };
+          })
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Bazarr's login password hash from sops";
+            files.${passwordPath}.key = "bazarr_password";
+            for = [ "bazarr" ];
+            name = "bazarr-secrets";
+            wantedBy = [ "multi-user.target" ];
           })
           {
             users.users.bazarr.extraGroups = [ "media" ];
-
-            my.gatus.endpoints.bazarr = {
-              group = "media";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
-            };
 
             my.offsite-backup.entries.servarr = {
               exclude = [ "/var/lib/bazarr/log" ];
@@ -72,29 +80,17 @@
               };
             };
 
-            systemd.services.bazarr = {
-              after = [ "bazarr-secrets.service" ];
-              wants = [ "bazarr-secrets.service" ];
+            systemd.services.bazarr.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
 
-              serviceConfig = {
-                Restart = lib.mkForce "always";
-                RestartSec = lib.mkForce "5s";
-
-                # Repair folders created before sonarr's and radarr's UMask (or by other
-                # means). "+" runs it as root. -h so that a folder swapped
-                # for a symlink in the meantime (the media group can write
-                # here) doesn't hand root's chmod to whatever it points at.
-                ExecStartPre = [
-                  "+${pkgs.findutils}/bin/find ${libraryDir}/series ${libraryDir}/movies -type d ! -perm -g+w -exec chmod -h g+w {} +"
-                ];
-              };
-            };
-
-            systemd.services.bazarr-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Bazarr's login password hash from sops";
-              files.${passwordPath}.key = "bazarr_password";
-              wantedBy = [ "multi-user.target" ];
+              # Repair folders created before sonarr's and radarr's UMask (or by other
+              # means). "+" runs it as root. -h so that a folder swapped
+              # for a symlink in the meantime (the media group can write
+              # here) doesn't hand root's chmod to whatever it points at.
+              ExecStartPre = [
+                "+${pkgs.findutils}/bin/find ${libraryDir}/series ${libraryDir}/movies -type d ! -perm -g+w -exec chmod -h g+w {} +"
+              ];
             };
           }
         ]

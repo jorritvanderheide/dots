@@ -96,10 +96,15 @@
       config = lib.mkIf cfg.enable (
         lib.mkMerge (
           (lib.mapAttrsToList (
-            _name:
+            name:
             { port, subdomain }:
             inputs.self.lib.mkReverseProxy {
               inherit config port subdomain;
+
+              status = {
+                inherit name;
+                group = "media";
+              };
             }
           ) apps)
           ++ [
@@ -112,11 +117,6 @@
                   message = "my.servarr requires my.media-library.enable";
                 }
               ];
-
-              my.gatus.endpoints = lib.mapAttrs (_name: app: {
-                group = "media";
-                url = "https://${app.subdomain}.${config.my.ingress.domain}";
-              }) apps;
 
               # Indexers, profiles, history and torrents; cover art and logs are
               # not needed back.

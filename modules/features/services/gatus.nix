@@ -130,6 +130,35 @@
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port subdomain;
+            status = null;
+          })
+
+          # The upstream module renders settings to /nix/store; that's fine
+          # for the endpoint list but the tokens must come from sops.
+          # Render the static config at build time and substitute the
+          # runtime-decrypted tokens in at service start, so they are only
+          # ever on disk in the runtime-generated file.
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Render Gatus config with sops-decrypted tokens";
+            extraServiceConfig.UMask = "0177";
+            for = [ "gatus" ];
+            name = "gatus-secrets";
+            wantedBy = [ "multi-user.target" ];
+
+            script = ''
+              install -d -m 0755 -o gatus -g gatus /run/gatus
+              # In bash rather than sed, whose arguments (the tokens) any
+              # local user could read in /proc. The replacement is quoted so
+              # bash takes it literally (unquoted, & means the match).
+              template="$(<${configTemplate})"
+              for key in ${lib.escapeShellArgs secretKeys}; do
+                value="$(sops_extract "$key")"
+                template="''${template//@$key@/"$value"}"
+              done
+              printf '%s\n' "$template" > ${configPath}
+              chown gatus:gatus ${configPath}
+            '';
           })
           {
             # The offsite backup reports to the heartbeat in
@@ -148,13 +177,10 @@
             ];
 
             systemd.services.gatus = {
+              after = [ "network-online.target" ];
               description = "Gatus status page";
               wantedBy = [ "multi-user.target" ];
-
-              after = [
-                "network-online.target"
-                "gatus-secrets.service"
-              ];
+              wants = [ "network-online.target" ];
 
               serviceConfig = {
                 # Its checks are HTTPS and TCP, and what it receives comes in
@@ -211,37 +237,6 @@
                   "~@resources"
                 ];
               };
-
-              wants = [
-                "network-online.target"
-                "gatus-secrets.service"
-              ];
-            };
-
-            # The upstream module renders settings to /nix/store; that's fine
-            # for the endpoint list but the tokens must come from sops.
-            # Render the static config at build time and substitute the
-            # runtime-decrypted tokens in at service start, so they are only
-            # ever on disk in the runtime-generated file.
-            systemd.services.gatus-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Render Gatus config with sops-decrypted tokens";
-              extraServiceConfig.UMask = "0177";
-              wantedBy = [ "multi-user.target" ];
-
-              script = ''
-                install -d -m 0755 -o gatus -g gatus /run/gatus
-                # In bash rather than sed, whose arguments (the tokens) any
-                # local user could read in /proc. The replacement is quoted so
-                # bash takes it literally (unquoted, & means the match).
-                template="$(<${configTemplate})"
-                for key in ${lib.escapeShellArgs secretKeys}; do
-                  value="$(sops_extract "$key")"
-                  template="''${template//@$key@/"$value"}"
-                done
-                printf '%s\n' "$template" > ${configPath}
-                chown gatus:gatus ${configPath}
-              '';
             };
 
             users.users.gatus = {

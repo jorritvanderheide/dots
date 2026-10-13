@@ -13,6 +13,7 @@ modules/
   bundles/<bundle>.nix            features that come as one: flake.nixosModules.base, .desktop
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
+  users/<user>/<part>.nix         more of the same module: mail, calendars, SSH hosts
   flake/                          checks, formatter, dev shell, apps, lib, installer ISO
 scripts/                          install, enroll-tpm, offsite-prune, and scripts used by modules
 secrets/                          <host>.yaml, encrypted with sops
@@ -37,8 +38,10 @@ A feature too big for one file becomes a folder. Each `.nix` file in it
 defines the same `flake.nixosModules.<feature>`, and flake-parts merges
 them into one module: `services/home-assistant/` keeps the service in
 `default.nix` and the house's automations in `automations.nix`;
-`desktop/theming/` has Zen's part in `zen.nix`. The folder also holds the
-non-Nix files the feature reads, like theming's `noctalia-templates/`.
+`services/servarr/` has a file per app; `desktop/theming/` has Zen's part in
+`zen.nix`. The folder also holds the non-Nix files the feature reads, like
+theming's `noctalia-templates/` or keyboard-remap's `main.kbd`. A user
+can be split the same way.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
 survives a reboot, and in `my.offsite-backup.entries`, so it survives a lost
@@ -46,8 +49,9 @@ disk. Backups read a ZFS snapshot of `/persist`, not the live files. An
 entry also names the units to stop for `offsite-restore`, and any commands
 to load a dump back.
 
-A service with a web page also declares what the status page checks, in
-`my.gatus.endpoints` (so it needs the gatus feature on its host).
+A service with a web page also declares what the status page checks: the
+`status` of its `mkReverseProxy`, or `my.gatus.endpoints` directly for one
+without (so it needs the gatus feature on its host).
 
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup, whose entries any feature may
@@ -70,13 +74,17 @@ list.
   goes in its `script`. See
   [Installing a host](install.md#why-the-accounts-start-locked) for why
   secrets are not installed by sops-nix at activation.
+- **`mkSecretsFor`**: an `mkSopsService` unit with the units that read its
+  secrets (`for`) started after it. Use it whenever a service reads what
+  the unit decrypts, so the ordering can't be forgotten.
 - **`sopsExtract`**: prints one secret from the host's own file
   (`/etc/sops/secrets.yaml`), with the host's age key (`hostAgeKey`) or a
   YubiKey. `mkSopsService` scripts call it as `sops_extract <key>`.
 - **`mkReverseProxy`**: an nginx vhost at `<subdomain>.<my.ingress.domain>`,
   with an ACME certificate, bound to the tailnet address and refusing other
-  sources (`tailnetOnly`, also usable on its own). The `ingress` feature runs
-  nginx and ACME for it.
+  sources (`tailnetOnly`, also usable on its own), and its `status`: the
+  name and group the status page checks it under. The `ingress` feature
+  runs nginx and ACME for it.
 - **`site`**: facts more than one host needs: the domain, Headscale's
   domain, dapple's tailnet address and the LAN's subnet. The host-local
   side, like which interface is on the LAN, is `my.lan`.

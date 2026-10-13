@@ -39,7 +39,11 @@
             info.unix_device_names;
       };
 
-    # A tailnetVhost at <subdomain>.<my.ingress.domain> that proxies to a local port.
+    # A tailnetVhost at <subdomain>.<my.ingress.domain> that proxies to a local port,
+    # and what the status page checks there: `status` is
+    # { name; group; path ? ""; }, the endpoint's name in Gatus and its
+    # group, and null only for the status page itself. Not optional, so a
+    # service can't go unwatched by leaving it out.
     mkReverseProxy =
       {
         config,
@@ -47,6 +51,7 @@
         extraLocations ? { },
         locationExtraConfig ? "",
         port,
+        status,
         subdomain,
       }:
       let
@@ -56,19 +61,52 @@
         (inputs.self.lib.tailnetVhost (
           { inherit config domain; } // lib.optionalAttrs (extraHeaders != null) { inherit extraHeaders; }
         ))
-        {
-          services.nginx.virtualHosts.${domain}.locations = {
-            "/" = {
-              proxyPass = "http://127.0.0.1:${toString port}";
-              proxyWebsockets = true;
-              recommendedProxySettings = true;
+        (
+          {
+            services.nginx.virtualHosts.${domain}.locations = {
+              "/" = {
+                proxyPass = "http://127.0.0.1:${toString port}";
+                proxyWebsockets = true;
+                recommendedProxySettings = true;
+              }
+              // lib.optionalAttrs (locationExtraConfig != "") {
+                extraConfig = locationExtraConfig;
+              };
             }
-            // lib.optionalAttrs (locationExtraConfig != "") {
-              extraConfig = locationExtraConfig;
+            // extraLocations;
+          }
+          // lib.optionalAttrs (status != null) {
+            my.gatus.endpoints.${status.name} = {
+              inherit (status) group;
+              url = "https://${domain}${status.path or ""}";
             };
           }
-          // extraLocations;
-        };
+        );
+
+    # A mkSopsService unit called `name`, with every unit in `for` started
+    # after it and wanting it: the units that read what it decrypts. A
+    # module fragment, for the feature's mkMerge. The rest of the arguments
+    # are mkSopsService's.
+    mkSecretsFor =
+      {
+        for,
+        name,
+        ...
+      }@args:
+      {
+        systemd.services = {
+          ${name} = inputs.self.lib.mkSopsService (
+            removeAttrs args [
+              "for"
+              "name"
+            ]
+          );
+        }
+        // lib.genAttrs for (_: {
+          after = [ "${name}.service" ];
+          wants = [ "${name}.service" ];
+        });
+      };
 
     # A oneshot service that decrypts sops secrets via the YubiKey identity
     # and does something with them: the shape shared by

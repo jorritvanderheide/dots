@@ -6,150 +6,149 @@
   # The laptop's Wi-Fi networks. A module of their own so the server, which
   # is wired, never decrypts their passwords.
   flake.nixosModules.wifi =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     {
-      config = {
-        networking.networkmanager.ensureProfiles = {
-          environmentFiles = [ "/run/wireless-secrets.env" ];
+      config = lib.mkMerge [
+        {
+          networking.networkmanager.ensureProfiles = {
+            environmentFiles = [ "/run/wireless-secrets.env" ];
 
-          profiles = {
-            eduroam = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
+            profiles = {
+              eduroam = {
+                ipv4.method = "auto";
+                ipv6.method = "auto";
 
-              "802-1x" = {
-                anonymous-identity = "anonymous@ru.nl";
+                "802-1x" = {
+                  anonymous-identity = "anonymous@ru.nl";
 
-                # No ca-cert: RU's RADIUS backend is inconsistent about
-                # sending its intermediate cert chain, and wpa_supplicant's
-                # OpenSSL backend won't fill the gap from a local CA store
-                # during a live handshake (even a byte-for-byte correct
-                # bundle from RU's own eduroam CAT installer didn't help).
-                # Set it, from that installer, once RU's server sends the
-                # whole chain.
-                eap = "peap";
+                  # No ca-cert: RU's RADIUS backend is inconsistent about
+                  # sending its intermediate cert chain, and wpa_supplicant's
+                  # OpenSSL backend won't fill the gap from a local CA store
+                  # during a live handshake (even a byte-for-byte correct
+                  # bundle from RU's own eduroam CAT installer didn't help).
+                  # Set it, from that installer, once RU's server sends the
+                  # whole chain.
+                  eap = "peap";
 
-                identity = "$EDUROAM_IDENTITY";
-                password = "$EDUROAM_PSK";
-                phase2-auth = "mschapv2";
+                  identity = "$EDUROAM_IDENTITY";
+                  password = "$EDUROAM_PSK";
+                  phase2-auth = "mschapv2";
+                };
+
+                connection = {
+                  id = "eduroam";
+                  permissions = "user:jorrit:";
+                  type = "wifi";
+                };
+
+                wifi = {
+                  mode = "infrastructure";
+                  ssid = "eduroam";
+                };
+
+                wifi-security = {
+                  key-mgmt = "wpa-eap";
+                };
               };
 
-              connection = {
-                id = "eduroam";
-                permissions = "user:jorrit:";
-                type = "wifi";
+              home = {
+                ipv4.method = "auto";
+                ipv6.method = "auto";
+
+                connection = {
+                  autoconnect-priority = 10;
+                  id = "Home";
+                  permissions = "user:jorrit:";
+                  type = "wifi";
+                };
+
+                wifi = {
+                  mode = "infrastructure";
+                  ssid = "$WIFI_HOME_SSID";
+                };
+
+                wifi-security = {
+                  key-mgmt = "wpa-psk";
+                  psk = "$WIFI_HOME_PSK";
+                };
               };
 
-              wifi = {
-                mode = "infrastructure";
-                ssid = "eduroam";
+              home-24 = {
+                ipv4.method = "auto";
+                ipv6.method = "auto";
+
+                connection = {
+                  id = "Home 2.4";
+                  permissions = "user:jorrit:";
+                  type = "wifi";
+                };
+
+                wifi = {
+                  mode = "infrastructure";
+                  ssid = "$WIFI_HOME_24_SSID";
+                };
+
+                wifi-security = {
+                  key-mgmt = "wpa-psk";
+                  psk = "$WIFI_HOME_PSK";
+                };
               };
 
-              wifi-security = {
-                key-mgmt = "wpa-eap";
-              };
-            };
+              hotspot = {
+                ipv4.method = "auto";
+                ipv6.method = "auto";
 
-            home = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
+                connection = {
+                  autoconnect-priority = 100;
+                  id = "Jorrit's Fairphone";
+                  permissions = "user:jorrit:";
+                  type = "wifi";
+                };
 
-              connection = {
-                autoconnect-priority = 10;
-                id = "Home";
-                permissions = "user:jorrit:";
-                type = "wifi";
-              };
+                wifi = {
+                  mode = "infrastructure";
+                  ssid = "Jorrit's Fairphone";
+                };
 
-              wifi = {
-                mode = "infrastructure";
-                ssid = "$WIFI_HOME_SSID";
-              };
-
-              wifi-security = {
-                key-mgmt = "wpa-psk";
-                psk = "$WIFI_HOME_PSK";
-              };
-            };
-
-            home-24 = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
-
-              connection = {
-                id = "Home 2.4";
-                permissions = "user:jorrit:";
-                type = "wifi";
+                wifi-security = {
+                  key-mgmt = "wpa-psk";
+                  psk = "$HOTSPOT_PSK";
+                };
               };
 
-              wifi = {
-                mode = "infrastructure";
-                ssid = "$WIFI_HOME_24_SSID";
-              };
+              iotroam = {
+                ipv4.method = "auto";
+                ipv6.method = "auto";
 
-              wifi-security = {
-                key-mgmt = "wpa-psk";
-                psk = "$WIFI_HOME_PSK";
-              };
-            };
+                connection = {
+                  autoconnect-priority = 10;
+                  id = "iotroam";
+                  permissions = "user:jorrit:";
+                  type = "wifi";
+                };
 
-            hotspot = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
+                wifi = {
+                  mode = "infrastructure";
+                  ssid = "iotroam";
+                };
 
-              connection = {
-                autoconnect-priority = 100;
-                id = "Jorrit's Fairphone";
-                permissions = "user:jorrit:";
-                type = "wifi";
-              };
-
-              wifi = {
-                mode = "infrastructure";
-                ssid = "Jorrit's Fairphone";
-              };
-
-              wifi-security = {
-                key-mgmt = "wpa-psk";
-                psk = "$HOTSPOT_PSK";
-              };
-            };
-
-            iotroam = {
-              ipv4.method = "auto";
-              ipv6.method = "auto";
-
-              connection = {
-                autoconnect-priority = 10;
-                id = "iotroam";
-                permissions = "user:jorrit:";
-                type = "wifi";
-              };
-
-              wifi = {
-                mode = "infrastructure";
-                ssid = "iotroam";
-              };
-
-              wifi-security = {
-                key-mgmt = "wpa-psk";
-                psk = "$IOTROAM_PSK";
+                wifi-security = {
+                  key-mgmt = "wpa-psk";
+                  psk = "$IOTROAM_PSK";
+                };
               };
             };
           };
-        };
+        }
 
-        # NM's own ensure-profiles unit; just point it at the env file
-        # wireless-secrets produces, and make it wait for that.
-        systemd.services.NetworkManager-ensure-profiles = {
-          after = [ "wireless-secrets.service" ];
-          wants = [ "wireless-secrets.service" ];
-        };
-
-        systemd.services.wireless-secrets = inputs.self.lib.mkSopsService {
+        # The env file NM's own ensure-profiles unit reads, made before it
+        # starts.
+        (inputs.self.lib.mkSecretsFor {
           inherit pkgs;
           description = "Decrypt wireless PSKs for NetworkManager's declarative profiles";
           extraServiceConfig.UMask = "0177";
+          for = [ "NetworkManager-ensure-profiles" ];
+          name = "wireless-secrets";
 
           # Each extract is its own assignment statement, not inlined into
           # the echo: `echo "X=$(failing_cmd)"` swallows failing_cmd's
@@ -175,7 +174,7 @@
               echo "IOTROAM_PSK=$IOTROAM_PSK"
             } > /run/wireless-secrets.env
           '';
-        };
-      };
+        })
+      ];
     };
 }

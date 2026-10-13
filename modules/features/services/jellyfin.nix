@@ -38,6 +38,11 @@
               proxy_read_timeout 1h;
               client_max_body_size 20M;
             '';
+
+            status = {
+              group = "media";
+              name = "jellyfin";
+            };
           })
 
           {
@@ -51,11 +56,6 @@
             hardware.graphics = {
               enable = true;
               extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
-            };
-
-            my.gatus.endpoints.jellyfin = {
-              group = "media";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
             };
 
             # Users, watch history and libraries; the artwork in metadata is

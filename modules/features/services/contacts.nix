@@ -23,13 +23,25 @@
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port subdomain;
+
+            status = {
+              group = "productivity";
+              name = "radicale";
+            };
+          })
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Radicale's htpasswd file from sops";
+            for = [ "radicale" ];
+            name = "radicale-secrets";
+            wantedBy = [ "multi-user.target" ];
+
+            files.${htpasswdPath} = {
+              key = "radicale_htpasswd";
+              owner = "radicale";
+            };
           })
           {
-            my.gatus.endpoints.radicale = {
-              group = "productivity";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
-            };
-
             my.offsite-backup.entries.contacts = {
               paths = [ "/var/lib/radicale" ];
               units = [ "radicale.service" ];
@@ -59,25 +71,9 @@
               };
             };
 
-            systemd.services.radicale = {
-              after = [ "radicale-secrets.service" ];
-              wants = [ "radicale-secrets.service" ];
-
-              serviceConfig = {
-                Restart = lib.mkForce "always";
-                RestartSec = lib.mkForce "5s";
-              };
-            };
-
-            systemd.services.radicale-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Radicale's htpasswd file from sops";
-              wantedBy = [ "multi-user.target" ];
-
-              files.${htpasswdPath} = {
-                key = "radicale_htpasswd";
-                owner = "radicale";
-              };
+            systemd.services.radicale.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
             };
           }
         ]

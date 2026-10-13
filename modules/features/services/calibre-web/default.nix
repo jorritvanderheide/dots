@@ -37,13 +37,13 @@
               proxy_busy_buffers_size 1024k;
               proxy_set_header X-Scheme $scheme;
             '';
+
+            status = {
+              group = "productivity";
+              name = "calibre-web";
+            };
           })
           {
-            my.gatus.endpoints.calibre-web = {
-              group = "productivity";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
-            };
-
             my.offsite-backup.entries.calibre-web = {
               paths = [ "/var/lib/calibre-web" ];
 

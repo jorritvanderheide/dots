@@ -26,70 +26,70 @@
         first-run setup. Enable only after both apps are reachable.
       '';
 
-      config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
-        # Recyclarr 8 removed all official `template:` includes; the
-        # modern equivalent is guide-backed profiles via `trash_id`,
-        # which pull quality profile + custom format scoring directly
-        # from TRaSH-Guides. https://recyclarr.dev/wiki/upgrade-guide/v8.0/
-        services.recyclarr = {
-          enable = true;
-          schedule = "daily";
+      config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) (
+        lib.mkMerge [
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Sonarr/Radarr API keys for recyclarr from sops";
+            for = [ "recyclarr" ];
+            name = "recyclarr-secrets";
+            wantedBy = [ "multi-user.target" ];
 
-          # Recyclarr 8 requires instance names to be unique across all
-          # apps (not just within an app), so use distinct names rather
-          # than `main` everywhere.
-          configuration = {
-            radarr.movies = {
-              api_key._secret = radarrApiKeyPath;
-              base_url = local "radarr";
-              quality_definition.type = "movie";
-
-              quality_profiles = [
-                {
-                  reset_unmatched_scores.enabled = true;
-                  trash_id = "d1d67249d3890e49bc12e275d989a7e9"; # HD Bluray + WEB
-                }
-                {
-                  reset_unmatched_scores.enabled = true;
-                  trash_id = "64fb5f9858489bdac2af690e27c8f42f"; # UHD Bluray + WEB
-                }
-              ];
+            files = {
+              ${radarrApiKeyPath}.key = "radarr_api_key";
+              ${sonarrApiKeyPath}.key = "sonarr_api_key";
             };
+          })
+          {
+            # Recyclarr 8 removed all official `template:` includes; the
+            # modern equivalent is guide-backed profiles via `trash_id`,
+            # which pull quality profile + custom format scoring directly
+            # from TRaSH-Guides. https://recyclarr.dev/wiki/upgrade-guide/v8.0/
+            services.recyclarr = {
+              enable = true;
+              schedule = "daily";
 
-            sonarr.series = {
-              api_key._secret = sonarrApiKeyPath;
-              base_url = local "sonarr";
-              quality_definition.type = "series";
+              # Recyclarr 8 requires instance names to be unique across all
+              # apps (not just within an app), so use distinct names rather
+              # than `main` everywhere.
+              configuration = {
+                radarr.movies = {
+                  api_key._secret = radarrApiKeyPath;
+                  base_url = local "radarr";
+                  quality_definition.type = "movie";
 
-              quality_profiles = [
-                {
-                  reset_unmatched_scores.enabled = true;
-                  trash_id = "72dae194fc92bf828f32cde7744e51a1"; # WEB-1080p
-                }
-                {
-                  reset_unmatched_scores.enabled = true;
-                  trash_id = "d1498e7d189fbe6c7110ceaabb7473e6"; # WEB-2160p
-                }
-              ];
+                  quality_profiles = [
+                    {
+                      reset_unmatched_scores.enabled = true;
+                      trash_id = "d1d67249d3890e49bc12e275d989a7e9"; # HD Bluray + WEB
+                    }
+                    {
+                      reset_unmatched_scores.enabled = true;
+                      trash_id = "64fb5f9858489bdac2af690e27c8f42f"; # UHD Bluray + WEB
+                    }
+                  ];
+                };
+
+                sonarr.series = {
+                  api_key._secret = sonarrApiKeyPath;
+                  base_url = local "sonarr";
+                  quality_definition.type = "series";
+
+                  quality_profiles = [
+                    {
+                      reset_unmatched_scores.enabled = true;
+                      trash_id = "72dae194fc92bf828f32cde7744e51a1"; # WEB-1080p
+                    }
+                    {
+                      reset_unmatched_scores.enabled = true;
+                      trash_id = "d1498e7d189fbe6c7110ceaabb7473e6"; # WEB-2160p
+                    }
+                  ];
+                };
+              };
             };
-          };
-        };
-
-        systemd.services.recyclarr = {
-          after = [ "recyclarr-secrets.service" ];
-          wants = [ "recyclarr-secrets.service" ];
-        };
-
-        systemd.services.recyclarr-secrets = inputs.self.lib.mkSopsService {
-          inherit pkgs;
-          description = "Decrypt Sonarr/Radarr API keys for recyclarr from sops";
-          wantedBy = [ "multi-user.target" ];
-
-          files = {
-            ${radarrApiKeyPath}.key = "radarr_api_key";
-            ${sonarrApiKeyPath}.key = "sonarr_api_key";
-          };
-        };
-      };
+          }
+        ]
+      );
     };
 }

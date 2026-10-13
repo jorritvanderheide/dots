@@ -48,15 +48,31 @@
           (inputs.self.lib.mkReverseProxy {
             inherit config port;
             inherit subdomain;
+
+            status = {
+              group = "productivity";
+              name = "home-assistant";
+            };
+          })
+
+          # What the configuration takes with !secret, from sops: a YAML
+          # document under home_assistant_secrets.
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Home Assistant's secrets.yaml from sops";
+            extraServiceConfig.UMask = "0177";
+            for = [ "home-assistant" ];
+            name = "home-assistant-secrets";
+            wantedBy = [ "multi-user.target" ];
+
+            script = ''
+              sops_extract home_assistant_secrets > ${config.services.home-assistant.configDir}/secrets.yaml
+              chown hass:hass ${config.services.home-assistant.configDir}/secrets.yaml
+            '';
           })
           {
             # ZHA: let HA open the Zigbee dongle's serial port.
             users.users.hass.extraGroups = [ "dialout" ];
-
-            my.gatus.endpoints.home-assistant = {
-              group = "productivity";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
-            };
 
             my.offsite-backup.entries.home-assistant = {
               paths = [ "/var/lib/hass" ];
@@ -83,8 +99,8 @@
                 default_config = { };
 
                 homeassistant = {
-                  # The home's location: from secrets.yaml (below), as this
-                  # repository is public.
+                  # The home's location: from secrets.yaml
+                  # (home-assistant-secrets), as this repository is public.
                   elevation = "!secret elevation";
                   latitude = "!secret latitude";
                   longitude = "!secret longitude";
@@ -121,25 +137,6 @@
                 "reolink"
                 "zha"
               ];
-            };
-
-            systemd.services.home-assistant = {
-              after = [ "home-assistant-secrets.service" ];
-              wants = [ "home-assistant-secrets.service" ];
-            };
-
-            # What the configuration takes with !secret, from sops: a YAML
-            # document under home_assistant_secrets.
-            systemd.services.home-assistant-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Home Assistant's secrets.yaml from sops";
-              extraServiceConfig.UMask = "0177";
-              wantedBy = [ "multi-user.target" ];
-
-              script = ''
-                sops_extract home_assistant_secrets > ${config.services.home-assistant.configDir}/secrets.yaml
-                chown hass:hass ${config.services.home-assistant.configDir}/secrets.yaml
-              '';
             };
 
             systemd.services.home-assistant.serviceConfig = {

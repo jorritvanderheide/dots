@@ -32,6 +32,12 @@
             locationExtraConfig = ''
               client_max_body_size 20M;
             '';
+
+            status = {
+              group = "productivity";
+              name = "filebrowser";
+              path = "/health";
+            };
           })
           {
             assertions = [
@@ -40,11 +46,6 @@
                 message = "my.filebrowser requires my.syncthing.enable";
               }
             ];
-
-            my.gatus.endpoints.filebrowser = {
-              group = "productivity";
-              url = "https://${subdomain}.${config.my.ingress.domain}/health";
-            };
 
             # Its users and settings; the files are Syncthing's entry.
             my.offsite-backup.entries.filebrowser = {

@@ -27,13 +27,25 @@
           (inputs.self.lib.mkReverseProxy {
             inherit config port;
             inherit subdomain;
+
+            status = {
+              group = "productivity";
+              name = "vaultwarden";
+            };
+          })
+          (inputs.self.lib.mkSecretsFor {
+            inherit pkgs;
+            description = "Decrypt Vaultwarden environment file from sops";
+            for = [ "vaultwarden" ];
+            name = "vaultwarden-secrets";
+            wantedBy = [ "multi-user.target" ];
+
+            files.${envPath} = {
+              key = "vaultwarden_env";
+              owner = "vaultwarden";
+            };
           })
           {
-            my.gatus.endpoints.vaultwarden = {
-              group = "productivity";
-              url = "https://${domain}";
-            };
-
             # The backup is Vaultwarden's own copy of its data (backupDir), so
             # a restore puts that copy back into the data folder.
             my.offsite-backup.entries.vaultwarden = {
@@ -85,36 +97,20 @@
               };
             };
 
-            systemd.services.vaultwarden = {
-              after = [ "vaultwarden-secrets.service" ];
-              wants = [ "vaultwarden-secrets.service" ];
+            systemd.services.vaultwarden.serviceConfig = {
+              Restart = lib.mkForce "always";
+              RestartSec = lib.mkForce "5s";
 
-              serviceConfig = {
-                Restart = lib.mkForce "always";
-                RestartSec = lib.mkForce "5s";
-
-                # What the admin page saves (config.json) overrides the
-                # settings above. Keep invitations off there too, and leave
-                # the rest of what it saved (SMTP and so on) alone.
-                ExecStartPre = pkgs.writeShellScript "vaultwarden-no-invitations" ''
-                  set -euo pipefail
-                  config=/var/lib/vaultwarden/config.json
-                  [[ -f $config ]] || exit 0
-                  ${lib.getExe pkgs.jq} '.invitations_allowed = false' "$config" >"$config.tmp"
-                  mv "$config.tmp" "$config"
-                '';
-              };
-            };
-
-            systemd.services.vaultwarden-secrets = inputs.self.lib.mkSopsService {
-              inherit pkgs;
-              description = "Decrypt Vaultwarden environment file from sops";
-              wantedBy = [ "multi-user.target" ];
-
-              files.${envPath} = {
-                key = "vaultwarden_env";
-                owner = "vaultwarden";
-              };
+              # What the admin page saves (config.json) overrides the
+              # settings above. Keep invitations off there too, and leave
+              # the rest of what it saved (SMTP and so on) alone.
+              ExecStartPre = pkgs.writeShellScript "vaultwarden-no-invitations" ''
+                set -euo pipefail
+                config=/var/lib/vaultwarden/config.json
+                [[ -f $config ]] || exit 0
+                ${lib.getExe pkgs.jq} '.invitations_allowed = false' "$config" >"$config.tmp"
+                mv "$config.tmp" "$config"
+              '';
             };
 
             systemd.tmpfiles.rules = [

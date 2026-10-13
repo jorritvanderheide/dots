@@ -22,14 +22,14 @@
         lib.mkMerge [
           (inputs.self.lib.mkReverseProxy {
             inherit config port subdomain;
+
+            status = {
+              group = "media";
+              name = "qbittorrent";
+            };
           })
           {
             users.users.qbittorrent.extraGroups = [ "media" ];
-
-            my.gatus.endpoints.qbittorrent = {
-              group = "media";
-              url = "https://${subdomain}.${config.my.ingress.domain}";
-            };
 
             my.offsite-backup.entries.servarr = {
               paths = [ "/var/lib/qBittorrent" ];
