@@ -15,7 +15,6 @@
         calibre-web
         filebrowser
         contacts
-        gatus
         headscale
         home-assistant
         immich

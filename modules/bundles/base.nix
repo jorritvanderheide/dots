@@ -4,8 +4,9 @@
 }:
 {
   # What every host runs: the disk, boot and secrets setup, and the system,
-  # shell and backup features every other feature can count on (any of them
-  # may declare my.preservation and my.offsite-backup entries).
+  # shell, backup and status page features every other feature can count on:
+  # any of them may declare my.preservation entries, and my.offsite-backup
+  # and my.gatus entries, which a host that doesn't enable those ignores.
   flake.nixosModules.base = {
     imports = with inputs.self.nixosModules; [
       # Core
@@ -28,6 +29,7 @@
       tailscale
 
       # Services
+      gatus
       offsite-backup
 
       # Shell
