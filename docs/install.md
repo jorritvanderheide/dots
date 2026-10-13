@@ -17,8 +17,8 @@ Put the machine's firmware in setup mode first (see
 [Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
 makes new keys. Boot the target machine from it, with network (a cable, or
 `nmtui` on its console) and a YubiKey plugged in that opens the host's
-secrets ([Secrets and keys](secrets.md)): rocinante's for either host
-(dapple's with its PIN), or dapple's spare for dapple. Then,
+secrets ([Secrets and keys](secrets.md)): either of the two, for either host
+(dapple's with its PIN). Then,
 from any computer with Bitwarden's SSH agent (it holds the key the ISO
 accepts):
 
@@ -210,23 +210,22 @@ Nothing needed to recover lives only on rocinante: the SSH keys are in
 Bitwarden, the configuration is on Codeberg, the data on Storj, and the
 YubiKeys are separate devices.
 
-Each host has its own secrets file, which only some keys open
-([Secrets and keys](secrets.md)): rocinante's with its own age key and its
-YubiKey, dapple's with its own age key, rocinante's YubiKey (admin, with
-its PIN) and dapple's spare YubiKey. The passphrase identity opens both,
-for the installer. The installer gives a reinstalled host a new age key of
-its own ([A new host key](secrets.md#a-new-host-key)), so its services
-need no YubiKey.
+Each host has its own secrets file ([Secrets and keys](secrets.md)), which
+its own age key opens, and either YubiKey (dapple's with its PIN). The
+passphrase identity opens both, for the installer. The installer gives a
+reinstalled host a new age key of its own
+([A new host key](secrets.md#a-new-host-key)), so its services need no
+YubiKey.
 
-- **rocinante.** On its replacement, with its YubiKey: boot the ISO
+- **rocinante.** On its replacement, with a YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
   boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
   rocinante's backup holds comes back: Zotero, and its place on the tailnet.
 - **A YubiKey.** Revoke the lost key and enroll a new one, as in
   [Secrets and keys](secrets.md), with the passphrase identity or the other
-  key. Losing rocinante's also loses the admin key: enroll a new admin
-  identity the same way, with a PIN.
+  key. The new key gets both identities, a no-PIN and a PIN one, like the
+  other.
 - **Both machines.** Vaultwarden runs on dapple, so Bitwarden only has the
   offline copy on your phone. It holds the passphrase identity, the SSH keys
   and your Codeberg login. With a YubiKey left, install dapple with

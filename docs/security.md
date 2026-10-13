@@ -64,10 +64,10 @@ signed by rocinante's deploy key (`rocinante-1`).
 file of its own, readable by its own key, and each has its own LUKS, root
 and restic passwords. rocinante doesn't take packages from dapple (there is
 no dapple cache any more), so a taken-over dapple can't push code to the
-laptop. Editing dapple's secrets from rocinante needs the admin key's PIN
-and a touch, so a stolen laptop with its YubiKey still in doesn't open the
-server. The YubiKey's PUK isn't the factory default either, or anyone
-holding the key could set a new PIN with it.
+laptop. Editing dapple's secrets needs a YubiKey's PIN and a touch, on
+either key, so a stolen laptop with a YubiKey still in doesn't open the
+server. Neither key's PUK is the factory default, or anyone holding it
+could set a new PIN with it.
 
 **Ransomware on a host** can't take the offsite backups along. Each host's
 Storj credentials reach only its own `restic/<host>/` in the `offsite`
@@ -84,8 +84,8 @@ its own lock ([A first or very large backup](secrets.md#a-first-or-very-large-ba
 a debug shell at boot. The hosts boot with secure boot, with our own keys,
 and the TPM only unlocks a disk for that
 ([Secure boot](install.md#secure-boot)). rocinante's disk also opens with
-the YubiKey's FIDO2 slot, which needs the key's PIN and a touch, so the
-laptop and the key together still aren't enough.
+either YubiKey's FIDO2 slot, which needs the key's PIN and a touch, so the
+laptop and a key together still aren't enough.
 
 ## Checked by hand
 

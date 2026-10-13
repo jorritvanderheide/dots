@@ -14,7 +14,7 @@ repository=$(nix eval --raw "$flake#nixosConfigurations.$host.config.services.re
 identity=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}")
 trap 'rm -f "$identity"' EXIT
 age-plugin-yubikey --identity >"$identity" 2>/dev/null || true
-# dapple's file asks for the admin key's PIN and a touch.
+# dapple's file asks for the YubiKey's PIN and a touch.
 RESTIC_PASSWORD=$(SOPS_AGE_KEY_FILE=$identity sops -d --extract '["restic_password"]' "$flake/secrets/$host.yaml")
 export RESTIC_PASSWORD RESTIC_REPOSITORY=$repository
 

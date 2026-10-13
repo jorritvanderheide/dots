@@ -10,20 +10,22 @@ Each host decrypts at boot with an age key of its own, in
 root only. The disk unlocks with the TPM only under our own secure boot,
 so the key is as safe as that binding. No host needs a YubiKey to boot.
 
+There are two YubiKeys, and they open the same: either one does
+everything, so losing one loses nothing. Each holds two identities, a
+no-PIN one and a PIN one (`.sops.yaml` has their slots).
+
 `secrets/rocinante.yaml`:
 
 - **rocinante's own age key.**
-- **rocinante's YubiKey**, its no-PIN identity, which you edit with.
+- **Both YubiKeys' no-PIN identities**: how you edit the laptop's secrets.
 - **A passphrase identity**, as a fallback, kept in Bitwarden.
 
 `secrets/dapple.yaml`:
 
 - **dapple's own age key.**
-- **The admin identity**, on rocinante's YubiKey, with PIN and touch: how
-  you edit the server's secrets. The laptop's own no-PIN identity can't, so
-  a stolen laptop with its YubiKey doesn't open the server.
-- **dapple's YubiKey**, no PIN and no touch, as an offline spare: kept
-  away from the server, for reinstalling it without rocinante.
+- **Both YubiKeys' PIN identities**, with PIN and touch: how you edit the
+  server's secrets. The no-PIN identities can't, so a stolen laptop with a
+  YubiKey still in doesn't open the server.
 - **The passphrase identity.**
 
 Within a file, any one recipient can decrypt on its own. sops's default
@@ -52,17 +54,34 @@ which is what Bazarr compares.
 
 ## Enrolling an additional YubiKey
 
+A new key, or one replacing a lost one, gets what the others have. First
+its PIV PIN, PUK and management key, none of them the factory default
+(`ykman piv info` warns about any that still is): a default PUK lets
+whoever holds the key set a new PIN. Then its two identities:
+
 ```sh
 age-plugin-yubikey --generate --pin-policy never --touch-policy never
+age-plugin-yubikey --generate --pin-policy once --touch-policy cached
 ```
 
-This matches the existing keys' no-PIN, no-touch policy. Then:
+Its FIDO2 PIN, and its FIDO2 slot on rocinante's disk, with only this key
+plugged in. A key shows up twice, over USB and through pcscd, so `auto`
+refuses to pick: name its `/dev/hidraw*` path from the list.
 
-1. Add the new `age1yubikey1...` recipient to the *same* `key_groups` entry
-   in `.sops.yaml`, for the file it should open. Not a new group: that would
-   require *both* keys to decrypt instead of either.
-2. `sops updatekeys secrets/<host>.yaml` to re-encrypt for the new set of
-   recipients.
+```sh
+systemd-cryptenroll --fido2-device=list
+sudo systemd-cryptenroll --fido2-device=/dev/hidrawN --fido2-with-client-pin=yes \
+  --fido2-with-user-presence=yes /dev/disk/by-partlabel/disk-main-luks
+```
+
+Then:
+
+1. Add the no-PIN `age1yubikey1...` recipient to `rocinante.yaml`'s
+   `key_groups` entry in `.sops.yaml`, and the PIN one to `dapple.yaml`'s.
+   The *same* entry, not a new group: that would require *both* keys to
+   decrypt instead of either.
+2. `sops updatekeys secrets/<host>.yaml`, for both files, to re-encrypt for
+   the new set of recipients.
 3. Push, and deploy every host (`nswitch`, `ndeploy dapple`): each decrypts
    the file it was built with.
 4. Verify: unplug the old key, plug in only the new one, and decrypt a
@@ -141,7 +160,7 @@ sudo chmod 0400 /persist/system/var/lib/sops/age.key
 
 Replace `<host>_host` in `.sops.yaml` with the printed `age1...` key, run
 `sops updatekeys secrets/<host>.yaml` from rocinante (for dapple's, with
-the admin key's PIN and a touch), push, and deploy (`nswitch`, or
+a YubiKey's PIN and a touch), push, and deploy (`nswitch`, or
 `ndeploy dapple`).
 
 ## Revoking a lost or compromised key
