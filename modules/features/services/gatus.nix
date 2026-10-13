@@ -157,13 +157,35 @@
               ];
 
               serviceConfig = {
+                # Its checks are HTTPS and TCP, and what it receives comes in
+                # over HTTP through nginx: no capabilities, devices or
+                # syscalls beyond a service's.
+                CapabilityBoundingSet = "";
+                LockPersonality = true;
+                MemoryDenyWriteExecute = true;
+                NoNewPrivileges = true;
+                PrivateDevices = true;
+                PrivateTmp = true;
+                PrivateUsers = true;
+                ProtectClock = true;
+                ProtectControlGroups = true;
+                ProtectHome = true;
+                ProtectHostname = true;
+                ProtectKernelLogs = true;
+                ProtectKernelModules = true;
+                ProtectKernelTunables = true;
+                ProtectProc = "invisible";
+                ProtectSystem = "strict";
+                RemoveIPC = true;
+                RestrictNamespaces = true;
+                RestrictRealtime = true;
+                RestrictSUIDSGID = true;
+                SystemCallArchitectures = "native";
+                UMask = "0077";
+
                 Environment = [ "GATUS_CONFIG_PATH=${configPath}" ];
                 ExecStart = lib.getExe pkgs.gatus;
                 Group = "gatus";
-                NoNewPrivileges = true;
-                PrivateTmp = true;
-                ProtectHome = true;
-                ProtectSystem = "strict";
                 ReadWritePaths = [ "/var/lib/gatus" ];
                 Restart = "always";
                 RestartSec = "10s";
@@ -176,6 +198,18 @@
 
                 StateDirectory = "gatus";
                 User = "gatus";
+
+                RestrictAddressFamilies = [
+                  "AF_INET"
+                  "AF_INET6"
+                  "AF_UNIX"
+                ];
+
+                SystemCallFilter = [
+                  "@system-service"
+                  "~@privileged"
+                  "~@resources"
+                ];
               };
 
               wants = [
