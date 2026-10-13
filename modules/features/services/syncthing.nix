@@ -73,6 +73,38 @@
             };
           };
         };
+
+        # The module's sandbox leaves the system writable, some capabilities
+        # and every syscall. Netlink stays: Syncthing lists the interfaces
+        # to tell LAN from WAN. Its files are read by its own user only
+        # (File Browser runs as it too).
+        systemd.services.syncthing.serviceConfig = {
+          CapabilityBoundingSet = lib.mkForce "";
+          LockPersonality = true;
+          ProtectClock = true;
+          ProtectHome = true;
+          ProtectKernelLogs = true;
+          ProtectProc = "invisible";
+          ProtectSystem = "strict";
+          ReadWritePaths = [ dataDir ];
+          RemoveIPC = true;
+          SystemCallArchitectures = "native";
+          UMask = "0077";
+
+          RestrictAddressFamilies = [
+            "AF_INET"
+            "AF_INET6"
+            "AF_NETLINK"
+            "AF_UNIX"
+          ];
+
+          # Not without @resources: Syncthing lowers its own CPU and I/O
+          # priority (setLowPriority), with setpriority and ioprio_set.
+          SystemCallFilter = [
+            "@system-service"
+            "~@privileged"
+          ];
+        };
       };
     };
 }
