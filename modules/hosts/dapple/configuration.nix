@@ -13,6 +13,7 @@
 
         # Services
         calibre-web
+        filebrowser
         contacts
         gatus
         headscale
@@ -43,6 +44,7 @@
             environment.systemPackages = [ pkgs.ghostty.terminfo ];
 
             my.contacts.enable = true;
+            my.filebrowser.enable = true;
             my.gatus.enable = true;
             my.headscale.enable = true;
             my.home-assistant.enable = true;

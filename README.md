@@ -141,6 +141,7 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Vaultwarden | `passwords` | Passwords |
 | Calibre-Web | `books` | E-books, synced to a Kobo |
 | Radicale | `contacts` | Contacts and calendars |
+| File Browser | `files` | rocinante's synced `~/Documents`, in the browser |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | Gatus | `status` | Monitoring of all of the above |
