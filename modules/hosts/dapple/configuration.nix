@@ -21,7 +21,6 @@
         ingress
         jellyfin
         new-leaf
-        nextcloud
         ntfy
         servarr
         syncthing
@@ -50,7 +49,6 @@
             my.immich.enable = true;
             my.ingress.enable = true;
             my.lan.interface = "enp2s0";
-            my.nextcloud.enable = true;
             my.ntfy.enable = true;
             my.offsite-backup.enable = true;
             my.syncthing.enable = true;
@@ -68,7 +66,7 @@
             # The Realtek rtw89 driver is incompatible with networkd's BPF DHCP client.
             networking.useNetworkd = lib.mkForce false;
 
-            # Shared by Immich and Nextcloud. Not the usual quarter of RAM:
+            # Immich's. Not the usual quarter of RAM:
             # ZFS's ARC (a quarter already) caches the same files again.
             services.postgresql.settings.shared_buffers = "1GB";
 

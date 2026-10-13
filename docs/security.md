@@ -7,12 +7,9 @@ themselves are listed in the README's
 
 ## Who is kept out of what
 
-**The internet** reaches three things on dapple, through Cloudflare:
-Headscale's control protocol and DERP relay at `vpn`, New Leaf's share links
-at `cv`, and Nextcloud's at `cloud`. Nextcloud's vhost tells them apart by
-source address, like the tailnet-only vhosts: outside the tailnet, its PHP
-only runs for share links, so there is no login to guess at.
-Headscale's admin API (`/api`, `/swagger`) only answers tailnet addresses,
+**The internet** reaches two things on dapple, through Cloudflare:
+Headscale's control protocol and DERP relay at `vpn`, and New Leaf's share
+links at `cv`. Headscale's admin API (`/api`, `/swagger`) only answers tailnet addresses,
 which never reach it through Cloudflare, so in practice nobody over the
 network: the `headscale` CLI uses a local socket. A name no vhost claims
 gets no certificate and no answer. Everything else is bound to dapple's

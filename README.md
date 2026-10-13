@@ -67,8 +67,8 @@ boot, sops secrets, home-manager, and fish.
   server's) and a passphrase fallback. They are decrypted at boot by the
   service that needs them, never written to the Nix store. See
   [Secrets and keys](docs/secrets.md).
-- **The server** answers on its tailnet address, with only Headscale and the
-  share links of New Leaf and Nextcloud open to the internet. A Headscale policy limits what
+- **The server** answers on its tailnet address, with only Headscale and
+  New Leaf's share links open to the internet. A Headscale policy limits what
   each tailnet device reaches. [Section 7](#7-network-exposure) lists
   exactly what is reachable from where, and [Security](docs/security.md) who
   is kept out of what.
@@ -141,7 +141,6 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | Vaultwarden | `passwords` | Passwords |
 | Calibre-Web | `books` | E-books, synced to a Kobo |
 | Radicale | `contacts` | Contacts and calendars |
-| Nextcloud | `cloud` | Files, with public share links |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | Gatus | `status` | Monitoring of all of the above |
@@ -162,7 +161,7 @@ back, goes to the phone through ntfy.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, only three things answer, all through Cloudflare:
+There, only two things answer, both through Cloudflare:
 
 - **Headscale** at `vpn`: the control protocol and the DERP relay, which a
   device away from home needs to join the tailnet. Its admin API
@@ -170,10 +169,6 @@ There, only three things answer, all through Cloudflare:
   through Cloudflare: the `headscale` CLI uses a local socket.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
-- **Nextcloud's share links** at `cloud`: the share pages (`/s/`), with
-  their downloads, previews and file drops. Nextcloud's PHP answers nothing
-  else from outside the tailnet, so no login page and no WebDAV for
-  accounts.
 
 A name no vhost claims gets no certificate and no answer.
 
