@@ -2,20 +2,31 @@
 # The rest of the theme is in default.nix.
 {
   flake.nixosModules.theming =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
+    let
+      inherit (config.my.theming) fonts;
+    in
     {
       home-manager.sharedModules = [
         (
           { config, lib, ... }:
           {
-            stylix.targets.gtk.colors.enable = false;
+            gtk = {
+              enable = true;
+              gtk4.theme = config.gtk.theme;
 
-            gtk.theme = {
-              # Only the initial value: noctalia's gtk hook switches dconf's
-              # gtk-theme between adw-gtk3 and adw-gtk3-dark with the mode.
-              name = "adw-gtk3-dark";
+              font = {
+                inherit (fonts.sansSerif) name package;
+                inherit (fonts) size;
+              };
 
-              package = pkgs.adw-gtk3;
+              theme = {
+                # Only the initial value: noctalia's gtk hook switches dconf's
+                # gtk-theme between adw-gtk3 and adw-gtk3-dark with the mode.
+                name = "adw-gtk3-dark";
+
+                package = pkgs.adw-gtk3;
+              };
             };
 
             programs.noctalia.settings.theme.templates.user = {
@@ -32,9 +43,7 @@
               };
             };
 
-            # Written directly rather than via gtk.gtk{3,4}.extraCss, which
-            # stylix warns about even with its gtk colors disabled. The
-            # built-in gtk hook only checks that noctalia.css is imported.
+            # The built-in gtk hook only checks that noctalia.css is imported.
             xdg.configFile = lib.genAttrs [ "gtk-3.0/gtk.css" "gtk-4.0/gtk.css" ] (_: {
               text = ''
                 @import url("noctalia.css");

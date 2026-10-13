@@ -63,7 +63,7 @@ sops-nix decrypts them at activation, with the host's own age key
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup and gatus, whose entries any
 feature may declare; a host that doesn't enable them ignores the entries. A host with a screen adds `desktop`: the desktop features, which
-lean on each other (app2unit, niri, stylix, noctalia) and so come as one,
+lean on each other (app2unit, niri, theming, noctalia) and so come as one,
 and research's settings, which the app and research features read. Those
 build on `desktop`. The host picks the rest by name from
 `inputs.self.nixosModules`, in the same groups as the folders (System,

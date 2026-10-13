@@ -4,7 +4,7 @@
 }:
 {
   # The niri desktop. Its features lean on each other (app2unit, niri
-  # settings, stylix, noctalia), so they come as one. App and research
+  # settings, theming, noctalia), so they come as one. App and research
   # features build on it, and research holds the settings those read.
   flake.nixosModules.desktop = {
     imports = with inputs.self.nixosModules; [

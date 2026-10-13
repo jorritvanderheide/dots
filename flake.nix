@@ -47,11 +47,6 @@
       url = "github:Mic92/sops-nix";
     };
 
-    stylix = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:danth/stylix";
-    };
-
     system76-scheduler-niri = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Kirottu/system76-scheduler-niri";

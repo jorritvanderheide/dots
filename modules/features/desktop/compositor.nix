@@ -102,8 +102,8 @@ in
                 cursor = {
                   hide-after-inactive-ms = 1000;
                   hide-when-typing = true;
-                  size = config.stylix.cursor.size;
-                  theme = config.stylix.cursor.name;
+                  size = config.home.pointerCursor.size;
+                  theme = config.home.pointerCursor.name;
                 };
 
                 hotkey-overlay = {
@@ -156,10 +156,12 @@ in
                   gaps = 80.0;
                   shadow.enable = true;
 
+                  # Until noctalia has written its colors (noctalia.kdl, in
+                  # theming), which then override these.
                   border = {
                     enable = true;
-                    active.color = config.lib.stylix.colors.withHashtag.base08;
-                    inactive.color = config.lib.stylix.colors.withHashtag.base02;
+                    active.color = "#ff5555";
+                    inactive.color = "#44475a";
                     width = 4;
                   };
 

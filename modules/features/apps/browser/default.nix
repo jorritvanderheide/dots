@@ -26,9 +26,6 @@
               ...
             }:
             {
-              # Tells the stylix target which profile directory to theme
-              stylix.targets.zen-browser.profileNames = [ "default" ];
-
               programs.zen-browser = {
                 enable = true;
                 setAsDefaultBrowser = true;

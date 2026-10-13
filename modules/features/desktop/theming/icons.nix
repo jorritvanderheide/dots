@@ -76,25 +76,23 @@
             };
           in
           {
+            gtk.iconTheme = {
+              # Numix-Circle with the folders in the wallpaper's colors
+              # (numixFolders), the name GTK's settings and Qt keep;
+              # dconf flips between it and its -Reload twin (see
+              # numixFoldersApply). The same in light mode: noctalia
+              # doesn't switch icon themes.
+              name = "Numix-Circle-Noctalia";
+
+              package = pkgs.numix-icon-theme-circle;
+            };
+
             programs.noctalia.settings.theme.templates.user = {
               numix_folders = {
                 input_path = "${./noctalia-templates/numix-folders.sed}";
                 output_path = "${config.xdg.cacheHome}/noctalia/numix-folders.sed";
                 post_hook = "${lib.getExe numixFoldersApply} ${config.xdg.cacheHome}/noctalia/numix-folders.sed";
               };
-            };
-
-            stylix.icons = {
-              enable = true;
-
-              # Numix-Circle with the folders in the wallpaper's colors
-              # (numixFolders), the name GTK's settings and Qt keep;
-              # dconf flips between it and its -Reload twin (see
-              # numixFoldersApply). Only dark is used: stylix's polarity
-              # stays dark, and noctalia doesn't switch icon themes.
-              dark = "Numix-Circle-Noctalia";
-              light = "Numix-Circle-Light";
-              package = pkgs.numix-icon-theme-circle;
             };
           }
         )

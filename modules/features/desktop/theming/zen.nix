@@ -13,13 +13,11 @@
     {
       home-manager.sharedModules = [
         (
-          { config, lib, ... }:
+          { config, ... }:
           let
             zenCache = "${config.xdg.cacheHome}/noctalia/zen-browser";
           in
           {
-            stylix.targets.zen-browser.colors.enable = false;
-
             programs.noctalia.settings.theme.templates.user = {
               zen_browser_chrome = {
                 input_path = "${./noctalia-templates/zen-userChrome.css}";
@@ -38,10 +36,10 @@
             };
 
             programs.zen-browser.profiles."default" = {
-              # 2 = follow the system color-scheme (stylix pins 0, dark).
+              # 2 = follow the system color-scheme.
               # The imported CSS carries both variants under
               # prefers-color-scheme.
-              settings."zen.view.window.scheme" = lib.mkForce 2;
+              settings."zen.view.window.scheme" = 2;
 
               # Colors come from zen-colors.css, loaded by the autoconfig below.
               userChrome = ''@import url("file://${zenCache}/zen-userChrome.css");'';
