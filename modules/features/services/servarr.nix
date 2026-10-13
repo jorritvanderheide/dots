@@ -25,6 +25,45 @@
         required = "Enabled";
       };
 
+      # nixpkgs' own sandbox for Sonarr and Radarr (servarr/sonarr.nix), for
+      # the apps whose modules come without one. Not its UMask: each app
+      # keeps its own.
+      sandbox = {
+        CapabilityBoundingSet = "";
+        LockPersonality = true;
+        NoNewPrivileges = true;
+        PrivateDevices = true;
+        PrivateTmp = true;
+        PrivateUsers = true;
+        ProtectClock = true;
+        ProtectControlGroups = true;
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectKernelLogs = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+        ProtectProc = "invisible";
+        RemoveIPC = true;
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        SystemCallArchitectures = "native";
+
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+          "AF_UNIX"
+        ];
+
+        SystemCallFilter = [
+          "@system-service"
+          "~@privileged"
+          "~@debug"
+          "~@mount"
+          "@chown"
+        ];
+      };
+
       apps = {
         bazarr = {
           port = 6767;
@@ -373,7 +412,7 @@
                   after = [ "bazarr-secrets.service" ];
                   wants = [ "bazarr-secrets.service" ];
 
-                  serviceConfig = {
+                  serviceConfig = sandbox // {
                     Restart = lib.mkForce "always";
                     RestartSec = lib.mkForce "5s";
 
@@ -387,12 +426,12 @@
                   };
                 };
 
-                lidarr.serviceConfig = {
+                lidarr.serviceConfig = sandbox // {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
                 };
 
-                prowlarr.serviceConfig = {
+                prowlarr.serviceConfig = sandbox // {
                   Restart = lib.mkForce "always";
                   RestartSec = lib.mkForce "5s";
                 };
