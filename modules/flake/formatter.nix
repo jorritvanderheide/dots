@@ -54,6 +54,7 @@
           # break.
           global.excludes = [
             "**/*.hujson"
+            "**/*.kbd"
             "**/assets/**"
             "**/facter.json"
             "**/noctalia-templates/**"
