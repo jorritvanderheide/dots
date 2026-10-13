@@ -137,8 +137,8 @@ main() {
     "${flake}#nixosConfigurations.${hostname}.config.system.build.diskoScript")
   "$disko_script"
 
-  # lib.hostAgeKey, readable by root only. Before nixos-install, whose
-  # activation decrypts the secrets with it.
+  # The age key secrets.nix decrypts with, readable by root only. Before
+  # nixos-install, whose activation decrypts the secrets with it.
   install -d -m 0700 /mnt/persist/system/var/lib/sops
   install -m 0400 /tmp/host-age.key /mnt/persist/system/var/lib/sops/age.key
 

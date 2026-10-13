@@ -64,7 +64,8 @@ the host's file, and reads it from `config.sops.secrets.<key>.path`; one
 that wants it inside a file of its own, like an env file, gets a
 `sops.templates` entry with `config.sops.placeholder.<key>` in it.
 sops-nix decrypts them at activation, with the host's own age key
-(`hostAgeKey`), so they exist before any service starts.
+(`/persist/system/var/lib/sops/age.key`), so they exist before any service
+starts.
 
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup and gatus, whose entries any
@@ -78,16 +79,23 @@ list.
 
 ## Shared helpers
 
-`modules/flake/lib.nix` holds what several features need, as `inputs.self.lib`:
+What several features need is in `inputs.self.lib`, from two files in
+`modules/flake/`. `lib.nix` has the functions:
 
 - **`tailnetOnly`**: nginx access rules that let in only the tailnet, for a
   vhost or location a service writes itself (headscale's API, new-leaf);
   the proxies above have them already.
-- **`site`**: facts more than one host needs: the domain, Headscale's
-  domain, dapple's tailnet address and the LAN's subnet. The host-local
-  side, like which interface is on the LAN, is `my.lan`.
 - **`mkUser`**: a user with fish, home-manager, and the password hash in
   `user_password_<user>`, set by sops-nix at activation.
+- **`mainDisk`**: the disk the installer wipes, from the facter report.
+
+`site.nix` has the facts and keys:
+
+- **`site`**: facts more than one host needs: the domain, Headscale's
+  domain, dapple's addresses, the LAN's subnet and the Syncthing devices.
+  The host-local side, like which interface is on the LAN, is `my.lan`.
+- **`authorizedKeys`** and **`sudoKeys`**: who may SSH in, and which
+  YubiKeys may run sudo on dapple.
 
 ## Ordering
 
