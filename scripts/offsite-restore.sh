@@ -62,7 +62,7 @@ done
   exit 1
 }
 [[ -r /run/secrets/restic_password ]] || {
-  echo "No backup credentials yet: systemctl start offsite-backup-secrets" >&2
+  echo "No backup credentials: the host's secrets weren't decrypted at activation." >&2
   exit 1
 }
 

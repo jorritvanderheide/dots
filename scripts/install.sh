@@ -99,10 +99,8 @@ main() {
   fi
 
   # disko needs the LUKS password as a plaintext file before the OS (and
-  # sops-nix) exist. Every other secret is decrypted directly by the
-  # systemd service that needs it (see secrets.nix / lib.nix / boot.nix),
-  # once real systemd + pcscd are up, not via sops-nix's own
-  # activation-time install, which never works on this host (see docs/install.md).
+  # sops-nix) exist. Every other secret is decrypted by sops-nix, with the
+  # host's own key (below).
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key /tmp/host-age.key' EXIT
   for attempt in $(seq 1 10); do
@@ -139,18 +137,15 @@ main() {
     "${flake}#nixosConfigurations.${hostname}.config.system.build.diskoScript")
   "$disko_script"
 
-  # --no-root-password: root and jorrit both get their real passwords set by
-  # set-password-root/set-password-jorrit (see secrets.nix / lib.nix's
-  # mkUser) once booted for real, not during this install. Neither can
-  # reliably decrypt inside nixos-install's bare chroot: no systemd there,
-  # so pcscd's socket activation for the YubiKey doesn't apply, and that's
-  # true on every real boot too (see docs/install.md), not just here.
-  log_info "Installing NixOS..."
-  nixos-install --no-root-password --flake "${flake}#${hostname}"
-
-  # lib.hostAgeKey, readable by root only.
+  # lib.hostAgeKey, readable by root only. Before nixos-install, whose
+  # activation decrypts the secrets with it.
   install -d -m 0700 /mnt/persist/system/var/lib/sops
   install -m 0400 /tmp/host-age.key /mnt/persist/system/var/lib/sops/age.key
+
+  # --no-root-password: root's and jorrit's passwords come from sops
+  # (secrets.nix, lib.mkUser), set again at every boot's activation.
+  log_info "Installing NixOS..."
+  nixos-install --no-root-password --flake "${flake}#${hostname}"
 
   local etc_nixos=/mnt/persist/system/etc/nixos
   mkdir -p "$(dirname "$etc_nixos")"

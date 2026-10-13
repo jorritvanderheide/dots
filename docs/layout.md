@@ -53,6 +53,13 @@ A service with a web page also declares what the status page checks: the
 `status` of its `mkReverseProxy`, or `my.gatus.endpoints` directly for one
 without.
 
+A service that needs a secret declares it in `sops.secrets`, by its key in
+the host's file, and reads it from `config.sops.secrets.<key>.path`; one
+that wants it inside a file of its own, like an env file, gets a
+`sops.templates` entry with `config.sops.placeholder.<key>` in it.
+sops-nix decrypts them at activation, with the host's own age key
+(`hostAgeKey`), so they exist before any service starts.
+
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup and gatus, whose entries any
 feature may declare; a host that doesn't enable them ignores the entries. A host with a screen adds `desktop`: the desktop features, which
@@ -67,19 +74,6 @@ list.
 
 `modules/flake/lib.nix` holds what several features need, as `inputs.self.lib`:
 
-- **`mkSopsService`**: a oneshot service that decrypts the host's secrets
-  with its own age key or a YubiKey (after pcscd is up, retrying while the
-  key enumerates). A secret that only needs to be a file is one of its
-  `files`, written to `/run/secrets` for its owner only; anything else
-  goes in its `script`. See
-  [Installing a host](install.md#why-the-accounts-start-locked) for why
-  secrets are not installed by sops-nix at activation.
-- **`mkSecretsFor`**: an `mkSopsService` unit with the units that read its
-  secrets (`for`) started after it. Use it whenever a service reads what
-  the unit decrypts, so the ordering can't be forgotten.
-- **`sopsExtract`**: prints one secret from the host's own file
-  (`/etc/sops/secrets.yaml`), with the host's age key (`hostAgeKey`) or a
-  YubiKey. `mkSopsService` scripts call it as `sops_extract <key>`.
 - **`mkReverseProxy`**: an nginx vhost at `<subdomain>.<my.ingress.domain>`,
   with an ACME certificate, bound to the tailnet address and refusing other
   sources (`tailnetOnly`, also usable on its own), and its `status`: the

@@ -54,8 +54,9 @@ The installer:
    file for it, with the same YubiKey
    ([A new host key](secrets.md#a-new-host-key)).
 4. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
-5. Partitions and formats it with disko, runs `nixos-install`, and puts the
-   age key in `/persist`.
+5. Partitions and formats it with disko, puts the age key in `/persist`,
+   and runs `nixos-install`, whose activation decrypts the secrets with it:
+   the accounts have their passwords from the first boot.
 6. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
    remote (pushing over SSH), ready for `jj`.
 
@@ -99,22 +100,6 @@ firmware takes the keys once, in setup mode:
 A firmware update (fwupd, on rocinante) or a new revocation list can change
 PCR 7. The next boot asks for the LUKS password then; after it, rebind with
 `sudo enroll-tpm`. That's also the fix after a TPM reset.
-
-## Why the accounts start locked
-
-Neither `root` nor `jorrit` can get their sops-encrypted password inside
-`nixos-install`'s bare chroot: a fresh install has no age key of its own
-yet, and there is no systemd there, so pcscd's socket activation for the
-YubiKey doesn't apply. The installer leaves both accounts locked.
-
-The passwords are set by services on every boot anyway, not at activation:
-`boot.initrd.systemd.enable`, which the ZFS rollback needs, makes each
-boot's activation run chrooted into `/sysroot` from the initrd, before the
-real systemd and pcscd exist there. So `set-password-root`,
-`set-password-jorrit` and `tpm2-luks-enroll` decrypt their own secret as a
-real service under the booted system's systemd, with the host's own age key,
-which the installer put in place. Log in as
-`jorrit` (or `root`) once that has had a moment to run after boot.
 
 ## Joining the tailnet
 

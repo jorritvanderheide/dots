@@ -17,7 +17,6 @@
       subdomain = "bazarr";
       port = 6767;
       libraryDir = "${config.my.media-library.dir}/library";
-      passwordPath = "/run/secrets/bazarr_password";
     in
     {
       config = lib.mkIf cfg.enable (
@@ -30,15 +29,8 @@
               name = "bazarr";
             };
           })
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt Bazarr's login password hash from sops";
-            files.${passwordPath}.key = "bazarr_password";
-            for = [ "bazarr" ];
-            name = "bazarr-secrets";
-            wantedBy = [ "multi-user.target" ];
-          })
           {
+            sops.secrets.bazarr_password.restartUnits = [ "bazarr.service" ];
             users.users.bazarr.extraGroups = [ "media" ];
 
             my.offsite-backup.entries.servarr = {
@@ -67,7 +59,7 @@
               settings = {
                 auth = {
                   # The password's md5 hex digest, which is what Bazarr compares.
-                  password._secret = passwordPath;
+                  password._secret = config.sops.secrets.bazarr_password.path;
 
                   type = "form";
                   username = cfg.webuiUser;

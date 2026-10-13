@@ -1,14 +1,9 @@
 # jorrit's mail accounts, for Thunderbird, and their passwords. The user
 # itself is in configuration.nix.
-{
-  inputs,
-  ...
-}:
-{
+_: {
   flake.nixosModules.jorrit =
     {
-      lib,
-      pkgs,
+      config,
       ...
     }:
     {
@@ -16,7 +11,7 @@
         accounts.email.accounts = {
           "Radboud Outlook" = {
             address = "jorrit.vanderheide@ru.nl";
-            passwordCommand = "cat /run/secrets/email_password_outlook";
+            passwordCommand = "cat ${config.sops.secrets.email_password_outlook.path}";
             primary = true;
             realName = "Jorrit van der Heide";
             userName = "jorrit.vanderheide@ru.nl";
@@ -44,7 +39,7 @@
 
           "Radboud Science" = {
             address = "jorrit.vanderheide@science.ru.nl";
-            passwordCommand = "cat /run/secrets/email_password_science";
+            passwordCommand = "cat ${config.sops.secrets.email_password_science.path}";
             primary = false;
             realName = "Jorrit van der Heide";
             thunderbird.enable = true;
@@ -65,21 +60,9 @@
       };
 
       # Thunderbird's passwordCommand reads these, long after boot.
-      systemd.services.email-secrets = inputs.self.lib.mkSopsService {
-        inherit pkgs;
-        description = "Decrypt Thunderbird email passwords from sops";
-        wantedBy = [ "multi-user.target" ];
-
-        files =
-          lib.genAttrs
-            [
-              "/run/secrets/email_password_outlook"
-              "/run/secrets/email_password_science"
-            ]
-            (path: {
-              key = baseNameOf path;
-              owner = "jorrit";
-            });
+      sops.secrets = {
+        email_password_outlook.owner = "jorrit";
+        email_password_science.owner = "jorrit";
       };
     };
 }

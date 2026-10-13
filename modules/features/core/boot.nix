@@ -28,6 +28,9 @@
       };
 
       config = {
+        # For tpm2-luks-enroll.
+        sops.secrets.luks_password = { };
+
         boot = {
           # Suppress raw kernel log messages on the console too
           consoleLogLevel = 0;
@@ -139,21 +142,14 @@
         # would unlock for any system booted on the machine.
         # `sudo enroll-tpm` re-enrolls, e.g. after a firmware update or TPM
         # reset (see docs/install.md).
-        systemd.services.tpm2-luks-enroll = inputs.self.lib.mkSopsService {
-          inherit pkgs;
+        systemd.services.tpm2-luks-enroll = {
           description = "Bind a LUKS TPM2 keyslot for unlock";
-          extraServiceConfig.StateDirectory = "tpm2-luks-enroll";
           wantedBy = [ "multi-user.target" ];
-
-          extraUnitConfig = {
-            ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
-            ConditionSecurity = "uefi-secureboot";
-          };
 
           # wipe-slot is a separate call so systemd-cryptenroll can't
           # short-circuit ("already enrolled") and leave a stale token.
           script = ''
-            PW="$(sops_extract luks_password)"
+            PW="$(<${config.sops.secrets.luks_password.path})"
             for dev in ${lib.concatStringsSep " " allLuksDevices}; do
               PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
                 --wipe-slot=tpm2 "$dev" 2>/dev/null || true
@@ -164,6 +160,16 @@
             done
             ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done
           '';
+
+          serviceConfig = {
+            StateDirectory = "tpm2-luks-enroll";
+            Type = "oneshot";
+          };
+
+          unitConfig = {
+            ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
+            ConditionSecurity = "uefi-secureboot";
+          };
         };
       };
     };

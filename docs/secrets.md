@@ -2,7 +2,7 @@
 
 Each host has its own secrets file, `secrets/<host>.yaml`, encrypted with
 [sops](https://github.com/getsops/sops) for the recipients in `.sops.yaml`.
-A host only ever decrypts its own file (`/etc/sops/secrets.yaml` points at
+A host only ever decrypts its own file (`sops.defaultSopsFile` points at
 it), so one host taken over doesn't give up the other's secrets.
 
 Each host decrypts at boot with an age key of its own, in
@@ -137,10 +137,10 @@ owner's key, through the normal service (so it still reads a snapshot of
 
 ```sh
 sudo systemctl stop restic-backups-offsite
-sudo bash -c 'umask 077; read -p "owner access key: " a; read -sp "owner secret key: " s; echo; printf "AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n" "$a" "$s" > /run/secrets/restic-s3-env'
+sudo bash -c 'umask 077; read -p "owner access key: " a; read -sp "owner secret key: " s; echo; printf "AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n" "$a" "$s" > /run/secrets/rendered/restic-s3-env'
 sudo systemctl start --no-block restic-backups-offsite
 journalctl -fu restic-backups-offsite         # until: snapshot ... saved
-sudo systemctl restart offsite-backup-secrets  # the host's own key again
+sudo /run/current-system/activate             # the host's own key again
 ```
 
 Don't deploy meanwhile: that can put the host's key back halfway.

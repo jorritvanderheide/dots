@@ -23,10 +23,9 @@
                 end
               '';
 
-              # Rebuilds want the YubiKey in. Activation doesn't need it (the
-              # sops-secret services, see mkSopsService, decrypt with the
-              # host's own age key); the check is by choice, so the key is at
-              # hand whenever the system changes.
+              # Rebuilds want the YubiKey in. Activation doesn't need it
+              # (sops-nix decrypts with the host's own age key); the check is
+              # by choice, so the key is at hand whenever the system changes.
               # Only for the local host: ndeploy activates remotely.
               functions.check-yubikey = ''
                 if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0

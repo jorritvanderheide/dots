@@ -1,180 +1,162 @@
-{
-  inputs,
-  ...
-}:
-{
+_: {
   # The laptop's Wi-Fi networks. A module of their own so the server, which
   # is wired, never decrypts their passwords.
   flake.nixosModules.wifi =
-    { lib, pkgs, ... }:
+    { config, lib, ... }:
+    let
+      # The variable each profile uses, and its sops key.
+      secrets = {
+        EDUROAM_IDENTITY = "wireless_eduroam_identity";
+        EDUROAM_PSK = "wireless_eduroam";
+        HOTSPOT_PSK = "wireless_hotspot";
+        IOTROAM_PSK = "wireless_iotroam";
+        WIFI_HOME_24_SSID = "wireless_home_24_ssid";
+        WIFI_HOME_PSK = "wireless_home";
+        WIFI_HOME_SSID = "wireless_home_ssid";
+      };
+    in
     {
-      config = lib.mkMerge [
-        {
-          networking.networkmanager.ensureProfiles = {
-            environmentFiles = [ "/run/wireless-secrets.env" ];
+      config = {
+        sops.secrets = lib.genAttrs (lib.attrValues secrets) (_: { });
 
-            profiles = {
-              eduroam = {
-                ipv4.method = "auto";
-                ipv6.method = "auto";
+        networking.networkmanager.ensureProfiles = {
+          environmentFiles = [ config.sops.templates."wireless.env".path ];
 
-                "802-1x" = {
-                  anonymous-identity = "anonymous@ru.nl";
+          profiles = {
+            eduroam = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
 
-                  # No ca-cert: RU's RADIUS backend is inconsistent about
-                  # sending its intermediate cert chain, and wpa_supplicant's
-                  # OpenSSL backend won't fill the gap from a local CA store
-                  # during a live handshake (even a byte-for-byte correct
-                  # bundle from RU's own eduroam CAT installer didn't help).
-                  # Set it, from that installer, once RU's server sends the
-                  # whole chain.
-                  eap = "peap";
+              "802-1x" = {
+                anonymous-identity = "anonymous@ru.nl";
 
-                  identity = "$EDUROAM_IDENTITY";
-                  password = "$EDUROAM_PSK";
-                  phase2-auth = "mschapv2";
-                };
+                # No ca-cert: RU's RADIUS backend is inconsistent about
+                # sending its intermediate cert chain, and wpa_supplicant's
+                # OpenSSL backend won't fill the gap from a local CA store
+                # during a live handshake (even a byte-for-byte correct
+                # bundle from RU's own eduroam CAT installer didn't help).
+                # Set it, from that installer, once RU's server sends the
+                # whole chain.
+                eap = "peap";
 
-                connection = {
-                  id = "eduroam";
-                  permissions = "user:jorrit:";
-                  type = "wifi";
-                };
-
-                wifi = {
-                  mode = "infrastructure";
-                  ssid = "eduroam";
-                };
-
-                wifi-security = {
-                  key-mgmt = "wpa-eap";
-                };
+                identity = "$EDUROAM_IDENTITY";
+                password = "$EDUROAM_PSK";
+                phase2-auth = "mschapv2";
               };
 
-              home = {
-                ipv4.method = "auto";
-                ipv6.method = "auto";
-
-                connection = {
-                  autoconnect-priority = 10;
-                  id = "Home";
-                  permissions = "user:jorrit:";
-                  type = "wifi";
-                };
-
-                wifi = {
-                  mode = "infrastructure";
-                  ssid = "$WIFI_HOME_SSID";
-                };
-
-                wifi-security = {
-                  key-mgmt = "wpa-psk";
-                  psk = "$WIFI_HOME_PSK";
-                };
+              connection = {
+                id = "eduroam";
+                permissions = "user:jorrit:";
+                type = "wifi";
               };
 
-              home-24 = {
-                ipv4.method = "auto";
-                ipv6.method = "auto";
-
-                connection = {
-                  id = "Home 2.4";
-                  permissions = "user:jorrit:";
-                  type = "wifi";
-                };
-
-                wifi = {
-                  mode = "infrastructure";
-                  ssid = "$WIFI_HOME_24_SSID";
-                };
-
-                wifi-security = {
-                  key-mgmt = "wpa-psk";
-                  psk = "$WIFI_HOME_PSK";
-                };
+              wifi = {
+                mode = "infrastructure";
+                ssid = "eduroam";
               };
 
-              hotspot = {
-                ipv4.method = "auto";
-                ipv6.method = "auto";
+              wifi-security = {
+                key-mgmt = "wpa-eap";
+              };
+            };
 
-                connection = {
-                  autoconnect-priority = 100;
-                  id = "Jorrit's Fairphone";
-                  permissions = "user:jorrit:";
-                  type = "wifi";
-                };
+            home = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
 
-                wifi = {
-                  mode = "infrastructure";
-                  ssid = "Jorrit's Fairphone";
-                };
-
-                wifi-security = {
-                  key-mgmt = "wpa-psk";
-                  psk = "$HOTSPOT_PSK";
-                };
+              connection = {
+                autoconnect-priority = 10;
+                id = "Home";
+                permissions = "user:jorrit:";
+                type = "wifi";
               };
 
-              iotroam = {
-                ipv4.method = "auto";
-                ipv6.method = "auto";
+              wifi = {
+                mode = "infrastructure";
+                ssid = "$WIFI_HOME_SSID";
+              };
 
-                connection = {
-                  autoconnect-priority = 10;
-                  id = "iotroam";
-                  permissions = "user:jorrit:";
-                  type = "wifi";
-                };
+              wifi-security = {
+                key-mgmt = "wpa-psk";
+                psk = "$WIFI_HOME_PSK";
+              };
+            };
 
-                wifi = {
-                  mode = "infrastructure";
-                  ssid = "iotroam";
-                };
+            home-24 = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
 
-                wifi-security = {
-                  key-mgmt = "wpa-psk";
-                  psk = "$IOTROAM_PSK";
-                };
+              connection = {
+                id = "Home 2.4";
+                permissions = "user:jorrit:";
+                type = "wifi";
+              };
+
+              wifi = {
+                mode = "infrastructure";
+                ssid = "$WIFI_HOME_24_SSID";
+              };
+
+              wifi-security = {
+                key-mgmt = "wpa-psk";
+                psk = "$WIFI_HOME_PSK";
+              };
+            };
+
+            hotspot = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
+
+              connection = {
+                autoconnect-priority = 100;
+                id = "Jorrit's Fairphone";
+                permissions = "user:jorrit:";
+                type = "wifi";
+              };
+
+              wifi = {
+                mode = "infrastructure";
+                ssid = "Jorrit's Fairphone";
+              };
+
+              wifi-security = {
+                key-mgmt = "wpa-psk";
+                psk = "$HOTSPOT_PSK";
+              };
+            };
+
+            iotroam = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
+
+              connection = {
+                autoconnect-priority = 10;
+                id = "iotroam";
+                permissions = "user:jorrit:";
+                type = "wifi";
+              };
+
+              wifi = {
+                mode = "infrastructure";
+                ssid = "iotroam";
+              };
+
+              wifi-security = {
+                key-mgmt = "wpa-psk";
+                psk = "$IOTROAM_PSK";
               };
             };
           };
-        }
+        };
 
-        # The env file NM's own ensure-profiles unit reads, made before it
-        # starts.
-        (inputs.self.lib.mkSecretsFor {
-          inherit pkgs;
-          description = "Decrypt wireless PSKs for NetworkManager's declarative profiles";
-          extraServiceConfig.UMask = "0177";
-          for = [ "NetworkManager-ensure-profiles" ];
-          name = "wireless-secrets";
+        # The env file NM's own ensure-profiles unit reads.
+        sops.templates."wireless.env" = {
+          restartUnits = [ "NetworkManager-ensure-profiles.service" ];
 
-          # Each extract is its own assignment statement, not inlined into
-          # the echo: `echo "X=$(failing_cmd)"` swallows failing_cmd's
-          # exit status (echo itself still succeeds), so `set -e` never
-          # catches a decrypt failure and the service "succeeds" having
-          # written empty PSKs. A bare `VAR="$(failing_cmd)"` assignment
-          # does propagate the failure.
-          script = ''
-            WIFI_HOME_PSK="$(sops_extract wireless_home)"
-            WIFI_HOME_SSID="$(sops_extract wireless_home_ssid)"
-            WIFI_HOME_24_SSID="$(sops_extract wireless_home_24_ssid)"
-            EDUROAM_IDENTITY="$(sops_extract wireless_eduroam_identity)"
-            EDUROAM_PSK="$(sops_extract wireless_eduroam)"
-            HOTSPOT_PSK="$(sops_extract wireless_hotspot)"
-            IOTROAM_PSK="$(sops_extract wireless_iotroam)"
-            {
-              echo "WIFI_HOME_PSK=$WIFI_HOME_PSK"
-              echo "WIFI_HOME_SSID=$WIFI_HOME_SSID"
-              echo "WIFI_HOME_24_SSID=$WIFI_HOME_24_SSID"
-              echo "EDUROAM_IDENTITY=$EDUROAM_IDENTITY"
-              echo "EDUROAM_PSK=$EDUROAM_PSK"
-              echo "HOTSPOT_PSK=$HOTSPOT_PSK"
-              echo "IOTROAM_PSK=$IOTROAM_PSK"
-            } > /run/wireless-secrets.env
-          '';
-        })
-      ];
+          content = lib.concatStrings (
+            lib.mapAttrsToList (var: key: "${var}=${config.sops.placeholder.${key}}\n") secrets
+          );
+        };
+      };
     };
 }

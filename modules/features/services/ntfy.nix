@@ -10,14 +10,12 @@
   flake.nixosModules.ntfy =
     {
       config,
-      pkgs,
       ...
     }:
     let
       cfg = config.my.ntfy;
       subdomain = "alerts";
       port = 2586;
-      envPath = "/run/secrets/ntfy_env";
     in
     {
       options.my.ntfy = {
@@ -44,26 +42,10 @@
               path = "/v1/health";
             };
           })
-
-          # The user's password hash (`ntfy user hash`) and Gatus's token
-          # (`ntfy token generate`). Single-quoted, so systemd keeps the
-          # hash's $ signs as they are.
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt ntfy's user and token from sops";
-            extraServiceConfig.UMask = "0177";
-            for = [ "ntfy-sh" ];
-            name = "ntfy-secrets";
-            wantedBy = [ "multi-user.target" ];
-
-            script = ''
-              hash="$(sops_extract ntfy_password_hash)"
-              token="$(sops_extract ntfy_token)"
-              install -d -m 0755 /run/secrets
-              printf "NTFY_AUTH_USERS='jorrit:%s:user'\nNTFY_AUTH_TOKENS='jorrit:%s:gatus'\n" "$hash" "$token" > ${envPath}
-            '';
-          })
           {
+            sops.secrets.ntfy_password_hash = { };
+            sops.secrets.ntfy_token = { };
+
             # DynamicUser, like Prowlarr (servarr/default.nix): no fixed owner to
             # give the persisted directory. The cache is what a phone that
             # was off the tailnet catches up from, so it survives a reboot.
@@ -76,7 +58,7 @@
 
             services.ntfy-sh = {
               enable = true;
-              environmentFile = envPath;
+              environmentFile = config.sops.templates."ntfy.env".path;
 
               settings = {
                 auth-access = [ "jorrit:${cfg.topic}:rw" ];
@@ -90,6 +72,18 @@
 
                 listen-http = "127.0.0.1:${toString port}";
               };
+            };
+
+            # The user's password hash (`ntfy user hash`) and Gatus's token
+            # (`ntfy token generate`). Single-quoted, so systemd keeps the
+            # hash's $ signs as they are.
+            sops.templates."ntfy.env" = {
+              restartUnits = [ "ntfy-sh.service" ];
+
+              content = ''
+                NTFY_AUTH_USERS='jorrit:${config.sops.placeholder.ntfy_password_hash}:user'
+                NTFY_AUTH_TOKENS='jorrit:${config.sops.placeholder.ntfy_token}:gatus'
+              '';
             };
           }
         ]

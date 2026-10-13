@@ -14,7 +14,6 @@
       cfg = config.my.vaultwarden;
       subdomain = "passwords";
       port = 8222;
-      envPath = "/run/secrets/vaultwarden_env";
     in
     {
       options.my.vaultwarden.enable = lib.mkEnableOption "Vaultwarden password manager server";
@@ -31,18 +30,6 @@
             status = {
               group = "productivity";
               name = "vaultwarden";
-            };
-          })
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt Vaultwarden environment file from sops";
-            for = [ "vaultwarden" ];
-            name = "vaultwarden-secrets";
-            wantedBy = [ "multi-user.target" ];
-
-            files.${envPath} = {
-              key = "vaultwarden_env";
-              owner = "vaultwarden";
             };
           })
           {
@@ -81,7 +68,7 @@
             services.vaultwarden = {
               enable = true;
               backupDir = "/var/backup/vaultwarden";
-              environmentFile = envPath;
+              environmentFile = config.sops.secrets.vaultwarden_env.path;
 
               config = {
                 DOMAIN = "https://${domain}";
@@ -95,6 +82,11 @@
                 ROCKET_PORT = port;
                 SIGNUPS_ALLOWED = false;
               };
+            };
+
+            sops.secrets.vaultwarden_env = {
+              owner = "vaultwarden";
+              restartUnits = [ "vaultwarden.service" ];
             };
 
             systemd.services.vaultwarden.serviceConfig = {

@@ -90,9 +90,8 @@ boot, sops secrets, home-manager, and fish.
 
 ## 4 Documentation
 
-- [**Installing a host**](docs/install.md) - The ISO and the installer, why
-  accounts start locked, joining the tailnet, restoring data, new hosts, and
-  losing a machine.
+- [**Installing a host**](docs/install.md) - The ISO and the installer,
+  joining the tailnet, restoring data, new hosts, and losing a machine.
 - [**Secrets and keys**](docs/secrets.md) - The per-host files and their
   keys, changing a secret, adding or revoking a key, and the passphrase
   fallback.

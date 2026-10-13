@@ -44,7 +44,7 @@ tailnet sources that don't arrive on `tailscale0`.
 
 - can't decrypt: dapple's age key is root's alone (0400, in a 0700
   directory), and the YubiKey, where one is plugged in, answers root and a
-  desktop session only (a polkit rule in `secrets.nix`);
+  desktop session only (polkit's default policy);
 - can't read the decrypted secrets: they are in `/run/secrets`, readable by
   root or the one service that needs them, and kept off command lines
   (`/proc/*/cmdline` is readable by everyone);

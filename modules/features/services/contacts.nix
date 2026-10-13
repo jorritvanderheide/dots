@@ -7,14 +7,12 @@
   flake.nixosModules.contacts =
     {
       config,
-      pkgs,
       ...
     }:
     let
       cfg = config.my.contacts;
       subdomain = "contacts";
       port = 5232;
-      htpasswdPath = "/run/secrets/radicale_htpasswd";
     in
     {
       options.my.contacts.enable = lib.mkEnableOption "Radicale CardDAV/CalDAV server";
@@ -27,18 +25,6 @@
             status = {
               group = "productivity";
               name = "radicale";
-            };
-          })
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt Radicale's htpasswd file from sops";
-            for = [ "radicale" ];
-            name = "radicale-secrets";
-            wantedBy = [ "multi-user.target" ];
-
-            files.${htpasswdPath} = {
-              key = "radicale_htpasswd";
-              owner = "radicale";
             };
           })
           {
@@ -65,10 +51,15 @@
 
                 auth = {
                   htpasswd_encryption = "bcrypt";
-                  htpasswd_filename = htpasswdPath;
+                  htpasswd_filename = config.sops.secrets.radicale_htpasswd.path;
                   type = "htpasswd";
                 };
               };
+            };
+
+            sops.secrets.radicale_htpasswd = {
+              owner = "radicale";
+              restartUnits = [ "radicale.service" ];
             };
 
             systemd.services.radicale.serviceConfig = {

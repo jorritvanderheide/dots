@@ -54,22 +54,6 @@
               name = "home-assistant";
             };
           })
-
-          # What the configuration takes with !secret, from sops: a YAML
-          # document under home_assistant_secrets.
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt Home Assistant's secrets.yaml from sops";
-            extraServiceConfig.UMask = "0177";
-            for = [ "home-assistant" ];
-            name = "home-assistant-secrets";
-            wantedBy = [ "multi-user.target" ];
-
-            script = ''
-              sops_extract home_assistant_secrets > ${config.services.home-assistant.configDir}/secrets.yaml
-              chown hass:hass ${config.services.home-assistant.configDir}/secrets.yaml
-            '';
-          })
           {
             # ZHA: let HA open the Zigbee dongle's serial port.
             users.users.hass.extraGroups = [ "dialout" ];
@@ -139,6 +123,13 @@
               ];
             };
 
+            # What the configuration takes with !secret, from sops: a YAML
+            # document under home_assistant_secrets.
+            sops.secrets.home_assistant_secrets = {
+              owner = "hass";
+              restartUnits = [ "home-assistant.service" ];
+            };
+
             systemd.services.home-assistant.serviceConfig = {
               # Upstream grants these for default_config's DHCP sniffing and
               # raw Bluetooth, neither of which this needs. With them, a
@@ -150,10 +141,15 @@
               Restart = lib.mkForce "always";
             };
 
-            # The include above stops HA from starting if the file is
-            # missing. "f" only creates it; existing content is left alone.
             systemd.tmpfiles.rules = [
+              # The include above stops HA from starting if the file is
+              # missing. "f" only creates it; existing content is left alone.
               "f ${config.services.home-assistant.configDir}/automations.yaml 0644 hass hass - []"
+
+              # A link, not sops-nix's own `path`: sops-nix makes that during
+              # activation, before the bind mount of the persisted
+              # directory, which would hide it.
+              "L+ ${config.services.home-assistant.configDir}/secrets.yaml - - - - ${config.sops.secrets.home_assistant_secrets.path}"
             ];
           }
 

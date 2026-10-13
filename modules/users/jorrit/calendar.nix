@@ -1,21 +1,42 @@
 # jorrit's calendars in noctalia, which come from Proton. The user itself
 # is in configuration.nix.
 {
-  inputs,
+  lib,
   ...
 }:
 {
   flake.nixosModules.jorrit =
     {
-      pkgs,
+      config,
       ...
     }:
+    let
+      accounts = [
+        {
+          color = "primary";
+          id = "jorrit";
+          name = "Jorrit";
+        }
+        {
+          color = "secondary";
+          id = "jeltje";
+          name = "Jeltje";
+        }
+        {
+          color = "tertiary";
+          id = "gezamenlijk";
+          name = "Gezamenlijk";
+        }
+      ];
+      secret = account: "proton_calendar_${account.id}";
+    in
     {
-      # The Proton calendar accounts, rendered from sops by
-      # noctalia-calendar-secrets.
+      sops.secrets = lib.genAttrs (map secret accounts) (_: { });
+
+      # The Proton calendar accounts, rendered from sops.
       home-manager.users.jorrit.programs.noctalia.settings = {
         calendar.enabled = true;
-        include.files = [ "/run/secrets/noctalia-calendar.toml" ];
+        include.files = [ config.sops.templates."noctalia-calendar.toml".path ];
       };
 
       # Proton Calendar has no CalDAV, only ICS share links, and those
@@ -23,27 +44,17 @@
       # take the link inline as server_url (no password_file like CalDAV),
       # so the whole account table is rendered here and pulled in via
       # noctalia's [include] instead of living in the store.
-      systemd.services.noctalia-calendar-secrets = inputs.self.lib.mkSopsService {
-        inherit pkgs;
-        description = "Render noctalia Proton Calendar accounts from sops";
-        extraServiceConfig.UMask = "0177";
-        wantedBy = [ "multi-user.target" ];
+      sops.templates."noctalia-calendar.toml" = {
+        owner = "jorrit";
 
-        script = ''
-          install -d -m 0755 /run/secrets
-          account() {
-            url="$(sops_extract "proton_calendar_$1")"
-            printf '[calendar.account.proton_%s]\ntype = "ics"\nname = "%s"\ncolor = "%s"\nserver_url = "%s"\n\n' \
-              "$1" "$2" "$3" "$url"
-          }
-          {
-            account jorrit Jorrit primary
-            account jeltje Jeltje secondary
-            account gezamenlijk Gezamenlijk tertiary
-          } > /run/secrets/noctalia-calendar.toml.tmp
-          chown jorrit /run/secrets/noctalia-calendar.toml.tmp
-          mv /run/secrets/noctalia-calendar.toml.tmp /run/secrets/noctalia-calendar.toml
-        '';
+        content = lib.concatMapStrings (account: ''
+          [calendar.account.proton_${account.id}]
+          type = "ics"
+          name = "${account.name}"
+          color = "${account.color}"
+          server_url = "${config.sops.placeholder.${secret account}}"
+
+        '') accounts;
       };
     };
 }

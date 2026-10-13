@@ -12,9 +12,6 @@
     }:
     let
       cfg = config.my.offsite-backup;
-      resticPasswordPath = "/run/secrets/restic_password";
-      resticEnvPath = "/run/secrets/restic-s3-env";
-      healthcheckTokenPath = "/run/secrets/offsite-backup-healthcheck-token";
 
       paths = cfg.paths ++ lib.concatMap (entry: entry.paths) (lib.attrValues cfg.entries);
 
@@ -143,143 +140,128 @@
         };
       };
 
-      config = lib.mkIf cfg.enable (
-        lib.mkMerge [
-          # restic reads its S3 credentials from the environment and its
-          # repo password from a file; render both at boot from sops via the
-          # YubiKey identity (see lib.mkSopsService) so they never land in
-          # the store.
-          (inputs.self.lib.mkSecretsFor {
-            inherit pkgs;
-            description = "Decrypt Storj/restic credentials from sops";
-            for = [ "restic-backups-offsite" ];
-            name = "offsite-backup-secrets";
-            wantedBy = [ "multi-user.target" ];
+      config = lib.mkIf cfg.enable {
+        environment.systemPackages = [ restoreCommand ];
 
-            files = {
-              ${resticPasswordPath}.key = "restic_password";
-            }
-            // lib.optionalAttrs (cfg.healthcheckUrl != null) {
-              ${healthcheckTokenPath}.key = "gatus_push_token";
-            };
+        services.restic.backups.offsite = {
+          # No forget --prune and no check here: the host's Storj credentials
+          # can't delete, so ransomware on the host can't wipe or overwrite
+          # its backups (Storj won't overwrite without delete rights either).
+          # Pruning needs deletes and checking needs the locks gone, which
+          # each backup leaves behind for the same reason: both run by hand,
+          # from rocinante, with the owner's key (`nix run .#offsite-prune`).
 
-            # Assignments first: a failing sops_extract inside printf's
-            # arguments wouldn't stop the script (set -e only sees printf),
-            # and restic would get empty credentials.
-            script = ''
-              key_id="$(sops_extract storj_access_key)"
-              secret_key="$(sops_extract storj_secret_key)"
-              printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' "$key_id" "$secret_key" > ${resticEnvPath}
-            '';
-          })
-          {
-            environment.systemPackages = [ restoreCommand ];
+          inherit paths;
+          environmentFile = config.sops.templates.restic-s3-env.path;
+          exclude = lib.concatMap (entry: entry.exclude) (lib.attrValues cfg.entries);
 
-            services.restic.backups.offsite = {
-              # No forget --prune and no check here: the host's Storj credentials
-              # can't delete, so ransomware on the host can't wipe or overwrite
-              # its backups (Storj won't overwrite without delete rights either).
-              # Pruning needs deletes and checking needs the locks gone, which
-              # each backup leaves behind for the same reason: both run by hand,
-              # from rocinante, with the owner's key (`nix run .#offsite-prune`).
+          # Larger packs => far fewer objects/segments on Storj (default 16 MiB).
+          extraBackupArgs = [ "--pack-size=64" ];
 
-              inherit paths;
-              environmentFile = resticEnvPath;
-              exclude = lib.concatMap (entry: entry.exclude) (lib.attrValues cfg.entries);
+          initialize = true;
+          passwordFile = config.sops.secrets.restic_password.path;
 
-              # Larger packs => far fewer objects/segments on Storj (default 16 MiB).
-              extraBackupArgs = [ "--pack-size=64" ];
+          # Storj's S3-compatible gateway (not Amazon; same endpoint the old
+          # rclone job used). restic encrypts client-side, so the gateway only
+          # ever sees ciphertext.
+          repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
 
-              initialize = true;
-              passwordFile = resticPasswordPath;
+          timerConfig = {
+            OnCalendar = "daily";
+            Persistent = true;
+            RandomizedDelaySec = "1h";
+          };
+        };
 
-              # Storj's S3-compatible gateway (not Amazon; same endpoint the old
-              # rclone job used). restic encrypts client-side, so the gateway only
-              # ever sees ciphertext.
-              repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
+        # restic reads its S3 credentials from the environment (the
+        # template) and its repo password from a file.
+        sops.secrets = {
+          restic_password = { };
+          storj_access_key = { };
+          storj_secret_key = { };
+        }
+        // lib.optionalAttrs (cfg.healthcheckUrl != null) {
+          gatus_push_token = { };
+        };
 
-              timerConfig = {
-                OnCalendar = "daily";
-                Persistent = true;
-                RandomizedDelaySec = "1h";
-              };
-            };
+        sops.templates.restic-s3-env.content = ''
+          AWS_ACCESS_KEY_ID=${config.sops.placeholder.storj_access_key}
+          AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.storj_secret_key}
+        '';
 
-            systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrl != null) {
-              description = "Notify gatus that the offsite backup succeeded";
-              path = [ pkgs.curl ];
-              serviceConfig.Type = "oneshot";
+        systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrl != null) {
+          description = "Notify gatus that the offsite backup succeeded";
+          path = [ pkgs.curl ];
+          serviceConfig.Type = "oneshot";
 
-              # The header on stdin, not in curl's arguments, which any local
-              # user can read.
-              script = ''
-                TOKEN="$(<${healthcheckTokenPath})"
-                curl -X POST -fsS -o /dev/null --config - ${lib.escapeShellArg cfg.healthcheckUrl} <<<"header = \"Authorization: Bearer $TOKEN\""
-              '';
-            };
+          # The header on stdin, not in curl's arguments, which any local
+          # user can read.
+          script = ''
+            TOKEN="$(<${config.sops.secrets.gatus_push_token.path})"
+            curl -X POST -fsS -o /dev/null --config - ${lib.escapeShellArg cfg.healthcheckUrl} <<<"header = \"Authorization: Bearer $TOKEN\""
+          '';
+        };
 
-            # A unit of its own: every command of the backup's unit, even a "+"
-            # one, starts with the mounts from the snapshot, so the snapshot has
-            # to be mounted before that unit starts. Mounted by hand, not reached
-            # through /persist/.zfs: ZFS can't automount it while systemd sets up
-            # the backup's mounts. Destroyed once the backup has stopped and no
-            # longer needs it.
-            systemd.services.offsite-backup-snapshot = {
-              description = "ZFS snapshot of /persist for the offsite backup";
-              unitConfig.StopWhenUnneeded = true;
+        # A unit of its own: every command of the backup's unit, even a "+"
+        # one, starts with the mounts from the snapshot, so the snapshot has
+        # to be mounted before that unit starts. Mounted by hand, not reached
+        # through /persist/.zfs: ZFS can't automount it while systemd sets up
+        # the backup's mounts. Destroyed once the backup has stopped and no
+        # longer needs it.
+        systemd.services.offsite-backup-snapshot = {
+          description = "ZFS snapshot of /persist for the offsite backup";
+          unitConfig.StopWhenUnneeded = true;
 
-              path = [
-                config.boot.zfs.package
-                pkgs.util-linux
-              ];
+          path = [
+            config.boot.zfs.package
+            pkgs.util-linux
+          ];
 
-              preStop = ''
-                umount ${snapshotDir}
-                rmdir ${snapshotDir}
-                zfs destroy ${snapshot}
-              '';
+          preStop = ''
+            umount ${snapshotDir}
+            rmdir ${snapshotDir}
+            zfs destroy ${snapshot}
+          '';
 
-              # The first two clean up after an interrupted run.
-              script = ''
-                umount ${snapshotDir} 2>/dev/null || true
-                zfs destroy ${snapshot} 2>/dev/null || true
-                zfs snapshot ${snapshot}
-                mkdir -p ${snapshotDir}
-                mount.zfs -o ro ${snapshot} ${snapshotDir}
-              '';
+          # The first two clean up after an interrupted run.
+          script = ''
+            umount ${snapshotDir} 2>/dev/null || true
+            zfs destroy ${snapshot} 2>/dev/null || true
+            zfs snapshot ${snapshot}
+            mkdir -p ${snapshotDir}
+            mount.zfs -o ro ${snapshot} ${snapshotDir}
+          '';
 
-              serviceConfig = {
-                RemainAfterExit = true;
-                Type = "oneshot";
-              };
-            };
+          serviceConfig = {
+            RemainAfterExit = true;
+            Type = "oneshot";
+          };
+        };
 
-            # Ping the gatus push endpoint only on a successful backup. The restic
-            # unit's own backupCleanupCommand maps to ExecStopPost (runs on failure
-            # too), so use OnSuccess to gate the ping on success.
-            systemd.services.restic-backups-offsite = {
-              after = [ "offsite-backup-snapshot.service" ];
-              requires = [ "offsite-backup-snapshot.service" ];
+        # Ping the gatus push endpoint only on a successful backup. The restic
+        # unit's own backupCleanupCommand maps to ExecStopPost (runs on failure
+        # too), so use OnSuccess to gate the ping on success.
+        systemd.services.restic-backups-offsite = {
+          after = [ "offsite-backup-snapshot.service" ];
+          requires = [ "offsite-backup-snapshot.service" ];
 
-              serviceConfig = {
-                BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
+          serviceConfig = {
+            BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
 
-                # restic refreshes its lock every 5 minutes by deleting the old
-                # one, which these credentials can't, and gives up after 22.5
-                # minutes ("failed to refresh lock in time"); `backup` has no
-                # --no-lock. It saves its index every 10 minutes, so a retry goes
-                # on where the last one stopped: a long run (the first one, a big
-                # import) finishes in steps.
-                Restart = "on-failure";
-                RestartSec = "5min";
-              };
+            # restic refreshes its lock every 5 minutes by deleting the old
+            # one, which these credentials can't, and gives up after 22.5
+            # minutes ("failed to refresh lock in time"); `backup` has no
+            # --no-lock. It saves its index every 10 minutes, so a retry goes
+            # on where the last one stopped: a long run (the first one, a big
+            # import) finishes in steps.
+            Restart = "on-failure";
+            RestartSec = "5min";
+          };
 
-              unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrl != null) [
-                "offsite-backup-healthcheck.service"
-              ];
-            };
-          }
-        ]
-      );
+          unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrl != null) [
+            "offsite-backup-healthcheck.service"
+          ];
+        };
+      };
     };
 }
