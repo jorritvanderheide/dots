@@ -160,5 +160,5 @@ On dapple:
 ```sh
 sudo headscale nodes list                # dapple has tag:server
 sudo nft list ruleset                    # the firewall, as nftables
-systemctl --failed                       # the secret services decrypt without a YubiKey
+systemctl --failed                       # nothing: sops-nix decrypted without a YubiKey
 ```

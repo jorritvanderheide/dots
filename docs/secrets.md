@@ -5,9 +5,9 @@ Each host has its own secrets file, `secrets/<host>.yaml`, encrypted with
 A host only ever decrypts its own file (`sops.defaultSopsFile` points at
 it), so one host taken over doesn't give up the other's secrets.
 
-Each host decrypts at boot with an age key of its own, in
-`/persist/system/var/lib/sops/age.key` on its encrypted disk, readable by
-root only. The disk unlocks with the TPM only under our own secure boot,
+Each host decrypts at activation (every boot and switch) with an age key of
+its own, in `/persist/system/var/lib/sops/age.key` on its encrypted disk,
+readable by root only. The disk unlocks with the TPM only under our own secure boot,
 so the key is as safe as that binding. No host needs a YubiKey to boot.
 
 There are two YubiKeys, and they open the same: either one does

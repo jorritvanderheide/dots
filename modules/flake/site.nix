@@ -1,6 +1,6 @@
 _: {
   # Facts and keys more than one feature or host needs, in inputs.self.lib
-  # with the functions of lib.nix.
+  # with the helpers of lib.nix.
   flake.lib = {
     # Nix signing keys whose store paths a host you deploy to accepts
     # (ssh-server.nix): rocinante's, whose secret half is in its

@@ -14,7 +14,7 @@ modules/
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   users/<user>/<part>.nix         more of the same module: mail, calendars, SSH hosts
-  flake/                          checks, formatter, dev shell, apps, lib, installer ISO
+  flake/                          checks, formatter, dev shell, apps, lib, site, installer ISO
 scripts/                          install, enroll-tpm, offsite-prune, and scripts used by modules
 secrets/                          <host>.yaml, encrypted with sops
 docs/                             this, install, secrets and security
@@ -80,7 +80,7 @@ list.
 ## Shared helpers
 
 What several features need is in `inputs.self.lib`, from two files in
-`modules/flake/`. `lib.nix` has the functions:
+`modules/flake/`. `lib.nix` has the helpers:
 
 - **`tailnetOnly`**: nginx access rules that let in only the tailnet, for a
   vhost or location a service writes itself (headscale's API, new-leaf);

@@ -64,9 +64,9 @@ boot, sops secrets, home-manager, and fish.
   State nobody declared doesn't survive a reboot.
 - **Secrets** are in `secrets/<host>.yaml`, one file per host, encrypted
   with sops for that host's own age key, a YubiKey (PIN-protected for the
-  server's) and a passphrase fallback. They are decrypted at boot by the
-  service that needs them, never written to the Nix store. See
-  [Secrets and keys](docs/secrets.md).
+  server's) and a passphrase fallback. sops-nix decrypts them at
+  activation, with the host's own key, into `/run`, never into the Nix
+  store. See [Secrets and keys](docs/secrets.md).
 - **The server** answers on its tailnet address, with only Headscale and
   New Leaf's share links open to the internet. A Headscale policy limits what
   each tailnet device reaches. [Section 7](#7-network-exposure) lists

@@ -32,7 +32,7 @@ Without a host name, it asks which one to install. It runs in tmux, so if
 the SSH connection drops, the same command takes you back to it.
 `install-host` runs the installer from Codeberg, so push before installing;
 the ISO itself only needs rebuilding when `install-host` or the SSH keys it
-accepts change (`modules/flake/iso.nix`, `modules/flake/lib.nix`), or for a
+accepts change (`modules/flake/iso.nix`, `modules/flake/site.nix`), or for a
 newer NixOS.
 
 A machine without a screen and keyboard has to boot from the stick by itself.
