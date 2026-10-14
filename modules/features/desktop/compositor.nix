@@ -60,12 +60,6 @@ in
         home-manager.sharedModules = [
           system76SchedulerModule
           {
-            # Mask gcr-ssh-agent to prevent it from overriding SSH_AUTH_SOCK
-            xdg.configFile."systemd/user/gcr-ssh-agent.service".source =
-              builtins.toFile "gcr-ssh-agent.service" "";
-            xdg.configFile."systemd/user/gcr-ssh-agent.socket".source =
-              builtins.toFile "gcr-ssh-agent.socket" "";
-
             # Without the ssh component, which conflicts with the Bitwarden SSH
             # agent. The keyring has an empty password: the session logs in
             # automatically, so there is no password to unlock it with, and
