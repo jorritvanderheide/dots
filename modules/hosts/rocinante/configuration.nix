@@ -135,16 +135,6 @@
               };
             };
 
-            my.ssh.knownHosts.dapple = {
-              publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
-
-              hostNames = [
-                "dapple"
-                inputs.self.lib.site.dapple.lanIp
-                inputs.self.lib.site.dapple.tailnetIp
-              ];
-            };
-
             # numtide's cache, for the laptop only (nix-community's is in
             # secrets.nix, for every host).
             nix.settings = {

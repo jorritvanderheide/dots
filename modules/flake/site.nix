@@ -23,6 +23,9 @@ _: {
       vpnDomain = "vpn.bw20.nl";
 
       dapple = {
+        # Its SSH host key, which the ssh feature pins.
+        hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+
         lanIp = "192.168.1.162";
 
         # Headscale hands out addresses in order, and dapple joined first

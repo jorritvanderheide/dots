@@ -6,39 +6,13 @@
 {
   flake.nixosModules.ssh =
     {
-      config,
       pkgs,
       ...
     }:
     let
-      cfg = config.my.ssh;
       inherit (inputs.self.lib.site) dapple;
     in
     {
-      options.my.ssh = {
-        knownHosts = lib.mkOption {
-          default = { };
-          description = "Known SSH hosts for strict host key verification";
-
-          type = lib.types.attrsOf (
-            lib.types.submodule {
-              options = {
-                hostNames = lib.mkOption {
-                  description = "Hostnames and IP addresses for this host";
-                  type = lib.types.listOf lib.types.str;
-                };
-
-                publicKey = lib.mkOption {
-                  description = "SSH public key of the remote host";
-                  type = lib.types.str;
-                };
-              };
-            }
-          );
-        };
-
-      };
-
       config = {
         # Home manager
         home-manager.sharedModules = [
@@ -58,7 +32,7 @@
                   connectTimeout = 10;
                   hostname = dapple.tailnetIp;
 
-                  # Its key is pinned (my.ssh.knownHosts), so a prompt only
+                  # Its key is pinned (programs.ssh.knownHosts), so a prompt only
                   # means another machine, e.g. at 192.168.1.162 on a network
                   # that isn't home: refuse it before a key or the sudo
                   # password goes there.
@@ -86,10 +60,18 @@
         ];
 
         programs.ssh = {
-          inherit (cfg) knownHosts;
-
           # mkDefault lets the password-manager module override this
           startAgent = lib.mkDefault true;
+
+          knownHosts.dapple = {
+            publicKey = dapple.hostKey;
+
+            hostNames = [
+              "dapple"
+              dapple.lanIp
+              dapple.tailnetIp
+            ];
+          };
         };
       };
     };
