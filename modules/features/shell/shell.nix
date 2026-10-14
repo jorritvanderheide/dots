@@ -11,14 +11,20 @@
 
               # switch/boot activate a real generation, so they should only
               # ever run on described, committed code. build/test are for
-              # iterating on dirty working-copy state.
+              # iterating on dirty working-copy state. Always /etc/nixos, the
+              # flake they build, whatever the current directory.
               functions.check-clean = ''
                 if not command -q jj
                   echo "jj is not installed, so uncommitted changes can't be ruled out." >&2
                   return 1
                 end
-                if jj log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null | string length -q
-                  echo "Working copy has uncommitted changes. Describe them first." >&2
+                set -l changes (jj -R /etc/nixos log -r '@ & ~empty()' --no-graph -T 'change_id' 2>/dev/null)
+                or begin
+                  echo "jj can't read /etc/nixos, so uncommitted changes can't be ruled out." >&2
+                  return 1
+                end
+                if test -n "$changes"
+                  echo "/etc/nixos has uncommitted changes. Finish the change first: jj new." >&2
                   return 1
                 end
               '';
