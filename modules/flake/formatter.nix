@@ -25,7 +25,17 @@
           nixfmt.enable = true;
           ruff-format.enable = true;
           shfmt.enable = true;
-          statix.enable = true;
+
+          statix = {
+            enable = true;
+
+            # W20 "repeated_keys" would collapse host configs like
+            #   my.foo.enable = true; my.bar = { ... }; my.baz.enable = true;
+            # into a single nested `my = { ... }` attrset, which is harder to
+            # read and diff than per-feature lines. The statix check reads
+            # this list too (checks.nix).
+            disabled-lints = [ "repeated_keys" ];
+          };
         };
 
         settings = {
@@ -59,7 +69,6 @@
             "**/facter.json"
             "**/noctalia-templates/**"
             ".sops.yaml"
-            "config/statix.toml"
             "docs/**"
             "README.md"
             "secrets/**"

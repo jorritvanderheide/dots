@@ -6,6 +6,7 @@
 {
   perSystem =
     {
+      config,
       pkgs,
       system,
       ...
@@ -19,10 +20,20 @@
     in
     {
       checks = {
-        statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
-          statix check -c ${inputs.self}/config ${inputs.self}
-          touch $out
-        '';
+        # With the lints the formatter disables (formatter.nix). statix only
+        # reads a file named statix.toml.
+        statix =
+          let
+            settings = pkgs.linkFarm "statix-config" {
+              "statix.toml" = (pkgs.formats.toml { }).generate "statix.toml" {
+                disabled = config.treefmt.programs.statix.disabled-lints;
+              };
+            };
+          in
+          pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
+            statix check -c ${settings} ${inputs.self}
+            touch $out
+          '';
       }
       // lib.mapAttrs' (
         name: host: lib.nameValuePair "${name}-system" host.config.system.build.toplevel
