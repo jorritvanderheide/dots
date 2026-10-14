@@ -11,7 +11,16 @@
     }:
     let
       cfg = config.my.calibre-web;
+      inherit (config.services.calibre-web.options) calibreLibrary;
       port = 8083;
+
+      # The same for both vhosts, books and kobo.
+      proxyConfig = ''
+        proxy_buffer_size 1024k;
+        proxy_buffers 4 512k;
+        proxy_busy_buffers_size 1024k;
+        proxy_set_header X-Scheme $scheme;
+      '';
     in
     {
       options.my.calibre-web.lanSync.enable =
@@ -27,11 +36,8 @@
               # to hundreds of MB) with a 413 before calibre-web sees them.
               client_max_body_size 2G;
 
-              proxy_buffer_size 1024k;
-              proxy_buffers 4 512k;
-              proxy_busy_buffers_size 1024k;
-              proxy_set_header X-Scheme $scheme;
-            '';
+            ''
+            + proxyConfig;
 
             status = {
               group = "productivity";
@@ -104,7 +110,7 @@
               Environment = "HOME=/tmp";
               PrivateTmp = true;
 
-              ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} /var/lib/calibre-web/library";
+              ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} ${calibreLibrary}";
               Group = "calibre-web";
 
               # KCC is CPU-heavy on a few-hundred-page volume; don't let
@@ -123,7 +129,7 @@
           };
 
           systemd.tmpfiles.rules = [
-            "d /var/lib/calibre-web/library 0755 calibre-web calibre-web -"
+            "d ${calibreLibrary} 0755 calibre-web calibre-web -"
           ];
         }
         (lib.mkIf cfg.lanSync.enable (
@@ -158,11 +164,8 @@
                   allow ${config.my.lan.subnet};
                   deny all;
 
-                  proxy_buffer_size 1024k;
-                  proxy_buffers 4 512k;
-                  proxy_busy_buffers_size 1024k;
-                  proxy_set_header X-Scheme $scheme;
-                '';
+                ''
+                + proxyConfig;
               };
             };
           }

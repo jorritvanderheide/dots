@@ -25,10 +25,7 @@
       # Not the LAN: a router that source-NATs the port forward would make
       # the internet look like a LAN address. The CLI uses the local socket.
       tailnetOnly = proxyToHeadscale // {
-        extraConfig = inputs.self.lib.tailnetOnly + ''
-
-          proxy_buffering off;
-        '';
+        extraConfig = inputs.self.lib.tailnetOnly + "\n" + proxyToHeadscale.extraConfig;
       };
     in
     {
