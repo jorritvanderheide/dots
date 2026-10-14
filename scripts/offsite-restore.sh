@@ -17,6 +17,11 @@
 # refresh a lock and would give up on a restore longer than 22 minutes.
 # Nothing removes data meanwhile: only offsite-prune can, from rocinante.
 
+# What it downloads and what it replaces come out of folders only their
+# service can read, and land in folders it makes: root's alone, like the
+# log. restic sets the restored files' own modes.
+umask 077
+
 staging=/persist/.offsite-restore
 
 usage() {
