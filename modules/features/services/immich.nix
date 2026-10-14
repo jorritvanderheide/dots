@@ -10,6 +10,7 @@
       ...
     }:
     let
+      db = config.services.immich.database;
       port = 2283;
     in
     {
@@ -39,7 +40,11 @@
         };
 
         # The database is in Postgres, not in these files: a restore loads
-        # Immich's newest nightly dump of it, the way Immich's docs do.
+        # Immich's newest nightly dump of it. The dump holds only Immich's
+        # database, without a CREATE DATABASE, so it goes into that database
+        # the way Immich's own restore does it: from an empty schema, so
+        # nothing a newer migration made outlives it, in one transaction that
+        # stops at the first error.
         my.offsite-backup.entries.immich = {
           paths = [ config.services.immich.mediaLocation ];
 
@@ -47,11 +52,13 @@
             dump=$(find ${config.services.immich.mediaLocation}/backups -name 'immich-db-backup-*.sql.gz' | sort | tail -n 1)
             if [[ -z $dump ]]; then
               echo "No Immich database dump in ${config.services.immich.mediaLocation}/backups." >&2
-              exit 1
+              return 1
             fi
-            ${pkgs.gzip}/bin/gunzip --stdout "$dump" |
-              ${pkgs.gnused}/bin/sed "s/SELECT pg_catalog.set_config('search_path', ''', false);/SELECT pg_catalog.set_config('search_path', 'public, pg_catalog', true);/g" |
-              ${pkgs.util-linux}/bin/runuser -u postgres -- ${config.services.postgresql.package}/bin/psql --quiet --dbname=postgres
+            {
+              echo 'DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO "${db.user}"; GRANT ALL ON SCHEMA public TO public;'
+              ${pkgs.gzip}/bin/gunzip --stdout "$dump"
+            } |
+              ${pkgs.util-linux}/bin/runuser -u postgres -- ${config.services.postgresql.package}/bin/psql --quiet --single-transaction --set ON_ERROR_STOP=on --dbname=${db.name}
           '';
 
           units = [

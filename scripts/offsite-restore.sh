@@ -100,6 +100,9 @@ done
 
 old=/persist/.offsite-restore-old-$(date +%Y%m%dT%H%M%S)
 systemctl stop restic-backups-offsite.timer "${units[@]}"
+# errtrace: the restore commands run inside run_hook, where the trap
+# wouldn't fire otherwise.
+set -E
 trap 'echo "Stopped halfway: ${units[*]} are still stopped, and what was replaced is in ${old}." >&2' ERR
 
 # Through /persist, not the paths themselves: those are bind mounts, and a

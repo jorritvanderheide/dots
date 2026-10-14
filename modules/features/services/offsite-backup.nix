@@ -104,7 +104,7 @@
                 restore = lib.mkOption {
                   type = lib.types.lines;
                   default = "";
-                  description = "Commands `offsite-restore` runs after putting the paths back, with the units still stopped. For data that is restored from a dump of it, like a database.";
+                  description = "Commands `offsite-restore` runs after putting the paths back, with the units still stopped. For data that is restored from a dump of it, like a database. They run in a function: fail with `return 1`, not `exit 1`, so `offsite-restore` says what it left stopped.";
                 };
 
                 units = lib.mkOption {
