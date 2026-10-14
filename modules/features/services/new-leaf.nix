@@ -65,7 +65,10 @@
           };
 
           # A file New Leaf syncs into the public webroot; "/" only redirects.
+          # Through public DNS, so through Cloudflare and the port forward:
+          # MagicDNS points the name at the tailnet vhost.
           cv-share = {
+            dnsResolver = "tcp://1.1.1.1:53";
             group = "productivity";
             url = "https://${domain}/fonts/OFL.txt";
           };

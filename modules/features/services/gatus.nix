@@ -37,12 +37,18 @@
 
       configTemplate = builtins.toJSON (
         {
-          endpoints = lib.mapAttrsToList (name: endpoint: {
-            inherit name;
-            inherit (endpoint) conditions group url;
-            alerts = lib.optional alerting { type = "ntfy"; };
-            interval = "1m";
-          }) cfg.endpoints;
+          endpoints = lib.mapAttrsToList (
+            name: endpoint:
+            {
+              inherit name;
+              inherit (endpoint) conditions group url;
+              alerts = lib.optional alerting { type = "ntfy"; };
+              interval = "1m";
+            }
+            // lib.optionalAttrs (endpoint.dnsResolver != null) {
+              client.dns-resolver = endpoint.dnsResolver;
+            }
+          ) cfg.endpoints;
 
           # A heartbeat turns an endpoint red when its pushes stop: a day
           # and two hours for the daily offsite backup, whose start moves by
@@ -106,6 +112,13 @@
                   type = lib.types.listOf lib.types.str;
                   default = [ "[STATUS] < 400" ];
                   description = "Gatus conditions the response must meet.";
+                };
+
+                dnsResolver = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  default = null;
+                  example = "tcp://1.1.1.1:53";
+                  description = "A DNS server to look the URL's name up with, instead of the host's (which knows the tailnet's names).";
                 };
 
                 group = lib.mkOption {

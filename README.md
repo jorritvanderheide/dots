@@ -195,4 +195,6 @@ interface.
 **rocinante** opens no ports but Tailscale's 41641/udp, and 5353/udp for
 mDNS, to find the installer ISO.
 
-**Outgoing**: restic to Storj, and ACME certificates through Cloudflare DNS.
+**Outgoing**: restic to Storj, ACME certificates through Cloudflare DNS, and
+the status page's check of New Leaf's share links, from outside through
+Cloudflare.
