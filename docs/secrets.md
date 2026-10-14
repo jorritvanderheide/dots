@@ -158,8 +158,9 @@ A host's own key is a plain `age-keygen` identity. The installer makes a
 new one for every host it installs: it replaces `<host>_host` in the
 clone's `secrets/.sops.yaml` with it, re-encrypts `secrets/<host>.yaml`
 with the YubiKey (or passphrase) it decrypts with, and puts the key in
-`/persist/system/var/lib/sops/age.key`. Commit and push both files from
-`/etc/nixos` after the first boot.
+`/persist/system/var/lib/sops/age.key`. Commit and push both files after
+the first boot: from the host's `/etc/nixos`, or for dapple, which has no
+git, from rocinante ([Install](install.md#install) has the commands).
 
 It has to happen there, not after the first boot: without its secrets a
 host's accounts stay locked, and no service can type the PIN that dapple's

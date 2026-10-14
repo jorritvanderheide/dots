@@ -70,9 +70,18 @@ boot on binds the TPM, after which boots unlock by themselves.
 
 The host decrypts its secrets with its own age key from the first boot, so
 it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
-secrets file are uncommitted changes in `/etc/nixos`: commit and push them
-after the first boot, or the next deploy from elsewhere puts the old file
-back.
+secrets file are uncommitted changes in its `/etc/nixos`: commit and push
+them after the first boot, or the next deploy from elsewhere puts the old
+file back. rocinante commits them where they are. dapple has no git: its
+`/etc/nixos` only carries them back, to rocinante, from its `/etc/nixos`:
+
+```sh
+ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml
+ssh dapple cat /etc/nixos/secrets/dapple.yaml > secrets/dapple.yaml.new && mv secrets/dapple.yaml.new secrets/dapple.yaml
+```
+
+Through a `.new` file, so a failed `ssh` leaves yours as they were. They
+are the new public key and an encrypted file: nothing secret travels.
 
 ## Secure boot
 
@@ -200,7 +209,8 @@ Without a second computer, as with a replacement laptop, run
 `install-host --new-hardware <hostname>` on the ISO's console instead, once
 the host's `configuration.nix` is on Codeberg. It gathers the report on the
 machine itself and installs with it. After the first boot, commit and push
-`modules/hosts/<hostname>/facter.json` from `/etc/nixos`.
+`modules/hosts/<hostname>/facter.json` with the new key's files, the same
+way ([Install](#install)).
 
 ## Losing a machine
 

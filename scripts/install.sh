@@ -189,7 +189,7 @@ main() {
 
   log_success "Installation complete! Reboot when ready."
   log_info "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
-  log_info "After the first boot, commit and push secrets/.sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos."
+  log_info "After the first boot, commit and push secrets/.sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos, or from rocinante for a host without git (docs/install.md)."
   if $new_hardware; then
     log_info "Commit modules/hosts/${hostname}/facter.json with them."
   fi
