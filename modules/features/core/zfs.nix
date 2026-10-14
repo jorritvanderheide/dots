@@ -98,7 +98,6 @@
 
             persist = {
               mountpoint = "/persist";
-              postCreateHook = "zfs set com.sun:auto-snapshot=false zroot/persist";
               type = "zfs_fs";
 
               options = {
