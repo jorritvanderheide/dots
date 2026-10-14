@@ -17,6 +17,10 @@
     in
     {
       config = {
+        # Only with the media library mounted: its mount is nofail, and
+        # without it, files would land in the root, which a reboot wipes.
+        systemd.services.qbittorrent.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
+
         users.users.qbittorrent.extraGroups = [ "media" ];
 
         my.ingress.proxies.torrents = {

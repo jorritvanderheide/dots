@@ -24,6 +24,11 @@
 
       config = lib.mkMerge [
         {
+          # Only with the media library mounted: its mount is nofail, and
+          # without it, Jellyfin would see the empty folders tmpfiles makes
+          # in its place.
+          systemd.services.jellyfin.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
+
           assertions = [
             {
               assertion = config.my ? media-library;
