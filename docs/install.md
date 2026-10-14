@@ -66,9 +66,10 @@ enrolls them ([Secure boot](#secure-boot)), and the first boot with secure
 boot on binds the TPM, after which boots unlock by themselves.
 
 The host decrypts its secrets with its own age key from the first boot, so
-it needs no YubiKey. The new key's `.sops.yaml` and re-encrypted secrets
-file are uncommitted changes in `/etc/nixos`: commit and push them after
-the first boot, or the next deploy from elsewhere puts the old file back.
+it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
+secrets file are uncommitted changes in `/etc/nixos`: commit and push them
+after the first boot, or the next deploy from elsewhere puts the old file
+back.
 
 ## Secure boot
 
@@ -218,7 +219,8 @@ YubiKey.
   brings Vaultwarden back, and rocinante can follow.
   If no YubiKey is left, enroll a new one first, with the passphrase
   identity: on the ISO, `nix shell nixpkgs#sops nixpkgs#age-plugin-yubikey`
-  has the tools.
+  has the tools. Run `sops updatekeys` from the clone's `secrets/`, where
+  it finds `.sops.yaml`.
 
 That last case depends on your phone. An offline copy of the passphrase
 identity and your Bitwarden recovery details, kept somewhere safe, removes

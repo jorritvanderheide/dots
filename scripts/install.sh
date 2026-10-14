@@ -115,16 +115,17 @@ main() {
   # The host's own age key, so its services decrypt from the first boot on.
   # They couldn't with a YubiKey: dapple's file only opens with a PIN, which
   # no service can type, and without their secrets the accounts stay
-  # locked. Its public half replaces the old one in .sops.yaml, and the
+  # locked. Its public half replaces the old one in secrets/.sops.yaml, and the
   # host's file is re-encrypted for it, with the same YubiKey.
   log_info "Making ${hostname}'s own age key..."
   (umask 077 && age-keygen -o /tmp/host-age.key 2>/dev/null)
   local host_key
   host_key=$(age-keygen -y /tmp/host-age.key)
-  sed -i -E "s/(&${hostname}_host )age1[0-9a-z]+/\1${host_key}/" "${repo}/.sops.yaml"
-  grep -q "&${hostname}_host ${host_key}" "${repo}/.sops.yaml" ||
-    die "No &${hostname}_host key in .sops.yaml to replace"
-  (cd "$repo" && sops updatekeys --yes "secrets/${hostname}.yaml")
+  local sops_config="${repo}/secrets/.sops.yaml"
+  sed -i -E "s/(&${hostname}_host )age1[0-9a-z]+/\1${host_key}/" "$sops_config"
+  grep -q "&${hostname}_host ${host_key}" "$sops_config" ||
+    die "No &${hostname}_host key in ${sops_config} to replace"
+  SOPS_CONFIG=$sops_config sops updatekeys --yes "$secrets_file"
 
   log_info "Partitioning + formatting (disko). This wipes:"
   lsblk -o PATH,MODEL,SERIAL,SIZE "$disk"
@@ -161,7 +162,7 @@ main() {
 
   log_success "Installation complete! Reboot when ready."
   log_info "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
-  log_info "After the first boot, commit and push .sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos."
+  log_info "After the first boot, commit and push secrets/.sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos."
   if $new_hardware; then
     log_info "Commit modules/hosts/${hostname}/facter.json with them."
   fi

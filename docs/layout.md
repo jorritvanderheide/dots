@@ -16,7 +16,7 @@ modules/
   users/<user>/<part>.nix         more of the same module: mail, calendars, SSH hosts
   flake/                          checks, formatter, dev shell, apps, lib, site, installer ISO
 scripts/                          install, enroll-tpm, offsite-prune, and scripts used by modules
-secrets/                          <host>.yaml, encrypted with sops
+secrets/                          <host>.yaml, encrypted with sops for the recipients in .sops.yaml
 docs/                             this, install, secrets and security
 ```
 

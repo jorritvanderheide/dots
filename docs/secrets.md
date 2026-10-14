@@ -1,9 +1,10 @@
 # Secrets and keys
 
 Each host has its own secrets file, `secrets/<host>.yaml`, encrypted with
-[sops](https://github.com/getsops/sops) for the recipients in `.sops.yaml`.
-A host only ever decrypts its own file (`sops.defaultSopsFile` points at
-it), so one host taken over doesn't give up the other's secrets.
+[sops](https://github.com/getsops/sops) for the recipients in
+`secrets/.sops.yaml`. A host only ever decrypts its own file
+(`sops.defaultSopsFile` points at it), so one host taken over doesn't give
+up the other's secrets.
 
 Each host decrypts at activation (every boot and switch) with an age key of
 its own, in `/persist/system/var/lib/sops/age.key` on its encrypted disk,
@@ -12,7 +13,7 @@ so the key is as safe as that binding. No host needs a YubiKey to boot.
 
 There are two YubiKeys, and they open the same: either one does
 everything, so losing one loses nothing. Each holds two identities, a
-no-PIN one and a PIN one (`.sops.yaml` has their slots).
+no-PIN one and a PIN one (`secrets/.sops.yaml` has their slots).
 
 `secrets/rocinante.yaml`:
 
@@ -46,6 +47,11 @@ nix develop       # sops, age-plugin-yubikey, pcsclite
 sops secrets/rocinante.yaml
 sops secrets/dapple.yaml   # asks for the YubiKey's PIN, then a touch
 ```
+
+Editing needs no `secrets/.sops.yaml`: each file lists its own recipients.
+`sops updatekeys` and a new file do, and sops only looks for it from the
+current directory up. The dev shell sets `SOPS_CONFIG` to it; without the
+dev shell, run those from `secrets/`.
 
 The user passwords (`user_password_<user>`) are password *hashes*, not
 plaintext. Make one with `mkpasswd -m yescrypt`. `bazarr_password` is the
@@ -85,7 +91,8 @@ ssh-keygen -t ed25519-sk -O application=ssh:dapple-sudo -N "" \
 Then:
 
 1. Add the no-PIN `age1yubikey1...` recipient to `rocinante.yaml`'s
-   `key_groups` entry in `.sops.yaml`, and the PIN one to `dapple.yaml`'s.
+   `key_groups` entry in `secrets/.sops.yaml`, and the PIN one to
+   `dapple.yaml`'s.
    The *same* entry, not a new group: that would require *both* keys to
    decrypt instead of either.
 2. `sops updatekeys secrets/<host>.yaml`, for both files, to re-encrypt for
@@ -149,8 +156,8 @@ Don't deploy meanwhile: that can put the host's key back halfway.
 
 A host's own key is a plain `age-keygen` identity. The installer makes a
 new one for every host it installs: it replaces `<host>_host` in the
-clone's `.sops.yaml` with it, re-encrypts `secrets/<host>.yaml` with the
-YubiKey (or passphrase) it decrypts with, and puts the key in
+clone's `secrets/.sops.yaml` with it, re-encrypts `secrets/<host>.yaml`
+with the YubiKey (or passphrase) it decrypts with, and puts the key in
 `/persist/system/var/lib/sops/age.key`. Commit and push both files from
 `/etc/nixos` after the first boot.
 
@@ -166,14 +173,14 @@ sudo nix shell nixpkgs#age -c age-keygen -o /persist/system/var/lib/sops/age.key
 sudo chmod 0400 /persist/system/var/lib/sops/age.key
 ```
 
-Replace `<host>_host` in `.sops.yaml` with the printed `age1...` key, run
-`sops updatekeys secrets/<host>.yaml` from rocinante (for dapple's, with
-a YubiKey's PIN and a touch), push, and deploy (`nswitch`, or
-`ndeploy dapple`).
+Replace `<host>_host` in `secrets/.sops.yaml` with the printed `age1...`
+key, run `sops updatekeys secrets/<host>.yaml` from rocinante (for
+dapple's, with a YubiKey's PIN and a touch), push, and deploy (`nswitch`,
+or `ndeploy dapple`).
 
 ## Revoking a lost or compromised key
 
-1. Remove its recipient from `.sops.yaml`.
+1. Remove its recipient from `secrets/.sops.yaml`.
 2. `sops updatekeys secrets/<host>.yaml` for every file it was a recipient of.
 3. `sops rotate -i secrets/<host>.yaml`. `updatekeys` alone keeps the same
    data key, and the lost key still unwraps that key from any old copy of
@@ -189,13 +196,13 @@ a YubiKey's PIN and a touch), push, and deploy (`nswitch`, or
 
 ## Regenerating the passphrase identity
 
-`jorrit_passphrase` in `.sops.yaml` is a plain `age-keygen` identity. The
-raw `AGE-SECRET-KEY-1...` text is a Bitwarden secure note and is not
-committed anywhere. To rotate it:
+`jorrit_passphrase` in `secrets/.sops.yaml` is a plain `age-keygen`
+identity. The raw `AGE-SECRET-KEY-1...` text is a Bitwarden secure note and
+is not committed anywhere. To rotate it:
 
 1. `age-keygen -o new-identity.txt` to generate a fresh identity.
-2. Replace the `jorrit_passphrase` anchor in `.sops.yaml` with the new
-   `age1...` recipient that `age-keygen` printed.
+2. Replace the `jorrit_passphrase` anchor in `secrets/.sops.yaml` with the
+   new `age1...` recipient that `age-keygen` printed.
 3. `sops updatekeys` both files.
 4. Save the new `AGE-SECRET-KEY-1...` line to Bitwarden, delete the old
    note, and delete `new-identity.txt`.

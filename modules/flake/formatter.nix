@@ -68,7 +68,6 @@
             "**/assets/**"
             "**/facter.json"
             "**/noctalia-templates/**"
-            ".sops.yaml"
             "docs/**"
             "README.md"
             "secrets/**"
