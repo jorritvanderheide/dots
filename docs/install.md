@@ -220,6 +220,37 @@ YubiKey.
   `install-host --new-hardware rocinante` on its console. After the first
   boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
   rocinante's backup holds comes back: Zotero, and its place on the tailnet.
+  Its Nix signing key isn't backed up, so `ndeploy` needs a new one, which
+  dapple only trusts after a switch it builds itself:
+  ```sh
+  sudo install -d -m 0700 /persist/system/var/lib/nix-signing
+  sudo sh -c 'umask 077; nix key generate-secret --key-name rocinante-2 > /persist/system/var/lib/nix-signing/key'
+  sudo sh -c 'nix key convert-secret-to-public < /persist/system/var/lib/nix-signing/key'
+  ```
+  Put the printed key in `deployKeys` (`modules/flake/site.nix`) instead of
+  `rocinante-1`, push, and switch dapple to it from Codeberg, on dapple
+  (which has no git of its own):
+  ```sh
+  sudo nix shell nixpkgs#git -c nixos-rebuild switch --refresh --flake git+https://codeberg.org/BW20/dots#dapple
+  ```
+- **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
+  it, into a locked session, so count what is on it as known: its secrets,
+  its tailnet node, its Storj credentials and its Nix signing key. Install
+  its replacement as above, with these differences:
+  1. Before installing, delete its node on dapple
+     (`sudo headscale nodes list` for its ID, then
+     `sudo headscale nodes delete -i <id>`). Restore only Zotero,
+     `sudo offsite-restore other`, not `tailscale`, which would bring back
+     the stolen node's key. Join the tailnet as a new host
+     ([Joining the tailnet](#joining-the-tailnet)), and put its new address
+     in place of `100.64.0.2` in the access policy and in the browser's
+     `policies.nix`.
+  2. Rotate its secrets: from step 3 of
+     [Revoking a lost or compromised key](secrets.md#revoking-a-lost-or-compromised-key),
+     with `sops rotate -i secrets/rocinante.yaml` and new values for what
+     is in it. The installer has already replaced its old age key.
+  3. Revoke its Storj credentials and make new ones
+     ([Storj credentials](secrets.md#storj-credentials)).
 - **A YubiKey.** Revoke the lost key and enroll a new one, as in
   [Secrets and keys](secrets.md), with the passphrase identity or the other
   key. The new key gets both identities, a no-PIN and a PIN one, like the
