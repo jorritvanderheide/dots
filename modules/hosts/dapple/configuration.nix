@@ -21,6 +21,7 @@
         ingress
         jellyfin
         media-library
+        meetinn
         new-leaf
         ntfy
         servarr

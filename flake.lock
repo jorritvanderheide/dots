@@ -128,6 +128,26 @@
         "type": "github"
       }
     },
+    "meetinn": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792007254,
+        "narHash": "sha256-UJBbm9BgdkMF307TetTEO3SUnDDnubyxRFeE8+gPXxY=",
+        "ref": "refs/heads/main",
+        "rev": "d1c7c4b6d34c88d97e6be8e0d93d20e9c6870f7d",
+        "revCount": 59,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/meetinn"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/BW20/meetinn"
+      }
+    },
     "new-leaf": {
       "inputs": {
         "nixpkgs": [
@@ -354,6 +374,7 @@
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "lanzaboote": "lanzaboote",
+        "meetinn": "meetinn",
         "new-leaf": "new-leaf",
         "niri-flake": "niri-flake",
         "nixos-facter-modules": "nixos-facter-modules",

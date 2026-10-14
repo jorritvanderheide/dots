@@ -67,9 +67,9 @@ boot, sops secrets, home-manager, and fish.
   server's) and a passphrase fallback. sops-nix decrypts them at
   activation, with the host's own key, into `/run`, never into the Nix
   store. See [Secrets and keys](docs/secrets.md).
-- **The server** answers on its tailnet address, with only Headscale and
-  New Leaf's share links open to the internet. A Headscale policy limits what
-  each tailnet device reaches. [Section 7](#7-network-exposure) lists
+- **The server** answers on its tailnet address, with only Headscale,
+  New Leaf's share links and meetinn open to the internet. A Headscale
+  policy limits what each tailnet device reaches. [Section 7](#7-network-exposure) lists
   exactly what is reachable from where, and [Security](docs/security.md) who
   is kept out of what.
 - **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
@@ -143,6 +143,7 @@ Each service is at `<subdomain>.bw20.nl`, with its own certificate.
 | File Browser | `files` | rocinante's synced `~/Documents`, in the browser |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
+| meetinn | `inn` | ICT Netwerk Nijmegen's site, public; a demo until it has its own server |
 | Gatus | `status` | Monitoring of all of the above |
 | ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app |
 
@@ -161,7 +162,7 @@ back, goes to the phone through ntfy.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, only two things answer, both through Cloudflare:
+There, only three things answer, all through Cloudflare:
 
 - **Headscale** at `vpn`: the control protocol and the DERP relay, which a
   device away from home needs to join the tailnet. Its admin API
@@ -169,6 +170,8 @@ There, only two things answer, both through Cloudflare:
   through Cloudflare: the `headscale` CLI uses a local socket.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
+- **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
+  Yivi tickets, the admin included (its login is a Yivi email disclosure).
 
 A name no vhost claims gets no certificate and no answer.
 
@@ -196,5 +199,6 @@ interface.
 mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, ACME certificates through Cloudflare DNS, and
-the status page's check of New Leaf's share links, from outside through
-Cloudflare.
+the status page's checks of New Leaf's share links and meetinn, from
+outside through Cloudflare, and meetinn's hourly update of its Yivi
+schemes and its mail, through Proton's SMTP.

@@ -88,8 +88,8 @@
             This host's stable tailnet IPv4 address. The proxies' vhosts
             bind here instead of 0.0.0.0 so they are reachable only over
             Tailscale, even though nginx must keep a 0.0.0.0:443 listener
-            for the public vhosts: headscale, kobo and New Leaf's share
-            links.
+            for the public vhosts: headscale, kobo, New Leaf's share links
+            and meetinn.
           '';
         };
       };
@@ -171,7 +171,7 @@
 
                 # Bind only to the tailnet IP. nginx still keeps a
                 # 0.0.0.0:443 listener for the public vhosts (headscale,
-                # kobo, New Leaf's share links), but internal services must not answer there: a
+                # kobo, New Leaf's share links, meetinn), but internal services must not answer there: a
                 # connection to the public IP hits the 0.0.0.0 socket,
                 # which has no server_name match here, so these vhosts stay
                 # tailnet-only.

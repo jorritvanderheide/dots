@@ -30,6 +30,11 @@
       url = "github:nix-community/lanzaboote/v1.2.0";
     };
 
+    meetinn = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BW20/meetinn";
+    };
+
     new-leaf = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "git+https://codeberg.org/BW20/new-leaf";
