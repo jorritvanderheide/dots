@@ -152,7 +152,7 @@
           {
             # The offsite backup reports to the heartbeat in
             # external-endpoints.
-            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "https://${subdomain}.${config.my.ingress.domain}/api/v1/endpoints/backups_offsite-backup/external?success=true";
+            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external?success=true";
 
             sops.secrets = lib.genAttrs secretKeys (_: { });
             users.groups.gatus = { };
