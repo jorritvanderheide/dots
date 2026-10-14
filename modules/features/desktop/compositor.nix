@@ -215,6 +215,18 @@ in
                 };
               };
 
+              # Upstream's unit comes after niri.service, which uwsm doesn't
+              # start: niri runs as wayland-wm@niri.service, in the graphical
+              # session.
+              systemd.user.services.system76-scheduler-niri = {
+                Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
+
+                Unit = {
+                  After = lib.mkForce [ "graphical-session.target" ];
+                  PartOf = [ "graphical-session.target" ];
+                };
+              };
+
               xdg.mimeApps = {
                 # Without enable, defaultApplications are silently never
                 # written to mimeapps.list.
