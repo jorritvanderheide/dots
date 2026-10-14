@@ -32,7 +32,12 @@
                       # install: running this again returns to it.
                       [[ -n ''${TMUX:-} ]] || exec tmux new-session -A -s install install-host "$@"
                       # The installer from Codeberg, so this ISO doesn't go stale.
-                      exec nix run "git+https://codeberg.org/BW20/dots#install" -- "$@"
+                      # Not exec'd: tmux closes the pane when it ends, and with it
+                      # the installer's last lines, an error or what to commit.
+                      status=0
+                      nix run "git+https://codeberg.org/BW20/dots#install" -- "$@" || status=$?
+                      read -rp "The installer ended (exit status $status). Press Enter to close this window."
+                      exit "$status"
                     '';
                   };
                 in
