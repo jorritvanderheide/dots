@@ -61,7 +61,7 @@
               '';
 
               functions.nrun = ''
-                nix run nixpkgs#$argv
+                nix run nixpkgs#$argv[1] -- $argv[2..]
               '';
 
               interactiveShellInit = builtins.concatStringsSep "\n" [
@@ -110,7 +110,7 @@
                 "nboot" =
                   "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
                 "nbuild" = "nh os build /etc/nixos --hostname (hostname) --no-nom";
-                "ncheck" = "pushd /etc/nixos && nixos-rebuild check --flake .#(hostname) --no-reexec && popd";
+                "ncheck" = "nix flake check /etc/nixos";
                 "nformat" = "pushd /etc/nixos && sudo nix fmt . && popd";
                 "nlist" = "sudo nixos-rebuild list-generations";
                 "nrollback" = "nh os rollback";
