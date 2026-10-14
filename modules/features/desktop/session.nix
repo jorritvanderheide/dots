@@ -58,7 +58,10 @@
               sessionCommand = "${lib.getExe' pkgs.systemd "systemd-cat"} --identifier=niri-session -- ${lib.getExe pkgs.uwsm} start -F -- niri --session";
             in
             {
-              default_session.command = sessionCommand;
+              # What greetd runs once the autologin session ends, by logout
+              # or a crash: a console login (as the greeter user) that
+              # starts the same session for whoever logs in.
+              default_session.command = "${lib.getExe' config.services.greetd.package "agreety"} --cmd ${lib.escapeShellArg sessionCommand}";
 
               initial_session = {
                 command = sessionCommand;
