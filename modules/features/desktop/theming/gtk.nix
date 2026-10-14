@@ -13,7 +13,12 @@
           {
             gtk = {
               enable = true;
-              gtk4.theme = config.gtk.theme;
+
+              # No theme import in GTK 4's gtk.css: it would come after
+              # noctalia's, and adw-gtk3's libadwaita stylesheet sets the
+              # accent and window colors again. GTK 4 apps that read a
+              # theme get it from gtk-theme, which noctalia switches.
+              gtk4.theme = null;
 
               font = {
                 inherit (fonts.sansSerif) name package;
