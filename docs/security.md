@@ -143,6 +143,13 @@ would otherwise win.
 - **rocinante's keyring has an empty password**, since the session logs in
   automatically and has no password to unlock it with. LUKS protects it on
   disk; while logged in, an unlocked keyring is just as readable.
+- **eduroam doesn't check RU's server** (`wifi.nix`): no CA and no
+  `domain-suffix-match`, since RU's server doesn't send its intermediate
+  certificate and wpa_supplicant won't find it locally, so a pinned CA
+  fails every handshake. An access point calling itself eduroam can then
+  capture an MSCHAPv2 exchange, which can be cracked offline into the RU
+  password. It's worth trying again, with the intermediate itself as the
+  CA, the next time on campus.
 
 ## Checking it
 
