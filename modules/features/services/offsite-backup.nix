@@ -167,7 +167,10 @@
           repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
 
           timerConfig = {
-            OnCalendar = "daily";
+            # After the dumps services make each night, so a snapshot has
+            # the one of its own night: Immich's is at 02:00.
+            OnCalendar = "*-*-* 03:00";
+
             Persistent = true;
             RandomizedDelaySec = "1h";
           };
