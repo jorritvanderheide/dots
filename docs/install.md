@@ -53,12 +53,15 @@ The installer:
 3. Makes the host a new age key of its own, and re-encrypts its secrets
    file for it, with the same YubiKey
    ([A new host key](secrets.md#a-new-host-key)).
-4. Shows the disk it is about to wipe, with its size, and waits for a `yes`.
-5. Partitions and formats it with disko, puts the age key in `/persist`,
-   and runs `nixos-install`, whose activation decrypts the secrets with it:
-   the accounts have their passwords from the first boot.
+4. Shows the disk it is about to wipe, with its size, and any it keeps,
+   and waits for a `yes`. It keeps dapple's media disk, which has no
+   offsite copy: its LUKS is opened and its pool imported, as they are.
+5. Partitions and formats the main disk with disko, puts the age key in
+   `/persist`, and runs `nixos-install`, whose activation decrypts the
+   secrets with it: the accounts have their passwords from the first boot.
 6. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
-   remote (pushing over SSH), ready for `jj`.
+   remote (pushing over SSH), ready for `jj`, and exports the pools, so the
+   first boot imports them.
 
 Then reboot and type the LUKS password. Until secure boot is on, every boot
 asks for it: the first boot makes the secure boot keys, the next one

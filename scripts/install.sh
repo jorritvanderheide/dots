@@ -83,6 +83,23 @@ main() {
   disk=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
   [[ -e $disk ]] || die "Disk ${disk} not found: is this ${hostname}? On new hardware, add --new-hardware."
 
+  # Every disk disko sets up: it wipes those with destroy (the main disk),
+  # and keeps the others, like dapple's media disk.
+  local disks
+  # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
+  disks=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk" \
+    --apply 'disks: builtins.concatStringsSep "\n" (map (name: "${disks.${name}.device} ${if disks.${name}.destroy then "wipe" else "keep"}") (builtins.attrNames disks))')
+  local -a wipe_disks=() keep_disks=()
+  local dev action
+  while read -r dev action; do
+    [[ -e $dev ]] || die "Disk ${dev} not found."
+    if [[ $action == wipe ]]; then
+      wipe_disks+=("$dev")
+    else
+      keep_disks+=("$dev")
+    fi
+  done <<<"$disks"
+
   # Decrypt with whichever YubiKey is plugged in: each host has its own,
   # and all of them are recipients. SOPS_AGE_KEY_FILE overrides it, e.g.
   # with the passphrase identity (see docs/secrets.md).
@@ -128,7 +145,11 @@ main() {
   SOPS_CONFIG=$sops_config sops updatekeys --yes "$secrets_file"
 
   log_info "Partitioning + formatting (disko). This wipes:"
-  lsblk -o PATH,MODEL,SERIAL,SIZE "$disk"
+  lsblk -o PATH,MODEL,SERIAL,SIZE "${wipe_disks[@]}"
+  if [[ ${#keep_disks[@]} -gt 0 ]]; then
+    log_info "And keeps, opening its LUKS and importing its pool (formatted only if it isn't LUKS yet):"
+    lsblk -o PATH,MODEL,SERIAL,SIZE "${keep_disks[@]}"
+  fi
   read -rp "Type 'yes' to continue: " confirm
   [[ $confirm == "yes" ]] || die "Aborted."
   # zpool create can't load the module itself on the live ISO.
@@ -159,6 +180,12 @@ main() {
   # group bits, and owner never had write). X keeps executables executable.
   chmod -R u+rwX,g+rwX "$etc_nixos"
   find "$etc_nixos" -type d -exec chmod g+s {} +
+
+  # The ISO imported the pools with its own host ID. The first boot only
+  # imports a pool another host left imported when forced, as zroot is and
+  # zmedia isn't: exported, both import cleanly.
+  umount -R /mnt
+  zpool export -a
 
   log_success "Installation complete! Reboot when ready."
   log_info "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."

@@ -35,6 +35,7 @@
           pcsclite
           sops
           util-linux
+          zfs
         ];
       };
 

@@ -30,7 +30,8 @@
           example = "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_500GB_S3R3NF1JA78029H";
           description = ''
             /dev/disk/by-id/* path to the drive for the media library, which
-            gets a LUKS+ZFS `zmedia` pool (TPM2-bound, like zroot).
+            gets a LUKS+ZFS `zmedia` pool (TPM2-bound, like zroot). A
+            reinstall keeps the pool and its data.
           '';
         };
 
@@ -46,6 +47,11 @@
         users.groups.media = { };
 
         disko.devices.disk.media = {
+          # The installer doesn't wipe it: the media library has no offsite
+          # copy. disko opens its LUKS with luks_password and imports its
+          # pool instead, and only formats a disk that isn't LUKS yet.
+          destroy = false;
+
           device = cfg.disk;
           type = "disk";
 
