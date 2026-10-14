@@ -39,11 +39,6 @@
       };
 
       config = {
-        # Enable uinput kernel module
-        boot.kernelModules = [ "uinput" ];
-        hardware.uinput.enable = true;
-        users.groups.uinput = { };
-
         # Enable and configure Kanata with homerow mods and navigation layer
         services.kanata = {
           enable = true;
@@ -64,13 +59,8 @@
           };
         };
 
-        # Configure udev rules for uinput access
-        services.udev.extraRules = ''
-          # Allow uinput group to access the uinput device
-          KERNEL=="uinput", MODE="0660", GROUP="uinput", OPTIONS+="static_node=uinput"
-        '';
-
-        # Configure Kanata service with proper permissions and restart policy
+        # services.kanata already gives the unit uinput (hardware.uinput)
+        # and its groups; this adds the restart policy.
         systemd.services.kanata-main = {
           # Delay startup until after graphical session (compositor/lockscreen)
           # This saves ~2s from critical boot path
@@ -81,11 +71,6 @@
             # Restart if Kanata exits (e.g., no keyboards found at boot)
             Restart = "on-failure";
             RestartSec = "2s";
-
-            SupplementaryGroups = [
-              "input"
-              "uinput"
-            ];
           };
 
           # Allow a few retries for keyboards to appear during boot
