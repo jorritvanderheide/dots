@@ -13,8 +13,8 @@
 
         # Services
         calibre-web
-        filebrowser
         contacts
+        filebrowser
         headscale
         home-assistant
         immich
