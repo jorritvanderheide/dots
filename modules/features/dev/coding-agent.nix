@@ -5,7 +5,7 @@
         {
           programs.claude-code = {
             enable = true;
-            settings.includeCoAuthoredBy = false;
+            settings.attribution = false;
 
             commands.mr-review = ''
               ---
