@@ -25,6 +25,7 @@
             status = {
               group = "productivity";
               name = "vaultwarden";
+              path = "/alive";
             };
           };
 

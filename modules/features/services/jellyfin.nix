@@ -49,6 +49,7 @@
             status = {
               group = "media";
               name = "jellyfin";
+              path = "/health";
             };
           };
 

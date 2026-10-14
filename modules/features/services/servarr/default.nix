@@ -92,6 +92,7 @@
             status = {
               inherit name;
               group = "media";
+              path = "/ping";
             };
           }
         ) apps;

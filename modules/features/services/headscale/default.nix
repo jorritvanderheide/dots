@@ -63,7 +63,7 @@
 
         my.gatus.endpoints.headscale = {
           group = "infra";
-          url = "https://${cfg.domain}";
+          url = "https://${cfg.domain}/health";
         };
 
         my.offsite-backup.entries.headscale = {

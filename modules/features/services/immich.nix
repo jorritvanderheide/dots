@@ -34,6 +34,7 @@
           status = {
             group = "media";
             name = "immich";
+            path = "/api/server/ping";
           };
         };
 
