@@ -6,8 +6,9 @@
 # again. What it replaced is kept under /persist/.offsite-restore-old-<time>,
 # and the run is logged to /var/log/offsite-restore.log.
 #
-# Usage: offsite-restore [--target DIR] [ENTRY...]
-#   --target DIR   only download into DIR, and change nothing else
+# Usage: offsite-restore [--target DIR] [--snapshot ID] [ENTRY...]
+#   --target DIR     only download into DIR, and change nothing else
+#   --snapshot ID    restore that snapshot instead of the newest one
 #
 # The offsite-backup module puts entry_paths, entry_units, persisted and
 # run_hook in front of this, from the host's entries.
@@ -19,15 +20,20 @@
 staging=/persist/.offsite-restore
 
 usage() {
-  echo "Usage: offsite-restore [--target DIR] [ENTRY...]"
+  echo "Usage: offsite-restore [--target DIR] [--snapshot ID] [ENTRY...]"
   echo "Entries: ${!entry_paths[*]}"
 }
 
 target=""
+snapshot=latest
 while [[ $# -gt 0 ]]; do
   case $1 in
   --target)
     target=${2:?--target needs a directory}
+    shift 2
+    ;;
+  --snapshot)
+    snapshot=${2:?--snapshot needs a snapshot ID}
     shift 2
     ;;
   -h | --help)
@@ -72,12 +78,32 @@ for path in "${paths[@]}"; do
   includes+=(--include "$path")
 done
 
+# restic restores nothing for a path the snapshot doesn't have, and still
+# succeeds, as for a service added after it.
+check_restored() {
+  for path in "${paths[@]}"; do
+    if [[ ! -d $1$path ]]; then
+      echo "${path} is not in snapshot ${snapshot}. Nothing was changed." >&2
+      exit 1
+    fi
+  done
+}
+
 if [[ -n $target ]]; then
-  restic-offsite restore --no-lock latest --target "$target" "${includes[@]}"
+  restic-offsite restore --no-lock "$snapshot" --target "$target" "${includes[@]}"
+  check_restored "$target"
   exit 0
 fi
 
-echo "This replaces the data of: ${names[*]}"
+# A reinstalled host's first nightly backup holds its services' new, empty
+# folders, so after that night the newest snapshot isn't the one to bring
+# back: its size gives it away.
+restic-offsite snapshots --no-lock --compact --latest 5
+if [[ $snapshot == latest ]]; then
+  echo "This replaces the data of ${names[*]} with the newest snapshot, the last one above."
+else
+  echo "This replaces the data of ${names[*]} with snapshot ${snapshot}."
+fi
 read -rp "Type 'yes' to continue: " confirm
 [[ $confirm == "yes" ]] || exit 1
 
@@ -90,13 +116,8 @@ exec > >(tee --output-error=warn -a "$log") 2>&1
 echo "Restoring ${names[*]}, $(date). Also logged to ${log}."
 
 rm -rf "$staging"
-restic-offsite restore --no-lock latest --target "$staging" "${includes[@]}"
-for path in "${paths[@]}"; do
-  if [[ ! -d $staging$path ]]; then
-    echo "${path} is not in the backup. Nothing was changed." >&2
-    exit 1
-  fi
-done
+restic-offsite restore --no-lock "$snapshot" --target "$staging" "${includes[@]}"
+check_restored "$staging"
 
 old=/persist/.offsite-restore-old-$(date +%Y%m%dT%H%M%S)
 systemctl stop restic-backups-offsite.timer "${units[@]}"

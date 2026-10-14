@@ -150,6 +150,15 @@ database), and starts them again. What it replaced is kept
 in `/persist/.offsite-restore-old-<time>` until you delete it. The same
 command repairs a single service on a running host.
 
+It restores the newest snapshot, after showing the last few with their
+sizes. Restore before the reinstalled host's first night: its nightly backup
+then saves the services' new, empty folders as the newest snapshot, which
+its size gives away. After that, pick the one from before the reinstall:
+
+```sh
+sudo offsite-restore --snapshot <id>
+```
+
 To check a backup without changing anything,
 `sudo offsite-restore --target /tmp/restore-test <entry>` only downloads.
 
