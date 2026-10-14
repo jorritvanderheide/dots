@@ -60,6 +60,7 @@
 
             my.session.autologinuser = "jorrit";
             networking.hostName = "rocinante";
+            sops.secrets.nix_signing_key = { };
             system.stateVersion = "26.05";
 
             my.compositor = {
@@ -140,10 +141,11 @@
             nix.settings = {
               # Signs what this host builds, so the hosts it deploys to accept
               # what `ndeploy` copies without trusting the user who copies it
-              # (ssh-server.nix, lib.deployKeys). Straight on /persist, like
-              # the SSH host key; generated with
+              # (ssh-server.nix, lib.deployKeys). A secret, not a file on
+              # /persist, so a replacement laptop signs with it from its first
+              # boot. Generated with
               # `nix key generate-secret --key-name rocinante-1`.
-              secret-key-files = [ "/persist/system/var/lib/nix-signing/key" ];
+              secret-key-files = [ config.sops.secrets.nix_signing_key.path ];
 
               substituters = [ "https://numtide.cachix.org" ];
               trusted-public-keys = [ "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=" ];
