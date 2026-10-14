@@ -79,6 +79,8 @@ _: {
           ProtectSystem = "strict";
           ReadWritePaths = [ root ];
           RemoveIPC = true;
+          Restart = "always";
+          RestartSec = "5s";
           SystemCallArchitectures = "native";
 
           SystemCallFilter = [
