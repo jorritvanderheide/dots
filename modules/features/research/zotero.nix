@@ -15,8 +15,8 @@
       # not exist, so reading it inside that submodule would fail.
       research = config.my.research;
 
-      # Zotero plugins aren't packaged in nixpkgs, and both of these ship
-      # their XPI unsigned. That's fine, since Zotero's greprefs.js already
+      # Zotero plugins aren't packaged in nixpkgs, and they ship their XPI
+      # unsigned. That's fine, since Zotero's greprefs.js already
       # defaults xpinstall.signatures.required to false.
       #
       # home-manager links the contents of this (Firefox-app-ID) directory

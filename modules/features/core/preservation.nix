@@ -69,7 +69,7 @@
           initrd.systemd = {
             enable = true;
 
-            # The /etc/machine-id symlink below dangles until its target
+            # Preservation's /etc/machine-id symlink dangles until its target
             # exists, and systemd can't write a fresh ID through a dangling
             # symlink. Without one, dbus-broker refuses to start, and every
             # D-Bus service fails with it. Seeded from the hostname once

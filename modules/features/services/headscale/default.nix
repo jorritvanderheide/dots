@@ -82,7 +82,7 @@
         # Scoped to the LAN interface, which is also where traffic forwarded in
         # from the router arrives, since dapple has no WAN interface of its
         # own. Public reachability is therefore governed by the router's port
-        # forward and the per-location rules on the vhost below, not here.
+        # forward and the per-location rules on headscale's vhost, not here.
         # tailnet access to 443 comes from my.ingress.
         networking.firewall.interfaces.${config.my.lan.interface} = {
           allowedTCPPorts = [ 443 ];
@@ -154,7 +154,7 @@
 
             # The admin API is the sensitive surface: it manages users, nodes
             # and preauth keys, guarded only by a bearer token. Keep it off
-            # the public path. "^~" so these win over "/" above.
+            # the public path. "^~" so these win over "/".
             "^~ /api" = tailnetOnly;
             "^~ /swagger" = tailnetOnly;
           };

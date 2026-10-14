@@ -117,7 +117,7 @@
 
           # The same domain on the tailnet address: nginx only considers
           # vhosts bound to it explicitly there, so the tailnet gets this one
-          # and the internet the share links' vhost above. Share links are
+          # and the internet the share links' public vhost (${domain}). Share links are
           # served as files, with that vhost's headers; everything else goes
           # to the editor (no share link takes an editor path: slugs end in a
           # random suffix).

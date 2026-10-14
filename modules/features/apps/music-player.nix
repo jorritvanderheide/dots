@@ -20,7 +20,7 @@
             ];
 
             # Shadow the package's own Terminal=true entry so only the
-            # 'Music' entry below shows up in the launcher.
+            # 'Music' entry (xdg.desktopEntries.music) shows up in the launcher.
             xdg.desktopEntries.jellyfin-tui = {
               name = "jellyfin-tui";
               noDisplay = true;

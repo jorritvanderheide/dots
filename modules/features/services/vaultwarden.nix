@@ -72,8 +72,8 @@
             Restart = lib.mkForce "always";
             RestartSec = lib.mkForce "5s";
 
-            # What the admin page saves (config.json) overrides the
-            # settings above. Keep invitations off there too, and leave
+            # What the admin page saves (config.json) overrides
+            # services.vaultwarden.config. Keep invitations off there too, and leave
             # the rest of what it saved (SMTP and so on) alone.
             ExecStartPre = pkgs.writeShellScript "vaultwarden-no-invitations" ''
               set -euo pipefail

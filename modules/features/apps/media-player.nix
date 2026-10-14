@@ -56,7 +56,7 @@
 
               desktopEntries = {
                 # mpv is fully hidden from the launcher and Open With menus;
-                # it only runs via the magnet-link handler below or the
+                # it only runs via the magnet-link handler (mpv-magnet) or the
                 # terminal. NoDisplay entries still work as MIME defaults.
                 mpv = {
                   name = "mpv Media Player";

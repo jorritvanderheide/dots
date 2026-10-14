@@ -71,7 +71,7 @@
     {
       options.my.servarr.webuiUser = lib.mkOption {
         type = lib.types.str;
-        description = "Username for qBittorrent's WebUI login.";
+        description = "Username for the qBittorrent and Bazarr web logins.";
       };
 
       config = {

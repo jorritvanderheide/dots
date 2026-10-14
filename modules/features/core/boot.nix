@@ -48,7 +48,7 @@
 
           # Quiet hides the kernel's own log spam. The rest keeps the console
           # silent, so nothing draws over the splash that plymouth leaves on
-          # screen (below): no systemd or udev status lines, no cursor. They
+          # screen (plymouth-quit's --retain-splash): no systemd or udev status lines, no cursor. They
           # still go to the journal.
           kernelParams = [
             "quiet"
@@ -60,7 +60,7 @@
           ];
 
           # Secure boot with our own keys: the firmware only starts what they
-          # signed, and the TPM (bound to PCR 7, below) only unlocks the
+          # signed, and the TPM (bound to PCR 7 by tpm2-luks-enroll) only unlocks the
           # disk for that. Lanzaboote generates the keys on the first boot
           # and stages them on the ESP; systemd-boot enrolls them by itself
           # at the next boot with the firmware in setup mode. Microsoft's

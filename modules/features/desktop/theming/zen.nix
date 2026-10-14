@@ -41,7 +41,7 @@
               # prefers-color-scheme.
               settings."zen.view.window.scheme" = 2;
 
-              # Colors come from zen-colors.css, loaded by the autoconfig below.
+              # Colors come from zen-colors.css, loaded by the autoconfig (noctalia.cfg).
               userChrome = ''@import url("file://${zenCache}/zen-userChrome.css");'';
               userContent = ''@import url("file://${zenCache}/zen-userContent.css");'';
             };

@@ -95,7 +95,7 @@
 
                 # Loopback is enough for the tailnet vhost, which proxies
                 # from 127.0.0.1. LAN access needs a real listener, and the
-                # firewall below is what keeps it to the LAN interface.
+                # LAN interface's firewall rule is what keeps it there.
                 server_host = if cfg.lanAccess.enable then "0.0.0.0" else "127.0.0.1";
 
                 server_port = port;
@@ -137,7 +137,7 @@
           };
 
           systemd.tmpfiles.rules = [
-            # The include above stops HA from starting if the file is
+            # The "automation ui" include stops HA from starting if the file is
             # missing. "f" only creates it; existing content is left alone.
             "f ${config.services.home-assistant.configDir}/automations.yaml 0644 hass hass - []"
 

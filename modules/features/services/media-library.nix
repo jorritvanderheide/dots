@@ -71,7 +71,7 @@
 
           # Disko declaration for documentation / future reinstalls; on a
           # running system the dataset must be created manually first.
-          # Mount is handled by the explicit fileSystems entry below (with
+          # Mount is handled by the explicit fileSystems.${mediaDir} (with
           # nofail) so first-time activation doesn't break if the dataset
           # hasn't been created yet.
           datasets.media = {

@@ -87,7 +87,7 @@
           # lanAccess.
           openFirewall = false;
 
-          # Agent forwarding only for sudo's keys (below): rocinante forwards
+          # Agent forwarding only for sudo's keys (security.pam.rssh): rocinante forwards
           # an agent with nothing else in it.
           extraConfig = ''
             AllowStreamLocalForwarding no

@@ -49,7 +49,7 @@
                   # mere existence is the only thing checked (content is
                   # irrelevant); normally written by the wizard UI on
                   # completion, but that never runs since setup_wizard_enabled
-                  # is false below. Without it, ConfigService::
+                  # is false. Without it, ConfigService::
                   # firstRunWallpaperPath() unconditionally forces noctalia's
                   # bundled wallpaper on any boot where it's missing, ignoring
                   # wallpaper.default.path and any already-picked wallpaper.
@@ -71,7 +71,7 @@
 
                 # Wallpapers are only changed by hand in the GUI; the pick is
                 # saved to ~/.local/state/noctalia/settings.toml, which is
-                # preserved below, so it (and the colors generated from it)
+                # preserved (my.preservation), so it (and the colors generated from it)
                 # survives a reboot. This bundled default is only shown until
                 # the first pick.
                 programs.noctalia.settings.wallpaper = {

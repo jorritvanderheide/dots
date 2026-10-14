@@ -53,7 +53,7 @@
             my.power.laptop.enable = true;
 
             # /persist is all that survives the boot-time rollback, and the
-            # offsite backup (below) is its only copy off this disk.
+            # offsite backup (my.offsite-backup) is its only copy off this disk.
             # The research modules declare what state they need kept but not
             # how; this machine persists it with preservation.
             my.preservation.homeDirectories = config.my.research.statePaths;
