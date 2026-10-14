@@ -24,10 +24,6 @@ readonly NIX="nix --extra-experimental-features nix-command --extra-experimental
 readonly REPO_URL="https://codeberg.org/BW20/dots.git"
 readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
 
-# age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
-# pcscd by default, so start it ourselves if nothing already has.
-pgrep -x pcscd >/dev/null 2>&1 || pcscd
-
 main() {
   local new_hardware=false
   if [[ ${1:-} == --new-hardware ]]; then
@@ -47,6 +43,10 @@ main() {
   fi
   [[ $EUID -eq 0 ]] || die "Run as root (disko and nixos-install both need it)"
 
+  # age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
+  # pcscd by default, so start it ourselves if nothing already has.
+  pgrep -x pcscd >/dev/null 2>&1 || pcscd
+
   # The repository that ends up in /etc/nixos. The flake fetched from
   # Codeberg has no repository to commit and push from. jj fills in your
   # name on the first commit.
@@ -61,16 +61,16 @@ main() {
   # machine's hardware report goes in it too, since there is no other
   # computer to commit one from. They stay uncommitted changes in
   # /etc/nixos, to commit and push after the first boot.
-  local src=$repo flake="path:${repo}"
+  local flake="path:${repo}"
   if $new_hardware; then
     log_info "Gathering this machine's hardware report..."
     mkdir -p "${repo}/modules/hosts/${hostname}"
     nixos-facter >"${repo}/modules/hosts/${hostname}/facter.json"
   fi
-  local secrets_file="${src}/secrets/${hostname}.yaml"
+  local secrets_file="${repo}/secrets/${hostname}.yaml"
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
 
-  [[ -s "${src}/modules/hosts/${hostname}/facter.json" ]] ||
+  [[ -s "${repo}/modules/hosts/${hostname}/facter.json" ]] ||
     die "${hostname} has no facter.json yet: commit one first, or add --new-hardware to gather it here (docs/install.md, \"A new host\")."
 
   local nixos_gid
