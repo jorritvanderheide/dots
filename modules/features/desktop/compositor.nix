@@ -246,10 +246,11 @@ in
         programs.niri = {
           enable = true;
 
-          # From nixpkgs, not niri-flake: niri-flake builds against its own
-          # (older) nixpkgs, so its niri links an older glibc than the system
-          # mesa in /run/opengl-driver needs. niri then can't open the GPU and
-          # the session comes up with a black screen.
+          # From nixpkgs, built by cache.nixos.org, not niri-flake. Before
+          # niri-flake followed our nixpkgs (flake.nix), its niri linked an
+          # older glibc than the system mesa in /run/opengl-driver needs, and
+          # couldn't open the GPU: a black screen. Now it would only be a
+          # build from source.
           package = pkgs.niri;
         };
       };

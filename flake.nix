@@ -4,9 +4,7 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
-    niri-flake.url = "github:sodiboo/niri-flake";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
-    nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # Temporary: zotero fails to build against firefox-esr 153.4
     # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
@@ -35,6 +33,23 @@
     new-leaf = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "git+https://codeberg.org/BW20/new-leaf";
+    };
+
+    # niri-flake's and nixos-hardware's own nixpkgs only build their
+    # packages and checks, which we don't use: niri comes from nixpkgs
+    # (compositor.nix).
+    niri-flake = {
+      url = "github:sodiboo/niri-flake";
+
+      inputs = {
+        nixpkgs-stable.follows = "nixpkgs";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    nixos-hardware = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nixos/nixos-hardware";
     };
 
     noctalia = {
