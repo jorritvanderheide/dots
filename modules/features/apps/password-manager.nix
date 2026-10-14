@@ -1,8 +1,4 @@
-{
-  lib,
-  ...
-}:
-{
+_: {
   flake.nixosModules.password-manager =
     {
       pkgs,
@@ -11,7 +7,7 @@
     {
       config = {
         # Disable standard ssh-agent in favor of Bitwarden SSH agent
-        programs.ssh.startAgent = lib.mkForce false;
+        programs.ssh.startAgent = false;
 
         environment.systemPackages = [
           pkgs.bitwarden-desktop
