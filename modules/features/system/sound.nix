@@ -18,23 +18,12 @@
           alsa.support32Bit = true;
           pulse.enable = true;
 
-          # LDAC 990kbps Bluetooth configuration
-          wireplumber.configPackages = [
-            (pkgs.writeTextDir "share/wireplumber/bluetooth.lua.d/51-bluez-config.lua" ''
-              bluez_monitor.rules = {
-                {
-                  matches = {
-                    {
-                      { "device.name", "matches", "bluez_card.*" },
-                    },
-                  },
-                  apply_properties = {
-                    ["api.bluez5.codec-config.ldac.quality"] = "hq",
-                    ["api.bluez5.codec-config.ldac.bitrate"] = 990000,
-                  },
-                },
-              }
-            '')
+          # LDAC at its highest bitrate (990 kbps), not the adaptive one.
+          wireplumber.extraConfig."51-bluez-ldac"."monitor.bluez.rules" = [
+            {
+              actions.update-props."bluez5.a2dp.ldac.quality" = "hq";
+              matches = [ { "device.name" = "~bluez_card.*"; } ];
+            }
           ];
         };
       };
