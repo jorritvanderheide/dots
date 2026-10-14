@@ -144,8 +144,8 @@ sudo offsite-restore immich       # or only what's named; --help lists them
 ```
 
 It downloads first, so a failed download changes nothing. Then it stops the
-services, swaps their data in, puts back what is backed up as a dump or a
-copy (Immich's database, Vaultwarden), and starts them again. What it replaced is kept
+services, swaps their data in, loads what is backed up as a dump (Immich's
+database), and starts them again. What it replaced is kept
 in `/persist/.offsite-restore-old-<time>` until you delete it. The same
 command repairs a single service on a running host.
 

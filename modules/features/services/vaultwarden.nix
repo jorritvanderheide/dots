@@ -28,21 +28,11 @@
             };
           };
 
-          # The backup is Vaultwarden's own copy of its data (backupDir), so
-          # a restore puts that copy back into the data folder.
+          # The data folder itself, SQLite's WAL included, as the backup reads
+          # a snapshot of it.
           my.offsite-backup.entries.vaultwarden = {
-            paths = [ config.services.vaultwarden.backupDir ];
-
-            restore = ''
-              rm -f /var/lib/vaultwarden/db.sqlite3-wal /var/lib/vaultwarden/db.sqlite3-shm
-              cp -a ${config.services.vaultwarden.backupDir}/. /var/lib/vaultwarden/
-              chown -R vaultwarden:vaultwarden /var/lib/vaultwarden
-            '';
-
-            units = [
-              "vaultwarden.service"
-              "backup-vaultwarden.timer"
-            ];
+            paths = [ "/var/lib/vaultwarden" ];
+            units = [ "vaultwarden.service" ];
           };
 
           my.preservation.systemDirectories = [
@@ -52,17 +42,10 @@
               mode = "0700";
               user = "vaultwarden";
             }
-            {
-              directory = "/var/backup/vaultwarden";
-              group = "vaultwarden";
-              mode = "0700";
-              user = "vaultwarden";
-            }
           ];
 
           services.vaultwarden = {
             enable = true;
-            backupDir = "/var/backup/vaultwarden";
             environmentFile = config.sops.secrets.vaultwarden_env.path;
 
             config = {
@@ -99,10 +82,6 @@
               mv "$config.tmp" "$config"
             '';
           };
-
-          systemd.tmpfiles.rules = [
-            "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
-          ];
         };
     };
 }
