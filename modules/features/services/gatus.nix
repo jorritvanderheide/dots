@@ -45,14 +45,15 @@
           }) cfg.endpoints;
 
           # A heartbeat turns an endpoint red when its pushes stop: a day
-          # and an hour for the daily offsite backup. Every host reports
+          # and two hours for the daily offsite backup, whose start moves by
+          # up to an hour (offsite-backup.nix). Every host reports
           # its disks hourly (disk-health.nix), but only this one's silence
           # means something broke; a laptop's means it's off.
           external-endpoints = [
             {
               alerts = pushAlerts;
               group = "backups";
-              heartbeat.interval = "25h";
+              heartbeat.interval = "26h";
               name = "offsite-backup";
               token = placeholder (pushTokenKey config.networking.hostName);
             }
