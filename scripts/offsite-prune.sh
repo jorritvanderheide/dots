@@ -11,11 +11,20 @@ flake=$OFFSITE_PRUNE_FLAKE
 
 repository=$(nix eval --raw "$flake#nixosConfigurations.$host.config.services.restic.backups.offsite.repository")
 
-identity=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}")
-trap 'rm -f "$identity"' EXIT
-age-plugin-yubikey --identity >"$identity" 2>/dev/null || true
+# Whichever YubiKey is plugged in, unless SOPS_AGE_KEY_FILE already
+# points at an identity, like the passphrase one (docs/secrets.md).
+if [[ -z ${SOPS_AGE_KEY_FILE:-} ]]; then
+  SOPS_AGE_KEY_FILE=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}")
+  export SOPS_AGE_KEY_FILE
+  trap 'rm -f "$SOPS_AGE_KEY_FILE"' EXIT
+  age-plugin-yubikey --identity >"$SOPS_AGE_KEY_FILE" 2>/dev/null || true
+  grep -q '^AGE-PLUGIN-YUBIKEY-' "$SOPS_AGE_KEY_FILE" || {
+    echo "No YubiKey found. Plug one in, or set SOPS_AGE_KEY_FILE to the passphrase identity." >&2
+    exit 1
+  }
+fi
 # dapple's file asks for the YubiKey's PIN and a touch.
-RESTIC_PASSWORD=$(SOPS_AGE_KEY_FILE=$identity sops -d --extract '["restic_password"]' "$flake/secrets/$host.yaml")
+RESTIC_PASSWORD=$(sops -d --extract '["restic_password"]' "$flake/secrets/$host.yaml")
 export RESTIC_PASSWORD RESTIC_REPOSITORY=$repository
 
 # The owner's credentials, from Bitwarden: they can delete, so they are
