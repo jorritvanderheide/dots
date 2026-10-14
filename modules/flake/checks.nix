@@ -20,6 +20,11 @@
     in
     {
       checks = {
+        # Building them runs shellcheck (writeShellApplication). The hosts'
+        # builds cover the scripts they install; these two only run from
+        # the flake, mid-install or mid-prune.
+        inherit (config.packages) install offsite-prune;
+
         # With the lints the formatter disables (formatter.nix). statix only
         # reads a file named statix.toml.
         statix =
