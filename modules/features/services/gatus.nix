@@ -117,7 +117,7 @@
                 dnsResolver = lib.mkOption {
                   type = lib.types.nullOr lib.types.str;
                   default = null;
-                  example = "tcp://1.1.1.1:53";
+                  example = "tcp://9.9.9.9:53";
                   description = "A DNS server to look the URL's name up with, instead of the host's (which knows the tailnet's names).";
                 };
 

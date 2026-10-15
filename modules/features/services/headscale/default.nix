@@ -49,12 +49,10 @@
         # The host's own client enrolls with the server next to it.
         my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
 
-        security.acme.certs.${cfg.domain} = { };
-
         assertions = [
           {
             assertion = config.my ? ingress;
-            message = "headscale needs the ingress feature, for ACME certificates";
+            message = "headscale needs the ingress feature, for its wildcard certificate";
           }
         ];
 
@@ -117,9 +115,11 @@
               base_domain = cfg.magicDnsDomain;
               magic_dns = true;
 
+              # Quad9: a Swiss non-profit under GDPR, anycast worldwide for
+              # devices abroad.
               nameservers.global = [
-                "1.0.0.1"
-                "1.1.1.1"
+                "149.112.112.112"
+                "9.9.9.9"
               ];
             };
 
@@ -138,7 +138,7 @@
 
         services.nginx.virtualHosts.${cfg.domain} = {
           forceSSL = true;
-          useACMEHost = cfg.domain;
+          useACMEHost = config.my.ingress.domain;
 
           locations = {
             # Public on purpose. This carries the client control protocol and

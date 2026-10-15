@@ -138,10 +138,9 @@
           in
           {
             networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
-            security.acme.certs.${lanDomain} = { };
 
             # Kobo firmware's sync/connectivity check requires HTTPS; plain
-            # HTTP gets reported as "no internet access". DNS-01 (Cloudflare)
+            # HTTP gets reported as "no internet access". DNS-01 (deSEC)
             # issues a real cert regardless of what IP the name points to, so
             # this stays a trusted cert even though the record resolves to a
             # private LAN address.
@@ -154,7 +153,7 @@
               # pages: the router's port forward lands on this socket too.
               locations."/".return = "404";
 
-              useACMEHost = lanDomain;
+              useACMEHost = config.my.ingress.domain;
 
               locations."/kobo/" = {
                 proxyPass = "http://127.0.0.1:${toString port}";

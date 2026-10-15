@@ -128,7 +128,8 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 
 ## 6 Services on dapple
 
-Each service is at `<subdomain>.bw20.nl`, with its own certificate.
+Each service is at `<subdomain>.bw20.nl`, with one wildcard certificate for
+all of them.
 
 | Service | Subdomain | What for |
 | --- | --- | --- |
@@ -162,12 +163,13 @@ back, goes to the phone through ntfy.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, only three things answer, all through Cloudflare:
+There, only three things answer, at names that point straight at the home
+address (DNS at deSEC, no proxy):
 
-- **Headscale** at `vpn`: the control protocol and the DERP relay, which a
-  device away from home needs to join the tailnet. Its admin API
-  (`/api`, `/swagger`) only answers tailnet addresses, which never come
-  through Cloudflare: the `headscale` CLI uses a local socket.
+- **Headscale** at `vpn`: the control protocol, the DERP relay and its STUN,
+  which a device away from home needs to join the tailnet. Its admin API
+  (`/api`, `/swagger`) only answers tailnet addresses: the `headscale` CLI
+  uses a local socket.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
 - **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
@@ -198,7 +200,7 @@ interface.
 **rocinante** opens no ports but Tailscale's 41641/udp, and 5353/udp for
 mDNS, to find the installer ISO.
 
-**Outgoing**: restic to Storj, ACME certificates through Cloudflare DNS, and
-the status page's checks of New Leaf's share links and meetinn, from
-outside through Cloudflare, and meetinn's hourly update of its Yivi
-schemes and its mail, through Proton's SMTP.
+**Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
+the status page's checks of New Leaf's share links and meetinn, at the
+public address through the router's hairpin NAT, and meetinn's hourly
+update of its Yivi schemes and its mail, through Proton's SMTP.

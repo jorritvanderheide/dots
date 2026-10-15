@@ -7,11 +7,14 @@ themselves are listed in the README's
 
 ## Who is kept out of what
 
-**The internet** reaches three things on dapple, through Cloudflare:
-Headscale's control protocol and DERP relay at `vpn`, New Leaf's share
-links at `cv`, and meetinn (a demo) at `inn`. Headscale's admin API (`/api`, `/swagger`) only answers tailnet addresses,
-which never reach it through Cloudflare, so in practice nobody over the
-network: the `headscale` CLI uses a local socket. A name no vhost claims
+**The internet** reaches three things on dapple, at the home address,
+through the router's port forward: Headscale's control protocol and DERP
+relay at `vpn`, New Leaf's share links at `cv`, and meetinn (a demo) at
+`inn`. No proxy sits in front, so TLS ends on dapple and nobody between
+reads share links or meetinn's tokens, at the price of a public home
+address. Headscale's admin API (`/api`, `/swagger`) only answers tailnet
+addresses, so in practice nobody over the network: the `headscale` CLI uses
+a local socket. A name no vhost claims
 gets no certificate and no answer. Everything else is bound to dapple's
 tailnet address.
 
@@ -93,19 +96,20 @@ laptop and a key together still aren't enough.
 ## Checked by hand
 
 What the configuration can't say, checked on 2026-10-10. Worth checking
-again after changing the router, Cloudflare or an app's own settings.
+again after changing the router, the DNS or an app's own settings.
 
 - Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
   password isn't the default, and qBittorrent's password is long and random.
-- The Cloudflare token (for ACME) can only edit DNS in `bw20.nl`: with
-  more, it could point `vpn` elsewhere and get a valid certificate for it.
-  It's the account's only API token; three leftover Cloudflare Tunnel
-  tokens, which nothing here used, were deleted.
+- The deSEC token (for ACME) can only write the `_acme-challenge` TXT
+  record, and only from the home address: a default policy without write,
+  one TXT policy for `_acme-challenge`, and `allowed_subnets`. With more,
+  it could point `vpn` elsewhere and get a valid certificate for it, or
+  rewrite the mail records. It can still read the whole zone, as every
+  deSEC token can.
 - The router passes internet visitors' own addresses on, so the Kobo vhost's
   LAN rule holds: from mobile data,
   `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
-  answers 403. (Headscale's `/api` can't tell: `vpn` goes through
-  Cloudflare, so it refuses everyone.)
+  answers 403, and so does `https://vpn.bw20.nl/api/v1/node`.
 - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
   address.
 
@@ -133,9 +137,9 @@ would otherwise win.
   doesn't go stale and installs whatever was pushed last. A compromised
   Codeberg account could feed it a bad one; the same account would reach
   your next fetch anyway.
-- **Every service has its own certificate**, so Certificate Transparency
-  logs list their names. The names aren't secret; the services aren't
-  reachable from the internet.
+- **Certificate Transparency logs still list the services' names**, from
+  before the wildcard certificate. The names aren't secret; the services
+  aren't reachable from the internet.
 - **qBittorrent's password hash is in the repository** (PBKDF2, in its
   declared config), which is fine with a long, random password like its
   own.

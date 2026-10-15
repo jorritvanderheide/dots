@@ -53,8 +53,6 @@
         # Share links are public on purpose, like headscale.
         networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
 
-        security.acme.certs.${domain} = { };
-
         my.gatus.endpoints = {
           # /healthz needs no tailnet identity, and answers 503 when New Leaf
           # can't write CVs or share links, or run Typst.
@@ -65,10 +63,11 @@
           };
 
           # A file New Leaf syncs into the public webroot; "/" only redirects.
-          # Through public DNS, so through Cloudflare and the port forward:
-          # MagicDNS points the name at the tailnet vhost.
+          # Through public DNS, so through the router's port forward (by its
+          # hairpin NAT, from here): MagicDNS points the name at the tailnet
+          # vhost.
           cv-share = {
-            dnsResolver = "tcp://1.1.1.1:53";
+            dnsResolver = "tcp://9.9.9.9:53";
             group = "productivity";
             url = "https://${domain}/fonts/OFL.txt";
           };
@@ -88,9 +87,9 @@
           }
         ];
 
-        # The domain goes through Cloudflare, so nginx can't tell the tailnet
-        # from the internet by visitor address. MagicDNS points it at dapple's
-        # tailnet address instead, where the editor's vhost answers.
+        # The domain's public record points at the home address, where only
+        # the share links answer. MagicDNS points it at dapple's tailnet
+        # address instead, where the editor's vhost answers.
         services.headscale.settings.dns.extra_records = [
           {
             name = domain;
@@ -112,7 +111,7 @@
         services.nginx.virtualHosts = {
           ${domain} = {
             forceSSL = true;
-            useACMEHost = domain;
+            useACMEHost = config.my.ingress.domain;
           };
 
           # The same domain on the tailnet address: nginx only considers
@@ -126,7 +125,7 @@
             listenAddresses = [ config.my.ingress.tailnetIp ];
             root = config.services.new-leaf.publicDir;
             serverName = domain;
-            useACMEHost = domain;
+            useACMEHost = config.my.ingress.domain;
 
             # Backups up to 50 MB. Here, not in the editor's location: nginx
             # checks it in "/", before try_files hands over to the editor.

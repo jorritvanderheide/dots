@@ -4,7 +4,7 @@
   ...
 }:
 {
-  # nginx, with ACME certificates through Cloudflare's DNS, and the
+  # nginx, with ACME certificates through deSEC's DNS, and the
   # services' web pages behind it (my.ingress.proxies).
   flake.nixosModules.ingress =
     {
@@ -21,7 +21,7 @@
           type = lib.types.str;
           default = inputs.self.lib.site.domain;
           defaultText = lib.literalExpression "inputs.self.lib.site.domain";
-          description = "The domain the services' vhosts are subdomains of.";
+          description = "The domain the services' vhosts are subdomains of, and the name of the wildcard certificate they all use (useACMEHost).";
         };
 
         proxies = lib.mkOption {
@@ -77,8 +77,9 @@
 
           description = ''
             Web pages at <name>.<domain>, each proxied to a local port,
-            declared by the service's own module: an ACME certificate, a
-            vhost only the tailnet reaches, and the status page's check.
+            declared by the service's own module: a vhost only the tailnet
+            reaches, with the wildcard certificate, and the status page's
+            check.
           '';
         };
 
@@ -103,9 +104,10 @@
 
         networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
 
-        # Every certificate's order and renewal reads it, as its
-        # EnvironmentFile.
-        sops.secrets.cloudflare_dns_env = { };
+        # The certificate's order and renewal read it, as their
+        # EnvironmentFile. Its token may only write the _acme-challenge TXT
+        # record (docs/security.md).
+        sops.secrets.desec_dns_env = { };
 
         users.groups.acme.members = [ "nginx" ];
 
@@ -130,20 +132,24 @@
 
         security.acme = {
           acceptTerms = true;
-          certs = lib.mapAttrs' (subdomain: _: lib.nameValuePair (domainOf subdomain) { }) cfg.proxies;
+
+          # One for every subdomain, public or not: Certificate Transparency
+          # logs then list no service's name, and a new subdomain needs no
+          # order, nor a policy on the deSEC token.
+          certs.${cfg.domain}.domain = "*.${cfg.domain}";
 
           defaults = {
-            dnsProvider = "cloudflare";
+            dnsProvider = "desec";
 
             # Check the DNS-01 challenge against the zone's authoritative
-            # nameserver, not the system resolver (MagicDNS -> 1.1.1.1):
+            # nameserver, not the system resolver (MagicDNS -> Quad9):
             # a recursive resolver can keep serving a cached NXDOMAIN for
-            # up to the zone's 30 min negative TTL, e.g. right after a
-            # new subdomain's record was created, and the order fails.
-            dnsResolver = "clint.ns.cloudflare.com:53";
+            # the challenge record, from before it was written, for up to
+            # the zone's negative TTL, and the order fails.
+            dnsResolver = "ns1.desec.io:53";
 
             email = "jorrit+acme@bw20.nl";
-            environmentFile = config.sops.secrets.cloudflare_dns_env.path;
+            environmentFile = config.sops.secrets.desec_dns_env.path;
           };
         };
 
@@ -177,7 +183,7 @@
                 # tailnet-only.
                 listenAddresses = [ cfg.tailnetIp ];
 
-                useACMEHost = domainOf subdomain;
+                useACMEHost = cfg.domain;
 
                 # SAMEORIGIN (not DENY) so apps that rely on same-origin
                 # iframes still work, e.g. Vaultwarden's browser extension
