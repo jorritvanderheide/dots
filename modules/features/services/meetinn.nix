@@ -79,7 +79,12 @@
           # visitors: five registrations a minute between them. nginx takes
           # the visitor's address from Cloudflare's header instead, only
           # from Cloudflare's ranges (https://www.cloudflare.com/ips/).
+          #
+          # No access log: its URLs hold manage and pass tokens, keys to a
+          # registration, next to the visitor's address, and /var/log is
+          # persisted and snapshotted for long after meetinn forgets them.
           extraConfig = ''
+            access_log off;
             real_ip_header CF-Connecting-IP;
           ''
           + lib.concatMapStrings (range: "set_real_ip_from ${range};\n") [
