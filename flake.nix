@@ -32,7 +32,7 @@
 
     meetinn = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://codeberg.org/BW20/meetinn";
+      url = "git+https://codeberg.org/ict-netwerk-nijmegen/meetinn";
     };
 
     new-leaf = {
