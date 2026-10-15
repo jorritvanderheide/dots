@@ -135,11 +135,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792007254,
-        "narHash": "sha256-UJBbm9BgdkMF307TetTEO3SUnDDnubyxRFeE8+gPXxY=",
+        "lastModified": 1792041785,
+        "narHash": "sha256-rX1O85jgTWz1LDJCEeAIBTAlNeBG1kwdj6FMJUmnKIE=",
         "ref": "refs/heads/main",
-        "rev": "d1c7c4b6d34c88d97e6be8e0d93d20e9c6870f7d",
-        "revCount": 59,
+        "rev": "5fac5b89bbcfa27318c97dd540ebd6fb9c9a209d",
+        "revCount": 62,
         "type": "git",
         "url": "https://codeberg.org/BW20/meetinn"
       },
