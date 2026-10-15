@@ -67,11 +67,6 @@
       url = "github:Mic92/sops-nix";
     };
 
-    system76-scheduler-niri = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:Kirottu/system76-scheduler-niri";
-    };
-
     treefmt-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:numtide/treefmt-nix";

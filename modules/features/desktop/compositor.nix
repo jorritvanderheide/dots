@@ -4,7 +4,6 @@
 }:
 let
   niri-flake = inputs.niri-flake.nixosModules.niri;
-  system76SchedulerModule = inputs.system76-scheduler-niri.homeModules.default;
 in
 {
   flake.nixosModules.compositor =
@@ -58,7 +57,6 @@ in
 
         # Home manager
         home-manager.sharedModules = [
-          system76SchedulerModule
           {
             # Without the ssh component, which conflicts with the Bitwarden SSH
             # agent. The keyring has an empty password: the session logs in
@@ -80,8 +78,6 @@ in
               ...
             }:
             {
-              services.system76-scheduler-niri.enable = true;
-
               programs.niri.settings = {
                 inherit (cfg) outputs;
                 clipboard.disable-primary = true;
@@ -215,14 +211,47 @@ in
                 };
               };
 
-              # Upstream's unit comes after niri.service, which uwsm doesn't
-              # start: niri runs as wayland-wm@niri.service, in the graphical
-              # session.
+              # Tells system76-scheduler (power.nix) which process has the
+              # focused window, so it gets the foreground's priority. Through
+              # niri's CLI, not niri-ipc's Rust types: a new niri adds events,
+              # which a parser built for an older one stops at, and here are
+              # only skipped.
               systemd.user.services.system76-scheduler-niri = {
-                Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
+                Install.WantedBy = [ "graphical-session.target" ];
+
+                Service = {
+                  # The event stream ends when niri does.
+                  Restart = "always";
+                  RestartSec = 5;
+
+                  ExecStart = lib.getExe (
+                    pkgs.writeShellApplication {
+                      name = "system76-scheduler-niri";
+
+                      runtimeInputs = [
+                        config.programs.niri.package
+                        pkgs.jq
+                        pkgs.systemd
+                      ];
+
+                      text = ''
+                        niri msg --json event-stream |
+                          jq --unbuffered 'select(.WindowFocusChanged.id != null) | .WindowFocusChanged.id' |
+                          while read -r _; do
+                            pid=$(niri msg --json focused-window | jq '.pid // empty')
+                            if [[ -n $pid ]]; then
+                              busctl --system call com.system76.Scheduler /com/system76/Scheduler \
+                                com.system76.Scheduler SetForegroundProcess u "$pid" || true
+                            fi
+                          done
+                      '';
+                    }
+                  );
+                };
 
                 Unit = {
-                  After = lib.mkForce [ "graphical-session.target" ];
+                  After = [ "graphical-session.target" ];
+                  Description = "Tell system76-scheduler which process has niri's focused window";
                   PartOf = [ "graphical-session.target" ];
                 };
               };
