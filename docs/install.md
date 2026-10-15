@@ -73,7 +73,9 @@ it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
 secrets file are uncommitted changes in its `/etc/nixos`: commit and push
 them after the first boot, or the next deploy from elsewhere puts the old
 file back. rocinante commits them where they are. dapple has no git: its
-`/etc/nixos` only carries them back, to rocinante, from its `/etc/nixos`:
+`/etc/nixos` only carries them back, to rocinante, from its `/etc/nixos`.
+Its SSH host key is one of its secrets, so it is the host rocinante pins
+from the first boot:
 
 ```sh
 ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml

@@ -37,10 +37,9 @@
         networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
         security.pam.services.sudo.rssh = true;
 
-        # Preserve state
-        my.preservation.systemFiles = [
-          "/etc/ssh/ssh_host_ed25519_key.pub"
-        ];
+        # The host key is a secret, not a file on /persist, so a reinstalled
+        # host has the key the others pin (lib.site) from its first boot.
+        sops.secrets.ssh_host_key.restartUnits = [ "sshd.service" ];
 
         # By source address, not just by interface: the router's port
         # forward arrives on the LAN interface too.
@@ -98,7 +97,7 @@
 
           hostKeys = [
             {
-              path = "/persist/system/etc/ssh/ssh_host_ed25519_key";
+              inherit (config.sops.secrets.ssh_host_key) path;
               type = "ed25519";
             }
           ];

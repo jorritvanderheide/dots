@@ -58,6 +58,19 @@ plaintext. Make one with `mkpasswd -m yescrypt`. `bazarr_password` is the
 md5 hex digest of the password (`printf '%s' '<password>' | md5sum`),
 which is what Bazarr compares.
 
+`ssh_host_key` is dapple's SSH host key, the whole private key file, so a
+reinstalled dapple is the host rocinante pins from its first boot. Its
+public half is `site.dapple.hostKey` in `modules/flake/site.nix`, and the
+two have to match, or rocinante refuses the next deploy's SSH. Check before
+deploying a new one:
+
+```fish
+ssh-keygen -y -f (sops -d --extract '["ssh_host_key"]' secrets/dapple.yaml | psub)
+```
+
+A new one comes from `ssh-keygen -t ed25519 -N "" -C root@dapple -f key`:
+`key` goes in the secret and `key.pub` in `site.nix`, in the same deploy.
+
 ## Enrolling an additional YubiKey
 
 A new key, or one replacing a lost one, gets what the others have. First
@@ -192,7 +205,8 @@ or `ndeploy dapple`).
    key. In particular, change the LUKS password (`cryptsetup luksChangeKey`
    on every disk, then `sudo enroll-tpm`), the restic password
    (`restic key add`, then `restic key remove` the old one), the Storj
-   credentials, the user password hashes, and the tokens and API keys.
+   credentials, the user password hashes, dapple's SSH host key, and the
+   tokens and API keys.
 5. Push, and deploy every host.
 
 ## Regenerating the passphrase identity

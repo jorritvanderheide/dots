@@ -45,12 +45,12 @@
         '';
 
         sops = {
-          # The host's own age key, straight on /persist like the SSH host
-          # key (install.sh puts it there). On LUKS, so it's as safe as the
-          # disk (the TPM only unlocks under our secure boot); the
-          # alternative is a YubiKey needed at every boot, or left plugged
-          # in for a thief. Only this key, not the SSH host key sops-nix
-          # would otherwise also try.
+          # The host's own age key, straight on /persist (install.sh puts it
+          # there). On LUKS, so it's as safe as the disk (the TPM only
+          # unlocks under our secure boot); the alternative is a YubiKey
+          # needed at every boot, or left plugged in for a thief. Only this
+          # key, not the SSH host key sops-nix would otherwise also try,
+          # which is itself one of the secrets (ssh-server.nix).
           age.keyFile = "/persist/system/var/lib/sops/age.key";
           age.sshKeyPaths = [ ];
           gnupg.sshKeyPaths = [ ];

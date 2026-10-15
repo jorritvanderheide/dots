@@ -23,7 +23,8 @@ _: {
       vpnDomain = "vpn.bw20.nl";
 
       dapple = {
-        # Its SSH host key, which the ssh feature pins.
+        # Its SSH host key, which the ssh feature pins. The private half is
+        # ssh_host_key in secrets/dapple.yaml (ssh-server.nix).
         hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
 
         lanIp = "192.168.1.162";
