@@ -125,7 +125,7 @@ restic-offsite restore --no-lock "$snapshot" --target "$staging" "${includes[@]}
 check_restored "$staging"
 
 old=/persist/.offsite-restore-old-$(date +%Y%m%dT%H%M%S)
-systemctl stop restic-backups-offsite.timer "${units[@]}"
+systemctl stop restic-backups-offsite.timer offsite-backup-retry.timer "${units[@]}"
 # errtrace: the restore commands run inside run_hook, where the trap
 # wouldn't fire otherwise.
 set -E

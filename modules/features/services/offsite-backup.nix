@@ -27,6 +27,9 @@
       inPersist = path: if lib.hasPrefix "/persist/" path then path else "/persist/system${path}";
       inSnapshot = path: snapshotDir + lib.removePrefix "/persist" (inPersist path);
 
+      report =
+        outcome: lib.optional (cfg.healthcheckUrl != null) "offsite-backup-report@${outcome}.service";
+
       # Paths outside the entries are restored as one more, without units.
       restoreEntries =
         cfg.entries
@@ -123,9 +126,10 @@
           type = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
-            A Gatus external endpoint to POST to after each successful
-            backup, with the sops secret gatus_push_token as its bearer token.
-            The gatus feature sets it on its own host.
+            A Gatus external endpoint, without its query, to POST each
+            backup's result to (`?success=true`, or `false` with an error),
+            with the sops secret gatus_push_token as its bearer token. The
+            gatus feature sets it on its own host.
           '';
         };
 
@@ -192,16 +196,29 @@
           AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.storj_secret_key}
         '';
 
-        systemd.services.offsite-backup-healthcheck = lib.mkIf (cfg.healthcheckUrl != null) {
-          description = "Notify gatus that the offsite backup succeeded";
+        # Started by the backup's OnSuccess= (@success) and OnFailure=
+        # (@failure). A failure is pushed too, so Gatus alerts at once
+        # instead of waiting out the heartbeat, which each restart of Gatus
+        # starts over. One instance per outcome: systemd only passes a unit
+        # how its trigger ended ($MONITOR_*) when it has a single trigger,
+        # and the backup listing one unit under both counts as two. A run
+        # stopped by hand is a failure too (killed by TERM), and is retried.
+        systemd.services."offsite-backup-report@" = lib.mkIf (cfg.healthcheckUrl != null) {
+          description = "Tell gatus the offsite backup ended in %i";
           path = [ pkgs.curl ];
+          scriptArgs = "%i";
           serviceConfig.Type = "oneshot";
 
           # The header on stdin, not in curl's arguments, which any local
           # user can read.
           script = ''
+            if [[ $1 == success ]]; then
+              query="success=true"
+            else
+              query="success=false&error=$MONITOR_SERVICE_RESULT-$MONITOR_EXIT_STATUS"
+            fi
             TOKEN="$(<${config.sops.secrets.gatus_push_token.path})"
-            curl -X POST -fsS -o /dev/null --config - ${lib.escapeShellArg cfg.healthcheckUrl} <<<"header = \"Authorization: Bearer $TOKEN\""
+            curl -X POST -fsS -o /dev/null --config - "${cfg.healthcheckUrl}?$query" <<<"header = \"Authorization: Bearer $TOKEN\""
           '';
         };
 
@@ -241,29 +258,39 @@
           };
         };
 
-        # Ping the gatus push endpoint only on a successful backup. The restic
-        # unit's own backupCleanupCommand maps to ExecStopPost (runs on failure
-        # too), so use OnSuccess to gate the ping on success.
         systemd.services.restic-backups-offsite = {
           after = [ "offsite-backup-snapshot.service" ];
           requires = [ "offsite-backup-snapshot.service" ];
+          serviceConfig.BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
 
-          serviceConfig = {
-            BindReadOnlyPaths = map (path: "${inSnapshot path}:${path}") paths;
-
-            # restic refreshes its lock every 5 minutes by deleting the old
-            # one, which these credentials can't, and gives up after 22.5
-            # minutes ("failed to refresh lock in time"); `backup` has no
-            # --no-lock. It saves its index every 10 minutes, so a retry goes
-            # on where the last one stopped: a long run (the first one, a big
-            # import) finishes in steps.
-            Restart = "on-failure";
-            RestartSec = "5min";
+          unitConfig = {
+            OnFailure = [ "offsite-backup-retry.timer" ] ++ report "failure";
+            OnSuccess = report "success";
           };
+        };
 
-          unitConfig.OnSuccess = lib.mkIf (cfg.healthcheckUrl != null) [
-            "offsite-backup-healthcheck.service"
-          ];
+        # A failed run is tried again 5 minutes later, from this timer
+        # rather than the unit's own Restart=: the unit stops in between, so
+        # the snapshot goes too and each try takes a fresh one. A restart
+        # inside the unit kept its first snapshot, and when a new service's
+        # path wasn't in it yet, failed on it for good (2026-10-14).
+        #
+        # restic refreshes its lock every 5 minutes by deleting the old one,
+        # which these credentials can't, and gives up after 22.5 minutes
+        # ("failed to refresh lock in time"); `backup` has no --no-lock. It
+        # saves its index every 10 minutes, so a retry goes on where the last
+        # one stopped: a long run (the first one, a big import) finishes in
+        # steps.
+        systemd.timers.offsite-backup-retry = {
+          description = "Retry the failed offsite backup";
+
+          timerConfig = {
+            OnActiveSec = "5min";
+
+            # Inactive once it has fired, so the next failure can start it.
+            RemainAfterElapse = false;
+            Unit = "restic-backups-offsite.service";
+          };
         };
       };
     };

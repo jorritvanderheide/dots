@@ -153,10 +153,14 @@ hadn't indexed, and is cut off again just before saving its snapshot. (A
 reinstalled host's restored data is in its repository already.) Then run
 it once with the
 owner's key, through the normal service (so it still reads a snapshot of
-`/persist`), on the host:
+`/persist`), on the host. A backup stopped by hand counts as a failed one:
+Gatus alerts, and it is tried again 5 minutes later, from
+`offsite-backup-retry.timer`. Stopping the backup starts that timer, so
+stop the timer after it:
 
 ```sh
 sudo systemctl stop restic-backups-offsite
+sudo systemctl stop offsite-backup-retry.timer
 sudo bash -c 'umask 077; read -p "owner access key: " a; read -sp "owner secret key: " s; echo; printf "AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n" "$a" "$s" > /run/secrets/rendered/restic-s3-env'
 sudo systemctl start --no-block restic-backups-offsite
 journalctl -fu restic-backups-offsite         # until: snapshot ... saved

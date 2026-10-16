@@ -52,7 +52,9 @@
 
           # A heartbeat turns an endpoint red when its pushes stop: a day
           # and two hours for the daily offsite backup, whose start moves by
-          # up to an hour (offsite-backup.nix). Every host reports
+          # up to an hour (offsite-backup.nix). It is only checked a whole
+          # interval after Gatus starts, and every deploy that changes this
+          # config restarts it, so the backup pushes its failures too. Every host reports
           # its disks hourly (disk-health.nix), but only this one's silence
           # means something broke; a laptop's means it's off.
           external-endpoints = [
@@ -150,9 +152,9 @@
             };
           })
           {
-            # The offsite backup reports to the heartbeat in
-            # external-endpoints.
-            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external?success=true";
+            # The offsite backup reports each run, failed or not, to the
+            # heartbeat in external-endpoints.
+            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external";
 
             sops.secrets = lib.genAttrs secretKeys (_: { });
             users.groups.gatus = { };
