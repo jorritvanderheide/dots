@@ -20,6 +20,15 @@
     };
 
     config = {
+      # Connections added by hand (nmcli, the applet). Those from Nix live
+      # in /run (wifi.nix).
+      my.preservation.systemDirectories = [
+        {
+          directory = "/etc/NetworkManager/system-connections";
+          mode = "0700";
+        }
+      ];
+
       networking = {
         # NetworkManager runs its own DHCP client per-interface; without this
         # NixOS's global dhcpcd.service also runs and races it on the same

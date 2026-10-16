@@ -6,6 +6,10 @@
     }:
     {
       config = {
+        # Each device's profile and volume. Without it, a Bluetooth headset
+        # can come back on the call profile after a boot instead of A2DP.
+        my.preservation.homeDirectories = [ ".local/state/wireplumber" ];
+
         security.rtkit.enable = true;
 
         environment.systemPackages = with pkgs; [
