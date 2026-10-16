@@ -22,6 +22,13 @@
         environment.systemPackages = [ pkgs.age-plugin-yubikey ];
         services.pcscd.enable = true;
 
+        # Every password comes from a hashedPasswordFile (root's here, the
+        # users' in lib.nix), set again at each activation, so a rotated one
+        # applies on deploy. With mutable users, NixOS only sets a password
+        # when it creates the user: the next boot (the root wipe rebuilds
+        # /etc/shadow).
+        users.mutableUsers = false;
+
         users.users.root.hashedPasswordFile = config.sops.secrets.user_password_root.path;
 
         # sops-install-secrets isn't on cache.nixos.org but is on

@@ -54,7 +54,8 @@ current directory up. The dev shell sets `SOPS_CONFIG` to it; without the
 dev shell, run those from `secrets/`.
 
 The user passwords (`user_password_<user>`) are password *hashes*, not
-plaintext. Make one with `mkpasswd -m yescrypt`. `bazarr_password` is the
+plaintext. Make one with `mkpasswd -m yescrypt`. A new one applies on the
+next deploy, and `passwd` on a host only lasts until then. `bazarr_password` is the
 md5 hex digest of the password (`printf '%s' '<password>' | md5sum`),
 which is what Bazarr compares.
 
