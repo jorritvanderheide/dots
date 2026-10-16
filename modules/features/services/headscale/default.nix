@@ -81,9 +81,11 @@
         };
 
         my.preservation.systemDirectories = [
+          # The mode the unit's StateDirectoryMode sets, from boot on.
           {
             directory = "/var/lib/headscale";
             group = "headscale";
+            mode = "0750";
             user = "headscale";
           }
         ];
