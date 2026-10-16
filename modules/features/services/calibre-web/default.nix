@@ -105,6 +105,30 @@
             ];
 
             serviceConfig = {
+              # It parses whatever was uploaded, so it gets what converting
+              # takes and no more: the library to write to, no network.
+              CapabilityBoundingSet = "";
+              LockPersonality = true;
+              NoNewPrivileges = true;
+              PrivateDevices = true;
+              PrivateNetwork = true;
+              PrivateUsers = true;
+              ProtectClock = true;
+              ProtectControlGroups = true;
+              ProtectHome = true;
+              ProtectHostname = true;
+              ProtectKernelLogs = true;
+              ProtectKernelModules = true;
+              ProtectKernelTunables = true;
+              ProtectProc = "invisible";
+              ProtectSystem = "strict";
+              ReadWritePaths = [ calibreLibrary ];
+              RestrictAddressFamilies = [ "AF_UNIX" ];
+              RestrictNamespaces = true;
+              RestrictRealtime = true;
+              RestrictSUIDSGID = true;
+              SystemCallArchitectures = "native";
+
               # calibre and KCC both want a writable home for config and
               # scratch space; the service user has none.
               Environment = "HOME=/tmp";
@@ -119,6 +143,11 @@
 
               Type = "oneshot";
               User = "calibre-web";
+
+              SystemCallFilter = [
+                "@system-service"
+                "~@privileged"
+              ];
             };
           };
 
