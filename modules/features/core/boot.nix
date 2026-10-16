@@ -39,11 +39,7 @@
 
           initrd = {
             compressor = "zstd";
-
-            systemd = {
-              enable = true;
-              services.systemd-udev-settle.serviceConfig.TimeoutSec = "10s";
-            };
+            systemd.enable = true;
           };
 
           # Quiet hides the kernel's own log spam. The rest keeps the console

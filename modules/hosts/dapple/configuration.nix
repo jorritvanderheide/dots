@@ -60,9 +60,6 @@
             # table accepts.
             networking.nftables.enable = true;
 
-            # The Realtek rtw89 driver is incompatible with networkd's BPF DHCP client.
-            networking.useNetworkd = lib.mkForce false;
-
             system.stateVersion = "26.05";
 
             # preservation.nix pins this to 3000 for install.sh's benefit on a

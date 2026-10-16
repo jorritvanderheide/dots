@@ -42,6 +42,10 @@
           '';
         };
 
+        # No nohibernate here: NixOS's ZFS module adds it, as
+        # boot.zfs.allowHibernation is off. That suits these hosts anyway:
+        # their only swap is zram (kernel.nix), which can't hold a
+        # hibernation image. Suspend-to-RAM is unaffected.
         kernelParams =
           let
             facterReport = config.facter.report;
@@ -53,13 +57,6 @@
             arcMaxBytes = memoryBytes / 4;
           in
           [
-            # Hibernation needs swap large enough to hold all of RAM and
-            # surviving a power cycle; this host only has zram swap
-            # (kernel.nix), which is neither, so disable it outright rather
-            # than risk a hibernate attempt failing badly. Suspend-to-RAM
-            # (see desktop-shell.nix's idle.behavior.lock-and-suspend) is
-            # unaffected.
-            "nohibernate"
             "zfs.zfs_arc_max=${toString arcMaxBytes}"
           ];
 

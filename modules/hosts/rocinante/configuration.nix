@@ -144,11 +144,6 @@
               # boot. Generated with
               # `nix key generate-secret --key-name rocinante-1`.
               secret-key-files = [ config.sops.secrets.nix_signing_key.path ];
-
-              # numtide's cache, for the laptop only (nix-community's is in
-              # secrets.nix, for every host).
-              substituters = [ "https://numtide.cachix.org" ];
-              trusted-public-keys = [ "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=" ];
             };
 
             # Resolves .local names, to reach the installer ISO as
