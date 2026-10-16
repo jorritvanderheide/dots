@@ -95,8 +95,10 @@ laptop and a key together still aren't enough.
 
 ## Checked by hand
 
-What the configuration can't say, checked on 2026-10-10. Worth checking
-again after changing the router, the DNS or an app's own settings.
+What the configuration can't say, checked on 2026-10-10, and the deSEC
+token and the 403s from outside again on 2026-10-16, after the move to
+deSEC. Worth checking again after changing the router, the DNS or an app's
+own settings.
 
 - Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
   password isn't the default, and qBittorrent's password is long and random.
