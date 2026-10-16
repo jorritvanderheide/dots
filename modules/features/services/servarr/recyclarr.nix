@@ -26,10 +26,9 @@
         sops.secrets.radarr_api_key = { };
         sops.secrets.sonarr_api_key = { };
 
-        # Recyclarr 8 removed all official `template:` includes; the
-        # modern equivalent is guide-backed profiles via `trash_id`,
-        # which pull quality profile + custom format scoring directly
-        # from TRaSH-Guides. https://recyclarr.dev/wiki/upgrade-guide/v8.0/
+        # Guide-backed profiles by `trash_id`, which pull the quality profile
+        # and its custom format scores straight from TRaSH-Guides: Recyclarr
+        # has no official `template:` includes.
         services.recyclarr = {
           enable = true;
           schedule = "daily";

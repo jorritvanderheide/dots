@@ -14,14 +14,12 @@
     in
     {
       config = {
-        # Home manager
         home-manager.sharedModules = [
           {
             programs.ssh = {
               enable = true;
               enableDefaultConfig = false;
 
-              # Host configuration
               settings = {
                 "*" = { };
 

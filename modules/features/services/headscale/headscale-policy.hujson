@@ -4,7 +4,8 @@
 {
   "tagOwners": {
     // dapple. Tagged rather than owned by a person, so it isn't one of
-    // anyone's own devices below (and New Leaf doesn't take it for one).
+    // anyone's own devices (autogroup:self), and New Leaf doesn't take it
+    // for one.
     "tag:server": ["jorrit@"],
   },
 

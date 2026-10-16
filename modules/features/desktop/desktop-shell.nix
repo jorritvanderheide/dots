@@ -178,8 +178,8 @@
                     # protocol natively and already locks before any sleep via its
                     # logind PrepareForSleep inhibitor, so there's no separate
                     # before-sleep hook to wire up here. These three behaviors ship
-                    # with enabled = false upstream; timeouts below are noctalia's
-                    # own un-touched defaults, just flipped on.
+                    # with enabled = false upstream; their timeouts are noctalia's
+                    # own defaults, only switched on.
                     idle.behavior = {
                       lock = {
                         action = "lock";

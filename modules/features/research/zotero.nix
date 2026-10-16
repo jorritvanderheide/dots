@@ -10,9 +10,9 @@
       ...
     }:
     let
-      # Bound out here on purpose. The home-manager submodule below rebinds
-      # `config` to the home-manager configuration, where my.research does
-      # not exist, so reading it inside that submodule would fail.
+      # Bound out here on purpose. The home-manager.sharedModules entry
+      # rebinds `config` to the home-manager configuration, where my.research
+      # does not exist, so reading it inside that submodule would fail.
       research = config.my.research;
 
       # Zotero plugins aren't packaged in nixpkgs, and they ship their XPI

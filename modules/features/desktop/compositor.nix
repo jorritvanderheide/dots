@@ -28,7 +28,6 @@ in
       };
 
       config = {
-        # Enable graphics/GPU support for Wayland compositing
         hardware.graphics.enable = true;
 
         # The prompt gnome-keyring shows when an app first stores a secret,
@@ -55,7 +54,6 @@ in
           ];
         };
 
-        # Home manager
         home-manager.sharedModules = [
           {
             # Without the ssh component, which conflicts with the Bitwarden SSH
@@ -286,11 +284,8 @@ in
         programs.niri = {
           enable = true;
 
-          # From nixpkgs, built by cache.nixos.org, not niri-flake. Before
-          # niri-flake followed our nixpkgs (flake.nix), its niri linked an
-          # older glibc than the system mesa in /run/opengl-driver needs, and
-          # couldn't open the GPU: a black screen. Now it would only be a
-          # build from source.
+          # From nixpkgs, which cache.nixos.org builds, not niri-flake: its niri,
+          # built against our nixpkgs (flake.nix), would be a build from source.
           package = pkgs.niri;
         };
       };

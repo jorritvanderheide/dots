@@ -68,8 +68,9 @@
 
         # One touch (or password) for sudo's usual 5 minutes in all of an SSH
         # user's sessions, not per terminal: ndeploy's nh runs each sudo in a
-        # session of its own, so a deploy took a touch for each. Only these
-        # users run anything as themselves here; every service has its own.
+        # session of its own, so a deploy would take a touch for each. Only
+        # these users run anything as themselves here; every service has its
+        # own.
         security.sudo.extraConfig = lib.concatMapStrings (
           user: "Defaults:${user} timestamp_type=global\n"
         ) cfg.allowedUsers;

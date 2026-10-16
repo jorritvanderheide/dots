@@ -32,7 +32,9 @@
           # Weekly.
           autoPrune.enable = true;
 
-          enableOnBoot = false; # Socket-activated for faster boot
+          # Socket-activated, for a faster boot.
+          enableOnBoot = false;
+
           storageDriver = "zfs";
         };
       };

@@ -32,7 +32,7 @@
         sops.secrets.luks_password = { };
 
         boot = {
-          # Suppress raw kernel log messages on the console too
+          # `quiet` still lets kernel errors onto the console, over the splash.
           consoleLogLevel = 0;
 
           plymouth.enable = true;

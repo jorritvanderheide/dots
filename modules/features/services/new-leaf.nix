@@ -19,7 +19,8 @@
         recommendedProxySettings = true;
 
         extraConfig = ''
-          proxy_read_timeout 120s; # fitting pages renders the PDF a few times
+          # Fitting pages renders the PDF a few times.
+          proxy_read_timeout 120s;
         '';
       };
     in
@@ -144,7 +145,9 @@
               "= /" = editor;
 
               "@editor" = editor;
-              "~ /\\.".return = "404"; # New Leaf's marker, publishes in progress
+
+              # Dotfiles, such as New Leaf's marker of a publish in progress.
+              "~ /\\.".return = "404";
 
               "/" = {
                 inherit (config.services.nginx.virtualHosts.${domain}) extraConfig;

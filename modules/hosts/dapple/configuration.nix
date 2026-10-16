@@ -32,7 +32,6 @@
         nixos
       ])
       ++ [
-        # Host configuration
         (
           {
             config,
@@ -54,10 +53,10 @@
             networking.modemmanager.enable = false;
 
             # With iptables, tailscaled's own INPUT rules accept everything
-            # from tailscale0 before NixOS's get to drop it, so only the
-            # tailnet's per-interface ports below would be decoration. In
-            # nftables, a drop in NixOS's table holds whatever tailscaled's
-            # table accepts.
+            # from tailscale0 before NixOS's get to drop it, so the ports
+            # ingress, ssh-server and syncthing open on tailscale0 would only
+            # be decoration. In nftables, a drop in NixOS's table holds
+            # whatever tailscaled's table accepts.
             networking.nftables.enable = true;
 
             system.stateVersion = "26.05";

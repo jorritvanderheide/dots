@@ -85,7 +85,7 @@
 
         bucket = lib.mkOption {
           type = lib.types.str;
-          # Not the old "backup" bucket: every host could delete from it, with
+          # Not the "backup" bucket: every host could delete from it, with
           # credentials that are in this repository's history.
           default = "offsite";
           description = "Storj bucket holding the restic repository.";
@@ -167,9 +167,8 @@
           initialize = true;
           passwordFile = config.sops.secrets.restic_password.path;
 
-          # Storj's S3-compatible gateway (not Amazon; same endpoint the old
-          # rclone job used). restic encrypts client-side, so the gateway only
-          # ever sees ciphertext.
+          # Storj's S3-compatible gateway, not Amazon's. restic encrypts
+          # client-side, so the gateway only ever sees ciphertext.
           repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
 
           timerConfig = {
@@ -274,8 +273,8 @@
         # A failed run is tried again 5 minutes later, from this timer
         # rather than the unit's own Restart=: the unit stops in between, so
         # the snapshot goes too and each try takes a fresh one. A restart
-        # inside the unit kept its first snapshot, and when a new service's
-        # path wasn't in it yet, failed on it for good (2026-10-14).
+        # inside the unit would keep its first snapshot, and fail for good on
+        # a new service's path that isn't in it yet.
         #
         # restic refreshes its lock every 5 minutes by deleting the old one,
         # which these credentials can't, and gives up after 22.5 minutes

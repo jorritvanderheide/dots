@@ -6,7 +6,8 @@ _: {
     }:
     {
       config = {
-        # Disable standard ssh-agent in favor of Bitwarden SSH agent
+        # The keys are in Bitwarden's SSH agent; ssh-agent would compete with
+        # it for SSH_AUTH_SOCK.
         programs.ssh.startAgent = false;
 
         environment.systemPackages = [
@@ -15,7 +16,8 @@ _: {
 
         home-manager.sharedModules = [
           {
-            # Make SSH_AUTH_SOCK available to the shell
+            # Login shells get this; services and apps started through systemd
+            # (app2unit) get it from systemd.user.sessionVariables.
             home.sessionVariables = {
               SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
             };
@@ -32,12 +34,11 @@ _: {
               }
             ];
 
-            # Setup SSh agent
+            # So ssh finds the agent even where SSH_AUTH_SOCK isn't set.
             programs.ssh.extraConfig = ''
               IdentityAgent ~/.bitwarden-ssh-agent.sock
             '';
 
-            # Make SSH_AUTH_SOCK available to systemd user services and GUI applications
             systemd.user.sessionVariables = {
               SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
             };

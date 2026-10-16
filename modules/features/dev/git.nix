@@ -35,11 +35,11 @@
             };
 
             config = {
-              # Create SSH signing key file with .pub extension for jj compatibility
-              # This is required for Bitwarden SSH agent to work properly with jj
+              # The file jj signs with (programs.jujutsu's signing.key).
               home.file.".ssh/signing-key.pub".text = cfg.signingKey;
 
-              # Create SSH allowedSigners file for commit verification
+              # What jj checks signatures against
+              # (signing.backends.ssh.allowed-signers).
               home.file.".ssh/allowedSigners".text = ''
                 ${builtins.concatStringsSep "\n" cfg.allowedSigningKeys}
               '';
@@ -88,8 +88,8 @@
                       backends.ssh.allowed-signers = "~/.ssh/allowedSigners";
                       behavior = "own";
 
-                      # Use file path with .pub extension instead of inline key
-                      # This fixes Bitwarden SSH agent compatibility with jj
+                      # A path, not the key inline: jj only signs through
+                      # Bitwarden's agent given the .pub file.
                       key = "~/.ssh/signing-key.pub";
                     };
 

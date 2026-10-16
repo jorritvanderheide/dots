@@ -48,7 +48,6 @@
       };
 
       config = {
-        # Font rendering configuration
         fonts.fontconfig = {
           enable = true;
           antialias = true;
@@ -75,7 +74,6 @@
           "serif"
         ];
 
-        # Home-manager integration
         home-manager.sharedModules = [
           (
             { config, lib, ... }:
@@ -153,12 +151,11 @@
                   # light mode. Each template file explains its specifics, and
                   # noctalia-templates/README.md says where each came from.
                   #
-                  # The Zed and Zen templates started in noctalia's community
-                  # catalog, but are vendored rather than enabled as community
-                  # templates: those are downloaded at runtime, and the Zen
-                  # one's hook rewrites userChrome.css/user.js, which
-                  # home-manager owns read-only. Zen's profile files (zen.nix)
-                  # import the rendered CSS instead.
+                  # The Zed and Zen templates are vendored rather than enabled
+                  # as community templates: those are downloaded at runtime,
+                  # and the Zen one's hook rewrites userChrome.css/user.js,
+                  # which home-manager owns read-only. Zen's profile files
+                  # (zen.nix) import the rendered CSS instead.
                   enable_community_templates = false;
 
                   # Ghostty and Qt use own templates instead (terminal.nix,

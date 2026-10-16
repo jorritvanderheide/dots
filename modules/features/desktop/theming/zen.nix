@@ -60,7 +60,7 @@
             # wrapper only symlinks it and Gecko reads mozilla.cfg next to the
             # resolved /proc/self/exe, i.e. the unwrapped package. (The zen
             # module bakes its policies into the unwrapped package for the same
-            # reason; the override below keeps doing that.)
+            # reason, so the beta-unwrapped.override here passes them on.)
             # Named noctalia.cfg/noctalia-autoconfig.js because the wrapper
             # writes its own (unused) mozilla.cfg/autoconfig.js next to the
             # symlinks it makes to these files.

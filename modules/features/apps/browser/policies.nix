@@ -8,10 +8,10 @@
       ...
     }:
     let
-      # The home-manager submodules below rebind `config`, so the institution
-      # endpoints are resolved out here. Only the endpoints are shared; the
-      # display names stay local because this module is not part of the
-      # portable research set.
+      # The home-manager.sharedModules entries rebind `config`, so the
+      # institution endpoints are resolved out here. Only the endpoints are
+      # shared; the display names stay local because this module is not part
+      # of the portable research set.
       inherit (config.my.research) institution;
     in
     {

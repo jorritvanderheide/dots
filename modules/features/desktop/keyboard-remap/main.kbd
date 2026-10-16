@@ -13,7 +13,9 @@
   hold-time @holdTime@
   idle-time @idleTime@
 
-  ;; REMOVED 'a s d f' from left-keys, and 'j k l ;' from right-keys
+  ;; Not the home-row mod keys themselves (a s d f, j k l ;): one pressed
+  ;; while another is held stacks the mods, instead of turning the held one
+  ;; into its letter.
   left-keys  (q w e r t g z x c v grv tab caps)
   right-keys (y u i o p h n m , . / ' ret bspc)
 )
@@ -87,9 +89,9 @@
   (caps a) (multi lctl lsft) 150 all-released ()
 )
 
-;; Grid legend for the deflayer blocks below: `_` passes the
-;; physical key through unchanged, `XX` blocks it outright,
-;; `@name` invokes an alias from defalias above.
+;; Grid legend for the deflayer blocks: `_` passes the physical key
+;; through unchanged, `XX` blocks it outright, `@name` invokes an alias
+;; from defalias.
 ;;
 ;; Physical Super, Ctrl and Alt are disabled (XX) outside the
 ;; plain layer, to force the homerow mods and keep the hands at

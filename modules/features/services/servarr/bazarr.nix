@@ -77,9 +77,10 @@
           Restart = lib.mkForce "always";
           RestartSec = lib.mkForce "5s";
 
-          # Repair folders created before sonarr's and radarr's UMask (or by other
-          # means). "+" runs it as root. -h so that a folder swapped
-          # for a symlink in the meantime (the media group can write
+          # Gives the media group write access to folders sonarr's and radarr's
+          # UMask didn't cover (made by hand or by another app), so Bazarr can
+          # put subtitles in them. "+" runs it as root. -h so that a folder
+          # swapped for a symlink in the meantime (the media group can write
           # here) doesn't hand root's chmod to whatever it points at.
           ExecStartPre = [
             "+${pkgs.findutils}/bin/find ${libraryDir}/series ${libraryDir}/movies -type d ! -perm -g+w -exec chmod -h g+w {} +"

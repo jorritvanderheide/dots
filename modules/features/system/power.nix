@@ -9,7 +9,6 @@
     let
       cfg = config.my.power;
 
-      # Auto-detect CPU vendor from facter report
       cpuVendor =
         let
           facterCpu = config.facter.report.hardware.cpu or null;
@@ -51,7 +50,6 @@
           };
         }
 
-        # Laptop-specific settings
         (lib.mkIf cfg.laptop.enable {
           hardware.system76.power-daemon.enable = true;
 
@@ -66,7 +64,8 @@
           );
 
           services = {
-            thermald.enable = cpuVendor == "intel"; # Thermald is Intel-specific
+            # thermald only handles Intel CPUs.
+            thermald.enable = cpuVendor == "intel";
 
             # Disable TLP auto-enabled by nixos-hardware common/pc/laptop;
             # system76-power-daemon is the chosen power manager.
@@ -89,12 +88,10 @@
           };
         })
 
-        # AMD-specific optimizations
         (lib.mkIf (cpuVendor == "amd") {
           boot.kernelParams = [ "amd_pstate=active" ];
         })
 
-        # Intel-specific optimizations
         (lib.mkIf (cpuVendor == "intel") {
           boot.kernelParams = [ "intel_pstate=active" ];
         })

@@ -39,7 +39,6 @@
       };
 
       config = {
-        # Enable and configure Kanata with homerow mods and navigation layer
         services.kanata = {
           enable = true;
 

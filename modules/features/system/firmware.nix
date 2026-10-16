@@ -11,7 +11,8 @@
 
       services.fwupd.enable = true;
 
-      # Disable auto-refresh timer for faster boot - use `fwupdmgr refresh` manually
+      # No refresh timer, for a faster boot; refresh by hand with
+      # `fwupdmgr refresh`.
       systemd.timers.fwupd-refresh.enable = lib.mkForce false;
     };
   };

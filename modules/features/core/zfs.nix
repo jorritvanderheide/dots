@@ -153,10 +153,10 @@
           daily = 30;
           hourly = 24;
 
-          # A laptop that's off/asleep for stretches doesn't accumulate
-          # snapshots on a reliable cadence: monthly=3 meant a month away
-          # could (and did) collapse coverage to almost nothing. Snapshots
-          # are cheap (incremental), so keep deep history instead.
+          # A laptop that's off or asleep for stretches doesn't take snapshots
+          # on a reliable cadence, so a few monthlies can leave a month away
+          # with almost no coverage. Snapshots are cheap (incremental), so keep
+          # deep history instead.
           monthly = 12;
 
           yearly = 2;
