@@ -26,7 +26,8 @@ class Skip(Exception):
 def main():
     left_alone = False
     for path in sys.argv[1:]:
-        src = open(path, "rb").read()
+        with open(path, "rb") as f:
+            src = f.read()
         tree = PARSER.parse(src)
         if tree.root_node.has_error:
             print(f"{path}: parse error, left alone", file=sys.stderr)
@@ -35,7 +36,8 @@ def main():
         ctx = {"src": src, "path": path, "left_alone": False}
         out = rewrite(tree.root_node, ctx)
         if out.encode() != src:
-            open(path, "w").write(out)
+            with open(path, "w") as f:
+                f.write(out)
         left_alone |= ctx["left_alone"]
     sys.exit(1 if left_alone else 0)
 

@@ -142,10 +142,12 @@ def main():
     )
     for book in books:
         print(f"Converting {book['id']}: {book['title']}", flush=True)
+        # Whatever goes wrong with one book, it gets the failed tag and the
+        # rest still convert. Untagged, it would fail first on every run.
         try:
             with tempfile.TemporaryDirectory() as work:
                 convert(book, Path(work))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             detail = e.stderr if isinstance(e, subprocess.CalledProcessError) else e
             print(f"Failed {book['id']}: {detail}", file=sys.stderr, flush=True)
             calibredb(
