@@ -2,7 +2,8 @@
 
 Run by `nix fmt` before nixfmt, so the flake's treefmt check fails on a file
 that is out of order. Rewrites the files it is given in place, and names any
-set it had to leave alone on stderr.
+set it had to leave alone on stderr, and then exits 1: a set it can't order
+is one the check can't vouch for either.
 
 Usage: nix-order.py FILE..."""
 
@@ -23,16 +24,20 @@ class Skip(Exception):
 
 
 def main():
+    left_alone = False
     for path in sys.argv[1:]:
         src = open(path, "rb").read()
         tree = PARSER.parse(src)
         if tree.root_node.has_error:
             print(f"{path}: parse error, left alone", file=sys.stderr)
+            left_alone = True
             continue
-        ctx = {"src": src, "path": path}
+        ctx = {"src": src, "path": path, "left_alone": False}
         out = rewrite(tree.root_node, ctx)
         if out.encode() != src:
             open(path, "w").write(out)
+        left_alone |= ctx["left_alone"]
+    sys.exit(1 if left_alone else 0)
 
 
 def text(node, ctx):
@@ -51,6 +56,7 @@ def rewrite(node, ctx):
                     f"{ctx['path']}:{node.start_point[0] + 1}: {e}, left alone",
                     file=sys.stderr,
                 )
+                ctx["left_alone"] = True
     if node.type == "formals":
         return rewrite_formals(node, ctx)
     return splice(node, ctx)
@@ -273,10 +279,15 @@ def rewrite_attrset(node, ctx):
     leading = sorted(
         (u for u in units if u["rank"] < 2), key=lambda u: (u["rank"], u["pos"])
     )
+    # A module's imports, options and config keep that order whatever their
+    # length: all three go with the multi-line attributes, ahead of them.
     singles = sorted(
-        (u for u in units if u["rank"] >= 2 and not u["block"]), key=by_name
+        (u for u in units if u["rank"] == 3 and not u["block"]), key=by_name
     )
-    blocks = sorted((u for u in units if u["rank"] >= 2 and u["block"]), key=by_name)
+    blocks = sorted(
+        (u for u in units if u["rank"] == 2 or (u["rank"] == 3 and u["block"])),
+        key=by_name,
+    )
 
     sep = "\n" + indent
     out = []
