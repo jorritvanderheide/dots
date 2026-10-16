@@ -17,7 +17,6 @@
     in
     {
       options.my.media-library = {
-
         dir = lib.mkOption {
           type = lib.types.str;
           default = "/srv/media";

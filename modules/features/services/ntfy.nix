@@ -18,7 +18,6 @@
     in
     {
       options.my.ntfy = {
-
         topic = lib.mkOption {
           type = lib.types.str;
           default = "alerts";

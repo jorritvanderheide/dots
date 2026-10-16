@@ -271,7 +271,6 @@ in
                   "image/webp" = "imv-dir.desktop";
                 };
               };
-
             }
           )
         ];

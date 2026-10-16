@@ -32,7 +32,6 @@
     in
     {
       options.my.headscale = {
-
         domain = lib.mkOption {
           type = lib.types.str;
           default = inputs.self.lib.site.vpnDomain;
