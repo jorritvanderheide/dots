@@ -10,7 +10,6 @@
       ...
     }:
     let
-      cfg = config.my.jellyfin;
       port = 8096;
 
       # Pick VAAPI driver(s) based on the host's actual GPU(s) per facter.
@@ -19,100 +18,83 @@
       hasIntelGpu = lib.any (g: (g.vendor.hex or "") == "8086") gpus;
     in
     {
-      options.my.jellyfin.lanAccess.enable =
-        lib.mkEnableOption "direct LAN access, so clients can detect being home and reach the server by local IP";
+      config = {
+        # Only with the media library mounted: its mount is nofail, and
+        # without it, Jellyfin would see the empty folders tmpfiles makes
+        # in its place.
+        systemd.services.jellyfin.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
-      config = lib.mkMerge [
-        {
-          # Only with the media library mounted: its mount is nofail, and
-          # without it, Jellyfin would see the empty folders tmpfiles makes
-          # in its place.
-          systemd.services.jellyfin.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
+        assertions = [
+          {
+            assertion = config.my ? media-library;
+            message = "jellyfin needs the media-library feature";
+          }
+        ];
 
-          assertions = [
-            {
-              assertion = config.my ? media-library;
-              message = "jellyfin needs the media-library feature";
-            }
+        hardware.graphics = {
+          enable = true;
+          extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
+        };
+
+        my.ingress.proxies.media = {
+          inherit port;
+
+          extraConfig = ''
+            # Jellyfin streams large bodies and holds long-poll connections.
+            proxy_buffering off;
+            proxy_read_timeout 1h;
+            client_max_body_size 20M;
+          '';
+
+          status = {
+            group = "media";
+            name = "jellyfin";
+            path = "/health";
+          };
+        };
+
+        # Users, watch history and libraries; the artwork in metadata is
+        # fetched again.
+        my.offsite-backup.entries.jellyfin = {
+          paths = [ config.services.jellyfin.dataDir ];
+          units = [ "jellyfin.service" ];
+
+          exclude = [
+            "${config.services.jellyfin.dataDir}/metadata"
+            config.services.jellyfin.logDir
           ];
+        };
 
-          hardware.graphics = {
-            enable = true;
-            extraPackages = lib.optional hasIntelGpu pkgs.intel-media-driver;
-          };
+        my.preservation.systemDirectories = [
+          {
+            directory = "/var/lib/jellyfin";
+            group = "jellyfin";
+            mode = "0700";
+            user = "jellyfin";
+          }
+          {
+            directory = "/var/cache/jellyfin";
+            group = "jellyfin";
+            mode = "0700";
+            user = "jellyfin";
+          }
+        ];
 
-          my.ingress.proxies.media = {
-            inherit port;
+        services.jellyfin = {
+          enable = true;
+          openFirewall = false;
+        };
 
-            extraConfig = ''
-              # Jellyfin streams large bodies and holds long-poll connections.
-              proxy_buffering off;
-              proxy_read_timeout 1h;
-              client_max_body_size 20M;
-            '';
+        systemd.services.jellyfin.serviceConfig = {
+          Restart = lib.mkForce "always";
+          RestartSec = lib.mkForce "5s";
+        };
 
-            status = {
-              group = "media";
-              name = "jellyfin";
-              path = "/health";
-            };
-          };
-
-          # Users, watch history and libraries; the artwork in metadata is
-          # fetched again.
-          my.offsite-backup.entries.jellyfin = {
-            paths = [ config.services.jellyfin.dataDir ];
-            units = [ "jellyfin.service" ];
-
-            exclude = [
-              "${config.services.jellyfin.dataDir}/metadata"
-              config.services.jellyfin.logDir
-            ];
-          };
-
-          my.preservation.systemDirectories = [
-            {
-              directory = "/var/lib/jellyfin";
-              group = "jellyfin";
-              mode = "0700";
-              user = "jellyfin";
-            }
-            {
-              directory = "/var/cache/jellyfin";
-              group = "jellyfin";
-              mode = "0700";
-              user = "jellyfin";
-            }
-          ];
-
-          services.jellyfin = {
-            enable = true;
-            openFirewall = false;
-          };
-
-          systemd.services.jellyfin.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
-          };
-
-          users.users.jellyfin.extraGroups = [
-            "video"
-            "render"
-            "media"
-          ];
-        }
-
-        # Jellyfin already listens on 0.0.0.0 for both of these, so only the
-        # firewall is in the way. Scoped to the LAN interface rather than
-        # using services.jellyfin.openFirewall, which opens them globally.
-        # 7359/udp is the auto-discovery port clients broadcast on to work
-        # out whether they are home.
-        (lib.mkIf cfg.lanAccess.enable {
-          networking.firewall.interfaces.${config.my.lan.interface} = {
-            allowedTCPPorts = [ port ];
-            allowedUDPPorts = [ 7359 ];
-          };
-        })
-      ];
+        users.users.jellyfin.extraGroups = [
+          "video"
+          "render"
+          "media"
+        ];
+      };
     };
 }
