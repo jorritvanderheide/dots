@@ -9,7 +9,6 @@
 
   /* --- Backgrounds --- */
   --toolbar-bgcolor: var(--base) !important;
-  /* --newtab-background-color: var(--overlay) !important; */
   --zen-themed-toolbar-bg: var(--base) !important;
   --zen-main-browser-background: var(--base) !important;
   --toolbox-bgcolor-inactive: var(--base) !important;
@@ -416,7 +415,8 @@ panel[type="autocomplete-richlistbox"],
 .identity-popup-protections-icon::before,
 #tracking-protection-icon-container::before {
   background-color: var(--primary) !important;
-  opacity: 0.2 !important; /* using a translucent background to match Zen's design */
+  /* Translucent, to match Zen's design. */
+  opacity: 0.2 !important;
 }
 
 /* Update the icon fill color to match the primary color for a consistent theme */

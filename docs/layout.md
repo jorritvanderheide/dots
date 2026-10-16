@@ -146,6 +146,9 @@ commit message, not in a comment about how things used to be.
   later".
 - Comments go on their own line above the code. A trailing comment is for a
   label of a few words, like the name behind a hash.
+- A short header that groups a long list, like the features in a host's
+  imports or the shell's aliases, needs no why. A label that only names
+  the one setting it sits on is not that.
 - Other settings are named, not pointed at with "above" or "below":
   sorting moves them.
 - Sentences are split with periods, semicolons, colons or parentheses, not

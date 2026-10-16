@@ -10,7 +10,7 @@
  * (--primary, --text, ...), and setting them on every element of a website
  * would override the site's own variables of the same name.
  *
- * Taken from the community template's duplicated blocks, then adjusted:
+ * Adjusted for this setup:
  * - --surface is the content tone (new tab and about: pages), shared with
  *   Zed's editor, Ghostty and Obsidian's notes.
  * - Zen uses the accents as text (selected tab, links, icons), and the raw

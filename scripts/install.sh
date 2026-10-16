@@ -57,7 +57,7 @@ main() {
   jj -R "$repo" git remote set-url codeberg "$REPO_PUSH_URL"
 
   # Installed from the clone, as pushed to Codeberg: the host's new age key
-  # (below) re-encrypts its secrets there, and with --new-hardware this
+  # re-encrypts its secrets there, and with --new-hardware this
   # machine's hardware report goes in it too, since there is no other
   # computer to commit one from. They stay uncommitted changes in
   # /etc/nixos, to commit and push after the first boot.
@@ -117,11 +117,12 @@ main() {
 
   # disko needs the LUKS password as a plaintext file before the OS (and
   # sops-nix) exist. Every other secret is decrypted by sops-nix, with the
-  # host's own key (below).
+  # host's own age key.
   log_info "Decrypting LUKS password..."
   trap 'rm -f /tmp/secret.key /tmp/host-age.key' EXIT
   for attempt in $(seq 1 10); do
-    # Created owner-only, not world-readable until the chmod below.
+    # Created owner-only, so it is never world-readable, not even before
+    # the chmod 400.
     (umask 077 && sops -d --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key) && break
     [[ $attempt -lt 10 ]] || die "Failed to decrypt luks_password after 10 attempts"
     log_info "Decrypt attempt ${attempt} failed, retrying in 2s (pcscd/YubiKey enumeration can race transiently)..."
