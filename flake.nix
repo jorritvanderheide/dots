@@ -4,7 +4,6 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
-    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
 
     # Temporary: zotero fails to build against firefox-esr 153.4
     # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it

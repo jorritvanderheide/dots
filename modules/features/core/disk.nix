@@ -15,7 +15,7 @@
 
       config = {
         disko.devices.disk.main = {
-          inherit (inputs.self.lib.mainDisk config.facter.report) device;
+          inherit (inputs.self.lib.mainDisk config.hardware.facter.report) device;
           type = "disk";
 
           content = {

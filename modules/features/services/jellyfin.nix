@@ -14,7 +14,7 @@
 
       # Pick VAAPI driver(s) based on the host's actual GPU(s) per facter.
       # AMD/Mesa needs nothing extra; Intel needs intel-media-driver (Broadwell+).
-      gpus = config.facter.report.hardware.graphics_card or [ ];
+      gpus = config.hardware.facter.report.hardware.graphics_card or [ ];
       hasIntelGpu = lib.any (g: (g.vendor.hex or "") == "8086") gpus;
     in
     {

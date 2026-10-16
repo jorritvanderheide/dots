@@ -11,7 +11,7 @@
 
       cpuVendor =
         let
-          facterCpu = config.facter.report.hardware.cpu or null;
+          facterCpu = config.hardware.facter.report.hardware.cpu or null;
           vendorName =
             if facterCpu != null && facterCpu != [ ] then
               (builtins.head facterCpu).vendor_name or null
@@ -30,7 +30,7 @@
       hasDriver =
         category: driver:
         let
-          devices = config.facter.report.hardware.${category} or [ ];
+          devices = config.hardware.facter.report.hardware.${category} or [ ];
         in
         builtins.any (d: (d.driver_module or null) == driver) devices;
     in

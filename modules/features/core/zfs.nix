@@ -59,7 +59,7 @@
         # hibernation image. Suspend-to-RAM is unaffected.
         kernelParams =
           let
-            facterReport = config.facter.report;
+            facterReport = config.hardware.facter.report;
             memoryBytes = (builtins.head (builtins.head facterReport.hardware.memory).resources).range;
             # ZFS's ARC defaults to using up to ~half of RAM, which starves
             # everything else under memory pressure: the browser and editor
@@ -81,7 +81,7 @@
 
       disko.devices.zpool.zroot =
         let
-          diskInfo = (inputs.self.lib.mainDisk config.facter.report).info;
+          diskInfo = (inputs.self.lib.mainDisk config.hardware.facter.report).info;
           diskSizeResource = builtins.head (builtins.filter (r: r.type == "size") diskInfo.resources);
           diskSize = builtins.floor (
             (diskSizeResource.value_1 * diskSizeResource.value_2) / (1024 * 1024 * 1024)
