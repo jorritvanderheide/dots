@@ -386,7 +386,7 @@
     border-radius: 3px !important;
   }
 
-  /* Radio: selected state — primary dot on base background */
+  /* Radio, selected: a primary dot on the base background */
   radio[selected="true"] > .radio-check,
   radio[selected] > .radio-check,
   radio:checked > .radio-check {
@@ -396,7 +396,7 @@
     box-shadow: none !important;
   }
 
-  /* Checkbox: checked state — primary fill with native SVG checkmark */
+  /* Checkbox, checked: a primary fill with the native SVG checkmark */
   checkbox[checked="true"] > .checkbox-check,
   checkbox[checked] > .checkbox-check,
   checkbox:checked > .checkbox-check {
@@ -434,14 +434,14 @@
     color: var(--text) !important;
   }
 
-  /* Content boxes — uniform overlay fill with padding */
+  /* Content boxes: a uniform overlay fill, with padding */
   vbox, groupbox {
     background-color: var(--overlay) !important;
     color: var(--text) !important;
     padding: 10px !important;
   }
 
-  /* Button row — same overlay fill, no extra padding */
+  /* Button row: the same overlay fill, without extra padding */
   hbox {
     background-color: var(--overlay) !important;
     padding: 0 !important;
@@ -472,7 +472,7 @@
     accent-color: var(--primary) !important;
   }
 
-  /* Buttons — transparent so they match their surrounding background */
+  /* Buttons: transparent, so they match the background around them */
   button, dialog::part(button) {
     background-color: transparent !important;
     color: var(--text) !important;

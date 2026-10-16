@@ -23,7 +23,7 @@ replacement = """                db_book, input_authors, title_dir = create_book
                 # Comments need book id"""
 
 if target not in content:
-    raise SystemExit("Patch target not found — calibre-web source may have changed")
+    raise SystemExit("Patch target not found: calibre-web's source may have changed")
 
 with open(path, "w") as f:
     _ = f.write(content.replace(target, replacement))
