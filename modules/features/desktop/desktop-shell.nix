@@ -130,7 +130,10 @@
 
                   settings = {
                     desktop_widgets.enabled = false;
-                    notification.history_retention_hours = 0;
+
+                    # A week. 0 keeps all of it, forever, in sanoid's
+                    # snapshots of the preserved state too.
+                    notification.history_retention_hours = 168;
                     system.monitor.enabled = false;
                     weather.enabled = false;
 
