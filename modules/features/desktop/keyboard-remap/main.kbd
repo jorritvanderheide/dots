@@ -108,7 +108,7 @@
 
 ;; Fast typing layer: all homerow keys pass through as plain keys
 ;; Active during rapid typing to prevent misfires. Caps stays
-;; Escape/CapsLock here (@capsesc); plain _ would fall back to Caps Lock.
+;; Escape/Ctrl here (@capsesc); plain _ would fall back to Caps Lock.
 (deflayer typing
   _    _    @capsesc
   _    _    _    _    _    _    _    _    _    _
@@ -150,7 +150,7 @@
 ;; use the opposite hand. The same hand's other HRM keys stay
 ;; holdable on the mask layer so mods can stack (a+s+p gives
 ;; Meta+Alt+P), but their taps are dead there. Caps (tap Esc /
-;; hold Caps Lock) stays usable while a mod is held.
+;; hold Ctrl) stays usable while a mod is held.
 (deflayer lmask
   XX   XX   @capsesc
   XX   XX   XX   XX   XX   _    _    _    _    _
