@@ -204,4 +204,9 @@ mDNS, to find the installer ISO.
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
 the status page's checks of New Leaf's share links and meetinn, at the
 public address through the router's hairpin NAT, and meetinn's hourly
-update of its Yivi schemes and its mail, through Proton's SMTP.
+update of its Yivi schemes and its mail, through Proton's SMTP. Besides
+those, the apps fetch what they're for, from the home address: qBittorrent's
+torrents (no VPN), Prowlarr's indexers (through FlareSolverr where
+Cloudflare guards one), metadata and subtitles for the *arr apps, Bazarr
+and Jellyfin, Recyclarr's quality profiles from GitHub, Vaultwarden's site
+icons, and Immich's machine-learning models on first use.

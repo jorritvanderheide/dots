@@ -32,9 +32,11 @@ blanket device-to-device access to it, and New Leaf doesn't take it for a
 person. The firewall holds the same line a second time: it is nftables, so
 its tailnet rules (443, 22 and 22000) apply even though tailscaled accepts all
 tailnet traffic in its own table. Behind that, the apps ask for their own
-login, except Gatus's read-only status page: the *arr apps and qBittorrent
-with a forms login that a "local" address doesn't skip (behind nginx every
-visitor is 127.0.0.1), and Bazarr, whose defaults were no login at all.
+login, except Gatus's read-only status page, and New Leaf's editor, which
+goes by your tailnet user and lets every one edit every CV: the *arr apps
+and qBittorrent with a forms login that a "local" address doesn't skip
+(behind nginx every visitor is 127.0.0.1), and Bazarr, whose defaults were
+no login at all.
 
 **A LAN device** gets SSH (from the LAN subnet only) and the Kobo sync API at
 `kobo.bw20.nl/kobo/`. Not Jellyfin's or Home Assistant's plain-HTTP ports:
@@ -147,6 +149,9 @@ start, since that would otherwise win.
   declared config), which is fine with a long, random password like its
   own.
 - **Headscale's `/version` is public**, with its exact version.
+- **ntfy's state directory is 0777**, as `DynamicUser` gives it no fixed
+  owner to preserve it with. It sits in `/var/lib/private`, which systemd
+  keeps at 0700, so no other user reaches it.
 - **rocinante's keyring has an empty password**, since the session logs in
   automatically and has no password to unlock it with. LUKS protects it on
   disk; while logged in, an unlocked keyring is just as readable.
