@@ -116,9 +116,9 @@ own settings.
 - Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
   address.
 
-Vaultwarden's invitations need no check: they're off in the configuration,
-which also rewrites what its admin page saves before each start, since that
-would otherwise win.
+Vaultwarden's signups and invitations need no check: they're off in the
+configuration, which also rewrites what its admin page saves before each
+start, since that would otherwise win.
 
 ## Accepted on purpose
 

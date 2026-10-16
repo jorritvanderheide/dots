@@ -73,13 +73,14 @@
             RestartSec = lib.mkForce "5s";
 
             # What the admin page saves (config.json) overrides
-            # services.vaultwarden.config. Keep invitations off there too, and leave
-            # the rest of what it saved (SMTP and so on) alone.
-            ExecStartPre = pkgs.writeShellScript "vaultwarden-no-invitations" ''
+            # services.vaultwarden.config. Keep signups and invitations off
+            # there too, and leave the rest of what it saved (SMTP and so on)
+            # alone.
+            ExecStartPre = pkgs.writeShellScript "vaultwarden-no-signups" ''
               set -euo pipefail
               config=/var/lib/vaultwarden/config.json
               [[ -f $config ]] || exit 0
-              ${lib.getExe pkgs.jq} '.invitations_allowed = false' "$config" >"$config.tmp"
+              ${lib.getExe pkgs.jq} '.signups_allowed = false | .invitations_allowed = false' "$config" >"$config.tmp"
               mv "$config.tmp" "$config"
             '';
           };
