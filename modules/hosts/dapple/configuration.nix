@@ -39,6 +39,10 @@
             ...
           }:
           {
+            # nixos-facter finds the Realtek card's Bluetooth, which nothing
+            # here uses.
+            facter.detected.bluetooth.enable = false;
+
             my.calibre-web.lanSync.enable = true;
             my.gatus.enable = true;
             my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;

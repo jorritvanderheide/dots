@@ -121,7 +121,7 @@
           # Upstream grants these for default_config's DHCP sniffing and
           # raw Bluetooth, neither of which this needs. With them, a
           # compromised integration could rewrite the firewall or sniff
-          # the host's traffic. Bluetooth over BlueZ's D-Bus still works.
+          # the host's traffic.
           AmbientCapabilities = lib.mkForce [ "" ];
           CapabilityBoundingSet = lib.mkForce [ "" ];
 
