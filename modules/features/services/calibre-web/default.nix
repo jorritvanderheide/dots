@@ -6,7 +6,6 @@
   flake.nixosModules.calibre-web =
     {
       config,
-      pkgs,
       ...
     }:
     let
@@ -32,8 +31,8 @@
             inherit port;
 
             extraConfig = ''
-              # nginx's 10M default rejects larger books (comics easily run
-              # to hundreds of MB) with a 413 before calibre-web sees them.
+              # nginx's 10M default rejects larger books with a 413 before
+              # calibre-web sees them.
               client_max_body_size 2G;
 
             ''
@@ -47,11 +46,7 @@
 
           my.offsite-backup.entries.calibre-web = {
             paths = [ "/var/lib/calibre-web" ];
-
-            units = [
-              "calibre-web.service"
-              "calibre-web-comics-to-kepub.timer"
-            ];
+            units = [ "calibre-web.service" ];
           };
 
           my.preservation.systemDirectories = [
@@ -89,65 +84,6 @@
               enableBookConversion = true;
               enableBookUploading = true;
               enableKepubify = true;
-            };
-          };
-
-          # See comics-to-kepub.py. Picks up new uploads on a timer rather
-          # than hooking calibre-web's upload path, which would mean
-          # patching it again.
-          systemd.services.calibre-web-comics-to-kepub = {
-            description = "Convert comics to KEPUB for Kobo sync";
-            startAt = "*:0/10";
-
-            path = [
-              config.services.calibre-web.calibrePackage
-              pkgs.kcc
-            ];
-
-            serviceConfig = {
-              # It parses whatever was uploaded, so it gets what converting
-              # takes and no more: the library to write to, no network.
-              CapabilityBoundingSet = "";
-              LockPersonality = true;
-              NoNewPrivileges = true;
-              PrivateDevices = true;
-              PrivateNetwork = true;
-              PrivateUsers = true;
-              ProtectClock = true;
-              ProtectControlGroups = true;
-              ProtectHome = true;
-              ProtectHostname = true;
-              ProtectKernelLogs = true;
-              ProtectKernelModules = true;
-              ProtectKernelTunables = true;
-              ProtectProc = "invisible";
-              ProtectSystem = "strict";
-              ReadWritePaths = [ calibreLibrary ];
-              RestrictAddressFamilies = [ "AF_UNIX" ];
-              RestrictNamespaces = true;
-              RestrictRealtime = true;
-              RestrictSUIDSGID = true;
-              SystemCallArchitectures = "native";
-
-              # calibre and KCC both want a writable home for config and
-              # scratch space; the service user has none.
-              Environment = "HOME=/tmp";
-              PrivateTmp = true;
-
-              ExecStart = "${lib.getExe pkgs.python3} ${./comics-to-kepub.py} ${calibreLibrary}";
-              Group = "calibre-web";
-
-              # KCC is CPU-heavy on a few-hundred-page volume; don't let
-              # it starve the other services.
-              Nice = 19;
-
-              Type = "oneshot";
-              User = "calibre-web";
-
-              SystemCallFilter = [
-                "@system-service"
-                "~@privileged"
-              ];
             };
           };
 

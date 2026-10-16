@@ -128,9 +128,7 @@ old=/persist/.offsite-restore-old-$(date +%Y%m%dT%H%M%S)
 systemctl stop restic-backups-offsite.timer offsite-backup-retry.timer "${units[@]}"
 
 # What the entries' units don't cover would go on writing into the data
-# while it's swapped: Zotero, a desktop app, or a comics conversion its
-# timer started (a conversion isn't in the units, as starting them again
-# would run one).
+# while it's swapped, such as Zotero, a desktop app.
 open=()
 for path in "${paths[@]}"; do
   mapfile -t -O "${#open[@]}" open < <(lsof -w -t +D "${persisted[$path]}" || true)
