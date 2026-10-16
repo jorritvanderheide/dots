@@ -28,16 +28,16 @@
 
       options.my.new-leaf = {
         rootRedirect = lib.mkOption {
+          type = lib.types.str;
           default = "https://${config.my.ingress.domain}/";
           defaultText = lib.literalExpression ''"https://''${config.my.ingress.domain}/"'';
           description = "Where the bare domain (no share link) redirects to from outside the tailnet; the tailnet gets the editor.";
-          type = lib.types.str;
         };
 
         subdomain = lib.mkOption {
+          type = lib.types.str;
           default = "cv";
           description = "Subdomain of both the editor (from the tailnet) and the share links (from the internet).";
-          type = lib.types.str;
         };
 
         users = lib.mkOption {

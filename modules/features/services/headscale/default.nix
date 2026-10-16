@@ -34,16 +34,16 @@
       options.my.headscale = {
 
         domain = lib.mkOption {
+          type = lib.types.str;
           default = inputs.self.lib.site.vpnDomain;
           defaultText = lib.literalExpression "inputs.self.lib.site.vpnDomain";
           description = "FQDN for the headscale server";
-          type = lib.types.str;
         };
 
         magicDnsDomain = lib.mkOption {
+          type = lib.types.str;
           default = "vpn";
           description = "MagicDNS base domain";
-          type = lib.types.str;
         };
       };
 
