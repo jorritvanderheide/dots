@@ -12,6 +12,8 @@
     let
       cfg = config.my.headscale;
       port = 8085;
+      inherit (inputs.self.lib) site;
+      policy = builtins.readFile ./headscale-policy.hujson;
 
       proxyToHeadscale = {
         proxyPass = "http://127.0.0.1:${toString port}";
@@ -53,6 +55,18 @@
           {
             assertion = config.my ? ingress;
             message = "headscale needs the ingress feature, for its wildcard certificate";
+          }
+
+          # The policy stays hujson, for its comments, so it can't take the
+          # addresses from lib.site: the build checks it has them instead.
+          {
+            message = "headscale-policy.hujson's addresses differ from lib.site's dapple.tailnetIp or lan.subnet";
+
+            assertion = lib.all (line: lib.hasInfix line policy) [
+              ''"dapple": "${site.dapple.tailnetIp}"''
+              ''"lan": "${site.lan.subnet}"''
+              ''"${site.lan.subnet}": ["tag:server"]''
+            ];
           }
         ];
 
