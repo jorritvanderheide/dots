@@ -14,18 +14,20 @@ relay at `vpn`, New Leaf's share links at `cv`, and meetinn (a demo) at
 reads share links or meetinn's tokens, at the price of a public home
 address. Headscale's admin API (`/api`, `/swagger`) only answers tailnet
 addresses, so in practice nobody over the network: the `headscale` CLI uses
-a local socket. A name no vhost claims
-gets no certificate and no answer. Everything else is bound to dapple's
-tailnet address.
+a local socket. Everything else is bound to dapple's tailnet address.
 
 **A tailnet device** gets what Headscale's
 [policy](../modules/features/services/headscale/headscale-policy.hujson) grants it:
 
 - every device: the services on dapple, over HTTPS;
+- a person's own devices: each other, on every port, as without a policy;
 - rocinante: SSH and Syncthing on dapple;
 - two phones: the home LAN, through dapple's subnet route, for the camera.
   Not rocinante, which doesn't take the route: accepting it would send its
   LAN traffic through dapple even at home.
+
+The build checks the policy's addresses against `lib.site`, so a changed
+subnet or address can't leave a grant pointing elsewhere.
 
 dapple is tagged `tag:server`, so it isn't one of anyone's own devices: no
 blanket device-to-device access to it, and New Leaf doesn't take it for a
@@ -35,7 +37,7 @@ tailnet traffic in its own table. Behind that, the apps ask for their own
 login, except Gatus's read-only status page, and New Leaf's editor, which
 goes by your tailnet user and lets every one edit every CV: the *arr apps
 and qBittorrent with a forms login that a "local" address doesn't skip
-(behind nginx every visitor is 127.0.0.1), and Bazarr, whose defaults were
+(behind nginx every visitor is 127.0.0.1), and Bazarr, whose default is
 no login at all.
 
 **A LAN device** gets SSH (from the LAN subnet only) and the Kobo sync API at
@@ -66,13 +68,19 @@ tailnet sources that don't arrive on `tailscale0`.
 of the YubiKeys and a touch: sudo on dapple also takes a signature from a
 FIDO2 key on either (`pam_rssh`), through an agent rocinante forwards with
 only those keys in it. The login key isn't one of them. Nix isn't a way
-around it any more, and what `ndeploy` copies over has to be signed by
-rocinante's deploy key (`rocinante-1`).
+around it either: dapple's Nix trusts only root, and what `ndeploy` copies
+over has to be signed by rocinante's deploy key (`rocinante-1`).
+
+**A machine posing as dapple**, say one at 192.168.1.162 on another
+network, gets refused: rocinante pins dapple's host key and checks it
+strictly, so neither the forwarded agent nor the sudo password goes there.
+The key is a sops secret, so a reinstalled dapple has it from its first
+boot.
 
 **One host taken over** doesn't give up the other's secrets: each host has a
 file of its own, readable by its own key, and each has its own LUKS, root
-and restic passwords. rocinante doesn't take packages from dapple (there is
-no dapple cache any more), so a taken-over dapple can't push code to the
+and restic passwords. rocinante doesn't take packages from dapple, which
+runs no binary cache, so a taken-over dapple can't push code to the
 laptop. Editing dapple's secrets needs a YubiKey's PIN and a touch, on
 either key, so a stolen laptop with a YubiKey still in doesn't open the
 server. Neither key's PUK is the factory default, or anyone holding it
@@ -98,11 +106,12 @@ laptop and a key together still aren't enough.
 
 ## Checked by hand
 
-What the configuration can't say, checked on 2026-10-10, and the deSEC
-token and the 403s from outside again on 2026-10-16, after the move to
-deSEC. Worth checking again after changing the router, the DNS or an app's
-own settings.
+What the configuration can't say, checked on 2026-10-10; the router's
+forwards, the deSEC token and the 403s from outside again on 2026-10-16.
+Worth checking again after changing the router, the DNS or an app's own
+settings.
 
+- The router forwards only 443/tcp and 3478/udp to dapple, nothing else.
 - Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
   password isn't the default, and qBittorrent's password is long and random.
 - The deSEC token (for ACME) can only write the `_acme-challenge` TXT

@@ -17,6 +17,18 @@ secrets are in this repository, encrypted per host. See
 
 <br/>
 
+## Table of contents
+
+- [1 Installation](#1-installation)
+- [2 Hosts](#2-hosts)
+- [3 Safety](#3-safety)
+- [4 Documentation](#4-documentation)
+- [5 Commands](#5-commands)
+- [6 Services on dapple](#6-services-on-dapple)
+- [7 Network exposure](#7-network-exposure)
+
+<br/>
+
 ## 1 Installation
 
 Write the installer ISO (`nix build .#iso`) to a USB stick and boot the
@@ -69,22 +81,13 @@ boot, sops secrets, home-manager, and fish.
   store. See [Secrets and keys](docs/secrets.md).
 - **The server** answers on its tailnet address, with only Headscale,
   New Leaf's share links and meetinn open to the internet. A Headscale
-  policy limits what each tailnet device reaches. [Section 7](#7-network-exposure) lists
-  exactly what is reachable from where, and [Security](docs/security.md) who
-  is kept out of what.
+  policy limits what each tailnet device reaches.
+  [Section 7](#7-network-exposure) lists exactly what is reachable from
+  where, and [Security](docs/security.md) who is kept out of what.
 - **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
   user but root, so the sudo password can't be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
-
-<br/>
-
-## Table of contents
-
-- [4 Documentation](#4-documentation)
-- [5 Commands](#5-commands)
-- [6 Services on dapple](#6-services-on-dapple)
-- [7 Network exposure](#7-network-exposure)
 
 <br/>
 
@@ -115,9 +118,9 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `ndeploy <host> [switch\|boot]` | Build here, signed with rocinante's deploy key, and activate on another host over SSH (at the sudo prompt, any character, then a YubiKey touch) |
 | `nrollback` | Go back to the previous generation |
 | `nupdate` | Update `flake.lock` |
-| `nix fmt` | Format everything (nixfmt, deadnix, statix, shfmt, ruff) |
+| `nix fmt` | Format everything (nix-order, nixfmt, deadnix, statix, shfmt, ruff) |
 | `nix flake check` | Build every host and run the formatting and lint checks |
-| `nix develop` | A shell with sops, age and the YubiKey plugin |
+| `nix develop` | A shell with sops, age and the YubiKey plugin, set to the plugged-in YubiKey's identity unless `SOPS_AGE_KEY_FILE` already is |
 | `nix build .#iso` | The installer ISO, with SSH and `install-host` |
 | `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
 | `sudo enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, bound to secure boot (PCR 7), after a firmware update or TPM reset |
@@ -152,8 +155,9 @@ Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
 tailnet only, without a web page of its own.
 
 Backups: the services' data to Storj with restic, daily, with credentials
-that can't delete or overwrite (pruning is by hand, from rocinante),
-reported to Gatus. Locally, sanoid keeps hourly to yearly ZFS snapshots of
+that can't delete or overwrite (pruning is by hand, from rocinante). Each
+run reports to Gatus; a failed one alerts at once and is tried again 5
+minutes later, on a fresh snapshot. Locally, sanoid keeps hourly to yearly ZFS snapshots of
 `/persist`. Every host reports its disks' and pools' health to Gatus too
 (smartd and `zpool status`, hourly). Whatever Gatus sees go down, or come
 back, goes to the phone through ntfy.
@@ -183,10 +187,9 @@ over HTTPS on dapple's tailnet address. SSH, Syncthing (22000/tcp) and the
 home LAN (through dapple's subnet route) only from the devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson) names:
 rocinante, and two phones for the LAN. The services' vhosts are bound to
-that address and refuse any source outside the tailnet, so they answer
-neither on the public address nor to a LAN device that routes the tailnet
-address through dapple. The firewall is nftables, so its tailnet rules hold
-even though tailscaled accepts all tailnet traffic in its own table.
+that address and refuse any source outside the tailnet; the firewall
+(nftables) opens only 443, 22 and 22000 on it. [Security](docs/security.md)
+says why.
 
 **From the LAN** (`enp2s0`), besides the internet's ports:
 
