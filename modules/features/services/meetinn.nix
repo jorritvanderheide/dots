@@ -19,6 +19,7 @@
 
       config = {
         networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
+        sops.secrets.meetinn_admins.restartUnits = [ "meetinn.service" ];
         sops.secrets.meetinn_smtp_password.restartUnits = [ "meetinn.service" ];
 
         # Through public DNS, so through the router's port forward (by its
@@ -53,10 +54,12 @@
 
         # Mail goes through Proton, which hosts bw20.nl's mail, so it passes
         # SPF and DKIM as it is; dapple's home address couldn't send it
-        # itself. The password is an SMTP token for this address only.
+        # itself. The password is an SMTP token for this address only. The
+        # admins are in sops, as this repo is public and they aren't all
+        # mine to publish.
         services.meetinn = {
           enable = true;
-          admins = [ "jorrit@bw20.nl" ];
+          adminsFile = config.sops.secrets.meetinn_admins.path;
           backup.enable = false;
           mailFrom = "ICT Netwerk Nijmegen <noreply@bw20.nl>";
           nginx.domain = domain;
