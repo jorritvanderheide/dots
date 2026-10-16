@@ -163,7 +163,7 @@ back, goes to the phone through ntfy.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, only three things answer, at names that point straight at the home
+There, three things are served, at names that point straight at the home
 address (DNS at deSEC, no proxy):
 
 - **Headscale** at `vpn`: the control protocol, the DERP relay and its STUN,
@@ -175,7 +175,8 @@ address (DNS at deSEC, no proxy):
 - **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
   Yivi tickets, the admin included (its login is a Yivi email disclosure).
 
-A name no vhost claims gets no certificate and no answer.
+`kobo` answers too, but with a 403: its sync API is for the LAN subnet
+only. A name no vhost claims gets no certificate and no answer.
 
 **From the tailnet**, every service in [section 6](#6-services-on-dapple),
 over HTTPS on dapple's tailnet address. SSH, Syncthing (22000/tcp) and the

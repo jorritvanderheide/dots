@@ -60,8 +60,9 @@ The installer:
    `/persist`, and runs `nixos-install`, whose activation decrypts the
    secrets with it: the accounts have their passwords from the first boot.
 6. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
-   remote (pushing over SSH), ready for `jj`, and exports the pools, so the
-   first boot imports them.
+   remote (pushing over SSH), and exports the pools, so the first boot
+   imports them. rocinante works in the clone with `jj`; dapple has no git,
+   and its clone only carries the new key's files back (below).
 
 Then reboot and type the LUKS password. Until secure boot is on, every boot
 asks for it: the first boot makes the secure boot keys, the next one
