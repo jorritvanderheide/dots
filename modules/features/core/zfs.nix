@@ -42,6 +42,17 @@
           '';
         };
 
+        # The import tries for about a minute, from when the initrd starts.
+        # After the unlock, so a slow LUKS password doesn't time it out, and
+        # only from /dev/mapper, where the unlocked disks are (crypted, in
+        # disk.nix; zmedia-crypt, in media-library.nix): searching every disk
+        # by ID, another one carrying a pool named zroot could be imported in
+        # place of the real one, while the TPM still unlocks the real disk.
+        initrd.systemd.services.zfs-import-zroot = {
+          after = [ "systemd-cryptsetup@crypted.service" ];
+          wants = [ "systemd-cryptsetup@crypted.service" ];
+        };
+
         # No nohibernate here: NixOS's ZFS module adds it, as
         # boot.zfs.allowHibernation is off. That suits these hosts anyway:
         # their only swap is zram (kernel.nix), which can't hold a
@@ -61,7 +72,7 @@
           ];
 
         zfs = {
-          devNodes = "/dev/disk/by-id/";
+          devNodes = "/dev/mapper";
           forceImportAll = false;
           forceImportRoot = true;
           requestEncryptionCredentials = false;
