@@ -50,6 +50,9 @@
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             networking.hostName = "dapple";
 
+            # A NetworkManager default, for a modem dapple doesn't have.
+            networking.modemmanager.enable = false;
+
             # With iptables, tailscaled's own INPUT rules accept everything
             # from tailscale0 before NixOS's get to drop it, so only the
             # tailnet's per-interface ports below would be decoration. In
