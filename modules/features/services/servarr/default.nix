@@ -167,33 +167,28 @@
         # like 1337x. Stateless, talks only to Prowlarr over loopback.
         services.flaresolverr = {
           enable = true;
-          openFirewall = false;
         };
 
         services.lidarr = {
           enable = true;
-          openFirewall = false;
           settings.auth = forcedLogin;
           settings.server.bindaddress = "127.0.0.1";
         };
 
         services.prowlarr = {
           enable = true;
-          openFirewall = false;
           settings.auth = forcedLogin;
           settings.server.bindaddress = "127.0.0.1";
         };
 
         services.radarr = {
           enable = true;
-          openFirewall = false;
           settings.auth = forcedLogin;
           settings.server.bindaddress = "127.0.0.1";
         };
 
         services.sonarr = {
           enable = true;
-          openFirewall = false;
           settings.auth = forcedLogin;
           settings.server.bindaddress = "127.0.0.1";
         };

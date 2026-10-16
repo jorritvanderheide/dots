@@ -56,7 +56,6 @@
         # Radarr's too.
         services.bazarr = {
           enable = true;
-          openFirewall = false;
 
           settings = {
             auth = {

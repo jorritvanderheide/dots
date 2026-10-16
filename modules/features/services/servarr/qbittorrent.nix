@@ -48,7 +48,6 @@
 
         services.qbittorrent = {
           enable = true;
-          openFirewall = false;
           webuiPort = port;
 
           serverConfig = {

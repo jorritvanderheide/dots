@@ -82,7 +82,6 @@
 
         services.jellyfin = {
           enable = true;
-          openFirewall = false;
         };
 
         systemd.services.jellyfin.serviceConfig = {
