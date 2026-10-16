@@ -47,6 +47,8 @@
         runtimeInputs = with pkgs; [
           coreutils
           findutils
+          lsof
+          procps
           systemd
         ];
 

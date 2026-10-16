@@ -75,7 +75,13 @@
 
         my.offsite-backup.entries.new-leaf = {
           paths = [ "/var/lib/new-leaf/users" ];
-          units = [ "new-leaf.service" ];
+
+          # The socket too: Gatus's check would start New Leaf again
+          # mid-swap.
+          units = [
+            "new-leaf.service"
+            "new-leaf.socket"
+          ];
         };
 
         my.preservation.systemDirectories = [

@@ -160,10 +160,12 @@ sudo offsite-restore immich       # or only what's named; --help lists them
 ```
 
 It downloads first, so a failed download changes nothing. Then it stops the
-services, swaps their data in, loads what is backed up as a dump (Immich's
-database), and starts them again. What it replaced is kept
-in `/persist/.offsite-restore-old-<time>` until you delete it. The same
-command repairs a single service on a running host.
+services. If something else still has their data open, such as Zotero on
+rocinante, it starts them again and says what, changing nothing: close it
+and run it again. Otherwise it swaps their data in, loads what is backed
+up as a dump (Immich's database), and starts them again. What it replaced
+is kept in `/persist/.offsite-restore-old-<time>` until you delete it. The
+same command repairs a single service on a running host.
 
 It restores the newest snapshot, after showing the last few with their
 sizes. Restore before the reinstalled host's first night: its nightly backup

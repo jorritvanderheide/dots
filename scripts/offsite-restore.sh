@@ -126,6 +126,26 @@ check_restored "$staging"
 
 old=/persist/.offsite-restore-old-$(date +%Y%m%dT%H%M%S)
 systemctl stop restic-backups-offsite.timer offsite-backup-retry.timer "${units[@]}"
+
+# What the entries' units don't cover would go on writing into the data
+# while it's swapped: Zotero, a desktop app, or a comics conversion its
+# timer started (a conversion isn't in the units, as starting them again
+# would run one).
+open=()
+for path in "${paths[@]}"; do
+  mapfile -t -O "${#open[@]}" open < <(lsof -w -t +D "${persisted[$path]}" || true)
+done
+if ((${#open[@]})); then
+  echo "Still in use by:" >&2
+  ps -o pid=,comm= -p "$(
+    IFS=,
+    echo "${open[*]}"
+  )" >&2 || true
+  systemctl start "${units[@]}" restic-backups-offsite.timer
+  echo "Close those and run it again. Nothing was changed." >&2
+  exit 1
+fi
+
 # errtrace: the restore commands run inside run_hook, where the trap
 # wouldn't fire otherwise.
 set -E
