@@ -231,7 +231,8 @@ is not committed anywhere. To rotate it:
 If no YubiKey is at hand, for example for an install away from home, get the
 secret key text from Bitwarden, save it to a file, and point
 `SOPS_AGE_KEY_FILE` at it before running `install`, `offsite-prune` or
-`sops -d`. They read it from the environment when it is set:
+`sops -d`. They read it from the environment when it is set, and the dev
+shell keeps it if it was set before the shell loaded:
 
 ```sh
 export SOPS_AGE_KEY_FILE=/path/to/passphrase-identity.txt
