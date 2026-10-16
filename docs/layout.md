@@ -69,7 +69,8 @@ starts.
 
 A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup and gatus, whose entries any
-feature may declare; a host that doesn't enable them ignores the entries. A host with a screen adds `desktop`: the desktop features, which
+feature may declare; a host that doesn't enable them ignores the entries.
+A host with a screen adds `desktop`: the desktop features, which
 lean on each other (app2unit, niri, theming, noctalia) and so come as one,
 and research's settings, which the app and research features read. Those
 build on `desktop`. The host picks the rest by name from
@@ -92,7 +93,8 @@ What several features need is in `inputs.self.lib`, from two files in
 `site.nix` has the facts and keys:
 
 - **`site`**: facts more than one host needs: the domain, Headscale's
-  domain, dapple's addresses, the LAN's subnet and the Syncthing devices.
+  domain, the status page, dapple's addresses and SSH host key, the LAN's
+  subnet and the Syncthing devices.
   The host-local side, like which interface is on the LAN, is `my.lan`.
 - **`authorizedKeys`**, **`sudoKeys`** and **`deployKeys`**: who may SSH in,
   which YubiKeys may run sudo on dapple, and whose signed store paths a
@@ -124,16 +126,19 @@ Exceptions:
 - `inherit` lines, then `enable`, lead their set.
 - `mkOption` arguments keep nixpkgs' order: `type`, `default`, `example`,
   `description`.
-- A module's `imports`, `options` and `config` come in that order.
+- A module's `imports`, `options` and `config` come in that order, ahead
+  of the other multi-line attributes, even one that fits on a line.
 - `let` bindings and lists keep their order: a `let` reads best top-down,
   and in a list the order can matter.
 - Function arguments are alphabetical, with `...` last.
 
 `nix fmt` applies this order (`scripts/nix-order.py`, before nixfmt), so
-the flake check fails on a file that is out of order. Attribute order never
-changes what Nix evaluates: a reorder that leaves every host's closure the
-same, apart from the revision it's built from, changed nothing but the
-layout.
+the flake check fails on a file that is out of order. A set it can't order,
+such as two attributes on one line or a comment parted from its attribute
+by a blank line, it names and leaves alone, and the check fails on that
+too. Attribute order never changes what Nix evaluates: a reorder that
+leaves every host's closure the same, apart from the revision it's built
+from, changed nothing but the layout.
 
 ## Comments
 
@@ -141,9 +146,9 @@ Comments say why: a constraint, a failure mode, an upstream quirk. What an
 option does goes in its `description`; what changed and when goes in the
 commit message, not in a comment about how things used to be.
 
-- A workaround says what would let it go: an issue, a version, or a test to
-  rerun ("Drop once NixOS/nixpkgs#569006 reaches nixos-unstable"), not "re-test
-  later".
+- A workaround says what would let it go: an issue, a version, or a test
+  to rerun ("Drop once NixOS/nixpkgs#569006 reaches nixos-unstable"), not
+  "re-test later".
 - Comments go on their own line above the code. A trailing comment is for a
   label of a few words, like the name behind a hash.
 - A short header that groups a long list, like the features in a host's
@@ -152,11 +157,13 @@ commit message, not in a comment about how things used to be.
 - Other settings are named, not pointed at with "above" or "below":
   sorting moves them.
 - Sentences are split with periods, semicolons, colons or parentheses, not
-  ` -- `.
+  em dashes or ` -- `.
 - Notes about a folder of non-Nix files, such as where they came from, go in
   a README in that folder, not in the module that uses them.
 
 ## Checks
 
-`nix flake check` builds every host and checks formatting (treefmt: nix-order,
-nixfmt, deadnix, statix, shfmt, ruff) and statix's lints. `nix fmt` formats.
+`nix flake check` builds every host and the install and offsite-prune
+scripts (which runs shellcheck on them), runs treefmt (nix-order, nixfmt,
+deadnix, statix, shfmt, and ruff's formatter and linter) and statix's
+lints. `nix fmt` formats.

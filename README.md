@@ -40,8 +40,8 @@ ssh -t root@dots-installer.local install-host <hostname>
 ```
 
 It shows the disk it is about to wipe and waits for a `yes`, installs the
-host, and clones this repository to `/etc/nixos`. Reboot with the YubiKey
-still in and type the LUKS password until
+host, and clones this repository to `/etc/nixos`. Reboot and type the LUKS
+password until
 [secure boot](docs/install.md#secure-boot) is on: its first boot binds the
 TPM, so later boots unlock by themselves. Then `sudo offsite-restore` brings
 back its data, and with it its place on the tailnet. A new host
@@ -101,7 +101,7 @@ boot, sops secrets, home-manager, and fish.
 - [**Security**](docs/security.md) - Who is kept out of what, what was
   checked by hand, what is accepted on purpose, and how to check it.
 - [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
-  and the shared helpers.
+  the shared helpers, and the rules for ordering, comments and checks.
 
 <br/>
 

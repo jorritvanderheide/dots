@@ -15,12 +15,10 @@ menu at boot.
 
 Put the machine's firmware in setup mode first (see
 [Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
-makes new keys. Boot the target machine from it, with network (a cable, or
-`nmtui` on its console) and a YubiKey plugged in that opens the host's
-secrets ([Secrets and keys](secrets.md)): either of the two, for either host
-(dapple's with its PIN). Then,
-from any computer with Bitwarden's SSH agent (it holds the key the ISO
-accepts):
+makes new keys. Boot the target machine from it, with network (a cable,
+or `nmtui` on its console) and either YubiKey plugged in
+([Secrets and keys](secrets.md)), dapple's with its PIN. Then, from any
+computer with Bitwarden's SSH agent (it holds the key the ISO accepts):
 
 ```sh
 ssh -t root@dots-installer.local install-host <hostname>
@@ -73,10 +71,9 @@ The host decrypts its secrets with its own age key from the first boot, so
 it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
 secrets file are uncommitted changes in its `/etc/nixos`: commit and push
 them after the first boot, or the next deploy from elsewhere puts the old
-file back. rocinante commits them where they are. dapple has no git: its
-`/etc/nixos` only carries them back, to rocinante, from its `/etc/nixos`.
-Its SSH host key is one of its secrets, so it is the host rocinante pins
-from the first boot:
+file back. rocinante commits them where they are; for dapple, copy them
+into rocinante's clone and commit there. Its SSH host key is one of its
+secrets, so `ssh dapple` trusts it from the first boot:
 
 ```sh
 ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml
@@ -143,8 +140,8 @@ A new device gets the services on dapple. If it also needs SSH or the LAN,
 add its address to the policy's `hosts` and grants.
 
 A reinstalled dapple needs both `headscale` and `tailscale` restored before
-the tailnet works again: until then, reach it over the LAN
-(`ssh nixos@192.168.1.162`). Dapple has to be at 100.64.0.1, where its
+the tailnet works again: until then, `ssh dapple` reaches it over the LAN,
+from home. Dapple has to be at 100.64.0.1, where its
 services and DNS records point. If it ever joins as a new device instead,
 delete its old one first (`headscale nodes delete`): Headscale hands out
 addresses in order, so dapple gets 100.64.0.1 again.
@@ -223,20 +220,19 @@ Nothing needed to recover lives only on rocinante: the SSH keys are in
 Bitwarden, the configuration is on Codeberg, the data on Storj, and the
 YubiKeys are separate devices.
 
-Each host has its own secrets file ([Secrets and keys](secrets.md)), which
-its own age key opens, and either YubiKey (dapple's with its PIN). The
-passphrase identity opens both, for the installer. The installer gives a
-reinstalled host a new age key of its own
+Either YubiKey (dapple's with its PIN), or the passphrase identity, opens
+both hosts' secrets for the installer ([Secrets and keys](secrets.md)). It
+gives a reinstalled host a new age key of its own
 ([A new host key](secrets.md#a-new-host-key)), so its services need no
 YubiKey.
 
 - **rocinante.** On its replacement, with a YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
-  boot, push the new `facter.json` and run `sudo offsite-restore`. Only what
-  rocinante's backup holds comes back: Zotero, and its place on the tailnet.
-  Its Nix signing key is one of its secrets, so `ndeploy` works from the
-  first boot.
+  boot, commit and push `facter.json` with the new key's files, and run
+  `sudo offsite-restore`. Only what rocinante's backup holds comes back:
+  Zotero, and its place on the tailnet. Its Nix signing key is one of its
+  secrets, so `ndeploy` works from the first boot.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count what is on it as known: its secrets,
   its tailnet node, its Storj credentials and its Nix signing key. Install
@@ -252,7 +248,9 @@ YubiKey.
   2. Rotate its secrets: from step 3 of
      [Revoking a lost or compromised key](secrets.md#revoking-a-lost-or-compromised-key),
      with `sops rotate -i secrets/rocinante.yaml` and new values for what
-     is in it. The installer has already replaced its old age key.
+     is in it. The installer has already replaced its old age key. Its
+     `gatus_push_token` is `gatus_push_token_rocinante` in
+     `secrets/dapple.yaml` too: change both, and `ndeploy dapple`.
   3. Revoke its Storj credentials and make new ones
      ([Storj credentials](secrets.md#storj-credentials)).
   4. Replace its Nix signing key, which dapple trusts. For one deploy,

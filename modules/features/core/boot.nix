@@ -61,7 +61,7 @@
           # and stages them on the ESP; systemd-boot enrolls them by itself
           # at the next boot with the firmware in setup mode. Microsoft's
           # keys are enrolled too, for the option ROMs of the hardware.
-          # Straight on /persist, like the SSH host key.
+          # Straight on /persist.
           lanzaboote = {
             enable = true;
             autoEnrollKeys.enable = true;

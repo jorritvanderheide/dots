@@ -8,8 +8,9 @@ up the other's secrets.
 
 Each host decrypts at activation (every boot and switch) with an age key of
 its own, in `/persist/system/var/lib/sops/age.key` on its encrypted disk,
-readable by root only. The disk unlocks with the TPM only under our own secure boot,
-so the key is as safe as that binding. No host needs a YubiKey to boot.
+readable by root only. The disk unlocks with the TPM only under our own
+secure boot, so the key is as safe as that binding. No host needs a
+YubiKey to boot.
 
 There are two YubiKeys, and they open the same: either one does
 everything, so losing one loses nothing. Each holds two identities, a
@@ -54,10 +55,11 @@ current directory up. The dev shell sets `SOPS_CONFIG` to it; without the
 dev shell, run those from `secrets/`.
 
 The user passwords (`user_password_<user>`) are password *hashes*, not
-plaintext. Make one with `mkpasswd -m yescrypt`. A new one applies on the
-next deploy, and `passwd` on a host only lasts until then. `bazarr_password` is the
-md5 hex digest of the password (`printf '%s' '<password>' | md5sum`),
-which is what Bazarr compares.
+plaintext. Make one with `mkpasswd -m yescrypt`. Every activation sets it
+again, so a new one applies on the next switch or deploy, and `passwd` on a
+host lasts only until then, or the next boot. `bazarr_password` is the md5
+hex digest of the password (`printf '%s' '<password>' | md5sum`), which is
+what Bazarr compares.
 
 `ssh_host_key` is dapple's SSH host key, the whole private key file, so a
 reinstalled dapple is the host rocinante pins from its first boot. Its
@@ -70,7 +72,9 @@ ssh-keygen -y -f (sops -d --extract '["ssh_host_key"]' secrets/dapple.yaml | psu
 ```
 
 A new one comes from `ssh-keygen -t ed25519 -N "" -C root@dapple -f key`:
-`key` goes in the secret and `key.pub` in `site.nix`, in the same deploy.
+`key` goes in the secret and `key.pub` in `site.nix`, in one commit. Then
+`ndeploy dapple`, which still connects with the old key, and `nswitch`, so
+rocinante pins the new one. Delete `key` and `key.pub`.
 
 ## Enrolling an additional YubiKey
 
@@ -147,15 +151,15 @@ it. Revoke old ones with `uplink access revoke --access owner <name>`.
 ### A first or very large backup
 
 Without delete rights, restic can't refresh its lock, and gives up after
-22.5 minutes. A daily run is far shorter, and a cut-off run resumes on the
-retry, but the first backup into a new repository (a new host or bucket)
-or an import of tens of GB can loop: each retry re-sends what the last one
-hadn't indexed, and is cut off again just before saving its snapshot. (A
-reinstalled host's restored data is in its repository already.) Then run
-it once with the
-owner's key, through the normal service (so it still reads a snapshot of
-`/persist`), on the host. A backup stopped by hand counts as a failed one:
-Gatus alerts, and it is tried again 5 minutes later, from
+22.5 minutes. A cut-off run is retried and goes on from the index the last
+one saved, so a long one finishes in steps, unless reading through
+everything takes longer than that, as it can for the first backup into a
+new repository (a new host or bucket) or an import of tens of GB: then each
+retry is cut off before saving its snapshot. (A reinstalled host's restored
+data is in its repository already.) Then run it once with the owner's key,
+through the normal service (so it still reads a snapshot of `/persist`), on
+the host. A backup stopped by hand counts as a failed one: on dapple, Gatus
+alerts, and on every host it is tried again 5 minutes later, from
 `offsite-backup-retry.timer`. Stopping the backup starts that timer, so
 stop the timer after it:
 
@@ -177,8 +181,7 @@ new one for every host it installs: it replaces `<host>_host` in the
 clone's `secrets/.sops.yaml` with it, re-encrypts `secrets/<host>.yaml`
 with the YubiKey (or passphrase) it decrypts with, and puts the key in
 `/persist/system/var/lib/sops/age.key`. Commit and push both files after
-the first boot: from the host's `/etc/nixos`, or for dapple, which has no
-git, from rocinante ([Install](install.md#install) has the commands).
+the first boot ([Install](install.md#install) has how).
 
 It has to happen there, not after the first boot: without its secrets a
 host's accounts stay locked, and no service can type the PIN that dapple's
@@ -209,7 +212,8 @@ or `ndeploy dapple`).
 4. Change the secrets themselves: the old copies still open with the lost
    key. In particular, change the LUKS password (`cryptsetup luksChangeKey`
    on every disk, then `sudo enroll-tpm`), the restic password
-   (`restic key add`, then `restic key remove` the old one), the Storj
+   (`restic key add`, then `restic key remove` the old one, with the
+   owner's S3 key), the Storj
    credentials, the user password hashes, dapple's SSH host key, and the
    tokens and API keys.
 5. Push, and deploy every host.

@@ -280,8 +280,8 @@
         # which these credentials can't, and gives up after 22.5 minutes
         # ("failed to refresh lock in time"); `backup` has no --no-lock. It
         # saves its index every 10 minutes, so a retry goes on where the last
-        # one stopped: a long run (the first one, a big import) finishes in
-        # steps.
+        # one stopped: a long run finishes in steps, unless reading everything
+        # again takes longer than that (docs/secrets.md).
         systemd.timers.offsite-backup-retry = {
           description = "Retry the failed offsite backup";
 
