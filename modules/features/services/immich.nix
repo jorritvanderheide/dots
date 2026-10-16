@@ -45,6 +45,10 @@
         # the way Immich's own restore does it: from an empty schema, so
         # nothing a newer migration made outlives it, in one transaction that
         # stops at the first error.
+        #
+        # All of mediaLocation, thumbs/ and encoded-video/ too (11 and 31 GB
+        # in 2026-10): they cost cents a month on Storj, and making them again
+        # after a restore would take dapple hours.
         my.offsite-backup.entries.immich = {
           paths = [ config.services.immich.mediaLocation ];
 
