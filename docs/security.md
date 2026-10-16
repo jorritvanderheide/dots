@@ -23,8 +23,9 @@ tailnet address.
 
 - every device: the services on dapple, over HTTPS;
 - rocinante: SSH and Syncthing on dapple;
-- rocinante and two phones: the home LAN, through dapple's
-  subnet route (the phones for the camera).
+- two phones: the home LAN, through dapple's subnet route, for the camera.
+  Not rocinante, which doesn't take the route: accepting it would send its
+  LAN traffic through dapple even at home.
 
 dapple is tagged `tag:server`, so it isn't one of anyone's own devices: no
 blanket device-to-device access to it, and New Leaf doesn't take it for a
