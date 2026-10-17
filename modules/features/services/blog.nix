@@ -37,8 +37,12 @@
           enable = true;
         };
 
+        # The tailnet address too: nginx only considers vhosts bound to it
+        # explicitly there, so without it the tailnet gets the catch-all's
+        # rejected handshake.
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
+          listenAddresses = config.services.nginx.defaultListenAddresses ++ [ config.my.ingress.tailnetIp ];
           useACMEHost = domain;
         };
       };

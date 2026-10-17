@@ -109,6 +109,10 @@
         # record (docs/security.md).
         sops.secrets.desec_dns_env = { };
 
+        # deSEC's second nameserver, ns2.desec.org, can take minutes to serve
+        # a new challenge record, longer than lego's default 2 minutes.
+        systemd.services."acme-order-renew-${cfg.domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
+
         users.groups.acme.members = [ "nginx" ];
 
         my.gatus.endpoints = lib.concatMapAttrs (
