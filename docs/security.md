@@ -64,6 +64,15 @@ tailnet sources that don't arrive on `tailscale0`.
 - in Home Assistant's case, can't rewrite the firewall or sniff traffic:
   it runs without `CAP_NET_ADMIN` and `CAP_NET_RAW`.
 
+**A CI job** from Codeberg runs on dapple itself (the Forgejo runner), as
+the runner's dynamic user, so it gets what a process on dapple gets, and
+less: its unit is cut off from localhost, the LAN and the tailnet
+(`IPAddressDeny`), since dapple's vhosts let in anything from dapple's own
+tailnet address, and sees no `/home`. Its DNS is Quad9's, the router's
+being on the LAN. It builds through the Nix daemon as an allowed, not a
+trusted, user: sandboxed builds, no say over substituters or keys. One job
+runs at a time.
+
 **Someone with the `nixos` SSH key** still needs the sudo password, or one
 of the YubiKeys and a touch: sudo on dapple also takes a signature from a
 FIDO2 key on either (`pam_rssh`), through an agent rocinante forwards with
@@ -133,6 +142,12 @@ start, since that would otherwise win.
 
 ## Accepted on purpose
 
+- **A CI workflow runs code on dapple**: whoever can start one on meetinn
+  (its committers, and a fork's pull request unless Codeberg holds those
+  for approval) runs it as the runner's user, with the internet. Enough to
+  send spam or mine from the home address, or fill the disk with Nix
+  builds; not enough to reach the services, the LAN or the tailnet, or to
+  become root. The VM test needs KVM, which Codeberg's own runners lack.
 - **rocinante forwards an SSH agent to dapple**, the one with only the
   YubiKeys' sudo keys. While you're connected, anything on dapple running
   as `nixos` can ask it to sign, and run sudo if you touch the key. The

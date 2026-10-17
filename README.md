@@ -154,6 +154,10 @@ all of them.
 Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
 tailnet only, without a web page of its own.
 
+A Forgejo runner takes meetinn's CI jobs from Codeberg, with KVM for its
+NixOS VM test, also without a web page; it reaches the internet only
+([Security](docs/security.md#who-is-kept-out-of-what)).
+
 Backups: the services' data to Storj with restic, daily, with credentials
 that can't delete or overwrite (pruning is by hand, from rocinante). Each
 run reports to Gatus; a failed one alerts at once and is tried again 5
@@ -207,7 +211,9 @@ mDNS, to find the installer ISO.
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
 the status page's checks of New Leaf's share links and meetinn, at the
 public address through the router's hairpin NAT, and meetinn's hourly
-update of its Yivi schemes and its mail, through Proton's SMTP. Besides
+update of its Yivi schemes and its mail, through Proton's SMTP. The
+Forgejo runner polls Codeberg for jobs, which fetch what they build from
+the internet (and nothing on the LAN or the tailnet). Besides
 those, the apps fetch what they're for, from the home address: qBittorrent's
 torrents (no VPN), Prowlarr's indexers (through FlareSolverr where
 Cloudflare guards one), metadata and subtitles for the *arr apps, Bazarr
