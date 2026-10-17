@@ -142,8 +142,9 @@ start, since that would otherwise win.
 
 ## Accepted on purpose
 
-- **A CI workflow runs code on dapple**: whoever can start one on meetinn
-  (its committers, and a fork's pull request unless Codeberg holds those
+- **A CI workflow runs code on dapple**: whoever can start one in a
+  repository of an owner the runner serves (`my.forgejo-runner.connections`:
+  their committers, and a fork's pull request unless Codeberg holds those
   for approval) runs it as the runner's user, with the internet. Enough to
   send spam or mine from the home address, or fill the disk with Nix
   builds; not enough to reach the services, the LAN or the tailnet, or to

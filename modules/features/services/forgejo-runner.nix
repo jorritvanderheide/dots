@@ -3,13 +3,14 @@
   ...
 }:
 {
-  # A runner for Codeberg's Forgejo Actions: CI for meetinn, with the NixOS
-  # VM test, which needs KVM that Codeberg's own runners don't have. Jobs
-  # run on the host, as the runner's dynamic user, and build through
-  # dapple's Nix daemon, so a job can't get at more than an unprivileged
-  # user on dapple with only the internet: the unit's network is cut off
-  # from localhost, the LAN and the tailnet, where dapple's services answer
-  # anything that comes from dapple itself.
+  # A runner for Codeberg's Forgejo Actions: CI with Nix, and with KVM for
+  # NixOS VM tests, which Codeberg's own runners lack. One runner for
+  # several owners on Codeberg (a user, an organisation), so all their
+  # repositories can use it. Jobs run on the host, as the runner's dynamic
+  # user, and build through dapple's Nix daemon, so a job can't get at more
+  # than an unprivileged user on dapple with only the internet: the unit's
+  # network is cut off from localhost, the LAN and the tailnet, where
+  # dapple's services answer anything that comes from dapple itself.
   flake.nixosModules.forgejo-runner =
     {
       config,
@@ -18,7 +19,8 @@
     }:
     let
       cfg = config.my.forgejo-runner;
-      name = "codeberg";
+      instance = "codeberg";
+      unit = "forgejo-runner-${instance}";
 
       # Quad9, as the router's DNS is on the LAN, which the unit can't reach.
       resolvConf = pkgs.writeText "resolv.conf" ''
@@ -28,23 +30,34 @@
     in
     {
       options.my.forgejo-runner = {
-        uuid = lib.mkOption {
-          type = lib.types.str;
-          example = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
-          description = "The runner's UUID, from creating it in the repository's settings on Codeberg (Actions, Runners). Its token goes in sops as `forgejo_runner_token`.";
+        connections = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options.uuid = lib.mkOption {
+                type = lib.types.str;
+                example = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
+                description = "The runner's UUID at this owner, from creating it in the owner's settings on Codeberg (Actions, Runners).";
+              };
+            }
+          );
+          default = { };
+          example = lib.literalExpression ''
+            {
+              jorrit.uuid = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
+              ict-netwerk-nijmegen.uuid = "0d6d2d6f-6a6c-4b0f-8c7e-3f1f2a0d9b11";
+            }
+          '';
+          description = "The owners on Codeberg (users or organisations) whose repositories' jobs the runner takes, by name. Each one's token goes in sops as `forgejo_runner_token_<name>`.";
         };
       };
 
       config = {
         # The Nix daemon lets in only wheel (nix.nix); the runner's jobs run
         # `nix flake check` as this dynamic user, which stays unprivileged.
-        nix.settings.allowed-users = [ "forgejo-runner-${name}" ];
+        nix.settings.allowed-users = [ unit ];
 
-        sops.secrets.forgejo_runner_token.restartUnits = [ "forgejo-runner-${name}.service" ];
-
-        services.forgejo-runner.instances.${name} = {
+        services.forgejo-runner.instances.${instance} = {
           enable = true;
-          secrets.server.connections.${name}.token_url = config.sops.secrets.forgejo_runner_token.path;
 
           # The module's own, and Nix (through dapple's daemon) for the
           # jobs, which mostly run `nix flake check`.
@@ -62,6 +75,10 @@
             wget
           ];
 
+          secrets.server.connections = lib.mapAttrs (owner: _: {
+            token_url = config.sops.secrets."forgejo_runner_token_${owner}".path;
+          }) cfg.connections;
+
           settings = {
             # One job at a time, so CI doesn't crowd dapple's services. No
             # cache server: it listens on localhost, which jobs can't reach.
@@ -69,15 +86,20 @@
             runner.capacity = 1;
             runner.labels = [ "nix:host" ];
 
-            server.connections.${name} = {
-              inherit (cfg) uuid;
+            server.connections = lib.mapAttrs (_: connection: {
+              inherit (connection) uuid;
               token = null;
               url = "https://codeberg.org/";
-            };
+            }) cfg.connections;
           };
         };
 
-        systemd.services."forgejo-runner-${name}".serviceConfig = {
+        sops.secrets = lib.mapAttrs' (
+          owner: _:
+          lib.nameValuePair "forgejo_runner_token_${owner}" { restartUnits = [ "${unit}.service" ]; }
+        ) cfg.connections;
+
+        systemd.services.${unit}.serviceConfig = {
           BindReadOnlyPaths = [ "${resolvConf}:/etc/resolv.conf" ];
           ProtectHome = true;
 

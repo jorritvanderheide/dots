@@ -154,8 +154,9 @@ all of them.
 Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
 tailnet only, without a web page of its own.
 
-A Forgejo runner takes meetinn's CI jobs from Codeberg, with KVM for its
-NixOS VM test, also without a web page; it reaches the internet only
+A Forgejo runner takes CI jobs from Codeberg, for every repository of the
+owners it is registered with (me, ICT Netwerk Nijmegen), with KVM for NixOS
+VM tests, also without a web page; it reaches the internet only
 ([Security](docs/security.md#who-is-kept-out-of-what)).
 
 Backups: the services' data to Storj with restic, daily, with credentials
