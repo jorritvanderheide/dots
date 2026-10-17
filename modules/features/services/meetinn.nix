@@ -74,13 +74,6 @@
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
           useACMEHost = config.my.ingress.domain;
-
-          # No access log: its URLs hold manage and pass tokens, keys to a
-          # registration, next to the visitor's address, and /var/log is
-          # persisted and snapshotted for long after meetinn forgets them.
-          extraConfig = ''
-            access_log off;
-          '';
         };
       };
     };
