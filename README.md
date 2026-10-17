@@ -80,7 +80,7 @@ boot, sops secrets, home-manager, and fish.
   activation, with the host's own key, into `/run`, never into the Nix
   store. See [Secrets and keys](docs/secrets.md).
 - **The server** answers on its tailnet address, with only Headscale,
-  New Leaf's share links and meetinn open to the internet. A Headscale
+  New Leaf's share links, meetinn and the blog open to the internet. A Headscale
   policy limits what each tailnet device reaches.
   [Section 7](#7-network-exposure) lists exactly what is reachable from
   where, and [Security](docs/security.md) who is kept out of what.
@@ -148,6 +148,7 @@ all of them.
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | meetinn | `inn` | ICT Netwerk Nijmegen's site, public; a demo until it has its own server |
+| Blog | bare domain | My blog, public |
 | Gatus | `status` | Monitoring of all of the above |
 | ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app |
 
@@ -172,7 +173,7 @@ back, goes to the phone through ntfy.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, three things are served, at names that point straight at the home
+There, four things are served, at names that point straight at the home
 address (DNS at deSEC, no proxy):
 
 - **Headscale** at `vpn`: the control protocol, the DERP relay and its STUN,
@@ -183,6 +184,8 @@ address (DNS at deSEC, no proxy):
   addresses. The editor is not reachable from the internet.
 - **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
   Yivi tickets, the admin included (its login is a Yivi email disclosure).
+- **The blog** at the bare domain: static pages, with a 403 for the AI
+  crawlers its robots.txt names.
 
 `kobo` answers too, but with a 403: its sync API is for the LAN subnet
 only. A name no vhost claims gets no certificate and no answer.
@@ -210,7 +213,7 @@ interface.
 mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
-the status page's checks of New Leaf's share links and meetinn, at the
+the status page's checks of New Leaf's share links, meetinn and the blog, at the
 public address through the router's hairpin NAT, and meetinn's hourly
 update of its Yivi schemes and its mail, through Proton's SMTP. The
 Forgejo runner polls Codeberg for jobs, which fetch what they build from

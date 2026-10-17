@@ -135,11 +135,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792243058,
-        "narHash": "sha256-rby3cjqJJMxsEPXJ+gdaIydWdQ9Ww7R1X7xDYkYA5q8=",
+        "lastModified": 1792258777,
+        "narHash": "sha256-jkLmbwfcKGVJZareMdwVQBltpXAoWWU65kS5CwCzw0w=",
         "ref": "refs/heads/main",
-        "rev": "17d0ee0ff3a52d3371c73a24f2977e4ba1988610",
-        "revCount": 224,
+        "rev": "a16ac797a349bc722b87b7bc594169eefbbec250",
+        "revCount": 249,
         "type": "git",
         "url": "https://codeberg.org/ict-netwerk-nijmegen/meetinn"
       },
@@ -295,6 +295,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1775710090,
+        "narHash": "sha256-ar3rofg+awPB8QXDaFJhJ2jJhu+KqN/PRCXeyuXR76E=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "4c1018dae018162ec878d42fec712642d214fdfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -302,17 +318,35 @@
         ]
       },
       "locked": {
-        "lastModified": 1792113651,
-        "narHash": "sha256-OAXcxtszGBk6CSHFnqT0bpH+AovFgBYsJBMHEh50UsA=",
+        "lastModified": 1792243036,
+        "narHash": "sha256-DUNMQn8Wc1U4SMs+I+WymAdccBu89qoeUeU5M+2JtNE=",
         "owner": "noctalia-dev",
         "repo": "noctalia",
-        "rev": "eeea6ff75cd71f9dbcd3acea6035449fefe3c71a",
+        "rev": "3982122906f2409aeaff17399552153c4c323f20",
         "type": "github"
       },
       "original": {
         "owner": "noctalia-dev",
         "repo": "noctalia",
         "type": "github"
+      }
+    },
+    "personal-blog": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1792262809,
+        "narHash": "sha256-0QjWirplKaqhNCmNgVQk1BGlFhemMiUkYH13uWNFLsA=",
+        "ref": "refs/heads/main",
+        "rev": "ef1e1d9806396cc4d7262788e196a6b1f2fea2ed",
+        "revCount": 62,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/personal-blog"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/BW20/personal-blog"
       }
     },
     "pre-commit": {
@@ -366,6 +400,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-zotero": "nixpkgs-zotero",
         "noctalia": "noctalia",
+        "personal-blog": "personal-blog",
         "preservation": "preservation",
         "sops-nix": "sops-nix",
         "systems": "systems",
@@ -492,11 +527,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791587008,
-        "narHash": "sha256-LOIfH4MtVc2KIFQI8ElOOgmgrgUzJjfx3OYu4VnTvIU=",
+        "lastModified": 1792192561,
+        "narHash": "sha256-XNE80BcOYerOY/+2bfmVk1Sik7FYq7ID9mbtXTeqDN0=",
         "owner": "0xc000022070",
         "repo": "zen-browser-flake",
-        "rev": "a6359784912804e2bad0826b63454cf4493e885e",
+        "rev": "733154388e22e459c7e6dd14e6522069bbf25971",
         "type": "github"
       },
       "original": {

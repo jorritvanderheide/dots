@@ -12,6 +12,7 @@
         ssh-server
 
         # Services
+        blog
         calibre-web
         contacts
         filebrowser

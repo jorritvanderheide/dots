@@ -7,10 +7,10 @@ themselves are listed in the README's
 
 ## Who is kept out of what
 
-**The internet** reaches three things on dapple, at the home address,
+**The internet** reaches four things on dapple, at the home address,
 through the router's port forward: Headscale's control protocol and DERP
-relay at `vpn`, New Leaf's share links at `cv`, and meetinn (a demo) at
-`inn`. No proxy sits in front, so TLS ends on dapple and nobody between
+relay at `vpn`, New Leaf's share links at `cv`, meetinn (a demo) at
+`inn`, and the blog at the bare domain. No proxy sits in front, so TLS ends on dapple and nobody between
 reads share links or meetinn's tokens, at the price of a public home
 address. Headscale's admin API (`/api`, `/swagger`) only answers tailnet
 addresses, so in practice nobody over the network: the `headscale` CLI uses
