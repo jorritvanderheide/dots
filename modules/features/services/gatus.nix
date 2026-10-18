@@ -26,9 +26,17 @@
         host: if host == config.networking.hostName then "gatus_push_token" else "gatus_push_token_${host}";
       secretKeys = lib.unique (map pushTokenKey hosts) ++ lib.optional alerting "ntfy_token";
 
+      # A check runs every five minutes. It alerts after two failures in a
+      # row, which a restart for a deploy is over well before, and says
+      # it's back at the first success.
+      checkAlerts = lib.optional alerting {
+        failure-threshold = 2;
+        success-threshold = 1;
+        type = "ntfy";
+      };
+
       # A pushed result comes hours apart and is a verdict, so it alerts at
-      # once; a check runs every minute, so it takes the default three
-      # failures in a row.
+      # once.
       pushAlerts = lib.optional alerting {
         failure-threshold = 1;
         success-threshold = 1;
@@ -42,8 +50,8 @@
             {
               inherit name;
               inherit (endpoint) conditions group url;
-              alerts = lib.optional alerting { type = "ntfy"; };
-              interval = "1m";
+              alerts = checkAlerts;
+              interval = "5m";
             }
             // lib.optionalAttrs (endpoint.dnsResolver != null) {
               client.dns-resolver = endpoint.dnsResolver;
@@ -130,7 +138,7 @@
 
                 url = lib.mkOption {
                   type = lib.types.str;
-                  description = "What to check, every minute.";
+                  description = "What to check, every five minutes.";
                 };
               };
             }
