@@ -290,3 +290,72 @@ YubiKey.
 That last case depends on your phone. An offline copy of the passphrase
 identity and your Bitwarden recovery details, kept somewhere safe, removes
 that dependency.
+
+## Losing an upstream
+
+dapple keeps a copy of every input in `flake.lock`, both hosts' and the
+inputs' own, in `/var/lib/flake-archive`, and backs it up offsite with its
+services. It's refreshed on each deploy that changes the lock. Each node of
+the lock has a folder there, by its name in the lock: `nodes.root.inputs`
+names the flake's own inputs' nodes, and an input's own input has a node
+of its own, such as personal-blog's `nixpkgs`, which is `nixpkgs_2`
+(`nodes.personal-blog.inputs`). dapple's build needs every node in the
+lock, even one nothing uses, like niri-flake's `niri-unstable`, so one
+that is gone needs its copy too.
+
+If an input's forge or repository is gone, or a tag was moved, build from
+its copy, on rocinante:
+
+1. Copy the node's folder over. tar keeps the tree as it is, its links
+   included, so it still matches the lock:
+
+   ```sh
+   mkdir -p ~/flake-archive
+   ssh nixos@dapple tar -C /var/lib/flake-archive -c <node> | tar -x -C ~/flake-archive
+   ```
+
+2. Look up the node's `rev` and `lastModified` in the lock, and its
+   `revCount` if it has one (a git input):
+
+   ```sh
+   nix eval --impure --expr '(builtins.fromJSON (builtins.readFile /etc/nixos/flake.lock)).nodes.<node>.locked'
+   ```
+
+3. Lock the input to the copy, with those, adding `&revCount=<revCount>`
+   if it has one. `<input>` is its path, such as `nixpkgs` or
+   `personal-blog/nixpkgs`:
+
+   ```sh
+   nix flake lock /etc/nixos --override-input <input> "path:$HOME/flake-archive/<node>?rev=<rev>&lastModified=<lastModified>"
+   ```
+
+   The copy has no git history, so without them nixpkgs's version label
+   reads `19700101.dirty`, and every store path changes. With them, the
+   hosts build exactly as before.
+
+4. Commit `flake.lock`, as `nswitch` refuses uncommitted changes. Builds
+   keep the override, but `nupdate` would lock the input from its old URL
+   again, and fail: until it has a new home, update the other inputs by
+   name (`nix flake update <input> ...`).
+
+The override only works where the copy is. To give the input a new home,
+make the copy a repository of your own on Codeberg (`git init`, commit,
+push), point its `url` in `flake.nix` there, and
+`nix flake update <input>`. For an input's own input, the new URL goes in
+that input's `flake.nix`, or in a `follows` here.
+
+With dapple gone as well, get the copy straight from the backup, the way
+`offsite-prune` reaches it: `RESTIC_REPOSITORY` from dapple's
+`services.restic.backups.offsite.repository`, and `restic_password`,
+`storj_access_key` and `storj_secret_key` from `secrets/dapple.yaml` as
+`RESTIC_PASSWORD`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Then,
+in place of step 1:
+
+```sh
+restic restore latest --include /var/lib/flake-archive/<node> --target <dir>
+```
+
+The copy is then in `<dir>/var/lib/flake-archive/<node>`.
+
+The archive holds the inputs only: not the sources their packages
+download, nor cache.nixos.org's builds.

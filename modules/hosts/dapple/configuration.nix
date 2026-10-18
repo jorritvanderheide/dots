@@ -16,6 +16,7 @@
         calibre-web
         contacts
         filebrowser
+        flake-archive
         forgejo-runner
         headscale
         home-assistant
