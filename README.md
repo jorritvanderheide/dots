@@ -164,10 +164,11 @@ web page; it reaches the internet only
 Backups: the services' data to Storj with restic, daily, with credentials
 that can't delete or overwrite (pruning is by hand, from rocinante). Each
 run reports to Gatus; a failed one alerts at once and is tried again 5
-minutes later, on a fresh snapshot. With them goes a copy of every flake
-input, so the hosts can be built without the forges they come from
-([Losing an upstream](docs/install.md#losing-an-upstream)). Locally, sanoid keeps hourly to yearly ZFS snapshots of
-`/persist`. Every host reports its disks' and pools' health to Gatus too
+minutes later, on a fresh snapshot, up to 12 times a night. With them goes
+a copy of every flake input, so the hosts can be built without the forges
+they come from ([Losing an upstream](docs/install.md#losing-an-upstream)).
+Locally, sanoid keeps hourly to yearly ZFS snapshots of `/persist`. Every
+host reports its disks' and pools' health to Gatus too
 (smartd and `zpool status`, hourly). Whatever Gatus sees go down, or come
 back, goes to the phone through ntfy.
 

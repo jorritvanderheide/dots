@@ -292,6 +292,15 @@
             RemainAfterElapse = false;
             Unit = "restic-backups-offsite.service";
           };
+
+          # At most 12 tries a night, enough for about 5 hours of steps, so a
+          # failure that lasts, like an expired grant, doesn't retry and
+          # report every 5 minutes until fixed. The count starts over 20
+          # hours after its first try, before the next night's run.
+          unitConfig = {
+            StartLimitBurst = 12;
+            StartLimitIntervalSec = "20h";
+          };
         };
       };
     };

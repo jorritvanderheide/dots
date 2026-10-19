@@ -160,8 +160,8 @@ data is in its repository already.) Then run it once with the owner's key,
 through the normal service (so it still reads a snapshot of `/persist`), on
 the host. A backup stopped by hand counts as a failed one: on dapple, Gatus
 alerts, and on every host it is tried again 5 minutes later, from
-`offsite-backup-retry.timer`. Stopping the backup starts that timer, so
-stop the timer after it:
+`offsite-backup-retry.timer`, up to 12 times a night. Stopping the backup
+starts that timer, so stop the timer after it:
 
 ```sh
 sudo systemctl stop restic-backups-offsite
