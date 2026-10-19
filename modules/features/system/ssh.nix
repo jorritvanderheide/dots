@@ -10,7 +10,7 @@
       ...
     }:
     let
-      inherit (inputs.self.lib.site) dapple;
+      inherit (inputs.self.lib.site.hosts) dapple;
     in
     {
       config = {

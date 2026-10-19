@@ -45,7 +45,7 @@
             message = "headscale-policy.hujson's addresses differ from lib.site's dapple.tailnetIp or lan.subnet";
 
             assertion = lib.all (line: lib.hasInfix line policy) [
-              ''"dapple": "${site.dapple.tailnetIp}"''
+              ''"dapple": "${site.hosts.dapple.tailnetIp}"''
               ''"lan": "${site.lan.subnet}"''
               ''"${site.lan.subnet}": ["tag:server"]''
             ];

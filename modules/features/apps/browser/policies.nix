@@ -1,6 +1,10 @@
 # Zen's enterprise policies: what it may do, its extensions and its search
 # engines. The program and its profile are in default.nix.
 {
+  inputs,
+  ...
+}:
+{
   flake.nixosModules.browser =
     {
       config,
@@ -141,7 +145,7 @@
               "http://localhost:8001"
               "http://localhost:8080"
               "http://145.137.190.196"
-              "http://100.64.0.2"
+              "http://${inputs.self.lib.site.hosts.rocinante.tailnetIp}"
             ];
 
             SanitizeOnShutdown = {

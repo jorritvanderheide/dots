@@ -13,7 +13,7 @@
     let
       inherit (inputs.self.lib) site;
       dataDir = "/var/lib/syncthing";
-      listenAddress = "tcp://${site.dapple.tailnetIp}:${toString site.syncthing.port}";
+      listenAddress = "tcp://${site.hosts.dapple.tailnetIp}:${toString site.syncthing.port}";
     in
     {
       config = {

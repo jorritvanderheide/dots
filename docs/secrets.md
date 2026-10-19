@@ -63,7 +63,7 @@ what Bazarr compares.
 
 `ssh_host_key` is dapple's SSH host key, the whole private key file, so a
 reinstalled dapple is the host rocinante pins from its first boot. Its
-public half is `site.dapple.hostKey` in `modules/flake/site.nix`, and the
+public half is `site.hosts.dapple.hostKey` in `modules/flake/site.nix`, and the
 two have to match, or rocinante refuses the next deploy's SSH. Check before
 deploying a new one:
 
@@ -158,8 +158,8 @@ new repository (a new host or bucket) or an import of tens of GB: then each
 retry is cut off before saving its snapshot. (A reinstalled host's restored
 data is in its repository already.) Then run it once with the owner's key,
 through the normal service (so it still reads a snapshot of `/persist`), on
-the host. A backup stopped by hand counts as a failed one: on dapple, Gatus
-alerts, and on every host it is tried again 5 minutes later, from
+the host. A backup stopped by hand counts as a failed one: Gatus alerts,
+and it is tried again 5 minutes later, from
 `offsite-backup-retry.timer`, up to 12 times a night. Stopping the backup
 starts that timer, so stop the timer after it:
 

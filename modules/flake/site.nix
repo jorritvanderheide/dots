@@ -19,16 +19,20 @@ _: {
       lan.subnet = "192.168.1.0/24";
       vpnDomain = "vpn.bw20.nl";
 
-      dapple = {
-        lanIp = "192.168.1.162";
+      # Every host, by name: what the others need to reach it. Headscale
+      # hands out tailnet addresses in order, and dapple joined first
+      # (docs/install.md).
+      hosts = {
+        rocinante.tailnetIp = "100.64.0.2";
 
-        # Its SSH host key, which the ssh feature pins. The private half is
-        # ssh_host_key in secrets/dapple.yaml (ssh-server.nix).
-        hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+        dapple = {
+          lanIp = "192.168.1.162";
+          tailnetIp = "100.64.0.1";
 
-        # Headscale hands out addresses in order, and dapple joined first
-        # (docs/install.md).
-        tailnetIp = "100.64.0.1";
+          # Its SSH host key, which the ssh feature pins. The private half
+          # is ssh_host_key in secrets/dapple.yaml (ssh-server.nix).
+          hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
+        };
       };
 
       # Gatus, on dapple (gatus.nix): what every host reports its disks to.

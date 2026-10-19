@@ -154,7 +154,6 @@
                       dead_zone.actions.right = "none";
 
                       end = [
-                        "pomodoro"
                         "network"
                         "bluetooth"
                         "volume"
@@ -162,7 +161,7 @@
                       ];
 
                       start = [
-                        "media"
+                        "pomodoro"
                       ];
                     };
 

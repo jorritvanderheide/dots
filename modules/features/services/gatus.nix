@@ -15,7 +15,7 @@
       cfg = config.my.gatus;
       subdomain = "status";
       port = 8190;
-      hosts = lib.attrNames inputs.self.nixosConfigurations;
+      hosts = lib.attrNames inputs.self.lib.site.hosts;
       alerting = config.services.ntfy-sh.enable;
 
       # Secrets go into the config by their sops key, when sops-nix renders
@@ -58,33 +58,40 @@
             }
           ) cfg.endpoints;
 
-          # A heartbeat turns an endpoint red when its pushes stop: a day
-          # and two hours for the daily offsite backup, whose start moves by
-          # up to an hour (offsite-backup.nix). It is only checked a whole
-          # interval after Gatus starts, and every deploy that changes this
-          # config restarts it, so the backup pushes its failures too. Every host reports
-          # its disks hourly (disk-health.nix), but only this one's silence
-          # means something broke; a laptop's means it's off.
-          external-endpoints = [
-            {
-              alerts = pushAlerts;
-              group = "backups";
-              heartbeat.interval = "26h";
-              name = "offsite-backup";
-              token = placeholder (pushTokenKey config.networking.hostName);
-            }
-          ]
-          ++ map (
+          # Every host reports its disks hourly (disk-health.nix) and each
+          # run of its offsite backup (offsite-backup.nix). A heartbeat turns
+          # an endpoint red when its pushes stop, but only this host's
+          # silence means something broke; a laptop's means it's off. A day
+          # and two hours for the daily backup, whose start moves by up to
+          # an hour. It is only checked a whole interval after Gatus starts,
+          # and every deploy that changes this config restarts it, so the
+          # backup pushes its failures too.
+          external-endpoints = lib.concatMap (
             host:
-            {
-              alerts = pushAlerts;
-              group = "disks";
-              name = host;
+            let
+              heartbeat = lib.optionalAttrs (host == config.networking.hostName);
               token = placeholder (pushTokenKey host);
-            }
-            // lib.optionalAttrs (host == config.networking.hostName) {
-              heartbeat.interval = "2h";
-            }
+            in
+            [
+              (
+                {
+                  inherit token;
+                  alerts = pushAlerts;
+                  group = "backups";
+                  name = host;
+                }
+                // heartbeat { heartbeat.interval = "26h"; }
+              )
+              (
+                {
+                  inherit token;
+                  alerts = pushAlerts;
+                  group = "disks";
+                  name = host;
+                }
+                // heartbeat { heartbeat.interval = "2h"; }
+              )
+            ]
           ) hosts;
 
           storage = {
@@ -169,10 +176,6 @@
                 message = "gatus needs the ingress feature";
               }
             ];
-
-            # The offsite backup reports each run, failed or not, to the
-            # heartbeat in external-endpoints.
-            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external";
 
             my.preservation.systemDirectories = [
               {

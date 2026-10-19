@@ -27,8 +27,12 @@
       inPersist = path: if lib.hasPrefix "/persist/" path then path else "/persist/system${path}";
       inSnapshot = path: snapshotDir + lib.removePrefix "/persist" (inPersist path);
 
-      report =
-        outcome: lib.optional (cfg.healthcheckUrl != null) "offsite-backup-report@${outcome}.service";
+      # The status page's external endpoint for this host's backups
+      # (gatus.nix), without its query: each run POSTs `?success=true`, or
+      # `false` with an error, with the sops secret gatus_push_token as its
+      # bearer token.
+      healthcheckUrl = "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_${config.networking.hostName}/external";
+      report = outcome: [ "offsite-backup-report@${outcome}.service" ];
 
       # Paths outside the entries are restored as one more, without units.
       restoreEntries =
@@ -116,17 +120,6 @@
           description = "What each service needs backed up, declared by the service's own module.";
         };
 
-        healthcheckUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = ''
-            A Gatus external endpoint, without its query, to POST each
-            backup's result to (`?success=true`, or `false` with an error),
-            with the sops secret gatus_push_token as its bearer token. The
-            gatus feature sets it on its own host.
-          '';
-        };
-
         paths = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -177,12 +170,10 @@
         # restic reads its S3 credentials from the environment (the
         # template) and its repo password from a file.
         sops.secrets = {
+          gatus_push_token = { };
           restic_password = { };
           storj_access_key = { };
           storj_secret_key = { };
-        }
-        // lib.optionalAttrs (cfg.healthcheckUrl != null) {
-          gatus_push_token = { };
         };
 
         sops.templates.restic-s3-env.content = ''
@@ -197,7 +188,7 @@
         # how its trigger ended ($MONITOR_*) when it has a single trigger,
         # and the backup listing one unit under both counts as two. A run
         # stopped by hand is a failure too (killed by TERM), and is retried.
-        systemd.services."offsite-backup-report@" = lib.mkIf (cfg.healthcheckUrl != null) {
+        systemd.services."offsite-backup-report@" = {
           description = "Tell gatus the offsite backup ended in %i";
           path = [ pkgs.curl ];
           scriptArgs = "%i";
@@ -212,7 +203,7 @@
               query="success=false&error=$MONITOR_SERVICE_RESULT-$MONITOR_EXIT_STATUS"
             fi
             TOKEN="$(<${config.sops.secrets.gatus_push_token.path})"
-            curl -X POST -fsS -o /dev/null --config - "${cfg.healthcheckUrl}?$query" <<<"header = \"Authorization: Bearer $TOKEN\""
+            curl -X POST -fsS -o /dev/null --config - "${healthcheckUrl}?$query" <<<"header = \"Authorization: Bearer $TOKEN\""
           '';
         };
 

@@ -22,7 +22,7 @@
 
                 settings = {
                   devices.dapple = {
-                    addresses = [ "tcp://${site.dapple.tailnetIp}:${toString site.syncthing.port}" ];
+                    addresses = [ "tcp://${site.hosts.dapple.tailnetIp}:${toString site.syncthing.port}" ];
                     id = site.syncthing.devices.dapple;
                   };
 

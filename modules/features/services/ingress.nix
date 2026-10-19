@@ -82,6 +82,8 @@
 
         tailnetIp = lib.mkOption {
           type = lib.types.str;
+          default = inputs.self.lib.site.hosts.${config.networking.hostName}.tailnetIp;
+          defaultText = lib.literalExpression "inputs.self.lib.site.hosts.\${config.networking.hostName}.tailnetIp";
           description = ''
             This host's stable tailnet IPv4 address. The proxies' vhosts
             bind here instead of 0.0.0.0 so they are reachable only over
