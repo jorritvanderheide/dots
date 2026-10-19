@@ -52,6 +52,7 @@
 
               - **Version control:** use `jj` (jujutsu), not `git`, unless explicitly told otherwise or the operation has no jj equivalent. Examples: `jj st` over `git status`, `jj log` over `git log`, `jj diff` over `git diff`, `jj show` over `git show`. The repo is colocated, so git commands still work for read-only inspection, but prefer jj.
               - **No em dashes in prose.** The user dislikes em dashes (`—`) used to split sentences because they read as AI-generated. Use a period, comma, semicolon, or parentheses instead. This applies to chat responses, commit messages, PR descriptions, and any other prose written for the user. Inside quoted source text (documentation, upstream content) leave existing em dashes alone.
+              - **Short commit subjects.** Keep a commit's subject line under 72 characters: what the change does, in the repository's existing style. Put the why, the details and anything that would make the subject longer in the body, wrapped at 72.
 
               ---
 
