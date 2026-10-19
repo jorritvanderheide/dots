@@ -85,8 +85,17 @@
           };
 
           # The module sets no restart, and a crashed ntfy would take every
-          # alert with it, the one saying ntfy is down included.
-          systemd.services.ntfy-sh.serviceConfig = inputs.self.lib.restartAlways;
+          # alert with it, the one saying ntfy is down included. Its sandbox
+          # keeps CAP_NET_BIND_SERVICE, for a port under 1024 this doesn't
+          # use, and has no syscall filter.
+          systemd.services.ntfy-sh.serviceConfig =
+            inputs.self.lib.sandbox
+            // inputs.self.lib.restartAlways
+            // {
+              AmbientCapabilities = lib.mkForce "";
+              CapabilityBoundingSet = lib.mkForce "";
+              UMask = "0077";
+            };
         };
     };
 }

@@ -74,9 +74,6 @@
               # nixpkgs' unit (nsncd).
               nscd = "8.5";
 
-              # No syscall filter yet; sandboxed in a later change.
-              ntfy-sh = "4.0";
-
               # nixpkgs' unit.
               systemd-timesyncd = "2.5";
 
