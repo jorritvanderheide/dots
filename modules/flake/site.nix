@@ -14,6 +14,7 @@ _: {
 
     # Facts more than one host needs.
     site = {
+      acmeEmail = "jorrit+acme@bw20.nl";
       domain = "bw20.nl";
       lan.subnet = "192.168.1.0/24";
       vpnDomain = "vpn.bw20.nl";
@@ -44,6 +45,10 @@ _: {
           rocinante = "RMKDHFZ-P6LQ5NT-OXRSEGM-5AKMNDZ-LQNUVY2-KKWQZV3-6Q2YBM5-LZALDQQ";
         };
       };
+
+      # The person's username, on every host and in the services that keep
+      # an account for them (ntfy, File Browser).
+      user = "jorrit";
     };
 
     # Keys that may run sudo on dapple (ssh-server.nix), instead of the

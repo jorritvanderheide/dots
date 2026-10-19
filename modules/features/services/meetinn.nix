@@ -12,7 +12,8 @@
       ...
     }:
     let
-      domain = "inn.${inputs.self.lib.site.domain}";
+      inherit (inputs.self.lib) site;
+      domain = "inn.${site.domain}";
     in
     {
       imports = [ inputs.meetinn.nixosModules.default ];
@@ -61,19 +62,19 @@
           enable = true;
           adminsFile = config.sops.secrets.meetinn_admins.path;
           backup.enable = false;
-          mailFrom = "ICT Netwerk Nijmegen <noreply@bw20.nl>";
+          mailFrom = "ICT Netwerk Nijmegen <noreply@${site.domain}>";
           nginx.domain = domain;
 
           smtp = {
             address = "smtp.protonmail.ch:587";
             passwordFile = config.sops.secrets.meetinn_smtp_password.path;
-            user = "noreply@bw20.nl";
+            user = "noreply@${site.domain}";
           };
         };
 
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
-          useACMEHost = inputs.self.lib.site.domain;
+          useACMEHost = site.domain;
         };
       };
     };

@@ -1,4 +1,8 @@
-_: {
+{
+  inputs,
+  ...
+}:
+{
   # The laptop's Wi-Fi networks. A module of their own so the server, which
   # is wired, never decrypts their passwords.
   flake.nixosModules.wifi =
@@ -45,7 +49,7 @@ _: {
 
               connection = {
                 id = "eduroam";
-                permissions = "user:jorrit:";
+                permissions = "user:${inputs.self.lib.site.user}:";
                 type = "wifi";
               };
 
@@ -66,7 +70,7 @@ _: {
               connection = {
                 autoconnect-priority = 10;
                 id = "Home";
-                permissions = "user:jorrit:";
+                permissions = "user:${inputs.self.lib.site.user}:";
                 type = "wifi";
               };
 
@@ -87,7 +91,7 @@ _: {
 
               connection = {
                 id = "Home 2.4";
-                permissions = "user:jorrit:";
+                permissions = "user:${inputs.self.lib.site.user}:";
                 type = "wifi";
               };
 
@@ -109,7 +113,7 @@ _: {
               connection = {
                 autoconnect-priority = 100;
                 id = "Jorrit's Fairphone";
-                permissions = "user:jorrit:";
+                permissions = "user:${inputs.self.lib.site.user}:";
                 type = "wifi";
               };
 
@@ -131,7 +135,7 @@ _: {
               connection = {
                 autoconnect-priority = 10;
                 id = "iotroam";
-                permissions = "user:jorrit:";
+                permissions = "user:${inputs.self.lib.site.user}:";
                 type = "wifi";
               };
 

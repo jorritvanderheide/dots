@@ -1,7 +1,11 @@
-_: {
+{
+  inputs,
+  ...
+}:
+{
   # The documents dapple keeps a copy of (syncthing.nix), in the browser:
   # from a phone, say. It runs as Syncthing's user, so what it changes
-  # syncs back to rocinante. On first start it makes the user `jorrit`
+  # syncs back to rocinante. On first start it makes the user site.user
   # with a random password, which it logs once (`journalctl -u
   # filebrowser`); change it in its settings.
   flake.nixosModules.filebrowser =
@@ -60,7 +64,7 @@ _: {
           settings = {
             inherit port root;
             address = "127.0.0.1";
-            username = "jorrit";
+            username = inputs.self.lib.site.user;
           };
         };
 

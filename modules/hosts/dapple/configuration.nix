@@ -9,6 +9,7 @@
         base
 
         # System
+        media-library
         ssh-server
 
         # Services
@@ -23,7 +24,6 @@
         immich
         ingress
         jellyfin
-        media-library
         meetinn
         new-leaf
         ntfy

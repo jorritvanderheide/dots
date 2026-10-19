@@ -15,6 +15,7 @@
         power
         sound
         wifi
+        yubikey
 
         # Dev
         coding-agent
@@ -38,7 +39,6 @@
         password-manager
         photo-editor
         terminal
-        yubikey
 
         # Users
         jorrit

@@ -14,6 +14,7 @@
     }:
     let
       cfg = config.my.ntfy;
+      inherit (inputs.self.lib) site;
       subdomain = "alerts";
       port = 2586;
     in
@@ -28,7 +29,7 @@
 
       config =
         let
-          domain = "${subdomain}.${inputs.self.lib.site.domain}";
+          domain = "${subdomain}.${site.domain}";
         in
         {
           sops.secrets.ntfy_password_hash = { };
@@ -59,7 +60,7 @@
             environmentFile = config.sops.templates."ntfy.env".path;
 
             settings = {
-              auth-access = [ "jorrit:${cfg.topic}:rw" ];
+              auth-access = [ "${site.user}:${cfg.topic}:rw" ];
               auth-default-access = "deny-all";
               base-url = "https://${domain}";
               behind-proxy = true;
@@ -78,8 +79,8 @@
             restartUnits = [ "ntfy-sh.service" ];
 
             content = ''
-              NTFY_AUTH_USERS='jorrit:${config.sops.placeholder.ntfy_password_hash}:user'
-              NTFY_AUTH_TOKENS='jorrit:${config.sops.placeholder.ntfy_token}:gatus'
+              NTFY_AUTH_USERS='${site.user}:${config.sops.placeholder.ntfy_password_hash}:user'
+              NTFY_AUTH_TOKENS='${site.user}:${config.sops.placeholder.ntfy_token}:gatus'
             '';
           };
 

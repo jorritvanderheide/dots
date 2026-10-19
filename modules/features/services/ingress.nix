@@ -131,7 +131,7 @@
 
           defaults = {
             dnsProvider = "desec";
-            email = "jorrit+acme@bw20.nl";
+            email = inputs.self.lib.site.acmeEmail;
             environmentFile = config.sops.secrets.desec_dns_env.path;
 
             # Check the DNS-01 challenge against the zone's authoritative
