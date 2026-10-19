@@ -165,5 +165,5 @@ commit message, not in a comment about how things used to be.
 
 `nix flake check` builds every host and the install and offsite-prune
 scripts (which runs shellcheck on them), runs treefmt (nix-order, nixfmt,
-deadnix, statix, shfmt, and ruff's formatter and linter) and statix's
-lints. `nix fmt` formats.
+deadnix, statix, shfmt, and ruff's formatter and linter), statix's lints,
+and a grep for comments split with a dash. `nix fmt` formats.

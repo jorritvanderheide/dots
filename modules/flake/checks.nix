@@ -25,6 +25,21 @@
         # the flake, mid-install or mid-prune.
         inherit (config.packages) install offsite-prune;
 
+        # The comment rules from docs/layout.md that a grep can tell: no em
+        # dash or ` -- ` between words. The rest need a reader; "above" and
+        # "below" also compare values.
+        comments = pkgs.runCommand "comments-check" { nativeBuildInputs = [ pkgs.ripgrep ]; } ''
+          status=0
+          rg -n -g '*.{kbd,nix,py,sh}' '^\s*(#|;;).*(\x{2014}|\w -- \w)' ${inputs.self} || status=$?
+          if [ $status -eq 0 ]; then
+            echo "Split these comments with punctuation, not a dash (docs/layout.md)." >&2
+            exit 1
+          elif [ $status -ne 1 ]; then
+            exit $status
+          fi
+          touch $out
+        '';
+
         # With the lints the formatter disables (formatter.nix). statix only
         # reads a file named statix.toml.
         statix =
