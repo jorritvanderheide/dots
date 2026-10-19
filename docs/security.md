@@ -7,14 +7,14 @@ themselves are listed in the README's
 
 ## Who is kept out of what
 
-**The internet** reaches four things on dapple, at the home address,
-through the router's port forward: Headscale's control protocol and DERP
-relay at `vpn`, New Leaf's share links at `cv`, meetinn (a demo) at
-`inn`, and the blog at the bare domain. No proxy sits in front, so TLS ends on dapple and nobody between
-reads share links or meetinn's tokens, at the price of a public home
-address. Headscale's admin API (`/api`, `/swagger`) only answers tailnet
-addresses, so in practice nobody over the network: the `headscale` CLI uses
-a local socket. Everything else is bound to dapple's tailnet address.
+**The internet** reaches what the README's
+[Network exposure](../README.md#7-network-exposure) lists, on dapple, at
+the home address, through the router's port forward. No proxy sits in
+front, so TLS ends on dapple and nobody between reads share links or
+meetinn's tokens, at the price of a public home address. Headscale's admin
+API (`/api`, `/swagger`) only answers tailnet addresses, so in practice
+nobody over the network: the `headscale` CLI uses a local socket.
+Everything else is bound to dapple's tailnet address.
 
 **A tailnet device** gets what Headscale's
 [policy](../modules/features/services/headscale/headscale-policy.hujson) grants it:

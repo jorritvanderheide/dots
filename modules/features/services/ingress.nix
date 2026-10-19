@@ -180,11 +180,11 @@
                 forceSSL = true;
 
                 # Bind only to the tailnet IP. nginx still keeps a
-                # 0.0.0.0:443 listener for the public vhosts (headscale,
-                # kobo, New Leaf's share links, meetinn, the blog), but internal services must not answer there: a
-                # connection to the public IP hits the 0.0.0.0 socket,
-                # which has no server_name match here, so these vhosts stay
-                # tailnet-only.
+                # 0.0.0.0:443 listener for the public vhosts (the README's
+                # Network exposure), but internal services must not answer
+                # there: a connection to the public IP hits the 0.0.0.0
+                # socket, which has no server_name match here, so these
+                # vhosts stay tailnet-only.
                 listenAddresses = [ cfg.tailnetIp ];
 
                 useACMEHost = cfg.domain;

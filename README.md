@@ -79,9 +79,8 @@ boot, sops secrets, home-manager, and fish.
   server's) and a passphrase fallback. sops-nix decrypts them at
   activation, with the host's own key, into `/run`, never into the Nix
   store. See [Secrets and keys](docs/secrets.md).
-- **The server** answers on its tailnet address, with only Headscale,
-  New Leaf's share links, meetinn and the blog open to the internet. A Headscale
-  policy limits what each tailnet device reaches.
+- **The server** answers on its tailnet address, with a few things open to
+  the internet. A Headscale policy limits what each tailnet device reaches.
   [Section 7](#7-network-exposure) lists exactly what is reachable from
   where, and [Security](docs/security.md) who is kept out of what.
 - **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
@@ -194,9 +193,11 @@ address (DNS at deSEC, no proxy):
 `kobo` answers too, but with a 403: its sync API is for the LAN subnet
 only. A name no vhost claims gets no certificate and no answer.
 
-**From the tailnet**, every service in [section 6](#6-services-on-dapple),
-over HTTPS on dapple's tailnet address. SSH, Syncthing (22000/tcp) and the
-home LAN (through dapple's subnet route) only from the devices the
+**From the tailnet**, every service in [section 6](#6-services-on-dapple)
+but meetinn and the blog, over HTTPS on dapple's tailnet address. Those two
+answer only at the public address, like any visitor's. SSH, Syncthing
+(22000/tcp) and the home LAN (through dapple's subnet route) only from the
+devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson) names:
 rocinante, and two phones for the LAN. The services' vhosts are bound to
 that address and refuse any source outside the tailnet; the firewall
@@ -217,8 +218,8 @@ interface.
 mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
-the status page's checks of New Leaf's share links, meetinn and the blog, at the
-public address through the router's hairpin NAT, and meetinn's hourly
+the status page's checks of the public sites but Headscale, at the public
+address through the router's hairpin NAT, and meetinn's hourly
 update of its Yivi schemes and its mail, through Proton's SMTP. The
 Forgejo runner polls Codeberg for jobs, which fetch what they build from
 the internet (and nothing on the LAN or the tailnet). Besides
