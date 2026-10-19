@@ -4,50 +4,27 @@
 }:
 {
   flake.nixosModules.keyboard-remap =
-    {
-      config,
-      ...
-    }:
+    _:
     let
-      cfg = config.my.keyboard-remap;
+      # Milliseconds. The hold timeout is for every tap-hold key: the homerow
+      # mods, caps and space. While keys are pressed within the idle
+      # threshold, the homerow mods are bypassed and plain letters pass
+      # through; urob's timeless HRM guide says at least 10500 / WPM, so
+      # about 150 at 70 WPM, and lower re-arms the mods sooner after typing.
+      holdTime = 300;
+      idleTime = 200;
+      tapTime = 225;
     in
     {
-      options.my.keyboard-remap = {
-        holdTime = lib.mkOption {
-          default = 300;
-          description = "Hold timeout in milliseconds for every tap-hold key: the homerow mods, caps and space.";
-          type = lib.types.int;
-        };
-
-        idleTime = lib.mkOption {
-          default = 200;
-          description = ''
-            Idle threshold in ms for the typing-layer dampening trick: while
-            keys are pressed within this window, homerow mods are bypassed
-            (plain letters pass through). Rule of thumb (urob's timeless HRM
-            guide): at least 10500 / WPM, so ~150ms at 70 WPM, ~200-260ms for
-            slower typists. Lower = mods re-arm faster after typing.
-          '';
-          type = lib.types.int;
-        };
-
-        tapTime = lib.mkOption {
-          default = 225;
-          description = "Tap timeout in milliseconds for tap-hold keys";
-          type = lib.types.int;
-        };
-      };
-
       config = {
         services.kanata = {
           enable = true;
 
           keyboards.main = {
-            # The layout; its timings come from my.keyboard-remap.
             config = builtins.replaceStrings [ "@tapTime@" "@holdTime@" "@idleTime@" ] (map toString [
-              cfg.tapTime
-              cfg.holdTime
-              cfg.idleTime
+              tapTime
+              holdTime
+              idleTime
             ]) (builtins.readFile ./main.kbd);
 
             extraDefCfg = ''

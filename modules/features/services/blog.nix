@@ -11,7 +11,7 @@
       ...
     }:
     let
-      inherit (config.my.ingress) domain;
+      inherit (inputs.self.lib.site) domain;
     in
     {
       imports = [ inputs.personal-blog.nixosModules.default ];

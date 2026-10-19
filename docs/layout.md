@@ -55,7 +55,7 @@ to load a dump back.
 A service with a web page declares it in `my.ingress.proxies.<subdomain>`:
 its port, any nginx directives, and the `status` the status page checks.
 The `ingress` feature makes each one a vhost at
-`<subdomain>.<my.ingress.domain>` with the wildcard certificate, bound to the
+`<subdomain>.<site.domain>` with the wildcard certificate, bound to the
 tailnet address and refusing other sources. A service without such a page
 declares its check in `my.gatus.endpoints` directly.
 

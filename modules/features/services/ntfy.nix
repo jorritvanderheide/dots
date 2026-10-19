@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -27,7 +28,7 @@
 
       config =
         let
-          domain = "${subdomain}.${config.my.ingress.domain}";
+          domain = "${subdomain}.${inputs.self.lib.site.domain}";
         in
         {
           sops.secrets.ntfy_password_hash = { };

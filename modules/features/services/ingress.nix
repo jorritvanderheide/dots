@@ -13,17 +13,14 @@
     }:
     let
       cfg = config.my.ingress;
-      domainOf = subdomain: "${subdomain}.${cfg.domain}";
+
+      # The services' vhosts are its subdomains, and the wildcard
+      # certificate they all use (useACMEHost) is named after it.
+      inherit (inputs.self.lib.site) domain;
+      domainOf = subdomain: "${subdomain}.${domain}";
     in
     {
       options.my.ingress = {
-        domain = lib.mkOption {
-          type = lib.types.str;
-          default = inputs.self.lib.site.domain;
-          defaultText = lib.literalExpression "inputs.self.lib.site.domain";
-          description = "The domain the services' vhosts are subdomains of, and the name of the wildcard certificate they all use (useACMEHost).";
-        };
-
         proxies = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -130,7 +127,7 @@
           # One for every subdomain, public or not: Certificate Transparency
           # logs then list no service's name, and a new subdomain needs no
           # order, nor a policy on the deSEC token.
-          certs.${cfg.domain}.domain = "*.${cfg.domain}";
+          certs.${domain}.domain = "*.${domain}";
 
           defaults = {
             dnsProvider = "desec";
@@ -167,7 +164,7 @@
               subdomain: proxy:
               lib.nameValuePair (domainOf subdomain) {
                 forceSSL = true;
-                useACMEHost = cfg.domain;
+                useACMEHost = domain;
 
                 # SAMEORIGIN (not DENY) so apps that rely on same-origin
                 # iframes still work, e.g. Vaultwarden's browser extension
@@ -203,7 +200,7 @@
 
         # deSEC's second nameserver, ns2.desec.org, can take minutes to serve
         # a new challenge record, longer than lego's default 2 minutes.
-        systemd.services."acme-order-renew-${cfg.domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
+        systemd.services."acme-order-renew-${domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
 
         systemd.services.nginx.serviceConfig = {
           Restart = lib.mkForce "always";

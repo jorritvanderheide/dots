@@ -12,7 +12,7 @@
       ...
     }:
     let
-      domain = "inn.${config.my.ingress.domain}";
+      domain = "inn.${inputs.self.lib.site.domain}";
     in
     {
       imports = [ inputs.meetinn.nixosModules.default ];
@@ -73,7 +73,7 @@
 
         services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
-          useACMEHost = config.my.ingress.domain;
+          useACMEHost = inputs.self.lib.site.domain;
         };
       };
     };

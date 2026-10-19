@@ -10,9 +10,10 @@
       ...
     }:
     let
-      cfg = config.my.headscale;
       port = 8085;
       inherit (inputs.self.lib) site;
+      domain = site.vpnDomain;
+      magicDnsDomain = "vpn";
       policy = builtins.readFile ./headscale-policy.hujson;
 
       proxyToHeadscale = {
@@ -31,21 +32,6 @@
       };
     in
     {
-      options.my.headscale = {
-        domain = lib.mkOption {
-          type = lib.types.str;
-          default = inputs.self.lib.site.vpnDomain;
-          defaultText = lib.literalExpression "inputs.self.lib.site.vpnDomain";
-          description = "FQDN for the headscale server";
-        };
-
-        magicDnsDomain = lib.mkOption {
-          type = lib.types.str;
-          default = "vpn";
-          description = "MagicDNS base domain";
-        };
-      };
-
       config = {
         assertions = [
           {
@@ -68,7 +54,7 @@
 
         my.gatus.endpoints.headscale = {
           group = "infra";
-          url = "https://${cfg.domain}/health";
+          url = "https://${domain}/health";
         };
 
         my.offsite-backup.entries.headscale = {
@@ -105,7 +91,7 @@
           address = "127.0.0.1";
 
           settings = {
-            server_url = "https://${cfg.domain}";
+            server_url = "https://${domain}";
 
             database = {
               sqlite.path = "/var/lib/headscale/db.sqlite";
@@ -127,7 +113,7 @@
             };
 
             dns = {
-              base_domain = cfg.magicDnsDomain;
+              base_domain = magicDnsDomain;
               magic_dns = true;
 
               # Quad9: a Swiss non-profit under GDPR, anycast worldwide for
@@ -151,9 +137,9 @@
           };
         };
 
-        services.nginx.virtualHosts.${cfg.domain} = {
+        services.nginx.virtualHosts.${domain} = {
           forceSSL = true;
-          useACMEHost = config.my.ingress.domain;
+          useACMEHost = site.domain;
 
           locations = {
             "^~ /swagger" = tailnetOnly;

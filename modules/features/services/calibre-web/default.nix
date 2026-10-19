@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -98,7 +99,7 @@
         }
         (lib.mkIf cfg.lanSync.enable (
           let
-            lanDomain = "kobo.${config.my.ingress.domain}";
+            lanDomain = "kobo.${inputs.self.lib.site.domain}";
           in
           {
             networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
@@ -111,7 +112,7 @@
             services.nginx.virtualHosts.${lanDomain} = {
               forceSSL = true;
               listenAddresses = [ "0.0.0.0" ];
-              useACMEHost = config.my.ingress.domain;
+              useACMEHost = inputs.self.lib.site.domain;
 
               # Only the Kobo sync API (every route of it is under
               # /kobo/<token>), not the whole web UI with its login and admin

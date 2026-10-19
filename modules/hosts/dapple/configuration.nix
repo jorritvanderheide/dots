@@ -43,7 +43,7 @@
           }:
           {
             my.calibre-web.lanSync.enable = true;
-            my.forgejo-runner.connections.bw20.uuid = "e0bbfda6-5c10-4cc0-b7b7-e00b8c951e7d";
+            my.forgejo-runner.connections.bw20 = "e0bbfda6-5c10-4cc0-b7b7-e00b8c951e7d";
             my.gatus.enable = true;
             my.ingress.tailnetIp = inputs.self.lib.site.dapple.tailnetIp;
             my.lan.interface = "enp2s0";

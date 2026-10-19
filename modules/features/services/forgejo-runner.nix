@@ -53,23 +53,15 @@
     {
       options.my.forgejo-runner = {
         connections = lib.mkOption {
-          type = lib.types.attrsOf (
-            lib.types.submodule {
-              options.uuid = lib.mkOption {
-                type = lib.types.str;
-                example = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
-                description = "The runner's UUID at this owner, from creating it in the owner's settings on Codeberg (Actions, Runners).";
-              };
-            }
-          );
+          type = lib.types.attrsOf lib.types.str;
           default = { };
           example = lib.literalExpression ''
             {
-              jorrit.uuid = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
-              ict-netwerk-nijmegen.uuid = "0d6d2d6f-6a6c-4b0f-8c7e-3f1f2a0d9b11";
+              jorrit = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
+              ict-netwerk-nijmegen = "0d6d2d6f-6a6c-4b0f-8c7e-3f1f2a0d9b11";
             }
           '';
-          description = "The owners on Codeberg (users or organisations) whose repositories' jobs the runner takes, by name. Each one's token goes in sops as `forgejo_runner_token_<name>`.";
+          description = "The owners on Codeberg (users or organisations) whose repositories' jobs the runner takes, by name, each with the runner's UUID there (from creating it in the owner's settings on Codeberg: Actions, Runners). Each one's token goes in sops as `forgejo_runner_token_<name>`.";
         };
       };
 
@@ -110,8 +102,8 @@
             # crowd dapple's services.
             cache.enabled = false;
 
-            server.connections = lib.mapAttrs (_: connection: {
-              inherit (connection) uuid;
+            server.connections = lib.mapAttrs (_: uuid: {
+              inherit uuid;
               token = null;
               url = "https://codeberg.org/";
             }) cfg.connections;

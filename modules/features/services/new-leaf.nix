@@ -11,7 +11,11 @@
     }:
     let
       cfg = config.my.new-leaf;
-      domain = "${cfg.subdomain}.${config.my.ingress.domain}";
+      inherit (inputs.self.lib) site;
+
+      # One subdomain for both the editor (from the tailnet) and the share
+      # links (from the internet).
+      domain = "cv.${site.domain}";
       editor = {
         proxyPass = "http://unix:${config.services.new-leaf.socket}";
 
@@ -27,24 +31,9 @@
     {
       imports = [ inputs.new-leaf.nixosModules.default ];
 
-      options.my.new-leaf = {
-        rootRedirect = lib.mkOption {
-          type = lib.types.str;
-          default = "https://${config.my.ingress.domain}/";
-          defaultText = lib.literalExpression ''"https://''${config.my.ingress.domain}/"'';
-          description = "Where the bare domain (no share link) redirects to from outside the tailnet; the tailnet gets the editor.";
-        };
-
-        subdomain = lib.mkOption {
-          type = lib.types.str;
-          default = "cv";
-          description = "Subdomain of both the editor (from the tailnet) and the share links (from the internet).";
-        };
-
-        users = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          description = "CVs that always exist, named after their headscale user. Every tailnet user can open and edit all CVs, and make, rename and delete others in the editor.";
-        };
+      options.my.new-leaf.users = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = "CVs that always exist, named after their headscale user. Every tailnet user can open and edit all CVs, and make, rename and delete others in the editor.";
       };
 
       # Headscale has no Funnel, so dapple serves New Leaf itself, on one
@@ -109,16 +98,18 @@
           inherit (cfg) users;
           enable = true;
 
+          # The bare domain (no share link) redirects to the blog from outside
+          # the tailnet; the tailnet gets the editor.
           nginx.share = {
             inherit domain;
-            inherit (cfg) rootRedirect;
+            rootRedirect = "https://${site.domain}/";
           };
         };
 
         services.nginx.virtualHosts = {
           ${domain} = {
             forceSSL = true;
-            useACMEHost = config.my.ingress.domain;
+            useACMEHost = site.domain;
           };
 
           # The same domain on the tailnet address: nginx only considers
@@ -132,7 +123,7 @@
             listenAddresses = [ config.my.ingress.tailnetIp ];
             root = config.services.new-leaf.publicDir;
             serverName = domain;
-            useACMEHost = config.my.ingress.domain;
+            useACMEHost = site.domain;
 
             # Backups up to 50 MB. Here, not in the editor's location: nginx
             # checks it in "/", before try_files hands over to the editor.

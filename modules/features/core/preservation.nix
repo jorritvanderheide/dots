@@ -31,15 +31,11 @@
       imports = [
         inputs.preservation.nixosModules.preservation
 
-        # Short names for the system's lists in preservation's own options,
-        # which take a path or an attrset ({ directory; user; mode; ... }).
+        # A short name for the system's list in preservation's own option,
+        # which takes a path or an attrset ({ directory; user; mode; ... }).
         (lib.mkAliasOptionModule
           [ "my" "preservation" "systemDirectories" ]
           [ "preservation" "preserveAt" "/persist/system" "directories" ]
-        )
-        (lib.mkAliasOptionModule
-          [ "my" "preservation" "systemFiles" ]
-          [ "preservation" "preserveAt" "/persist/system" "files" ]
         )
       ];
 

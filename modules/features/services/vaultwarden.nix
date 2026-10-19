@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -16,7 +17,7 @@
     {
       config =
         let
-          domain = "${subdomain}.${config.my.ingress.domain}";
+          domain = "${subdomain}.${inputs.self.lib.site.domain}";
         in
         {
           my.ingress.proxies.${subdomain} = {

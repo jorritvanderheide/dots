@@ -83,14 +83,6 @@
       options.my.offsite-backup = {
         enable = lib.mkEnableOption "offsite backup to Storj via restic (versioned, deduplicated, encrypted)";
 
-        bucket = lib.mkOption {
-          type = lib.types.str;
-          # Not the "backup" bucket: every host could delete from it, with
-          # credentials that are in this repository's history.
-          default = "offsite";
-          description = "Storj bucket holding the restic repository.";
-        };
-
         entries = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -167,8 +159,10 @@
           extraBackupArgs = [ "--pack-size=64" ];
 
           # Storj's S3-compatible gateway, not Amazon's. restic encrypts
-          # client-side, so the gateway only ever sees ciphertext.
-          repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
+          # client-side, so the gateway only ever sees ciphertext. Not the
+          # "backup" bucket: every host could delete from it, with
+          # credentials that are in this repository's history.
+          repository = "s3:https://gateway.eu1.storjshare.io/offsite/restic/${config.networking.hostName}";
 
           timerConfig = {
             Persistent = true;
