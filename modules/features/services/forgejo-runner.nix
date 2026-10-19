@@ -9,8 +9,9 @@
   # repositories can use it. Jobs run on the host, as the runner's dynamic
   # user, and build through dapple's Nix daemon, so a job can't get at more
   # than an unprivileged user on dapple with only the internet: the unit's
-  # network is cut off from localhost, the LAN and the tailnet, where
-  # dapple's services answer anything that comes from dapple itself.
+  # and the daemon's network is cut off from localhost, the LAN and the
+  # tailnet, where dapple's services answer anything that comes from dapple
+  # itself.
   flake.nixosModules.forgejo-runner =
     {
       config,
@@ -22,7 +23,28 @@
       instance = "codeberg";
       unit = "forgejo-runner-${instance}";
 
-      # Quad9, as the router's DNS is on the LAN, which the unit can't reach.
+      # Everything but the internet: dapple's own services (bound to
+      # localhost and the tailnet address, whose vhosts trust tailnet
+      # sources), the home LAN and the tailnet's other devices. dapple has
+      # no public IPv6 address to reach itself by. The daemon gets it too:
+      # a job's fixed-output derivations build there, with the host's
+      # network.
+      internetOnly = {
+        BindReadOnlyPaths = [ "${resolvConf}:/etc/resolv.conf" ];
+
+        IPAddressDeny = [
+          "localhost"
+          "link-local"
+          "multicast"
+          "10.0.0.0/8"
+          "100.64.0.0/10"
+          "172.16.0.0/12"
+          "192.168.0.0/16"
+          "fc00::/7"
+        ];
+      };
+
+      # Quad9, as dapple resolves through the tailnet, out of reach here.
       resolvConf = pkgs.writeText "resolv.conf" ''
         nameserver 9.9.9.9
         nameserver 149.112.112.112
@@ -99,29 +121,18 @@
           lib.nameValuePair "forgejo_runner_token_${owner}" { restartUnits = [ "${unit}.service" ]; }
         ) cfg.connections;
 
-        systemd.services.${unit}.serviceConfig = {
-          BindReadOnlyPaths = [ "${resolvConf}:/etc/resolv.conf" ];
-          ProtectHome = true;
+        systemd.services = {
+          nix-daemon.serviceConfig = internetOnly;
 
-          # Everything but the internet: dapple's own services (bound to
-          # localhost and the tailnet address, whose vhosts trust tailnet
-          # sources), the home LAN and the tailnet's other devices.
-          IPAddressDeny = [
-            "localhost"
-            "link-local"
-            "multicast"
-            "10.0.0.0/8"
-            "100.64.0.0/10"
-            "172.16.0.0/12"
-            "192.168.0.0/16"
-            "fc00::/7"
-          ];
+          ${unit}.serviceConfig = internetOnly // {
+            ProtectHome = true;
 
-          RestrictAddressFamilies = [
-            "AF_UNIX"
-            "AF_INET"
-            "AF_INET6"
-          ];
+            RestrictAddressFamilies = [
+              "AF_UNIX"
+              "AF_INET"
+              "AF_INET6"
+            ];
+          };
         };
       };
     };
