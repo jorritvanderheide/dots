@@ -25,6 +25,9 @@
       };
 
       config = {
+        networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
+        security.pam.services.sudo.rssh = true;
+
         # sudo over SSH takes a touch of a YubiKey on the machine you came
         # from: one of lib.sudoKeys, in the agent forwarded for it, signs
         # pam_rssh's challenge. Not the login keys, which stay in Bitwarden's
@@ -33,13 +36,6 @@
 
         # So SSH sessions from Ghostty render correctly.
         environment.systemPackages = [ pkgs.ghostty.terminfo ];
-
-        networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
-        security.pam.services.sudo.rssh = true;
-
-        # The host key is a secret, not a file on /persist, so a reinstalled
-        # host has the key the others pin (lib.site) from its first boot.
-        sops.secrets.ssh_host_key.restartUnits = [ "sshd.service" ];
 
         # By source address, not just by interface: the router's port
         # forward arrives on the LAN interface too.
@@ -83,10 +79,6 @@
           # key planted there would too.
           authorizedKeysInHomedir = false;
 
-          # Not on every interface: the tailnet here, and the home LAN with
-          # lanAccess.
-          openFirewall = false;
-
           # Agent forwarding only for sudo's keys (security.pam.rssh): rocinante forwards
           # an agent with nothing else in it.
           extraConfig = ''
@@ -103,6 +95,10 @@
             }
           ];
 
+          # Not on every interface: the tailnet here, and the home LAN with
+          # lanAccess.
+          openFirewall = false;
+
           settings = {
             AllowUsers = cfg.allowedUsers;
             KbdInteractiveAuthentication = false;
@@ -110,6 +106,10 @@
             PermitRootLogin = "no";
           };
         };
+
+        # The host key is a secret, not a file on /persist, so a reinstalled
+        # host has the key the others pin (lib.site) from its first boot.
+        sops.secrets.ssh_host_key.restartUnits = [ "sshd.service" ];
       };
     };
 }

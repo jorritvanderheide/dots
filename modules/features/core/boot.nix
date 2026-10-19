@@ -28,14 +28,11 @@
       };
 
       config = {
-        # For tpm2-luks-enroll.
-        sops.secrets.luks_password = { };
-
         boot = {
+          plymouth.enable = true;
+
           # `quiet` still lets kernel errors onto the console, over the splash.
           consoleLogLevel = 0;
-
-          plymouth.enable = true;
 
           initrd = {
             compressor = "zstd";
@@ -72,10 +69,6 @@
           loader = {
             efi.canTouchEfiVariables = true;
 
-            # No boot-menu wait; hold a key at boot to interrupt if an
-            # older generation is ever needed instead.
-            timeout = 0;
-
             # Lanzaboote (boot.lanzaboote) installs systemd-boot instead, with these
             # settings.
             systemd-boot = {
@@ -87,6 +80,10 @@
               # rd.systemd.debug_shell) would be a root shell on it.
               editor = false;
             };
+
+            # No boot-menu wait; hold a key at boot to interrupt if an
+            # older generation is ever needed instead.
+            timeout = 0;
           };
         };
 
@@ -111,6 +108,9 @@
           SystemMaxFileSize = "100M";
           SystemMaxUse = "2G";
         };
+
+        # For tpm2-luks-enroll.
+        sops.secrets.luks_password = { };
 
         # Names each generation after the flake revision it was built from.
         system = {

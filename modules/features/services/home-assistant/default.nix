@@ -35,9 +35,6 @@
     in
     {
       config = {
-        # ZHA: let HA open the Zigbee dongle's serial port.
-        users.users.hass.extraGroups = [ "dialout" ];
-
         my.ingress.proxies.home = {
           inherit port;
 
@@ -65,35 +62,35 @@
           enable = true;
 
           config = {
+            default_config = { };
+
             # Automations made in the UI live in automations.yaml, next
             # to the declared ones (automations.nix).
             "automation ui" = "!include automations.yaml";
 
-            default_config = { };
-
             homeassistant = {
+              latitude = "!secret latitude";
+              longitude = "!secret longitude";
+              time_zone = config.time.timeZone;
+              unit_system = "metric";
+
               # The home's location: from secrets.yaml
               # (home-assistant-secrets), as this repository is public.
               elevation = "!secret elevation";
-              latitude = "!secret latitude";
-              longitude = "!secret longitude";
-
-              time_zone = config.time.timeZone;
-              unit_system = "metric";
             };
 
             http = {
+              login_attempts_threshold = 5;
+              server_port = port;
+              trusted_proxies = [ "127.0.0.1" ];
+              use_x_forwarded_for = true;
+
               # Ban an address after 5 failed logins (HA's default never does).
               ip_ban_enabled = true;
-              login_attempts_threshold = 5;
 
               # Loopback is enough for the tailnet vhost, which proxies
               # from 127.0.0.1.
               server_host = "127.0.0.1";
-
-              server_port = port;
-              trusted_proxies = [ "127.0.0.1" ];
-              use_x_forwarded_for = true;
             };
           };
 
@@ -118,14 +115,14 @@
         };
 
         systemd.services.home-assistant.serviceConfig = {
+          CapabilityBoundingSet = lib.mkForce [ "" ];
+          Restart = lib.mkForce "always";
+
           # Upstream grants these for default_config's DHCP sniffing and
           # raw Bluetooth, neither of which this needs. With them, a
           # compromised integration could rewrite the firewall or sniff
           # the host's traffic.
           AmbientCapabilities = lib.mkForce [ "" ];
-          CapabilityBoundingSet = lib.mkForce [ "" ];
-
-          Restart = lib.mkForce "always";
         };
 
         systemd.tmpfiles.rules = [
@@ -138,6 +135,9 @@
           # directory, which would hide it.
           "L+ ${config.services.home-assistant.configDir}/secrets.yaml - - - - ${config.sops.secrets.home_assistant_secrets.path}"
         ];
+
+        # ZHA: let HA open the Zigbee dongle's serial port.
+        users.users.hass.extraGroups = [ "dialout" ];
       };
     };
 }

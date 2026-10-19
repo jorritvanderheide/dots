@@ -51,15 +51,14 @@
 
             config = {
               DOMAIN = "https://${domain}";
+              ROCKET_ADDRESS = "127.0.0.1";
+              ROCKET_PORT = port;
+              SIGNUPS_ALLOWED = false;
 
               # Otherwise any organization owner can bring in new accounts.
               # The admin page (/admin) still invites. Settings saved there
               # override these; the ExecStartPre puts this one back off.
               INVITATIONS_ALLOWED = false;
-
-              ROCKET_ADDRESS = "127.0.0.1";
-              ROCKET_PORT = port;
-              SIGNUPS_ALLOWED = false;
             };
           };
 

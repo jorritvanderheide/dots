@@ -53,12 +53,11 @@
             {
               directory = "/var/lib/calibre-web";
               group = "calibre-web";
+              user = "calibre-web";
 
               # app.db holds password hashes, Kobo sync tokens and the SMTP
               # password.
               mode = "0700";
-
-              user = "calibre-web";
             }
           ];
 
@@ -112,13 +111,12 @@
             services.nginx.virtualHosts.${lanDomain} = {
               forceSSL = true;
               listenAddresses = [ "0.0.0.0" ];
+              useACMEHost = config.my.ingress.domain;
 
               # Only the Kobo sync API (every route of it is under
               # /kobo/<token>), not the whole web UI with its login and admin
               # pages: the router's port forward lands on this socket too.
               locations."/".return = "404";
-
-              useACMEHost = config.my.ingress.domain;
 
               locations."/kobo/" = {
                 proxyPass = "http://127.0.0.1:${toString port}";

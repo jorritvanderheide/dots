@@ -63,18 +63,17 @@
           # instead of running it through wrapFirefox.
           (import "${inputs.home-manager}/modules/programs/firefox/mkFirefoxModule.nix" {
             name = "Zotero";
-
-            # darwin is unused here, but the generator dereferences it
-            # unconditionally for darwinDefaultsId, so it can't be omitted.
-            platforms.darwin.configPath = "Library/Application Support/Zotero";
             platforms.linux.configPath = ".zotero/zotero";
-
             wrappedPackageName = "zotero";
 
             modulePath = [
               "programs"
               "zotero"
             ];
+
+            # darwin is unused here, but the generator dereferences it
+            # unconditionally for darwinDefaultsId, so it can't be omitted.
+            platforms.darwin.configPath = "Library/Application Support/Zotero";
           })
           (
             {
@@ -136,21 +135,6 @@
                       # rather than disabling full-text indexing wholesale.
                       "extensions.zotero.automaticSnapshots" = false;
 
-                      # BBT's own default, pinned rather than left implicit:
-                      # changing the key format once the library has items
-                      # re-keys all of them and breaks citation keys already
-                      # written into documents.
-                      "extensions.zotero.translators.better-bibtex.citekeyFormat" = "auth.lower + shorttitle(3,3) + year";
-
-                      # Stops the bundled LibreOffice-integration installer
-                      # from running on every startup. It probes /opt whenever
-                      # that directory exists, and /opt is mode 0711 here, so
-                      # the scan throws NS_ERROR_FILE_ACCESS_DENIED and the
-                      # modal error dialog it raises takes the whole app down
-                      # with an IPC fatal error. Preferences > Cite still has
-                      # a manual install button, which bypasses this.
-                      "extensions.zoteroOpenOfficeIntegration.skipInstallation" = true;
-
                       # Extra source for Find Available PDF, which otherwise
                       # only tries doi.org, the item's own url field, Zotero's
                       # Unpaywall-backed OA service and PMC. Semantic Scholar
@@ -176,6 +160,21 @@
                           url = "https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}?fields=openAccessPdf";
                         }
                       ];
+
+                      # BBT's own default, pinned rather than left implicit:
+                      # changing the key format once the library has items
+                      # re-keys all of them and breaks citation keys already
+                      # written into documents.
+                      "extensions.zotero.translators.better-bibtex.citekeyFormat" = "auth.lower + shorttitle(3,3) + year";
+
+                      # Stops the bundled LibreOffice-integration installer
+                      # from running on every startup. It probes /opt whenever
+                      # that directory exists, and /opt is mode 0711 here, so
+                      # the scan throws NS_ERROR_FILE_ACCESS_DENIED and the
+                      # modal error dialog it raises takes the whole app down
+                      # with an IPC fatal error. Preferences > Cite still has
+                      # a manual install button, which bypasses this.
+                      "extensions.zoteroOpenOfficeIntegration.skipInstallation" = true;
                     };
                 };
               };

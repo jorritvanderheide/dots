@@ -160,10 +160,6 @@
             };
           })
           {
-            # The offsite backup reports each run, failed or not, to the
-            # heartbeat in external-endpoints.
-            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external";
-
             sops.secrets = lib.genAttrs secretKeys (_: { });
             users.groups.gatus = { };
 
@@ -173,6 +169,10 @@
                 message = "gatus needs the ingress feature";
               }
             ];
+
+            # The offsite backup reports each run, failed or not, to the
+            # heartbeat in external-endpoints.
+            my.offsite-backup.healthcheckUrl = lib.mkIf config.my.offsite-backup.enable "${inputs.self.lib.site.statusPage}/api/v1/endpoints/backups_offsite-backup/external";
 
             my.preservation.systemDirectories = [
               {
@@ -198,10 +198,9 @@
               wants = [ "network-online.target" ];
 
               serviceConfig = {
-                # Its checks are HTTPS and TCP, and what it receives comes in
-                # over HTTP through nginx: no capabilities, devices or
-                # syscalls beyond a service's.
-                CapabilityBoundingSet = "";
+                Environment = [ "GATUS_CONFIG_PATH=${config.sops.templates."gatus.yaml".path}" ];
+                ExecStart = lib.getExe pkgs.gatus;
+                Group = "gatus";
                 LockPersonality = true;
                 MemoryDenyWriteExecute = true;
                 NoNewPrivileges = true;
@@ -217,21 +216,22 @@
                 ProtectKernelTunables = true;
                 ProtectProc = "invisible";
                 ProtectSystem = "strict";
+                ReadWritePaths = [ "/var/lib/gatus" ];
                 RemoveIPC = true;
+                Restart = "always";
+                RestartSec = "10s";
                 RestrictNamespaces = true;
                 RestrictRealtime = true;
                 RestrictSUIDSGID = true;
+                StateDirectory = "gatus";
                 SystemCallArchitectures = "native";
                 UMask = "0077";
-
-                Environment = [ "GATUS_CONFIG_PATH=${config.sops.templates."gatus.yaml".path}" ];
-                ExecStart = lib.getExe pkgs.gatus;
-                Group = "gatus";
-                ReadWritePaths = [ "/var/lib/gatus" ];
-                Restart = "always";
-                RestartSec = "10s";
-                StateDirectory = "gatus";
                 User = "gatus";
+
+                # Its checks are HTTPS and TCP, and what it receives comes in
+                # over HTTP through nginx: no capabilities, devices or
+                # syscalls beyond a service's.
+                CapabilityBoundingSet = "";
 
                 RestrictAddressFamilies = [
                   "AF_INET"

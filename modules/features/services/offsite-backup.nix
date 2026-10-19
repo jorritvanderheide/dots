@@ -160,24 +160,23 @@
           inherit paths;
           environmentFile = config.sops.templates.restic-s3-env.path;
           exclude = lib.concatMap (entry: entry.exclude) (lib.attrValues cfg.entries);
+          initialize = true;
+          passwordFile = config.sops.secrets.restic_password.path;
 
           # Larger packs => far fewer objects/segments on Storj (default 16 MiB).
           extraBackupArgs = [ "--pack-size=64" ];
-
-          initialize = true;
-          passwordFile = config.sops.secrets.restic_password.path;
 
           # Storj's S3-compatible gateway, not Amazon's. restic encrypts
           # client-side, so the gateway only ever sees ciphertext.
           repository = "s3:https://gateway.eu1.storjshare.io/${cfg.bucket}/restic/${config.networking.hostName}";
 
           timerConfig = {
+            Persistent = true;
+            RandomizedDelaySec = "1h";
+
             # After the dumps services make each night, so a snapshot has
             # the one of its own night: Immich's is at 02:00.
             OnCalendar = "*-*-* 03:00";
-
-            Persistent = true;
-            RandomizedDelaySec = "1h";
           };
         };
 
@@ -287,10 +286,10 @@
 
           timerConfig = {
             OnActiveSec = "5min";
+            Unit = "restic-backups-offsite.service";
 
             # Inactive once it has fired, so the next failure can start it.
             RemainAfterElapse = false;
-            Unit = "restic-backups-offsite.service";
           };
 
           # At most 12 tries a night, enough for about 5 hours of steps, so a

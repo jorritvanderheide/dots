@@ -102,11 +102,12 @@
           }) cfg.connections;
 
           settings = {
+            runner.capacity = 1;
+            runner.labels = [ "nix:host" ];
+
             # One job at a time, so CI doesn't crowd dapple's services. No
             # cache server: it listens on localhost, which jobs can't reach.
             cache.enabled = false;
-            runner.capacity = 1;
-            runner.labels = [ "nix:host" ];
 
             server.connections = lib.mapAttrs (_: connection: {
               inherit (connection) uuid;

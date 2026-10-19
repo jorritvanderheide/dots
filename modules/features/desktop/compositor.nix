@@ -30,16 +30,6 @@ in
       config = {
         hardware.graphics.enable = true;
 
-        # The prompt gnome-keyring shows when an app first stores a secret,
-        # which is where the keyring gets its (empty) password.
-        services.dbus.packages = [ pkgs.gcr_3 ];
-
-        # Niri auto-enables gnome-keyring at system level, which also pulls in
-        # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
-        # We disable the system-level service and run gnome-keyring-daemon via
-        # home-manager with only secrets+pkcs11 components instead.
-        services.gnome.gnome-keyring.enable = lib.mkForce false;
-
         environment = {
           sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -79,10 +69,6 @@ in
               programs.niri.settings = {
                 inherit (cfg) outputs;
                 clipboard.disable-primary = true;
-
-                # Allows notification actions and window activation from Noctalia.
-                debug.honor-xdg-activation-with-invalid-serial = [ ];
-
                 gestures.hot-corners.enable = false;
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
@@ -93,6 +79,9 @@ in
                   size = config.home.pointerCursor.size;
                   theme = config.home.pointerCursor.name;
                 };
+
+                # Allows notification actions and window activation from Noctalia.
+                debug.honor-xdg-activation-with-invalid-serial = [ ];
 
                 hotkey-overlay = {
                   hide-not-bound = true;
@@ -218,8 +207,6 @@ in
                 Install.WantedBy = [ "graphical-session.target" ];
 
                 Service = {
-                  # The event stream ends when niri does.
-                  Restart = "always";
                   RestartSec = 5;
 
                   ExecStart = lib.getExe (
@@ -245,6 +232,9 @@ in
                       '';
                     }
                   );
+
+                  # The event stream ends when niri does.
+                  Restart = "always";
                 };
 
                 Unit = {
@@ -288,6 +278,16 @@ in
           # built against our nixpkgs (flake.nix), would be a build from source.
           package = pkgs.niri;
         };
+
+        # The prompt gnome-keyring shows when an app first stores a secret,
+        # which is where the keyring gets its (empty) password.
+        services.dbus.packages = [ pkgs.gcr_3 ];
+
+        # Niri auto-enables gnome-keyring at system level, which also pulls in
+        # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
+        # We disable the system-level service and run gnome-keyring-daemon via
+        # home-manager with only secrets+pkcs11 components instead.
+        services.gnome.gnome-keyring.enable = lib.mkForce false;
       };
     };
 }

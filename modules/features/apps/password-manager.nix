@@ -6,10 +6,6 @@ _: {
     }:
     {
       config = {
-        # The keys are in Bitwarden's SSH agent; ssh-agent would compete with
-        # it for SSH_AUTH_SOCK.
-        programs.ssh.startAgent = false;
-
         environment.systemPackages = [
           pkgs.bitwarden-desktop
         ];
@@ -48,6 +44,10 @@ _: {
         my.preservation.homeDirectories = [
           ".config/Bitwarden"
         ];
+
+        # The keys are in Bitwarden's SSH agent; ssh-agent would compete with
+        # it for SSH_AUTH_SOCK.
+        programs.ssh.startAgent = false;
       };
     };
 }

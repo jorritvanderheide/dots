@@ -12,6 +12,7 @@
     let
       install = pkgs.writeShellApplication {
         name = "install";
+        text = builtins.readFile (inputs.self + "/scripts/install.sh");
 
         # The flake it was run from, read-only, so install runs with no
         # local checkout.
@@ -20,8 +21,6 @@
         # pcscd needs this to find the CCID driver (YubiKey's PIV interface
         # is a USB CCID device); the script starts pcscd itself.
         runtimeEnv.PCSCLITE_HP_DROPDIR = "${pkgs.ccid}/pcsc/drivers";
-
-        text = builtins.readFile (inputs.self + "/scripts/install.sh");
 
         runtimeInputs = with pkgs; [
           age

@@ -46,11 +46,6 @@
         users.groups.media = { };
 
         disko.devices.disk.media = {
-          # The installer doesn't wipe it: the media library has no offsite
-          # copy. disko opens its LUKS with luks_password and imports its
-          # pool instead, and only formats a disk that isn't LUKS yet.
-          destroy = false;
-
           device = cfg.disk;
           type = "disk";
 
@@ -69,6 +64,11 @@
               crypttabExtraOpts = [ "tpm2-device=auto" ];
             };
           };
+
+          # The installer doesn't wipe it: the media library has no offsite
+          # copy. disko opens its LUKS with luks_password and imports its
+          # pool instead, and only formats a disk that isn't LUKS yet.
+          destroy = false;
         };
 
         disko.devices.zpool.zmedia = {

@@ -6,9 +6,6 @@
     }:
     {
       config = {
-        # GVfs provides Nautilus's network protocol backends (sftp://, smb://, dav://).
-        services.gvfs.enable = true;
-
         environment.systemPackages = [
           pkgs.nautilus
 
@@ -27,6 +24,9 @@
           # cost, since each one needs a decode.
           ".cache/thumbnails"
         ];
+
+        # GVfs provides Nautilus's network protocol backends (sftp://, smb://, dav://).
+        services.gvfs.enable = true;
       };
     };
 }

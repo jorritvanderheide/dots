@@ -96,24 +96,14 @@
       };
 
       config = {
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
+        users.groups.acme.members = [ "nginx" ];
+
         # Let nginx bind its internal vhosts to the tailnet IP before
         # tailscaled has assigned it, so nginx (and thus the headscale
         # vhost that Tailscale needs to recover) still starts when
         # Tailscale is down at boot.
         boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
-
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
-
-        # The certificate's order and renewal read it, as their
-        # EnvironmentFile. Its token may only write the _acme-challenge TXT
-        # record (docs/security.md).
-        sops.secrets.desec_dns_env = { };
-
-        # deSEC's second nameserver, ns2.desec.org, can take minutes to serve
-        # a new challenge record, longer than lego's default 2 minutes.
-        systemd.services."acme-order-renew-${cfg.domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
-
-        users.groups.acme.members = [ "nginx" ];
 
         my.gatus.endpoints = lib.concatMapAttrs (
           subdomain:
@@ -144,6 +134,8 @@
 
           defaults = {
             dnsProvider = "desec";
+            email = "jorrit+acme@bw20.nl";
+            environmentFile = config.sops.secrets.desec_dns_env.path;
 
             # Check the DNS-01 challenge against the zone's authoritative
             # nameserver, not the system resolver (MagicDNS -> Quad9):
@@ -151,9 +143,6 @@
             # the challenge record, from before it was written, for up to
             # the zone's negative TTL, and the order fails.
             dnsResolver = "ns1.desec.io:53";
-
-            email = "jorrit+acme@bw20.nl";
-            environmentFile = config.sops.secrets.desec_dns_env.path;
           };
         };
 
@@ -178,15 +167,6 @@
               subdomain: proxy:
               lib.nameValuePair (domainOf subdomain) {
                 forceSSL = true;
-
-                # Bind only to the tailnet IP. nginx still keeps a
-                # 0.0.0.0:443 listener for the public vhosts (the README's
-                # Network exposure), but internal services must not answer
-                # there: a connection to the public IP hits the 0.0.0.0
-                # socket, which has no server_name match here, so these
-                # vhosts stay tailnet-only.
-                listenAddresses = [ cfg.tailnetIp ];
-
                 useACMEHost = cfg.domain;
 
                 # SAMEORIGIN (not DENY) so apps that rely on same-origin
@@ -198,6 +178,14 @@
                   add_header Referrer-Policy "no-referrer" always;
                 '';
 
+                # Bind only to the tailnet IP. nginx still keeps a
+                # 0.0.0.0:443 listener for the public vhosts (the README's
+                # Network exposure), but internal services must not answer
+                # there: a connection to the public IP hits the 0.0.0.0
+                # socket, which has no server_name match here, so these
+                # vhosts stay tailnet-only.
+                listenAddresses = [ cfg.tailnetIp ];
+
                 locations."/" = {
                   inherit (proxy) extraConfig;
                   proxyPass = "http://127.0.0.1:${toString proxy.port}";
@@ -207,6 +195,15 @@
               }
             ) cfg.proxies;
         };
+
+        # The certificate's order and renewal read it, as their
+        # EnvironmentFile. Its token may only write the _acme-challenge TXT
+        # record (docs/security.md).
+        sops.secrets.desec_dns_env = { };
+
+        # deSEC's second nameserver, ns2.desec.org, can take minutes to serve
+        # a new challenge record, longer than lego's default 2 minutes.
+        systemd.services."acme-order-renew-${cfg.domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
 
         systemd.services.nginx.serviceConfig = {
           Restart = lib.mkForce "always";

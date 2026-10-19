@@ -17,10 +17,6 @@
     in
     {
       config = {
-        # Only with the media library mounted: its mount is nofail, and
-        # without it, files would land in the root, which a reboot wipes.
-        systemd.services.qbittorrent.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
-
         users.users.qbittorrent.extraGroups = [ "media" ];
 
         my.ingress.proxies.torrents = {
@@ -51,16 +47,20 @@
           webuiPort = port;
 
           serverConfig = {
-            # Private trackers: seed indefinitely (no ratio/time cap)
-            # and disable peer-discovery protocols (DHT, PeX, LSD) since
-            # most private trackers ban peers that announce torrents
-            # outside the tracker.
-            BitTorrent.Session.DHT = false;
+            BitTorrent.Session.DisableAutoTMMTriggers.CategorySavePathChanged = false;
+            BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
             BitTorrent.Session.GlobalMaxRatio = -1;
             BitTorrent.Session.GlobalMaxSeedingMinutes = -1;
             BitTorrent.Session.LSD = false;
             BitTorrent.Session.MaxRatioAction = 0;
             BitTorrent.Session.PeX = false;
+            LegalNotice.Accepted = true;
+
+            # Private trackers: seed indefinitely (no ratio/time cap)
+            # and disable peer-discovery protocols (DHT, PeX, LSD) since
+            # most private trackers ban peers that announce torrents
+            # outside the tracker.
+            BitTorrent.Session.DHT = false;
 
             # Honour each category's save path (Auto Torrent Management)
             # by default, and, with the two DisableAutoTMMTriggers, relocate
@@ -68,12 +68,10 @@
             # this, qBit ignores the category save path and dumps everything
             # in DefaultSavePath.
             BitTorrent.Session.DisableAutoTMMByDefault = false;
-            BitTorrent.Session.DisableAutoTMMTriggers.CategorySavePathChanged = false;
-            BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
-
-            LegalNotice.Accepted = true;
 
             Preferences = {
+              Connection.GlobalUPLimit = 10240;
+
               # Cap upload at 10 MiB/s so seeding doesn't saturate the
               # upstream and tank latency for Jellyfin and the other
               # services on this host. Download left uncapped.
@@ -81,7 +79,6 @@
               # value above ~2 GiB/s overflows int32 internally and
               # silently disables the cap.
               Connection.GlobalDLLimit = 0;
-              Connection.GlobalUPLimit = 10240;
 
               # Save downloads on the media dataset so the *arr apps
               # (in the `media` group) can hardlink-import from the
@@ -95,14 +92,13 @@
               WebUI = {
                 Address = "127.0.0.1";
                 Password_PBKDF2 = ''"@ByteArray(eBo1EBIF1iQdJISdjT4BDQ==:4yLawi5c8p2ez0phEqF00SBYm5ujtnQVL/w+hpSwT/nE+TZyvvyXuGZYVZbyyy52YVOpNXcLwjd/U/efG8O+BA==)"'';
+                TrustedReverseProxiesList = "127.0.0.1";
+                Username = cfg.webuiUser;
 
                 # Behind nginx every visitor is 127.0.0.1: without this and
                 # TrustedReverseProxiesList, a few failed logins ban everyone,
                 # the *arr apps included.
                 ReverseProxySupportEnabled = true;
-                TrustedReverseProxiesList = "127.0.0.1";
-
-                Username = cfg.webuiUser;
               };
             };
           };
@@ -112,6 +108,10 @@
           Restart = lib.mkForce "always";
           RestartSec = lib.mkForce "5s";
         };
+
+        # Only with the media library mounted: its mount is nofail, and
+        # without it, files would land in the root, which a reboot wipes.
+        systemd.services.qbittorrent.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
         systemd.tmpfiles.rules = [
           "d ${torrentsDir} 2775 root media -"

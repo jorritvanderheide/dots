@@ -46,9 +46,6 @@
                   networking.hostName = "dots-installer";
                   nixpkgs.hostPlatform = system;
 
-                  # Root by key only: the installer has no password.
-                  users.users.root.openssh.authorizedKeys.keys = inputs.self.lib.authorizedKeys;
-
                   # No services.pcscd: with the installer's polkit, NixOS's
                   # pcscd refuses clients (see secrets.nix). The installer
                   # starts a plain one itself.
@@ -77,6 +74,9 @@
                     KbdInteractiveAuthentication = false;
                     PasswordAuthentication = false;
                   };
+
+                  # Root by key only: the installer has no password.
+                  users.users.root.openssh.authorizedKeys.keys = inputs.self.lib.authorizedKeys;
                 }
               )
             ];

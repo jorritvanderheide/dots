@@ -47,9 +47,6 @@
       };
 
       config = {
-        # The host's own client enrolls with the server next to it.
-        my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
-
         assertions = [
           {
             assertion = config.my ? ingress;
@@ -88,6 +85,9 @@
             user = "headscale";
           }
         ];
+
+        # The host's own client enrolls with the server next to it.
+        my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
 
         # Scoped to the LAN interface, which is also where traffic forwarded in
         # from the router arrives, since dapple has no WAN interface of its
@@ -156,6 +156,8 @@
           useACMEHost = config.my.ingress.domain;
 
           locations = {
+            "^~ /swagger" = tailnetOnly;
+
             # Public on purpose. This carries the client control protocol and
             # the embedded DERP relay, and a device off the LAN (phone on
             # mobile data) needs both to reach the tailnet at all; there is
@@ -168,7 +170,6 @@
             # and preauth keys, guarded only by a bearer token. Keep it off
             # the public path, with /swagger. "^~" so these win over "/".
             "^~ /api" = tailnetOnly;
-            "^~ /swagger" = tailnetOnly;
           };
         };
       };

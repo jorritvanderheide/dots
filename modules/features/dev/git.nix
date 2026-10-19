@@ -35,14 +35,14 @@
             };
 
             config = {
-              # The file jj signs with (programs.jujutsu's signing.key).
-              home.file.".ssh/signing-key.pub".text = cfg.signingKey;
-
               # What jj checks signatures against
               # (signing.backends.ssh.allowed-signers).
               home.file.".ssh/allowedSigners".text = ''
                 ${builtins.concatStringsSep "\n" cfg.allowedSigningKeys}
               '';
+
+              # The file jj signs with (programs.jujutsu's signing.key).
+              home.file.".ssh/signing-key.pub".text = cfg.signingKey;
 
               programs = {
                 gh.enable = true;
@@ -81,13 +81,13 @@
                   enable = true;
 
                   settings = {
+                    ui.merge-editor = ":builtin";
+
                     # What a bare `jj sign` signs: the unsigned commits on this
                     # line, such as those made while signing was dropped. jj
                     # signs every revision it's given again, and its default,
                     # reachable(@, mutable()), takes in hundreds of signed ones.
                     revsets.sign = "::@ & mutable() & ~signed()";
-
-                    ui.merge-editor = ":builtin";
 
                     signing = {
                       backend = "ssh";

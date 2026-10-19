@@ -34,10 +34,6 @@
             }:
             {
               config = {
-                # empty = XDG_PICTURES_DIR, but that mixes wallpapers in with
-                # every other picture, so use a dedicated subfolder instead.
-                programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
-
                 # noctalia inotify-watches its config dir, but that can race
                 # home-manager's activation, so nudge it explicitly instead.
                 home.activation.noctaliaConfigReload = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -78,6 +74,10 @@
                   automation.enabled = false;
                   default.path = "${config.programs.noctalia.package}/share/noctalia/assets/noctalia-wallpaper.png";
                 };
+
+                # empty = XDG_PICTURES_DIR, but that mixes wallpapers in with
+                # every other picture, so use a dedicated subfolder instead.
+                programs.noctalia.settings.wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
               };
             }
           )
@@ -130,10 +130,6 @@
 
                   settings = {
                     desktop_widgets.enabled = false;
-
-                    # A week. 0 keeps all of it, forever, in sanoid's
-                    # snapshots of the preserved state too.
-                    notification.history_retention_hours = 168;
                     system.monitor.enabled = false;
                     weather.enabled = false;
 
@@ -149,13 +145,13 @@
                     };
 
                     bar.main = {
-                      # Default binds right-click on empty bar space to open
-                      # the control center.
-                      dead_zone.actions.right = "none";
-
                       center = [
                         "clock"
                       ];
+
+                      # Default binds right-click on empty bar space to open
+                      # the control center.
+                      dead_zone.actions.right = "none";
 
                       end = [
                         "network"
@@ -204,6 +200,10 @@
                       enabled = true;
                       transition = [ "disc" ];
                     };
+
+                    # A week. 0 keeps all of it, forever, in sanoid's
+                    # snapshots of the preserved state too.
+                    notification.history_retention_hours = 168;
 
                     shell = {
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";

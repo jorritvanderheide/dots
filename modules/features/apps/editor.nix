@@ -7,12 +7,6 @@ _: {
     }:
     {
       config = {
-        # Enable nix-ld for the vue extension's language server, which Zed
-        # downloads itself as a prebuilt binary rather than getting it from
-        # Nix. (The nix extension's LSP, nixd, comes from home.packages and
-        # doesn't need this.)
-        programs.nix-ld.enable = true;
-
         home-manager.sharedModules = [
           {
             home = {
@@ -72,6 +66,12 @@ _: {
           ".config/zed"
           ".local/share/zed"
         ];
+
+        # Enable nix-ld for the vue extension's language server, which Zed
+        # downloads itself as a prebuilt binary rather than getting it from
+        # Nix. (The nix extension's LSP, nixd, comes from home.packages and
+        # doesn't need this.)
+        programs.nix-ld.enable = true;
       };
     };
 }

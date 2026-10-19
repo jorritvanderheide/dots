@@ -10,14 +10,14 @@
     }:
     {
       config = {
+        my.preservation.systemDirectories = [
+          "/var/lib/docker"
+        ];
+
         # Skip NixOS firewall on the docker bridge so Docker's own iptables
         # rules govern container traffic. Containers can reach host services;
         # acceptable since the Docker daemon already runs as root.
         networking.firewall.trustedInterfaces = [ "docker0" ];
-
-        my.preservation.systemDirectories = [
-          "/var/lib/docker"
-        ];
 
         # Every normal user on a host that imports this module gets access to
         # docker, instead of requiring each user definition to opt in via
@@ -28,14 +28,13 @@
 
         virtualisation.docker = {
           enable = true;
+          storageDriver = "zfs";
 
           # Weekly.
           autoPrune.enable = true;
 
           # Socket-activated, for a faster boot.
           enableOnBoot = false;
-
-          storageDriver = "zfs";
         };
       };
     };

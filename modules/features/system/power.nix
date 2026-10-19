@@ -64,19 +64,19 @@
           );
 
           services = {
-            # thermald only handles Intel CPUs.
-            thermald.enable = cpuVendor == "intel";
-
-            # Disable TLP auto-enabled by nixos-hardware common/pc/laptop;
-            # system76-power-daemon is the chosen power manager.
-            tlp.enable = lib.mkForce false;
-
             upower.enable = true;
 
             system76-scheduler = {
               enable = true;
               settings.cfsProfiles.enable = true;
             };
+
+            # thermald only handles Intel CPUs.
+            thermald.enable = cpuVendor == "intel";
+
+            # Disable TLP auto-enabled by nixos-hardware common/pc/laptop;
+            # system76-power-daemon is the chosen power manager.
+            tlp.enable = lib.mkForce false;
 
             # system76-power does not react to AC plug/unplug on its own;
             # switch profiles from udev. Coldplug at boot applies the right

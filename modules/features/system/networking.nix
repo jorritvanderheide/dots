@@ -30,6 +30,8 @@
       ];
 
       networking = {
+        networkmanager.enable = true;
+
         # NetworkManager runs its own DHCP client per-interface; without this
         # NixOS's global dhcpcd.service also runs and races it on the same
         # interface, producing two conflicting default routes/leases (seen
@@ -38,8 +40,6 @@
         # NetworkManager already forces that to false internally. dhcpcd.enable
         # is a separate option that defaults to true regardless.)
         dhcpcd.enable = false;
-
-        networkmanager.enable = true;
       };
     };
   };

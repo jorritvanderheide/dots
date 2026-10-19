@@ -15,13 +15,13 @@
       editor = {
         proxyPass = "http://unix:${config.services.new-leaf.socket}";
 
-        # Sets X-Real-IP, which New Leaf asks Tailscale about.
-        recommendedProxySettings = true;
-
         extraConfig = ''
           # Fitting pages renders the PDF a few times.
           proxy_read_timeout 120s;
         '';
+
+        # Sets X-Real-IP, which New Leaf asks Tailscale about.
+        recommendedProxySettings = true;
       };
     in
     {
@@ -51,9 +51,6 @@
       # domain: the internet gets the share links, the tailnet the editor
       # with the share links next to it.
       config = {
-        # Share links are public on purpose, like headscale.
-        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
-
         my.gatus.endpoints = {
           # /healthz needs no tailnet identity, and answers 503 when New Leaf
           # can't write CVs or share links, or run Typst.
@@ -93,6 +90,9 @@
             user = "new-leaf";
           }
         ];
+
+        # Share links are public on purpose, like headscale.
+        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
 
         # The domain's public record points at the home address, where only
         # the share links answer. MagicDNS points it at dapple's tailnet
@@ -141,18 +141,18 @@
             '';
 
             locations = {
-              # The webroot itself would be a 403, not the editor.
-              "= /" = editor;
-
               "@editor" = editor;
-
-              # Dotfiles, such as New Leaf's marker of a publish in progress.
-              "~ /\\.".return = "404";
 
               "/" = {
                 inherit (config.services.nginx.virtualHosts.${domain}) extraConfig;
                 tryFiles = "$uri $uri/ @editor";
               };
+
+              # The webroot itself would be a 403, not the editor.
+              "= /" = editor;
+
+              # Dotfiles, such as New Leaf's marker of a publish in progress.
+              "~ /\\.".return = "404";
             };
           };
         };

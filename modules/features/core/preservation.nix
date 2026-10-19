@@ -59,10 +59,6 @@
       };
 
       config = {
-        # Pinned so `install.sh` can chown /etc/nixos to this GID from the
-        # live ISO, where the name "nixos" doesn't resolve.
-        users.groups.nixos.gid = 3000;
-
         boot = {
           tmp.cleanOnBoot = lib.mkDefault true;
 
@@ -166,6 +162,10 @@
           # 0755, which would let anyone in. "z" leaves a host without one alone.
           "z /persist/system/var/lib/private 0700 root root -"
         ];
+
+        # Pinned so `install.sh` can chown /etc/nixos to this GID from the
+        # live ISO, where the name "nixos" doesn't resolve.
+        users.groups.nixos.gid = 3000;
       };
     };
 }

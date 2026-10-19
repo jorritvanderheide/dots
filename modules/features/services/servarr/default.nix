@@ -194,9 +194,6 @@
         };
 
         systemd.services = {
-          # Only with the media library mounted: its mount is nofail, and
-          # without it, files would land in the root, which a reboot wipes.
-          lidarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
           radarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
           sonarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
@@ -204,6 +201,10 @@
             Restart = lib.mkForce "always";
             RestartSec = lib.mkForce "5s";
           };
+
+          # Only with the media library mounted: its mount is nofail, and
+          # without it, files would land in the root, which a reboot wipes.
+          lidarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
           prowlarr.serviceConfig = sandbox // {
             Restart = lib.mkForce "always";

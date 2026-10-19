@@ -51,13 +51,6 @@
           {
             my.desktop-shell.lockOnStartup = true;
             my.power.laptop.enable = true;
-
-            # /persist is all that survives the boot-time rollback, and the
-            # offsite backup (my.offsite-backup) is its only copy off this disk.
-            # The research modules declare what state they need kept but not
-            # how; this machine persists it with preservation.
-            my.preservation.homeDirectories = config.my.research.statePaths;
-
             my.session.autologinuser = "jorrit";
             networking.hostName = "rocinante";
             sops.secrets.nix_signing_key = { };
@@ -126,6 +119,12 @@
                 "/persist/home/jorrit/Zotero"
               ];
             };
+
+            # /persist is all that survives the boot-time rollback, and the
+            # offsite backup (my.offsite-backup) is its only copy off this disk.
+            # The research modules declare what state they need kept but not
+            # how; this machine persists it with preservation.
+            my.preservation.homeDirectories = config.my.research.statePaths;
 
             my.research = {
               institution = {

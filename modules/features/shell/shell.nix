@@ -109,12 +109,6 @@
               ];
 
               shellAliases = {
-                # General
-                "c" = "clear";
-
-                # Nix
-                "nboot" =
-                  "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
                 "nbuild" = "nh os build /etc/nixos --hostname (hostname) --no-nom";
                 "ncheck" = "nix flake check /etc/nixos";
                 "nformat" = "pushd /etc/nixos && sudo nix fmt . && popd";
@@ -125,6 +119,13 @@
                   "check-yubikey; and check-clean; and nh os switch /etc/nixos --hostname (hostname) --no-nom";
                 "ntest" = "check-yubikey; and nh os test /etc/nixos --hostname (hostname) --no-nom";
                 "nupdate" = "pushd /etc/nixos && nix flake update && popd";
+
+                # General
+                "c" = "clear";
+
+                # Nix
+                "nboot" =
+                  "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
               };
             };
 

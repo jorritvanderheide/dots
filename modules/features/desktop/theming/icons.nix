@@ -77,14 +77,14 @@
           in
           {
             gtk.iconTheme = {
+              package = pkgs.numix-icon-theme-circle;
+
               # Numix-Circle with the folders in the wallpaper's colors
               # (numixFolders), the name GTK's settings and Qt keep;
               # dconf flips between it and its -Reload twin (see
               # numixFoldersApply). The same in light mode: noctalia
               # doesn't switch icon themes.
               name = "Numix-Circle-Noctalia";
-
-              package = pkgs.numix-icon-theme-circle;
             };
 
             programs.noctalia.settings.theme.templates.user = {

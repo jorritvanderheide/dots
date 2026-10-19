@@ -62,12 +62,11 @@
               auth-default-access = "deny-all";
               base-url = "https://${domain}";
               behind-proxy = true;
+              listen-http = "127.0.0.1:${toString port}";
 
               # Three days instead of twelve hours: a phone off the tailnet
               # over a weekend still gets what it missed.
               cache-duration = "72h";
-
-              listen-http = "127.0.0.1:${toString port}";
             };
           };
 

@@ -24,18 +24,19 @@
                 "*" = { };
 
                 "dapple" = {
+                  hostname = dapple.tailnetIp;
+                  user = "nixos";
+
                   # Without tailscale, away from home, neither address
                   # answers, and ssh (so ndeploy) would wait out the kernel's
                   # TCP retries instead of failing.
                   connectTimeout = 10;
-                  hostname = dapple.tailnetIp;
 
                   # Its key is pinned (programs.ssh.knownHosts), so a prompt only
                   # means another machine, e.g. at 192.168.1.162 on a network
                   # that isn't home: refuse it before a key or the sudo
                   # password goes there.
                   strictHostKeyChecking = "yes";
-                  user = "nixos";
                 };
 
                 # At home without tailscale, dapple's LAN address instead.
@@ -58,9 +59,6 @@
         ];
 
         programs.ssh = {
-          # mkDefault lets the password-manager module override this
-          startAgent = lib.mkDefault true;
-
           knownHosts.dapple = {
             publicKey = dapple.hostKey;
 
@@ -70,6 +68,9 @@
               dapple.tailnetIp
             ];
           };
+
+          # mkDefault lets the password-manager module override this
+          startAgent = lib.mkDefault true;
         };
       };
     };

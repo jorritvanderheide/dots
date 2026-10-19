@@ -2,37 +2,36 @@ _: {
   # Facts and keys more than one feature or host needs, in inputs.self.lib
   # with the helpers of lib.nix.
   flake.lib = {
-    # Nix signing keys whose store paths a host you deploy to accepts
-    # (ssh-server.nix): rocinante's, whose secret half is in its
-    # secret-key-files.
-    deployKeys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
-
     # Keys that may SSH into the hosts (the nixos user) and the installer ISO.
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"
     ];
 
+    # Nix signing keys whose store paths a host you deploy to accepts
+    # (ssh-server.nix): rocinante's, whose secret half is in its
+    # secret-key-files.
+    deployKeys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
+
     # Facts more than one host needs.
     site = {
       domain = "bw20.nl";
       lan.subnet = "192.168.1.0/24";
-
-      # Gatus, on dapple (gatus.nix): what every host reports its disks to.
-      statusPage = "https://status.bw20.nl";
-
       vpnDomain = "vpn.bw20.nl";
 
       dapple = {
+        lanIp = "192.168.1.162";
+
         # Its SSH host key, which the ssh feature pins. The private half is
         # ssh_host_key in secrets/dapple.yaml (ssh-server.nix).
         hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
-
-        lanIp = "192.168.1.162";
 
         # Headscale hands out addresses in order, and dapple joined first
         # (docs/install.md).
         tailnetIp = "100.64.0.1";
       };
+
+      # Gatus, on dapple (gatus.nix): what every host reports its disks to.
+      statusPage = "https://status.bw20.nl";
 
       # rocinante's documents and dapple's copy (file-sync.nix,
       # syncthing.nix). A device's ID is the hash of its key, which is in

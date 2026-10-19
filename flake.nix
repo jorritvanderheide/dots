@@ -4,18 +4,7 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
-
-    # Temporary: zotero fails to build against firefox-esr 153.4
-    # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
-    # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
-    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
-
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    # Not following nixpkgs: the blog builds with the Hugo it pins, as a newer
-    # one may not build it. Only its static files reach dapple.
-    personal-blog.url = "git+https://codeberg.org/BW20/personal-blog";
-
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
@@ -61,10 +50,19 @@
       url = "github:nixos/nixos-hardware";
     };
 
+    # Temporary: zotero fails to build against firefox-esr 153.4
+    # (NixOS/nixpkgs#568692), so it comes from the last nixpkgs rev where it
+    # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
+    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
+
     noctalia = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:noctalia-dev/noctalia";
     };
+
+    # Not following nixpkgs: the blog builds with the Hugo it pins, as a newer
+    # one may not build it. Only its static files reach dapple.
+    personal-blog.url = "git+https://codeberg.org/BW20/personal-blog";
 
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";

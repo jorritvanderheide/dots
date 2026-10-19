@@ -36,6 +36,8 @@
             };
 
             programs.zen-browser.profiles."default" = {
+              userContent = ''@import url("file://${zenCache}/zen-userContent.css");'';
+
               # 2 = follow the system color-scheme.
               # The imported CSS carries both variants under
               # prefers-color-scheme.
@@ -44,7 +46,6 @@
               # Both files' colors come from zen-colors.css, loaded by the
               # autoconfig (noctalia.cfg); userContent is the same import.
               userChrome = ''@import url("file://${zenCache}/zen-userChrome.css");'';
-              userContent = ''@import url("file://${zenCache}/zen-userContent.css");'';
             };
 
             # Firefox only reads userChrome/userContent at startup, so colors

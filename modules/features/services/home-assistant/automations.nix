@@ -25,12 +25,11 @@
           actions = [
             {
               action = "fan.set_percentage";
+              target.entity_id = fan;
 
               # The speeds are low, medium, high: 33% is low and 66% medium,
               # whether or not LocalTuya's speed list also counts "off".
               data.percentage = "{{ 66 if trigger.id == 'high' else 33 }}";
-
-              target.entity_id = fan;
             }
           ];
 
@@ -143,14 +142,6 @@
               alias = "Kitchen: cooking boost";
               id = "kitchen_cooking_boost";
 
-              # The switch is the boost: turning it on starts it, turning
-              # it off (by hand, or itself after 30 minutes) ends it.
-              # Meanwhile the bedroom pair supplies, so the house stays
-              # balanced and fresh air sweeps from the bedrooms to the
-              # kitchen. It only touches the bedroom pair when that is in
-              # its normal mode, so a shower boost there wins.
-              mode = "restart";
-
               actions = [
                 {
                   choose = [
@@ -251,6 +242,14 @@
                   ];
                 }
               ];
+
+              # The switch is the boost: turning it on starts it, turning
+              # it off (by hand, or itself after 30 minutes) ends it.
+              # Meanwhile the bedroom pair supplies, so the house stays
+              # balanced and fresh air sweeps from the bedrooms to the
+              # kitchen. It only touches the bedroom pair when that is in
+              # its normal mode, so a shower boost there wins.
+              mode = "restart";
 
               triggers = [
                 {

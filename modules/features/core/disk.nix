@@ -43,17 +43,16 @@
 
                 content = {
                   name = "crypted";
-
-                  # Written by install.sh (sops -d'd from luks_password) right
-                  # before disko runs; nothing else creates this file.
-                  passwordFile = "/tmp/secret.key";
-
                   type = "luks";
 
                   content = {
                     pool = "zroot";
                     type = "zfs";
                   };
+
+                  # Written by install.sh (sops -d'd from luks_password) right
+                  # before disko runs; nothing else creates this file.
+                  passwordFile = "/tmp/secret.key";
 
                   settings = {
                     allowDiscards = true;

@@ -29,6 +29,9 @@ _: {
 
               "802-1x" = {
                 anonymous-identity = "anonymous@ru.nl";
+                identity = "$EDUROAM_IDENTITY";
+                password = "$EDUROAM_PSK";
+                phase2-auth = "mschapv2";
 
                 # No ca-cert: RU's RADIUS backend is inconsistent about
                 # sending its intermediate cert chain, and wpa_supplicant's
@@ -38,10 +41,6 @@ _: {
                 # Set it, from that installer, once RU's server sends the
                 # whole chain.
                 eap = "peap";
-
-                identity = "$EDUROAM_IDENTITY";
-                password = "$EDUROAM_PSK";
-                phase2-auth = "mschapv2";
               };
 
               connection = {

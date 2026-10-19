@@ -23,16 +23,16 @@
             ];
           in
           {
-            # webtorrent-mpv-hook downloads into this path but doesn't
-            # create it, and mpv exits with a script error if it's missing.
-            systemd.user.tmpfiles.rules = [ "d ${torrentDir} 0755 - - -" ];
-
             home.packages = with pkgs; [
               vlc
               (mpv.override {
                 scripts = [ mpvScripts.webtorrent-mpv-hook ];
               })
             ];
+
+            # webtorrent-mpv-hook downloads into this path but doesn't
+            # create it, and mpv exits with a script error if it's missing.
+            systemd.user.tmpfiles.rules = [ "d ${torrentDir} 0755 - - -" ];
 
             xdg = {
               configFile = {

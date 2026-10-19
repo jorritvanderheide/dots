@@ -19,11 +19,6 @@
     {
       config = {
         sops.secrets.bazarr_password.restartUnits = [ "bazarr.service" ];
-
-        # Only with the media library mounted: its mount is nofail, and
-        # without it, files would land in the root, which a reboot wipes.
-        systemd.services.bazarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
-
         users.users.bazarr.extraGroups = [ "media" ];
 
         my.ingress.proxies.bazarr = {
@@ -59,11 +54,11 @@
 
           settings = {
             auth = {
-              # The password's md5 hex digest, which is what Bazarr compares.
-              password._secret = config.sops.secrets.bazarr_password.path;
-
               type = "form";
               username = cfg.webuiUser;
+
+              # The password's md5 hex digest, which is what Bazarr compares.
+              password._secret = config.sops.secrets.bazarr_password.path;
             };
 
             general = {
@@ -86,6 +81,10 @@
             "+${pkgs.findutils}/bin/find ${libraryDir}/series ${libraryDir}/movies -type d ! -perm -g+w -exec chmod -h g+w {} +"
           ];
         };
+
+        # Only with the media library mounted: its mount is nofail, and
+        # without it, files would land in the root, which a reboot wipes.
+        systemd.services.bazarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
       };
     };
 }
