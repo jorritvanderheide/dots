@@ -154,6 +154,7 @@
                       dead_zone.actions.right = "none";
 
                       end = [
+                        "pomodoro"
                         "network"
                         "bluetooth"
                         "volume"
@@ -204,6 +205,10 @@
                     # A week. 0 keeps all of it, forever, in sanoid's
                     # snapshots of the preserved state too.
                     notification.history_retention_hours = 168;
+
+                    # From noctalia's built-in community source; fetched on
+                    # first start, kept current by its own auto-update.
+                    plugins.enabled = [ "thepunkoff/pomodoro" ];
 
                     shell = {
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";
@@ -262,6 +267,11 @@
                         "disc"
                       ];
                     };
+
+                    # A plugin widget only goes in a bar lane as a named
+                    # instance; "pomodoro" above is this one. Click it for
+                    # the timer's panel.
+                    widget.pomodoro.type = "thepunkoff/pomodoro:widget";
                   };
                 };
               };
