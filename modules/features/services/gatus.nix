@@ -4,11 +4,13 @@
   ...
 }:
 {
+  # The status page, and what alerts the phone through ntfy (ntfy.nix):
+  # the services' checks, which each declares through my.ingress.proxies
+  # or my.gatus.endpoints, and what every host pushes about its disks and
+  # backups.
   flake.nixosModules.gatus =
     {
       config,
-      options,
-      pkgs,
       ...
     }:
     let
@@ -18,13 +20,13 @@
       hosts = lib.attrNames inputs.self.lib.site.hosts;
       alerting = config.services.ntfy-sh.enable;
 
-      # Secrets go into the config by their sops key, when sops-nix renders
-      # it. Every other host pushes with a token of its own, so a stolen
-      # laptop can't vouch for this host's backups.
-      placeholder = key: config.sops.placeholder.${key};
+      # Secrets come in through the environment file, which Gatus expands
+      # in its config. Every other host pushes with a token of its own, so a
+      # stolen laptop can't vouch for this host's backups.
       pushTokenKey =
         host: if host == config.networking.hostName then "gatus_push_token" else "gatus_push_token_${host}";
       secretKeys = lib.unique (map pushTokenKey hosts) ++ lib.optional alerting "ntfy_token";
+      variable = key: lib.toUpper key;
 
       # A check runs every five minutes. It alerts after two failures in a
       # row, which a restart for a deploy is over well before, and says
@@ -42,221 +44,170 @@
         success-threshold = 1;
         type = "ntfy";
       };
-
-      configTemplate = builtins.toJSON (
-        {
-          endpoints = lib.mapAttrsToList (
-            name: endpoint:
-            {
-              inherit name;
-              inherit (endpoint) conditions group url;
-              alerts = checkAlerts;
-              interval = "5m";
-            }
-            // lib.optionalAttrs (endpoint.dnsResolver != null) {
-              client.dns-resolver = endpoint.dnsResolver;
-            }
-          ) cfg.endpoints;
-
-          # Every host reports its disks hourly (disk-health.nix) and each
-          # run of its offsite backup (offsite-backup.nix). A heartbeat turns
-          # an endpoint red when its pushes stop, but only this host's
-          # silence means something broke; a laptop's means it's off. A day
-          # and two hours for the daily backup, whose start moves by up to
-          # an hour. It is only checked a whole interval after Gatus starts,
-          # and every deploy that changes this config restarts it, so the
-          # backup pushes its failures too.
-          external-endpoints = lib.concatMap (
-            host:
-            let
-              heartbeat = lib.optionalAttrs (host == config.networking.hostName);
-              token = placeholder (pushTokenKey host);
-            in
-            [
-              (
-                {
-                  inherit token;
-                  alerts = pushAlerts;
-                  group = "backups";
-                  name = host;
-                }
-                // heartbeat { heartbeat.interval = "26h"; }
-              )
-              (
-                {
-                  inherit token;
-                  alerts = pushAlerts;
-                  group = "disks";
-                  name = host;
-                }
-                // heartbeat { heartbeat.interval = "2h"; }
-              )
-            ]
-          ) hosts;
-
-          storage = {
-            path = "/var/lib/gatus/data.db";
-            type = "sqlite";
-          };
-
-          web = {
-            inherit port;
-            address = "127.0.0.1";
-          };
-        }
-        # To the phone, through ntfy on this host (ntfy.nix), straight to
-        # its port rather than through nginx.
-        // lib.optionalAttrs alerting {
-          alerting.ntfy = {
-            click = inputs.self.lib.site.statusPage;
-            default-alert.send-on-resolved = true;
-            token = placeholder "ntfy_token";
-            topic = config.my.ntfy.topic;
-            url = "http://${config.services.ntfy-sh.settings.listen-http}";
-          };
-        }
-      );
     in
     {
-      options.my.gatus = {
-        enable = lib.mkEnableOption "Gatus status page + monitoring";
-
-        endpoints = lib.mkOption {
-          type = lib.types.attrsOf (
-            lib.types.submodule {
-              options = {
-                conditions = lib.mkOption {
-                  type = lib.types.listOf lib.types.str;
-                  default = [ "[STATUS] < 400" ];
-                  description = "Gatus conditions the response must meet.";
-                };
-
-                dnsResolver = lib.mkOption {
-                  type = lib.types.nullOr lib.types.str;
-                  default = null;
-                  example = "tcp://9.9.9.9:53";
-                  description = "A DNS server to look the URL's name up with, instead of the host's (which knows the tailnet's names).";
-                };
-
-                group = lib.mkOption {
-                  type = lib.types.str;
-                  description = "The group it is listed under on the status page.";
-                };
-
-                url = lib.mkOption {
-                  type = lib.types.str;
-                  description = "What to check, every five minutes.";
-                };
+      options.my.gatus.endpoints = lib.mkOption {
+        type = lib.types.attrsOf (
+          lib.types.submodule {
+            options = {
+              conditions = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [ "[STATUS] < 400" ];
+                description = "Gatus conditions the response must meet.";
               };
-            }
-          );
-          default = { };
-          description = "What the status page checks, declared by each service's own module.";
-        };
-      };
 
-      config = lib.mkIf cfg.enable (
-        lib.mkMerge [
-          # Every host imports gatus (base), but only a host with the
-          # ingress feature has my.ingress, and defining an option that
-          # doesn't exist is an error even under mkIf.
-          (lib.optionalAttrs (options.my ? ingress) {
-            my.ingress.proxies.${subdomain} = {
-              inherit port;
-              status = null;
-            };
-          })
-          {
-            sops.secrets = lib.genAttrs secretKeys (_: { });
-            users.groups.gatus = { };
-
-            assertions = [
-              {
-                assertion = config.my ? ingress;
-                message = "gatus needs the ingress feature";
-              }
-            ];
-
-            my.preservation.systemDirectories = [
-              {
-                directory = "/var/lib/gatus";
-                group = "gatus";
-                mode = "0700";
-                user = "gatus";
-              }
-            ];
-
-            # The upstream module renders settings to /nix/store; that's fine
-            # for the endpoint list but the tokens must come from sops.
-            sops.templates."gatus.yaml" = {
-              content = configTemplate;
-              owner = "gatus";
-              restartUnits = [ "gatus.service" ];
-            };
-
-            systemd.services.gatus = {
-              after = [ "network-online.target" ];
-              description = "Gatus status page";
-              wantedBy = [ "multi-user.target" ];
-              wants = [ "network-online.target" ];
-
-              serviceConfig = {
-                Environment = [ "GATUS_CONFIG_PATH=${config.sops.templates."gatus.yaml".path}" ];
-                ExecStart = lib.getExe pkgs.gatus;
-                Group = "gatus";
-                LockPersonality = true;
-                MemoryDenyWriteExecute = true;
-                NoNewPrivileges = true;
-                PrivateDevices = true;
-                PrivateTmp = true;
-                PrivateUsers = true;
-                ProtectClock = true;
-                ProtectControlGroups = true;
-                ProtectHome = true;
-                ProtectHostname = true;
-                ProtectKernelLogs = true;
-                ProtectKernelModules = true;
-                ProtectKernelTunables = true;
-                ProtectProc = "invisible";
-                ProtectSystem = "strict";
-                ReadWritePaths = [ "/var/lib/gatus" ];
-                RemoveIPC = true;
-                Restart = "always";
-                RestartSec = "10s";
-                RestrictNamespaces = true;
-                RestrictRealtime = true;
-                RestrictSUIDSGID = true;
-                StateDirectory = "gatus";
-                SystemCallArchitectures = "native";
-                UMask = "0077";
-                User = "gatus";
-
-                # No capabilities, and with the Private*, Protect*, Restrict*
-                # and SystemCall* settings, no devices or syscalls beyond a
-                # service's: its checks are HTTPS and TCP, and what it
-                # receives comes in over HTTP through nginx.
-                CapabilityBoundingSet = "";
-
-                RestrictAddressFamilies = [
-                  "AF_INET"
-                  "AF_INET6"
-                  "AF_UNIX"
-                ];
-
-                SystemCallFilter = [
-                  "@system-service"
-                  "~@privileged"
-                  "~@resources"
-                ];
+              dnsResolver = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                example = "tcp://9.9.9.9:53";
+                description = "A DNS server to look the URL's name up with, instead of the host's (which knows the tailnet's names).";
               };
-            };
 
-            users.users.gatus = {
-              group = "gatus";
-              isSystemUser = true;
+              group = lib.mkOption {
+                type = lib.types.str;
+                description = "The group it is listed under on the status page.";
+              };
+
+              url = lib.mkOption {
+                type = lib.types.str;
+                description = "What to check, every five minutes.";
+              };
             };
           }
-        ]
-      );
+        );
+        default = { };
+        description = "What the status page checks, declared by each service's own module.";
+      };
+
+      config = {
+        sops.secrets = lib.genAttrs secretKeys (_: { });
+
+        assertions = [
+          {
+            assertion = config.my ? ingress;
+            message = "gatus needs the ingress feature";
+          }
+        ];
+
+        my.ingress.proxies.${subdomain} = {
+          inherit port;
+          status = null;
+        };
+
+        # DynamicUser, like Prowlarr (servarr/default.nix): no fixed owner
+        # to give the persisted directory.
+        my.preservation.systemDirectories = [
+          {
+            directory = "/var/lib/private/gatus";
+            mode = "0777";
+          }
+        ];
+
+        services.gatus = {
+          enable = true;
+          environmentFile = config.sops.templates."gatus.env".path;
+
+          settings = {
+            endpoints = lib.mapAttrsToList (
+              name: endpoint:
+              {
+                inherit name;
+                inherit (endpoint) conditions group url;
+                alerts = checkAlerts;
+                interval = "5m";
+              }
+              // lib.optionalAttrs (endpoint.dnsResolver != null) {
+                client.dns-resolver = endpoint.dnsResolver;
+              }
+            ) cfg.endpoints;
+
+            # Every host reports its disks hourly (disk-health.nix) and each
+            # run of its offsite backup (offsite-backup.nix). A heartbeat
+            # turns an endpoint red when its pushes stop, but only this
+            # host's silence means something broke; a laptop's means it's
+            # off. A day and two hours for the daily backup, whose start
+            # moves by up to an hour. It is only checked a whole interval
+            # after Gatus starts, and every deploy that changes this config
+            # restarts it, so the backup pushes its failures too.
+            external-endpoints = lib.concatMap (
+              host:
+              let
+                heartbeat = lib.optionalAttrs (host == config.networking.hostName);
+                token = "\${${variable (pushTokenKey host)}}";
+              in
+              [
+                (
+                  {
+                    inherit token;
+                    alerts = pushAlerts;
+                    group = "backups";
+                    name = host;
+                  }
+                  // heartbeat { heartbeat.interval = "26h"; }
+                )
+                (
+                  {
+                    inherit token;
+                    alerts = pushAlerts;
+                    group = "disks";
+                    name = host;
+                  }
+                  // heartbeat { heartbeat.interval = "2h"; }
+                )
+              ]
+            ) hosts;
+
+            storage = {
+              path = "/var/lib/gatus/data.db";
+              type = "sqlite";
+            };
+
+            web = {
+              inherit port;
+              address = "127.0.0.1";
+            };
+          }
+          # To the phone, through ntfy on this host (ntfy.nix), straight to
+          # its port rather than through nginx.
+          // lib.optionalAttrs alerting {
+            alerting.ntfy = {
+              click = inputs.self.lib.site.statusPage;
+              default-alert.send-on-resolved = true;
+              token = "\${${variable "ntfy_token"}}";
+              topic = config.my.ntfy.topic;
+              url = "http://${config.services.ntfy-sh.settings.listen-http}";
+            };
+          };
+        };
+
+        # The tokens, by the variables the config names. Read by systemd as
+        # root, so no owner.
+        sops.templates."gatus.env" = {
+          restartUnits = [ "gatus.service" ];
+
+          content = lib.concatMapStringsSep "\n" (
+            key: "${variable key}=${config.sops.placeholder.${key}}"
+          ) secretKeys;
+        };
+
+        # Upstream grants CAP_NET_RAW for ICMP checks, which there are
+        # none of: its checks are HTTPS and TCP, and what it receives comes
+        # in over HTTP through nginx.
+        systemd.services.gatus.serviceConfig =
+          inputs.self.lib.sandbox
+          // inputs.self.lib.restartAlways
+          // {
+            AmbientCapabilities = lib.mkForce "";
+            CapabilityBoundingSet = lib.mkForce "";
+            MemoryDenyWriteExecute = true;
+            UMask = "0077";
+
+            SystemCallFilter = [
+              "@system-service"
+              "~@privileged"
+              "~@resources"
+            ];
+          };
+      };
     };
 }

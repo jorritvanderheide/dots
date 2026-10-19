@@ -26,8 +26,8 @@ A feature is one NixOS module, named after the file, that sets up one thing:
 `terminal`, `zfs`, `immich`. Desktop and app features configure the user
 through `home-manager.sharedModules`. A feature is on when the host
 imports it. Its settings live under `my.<feature>`, like
-`my.compositor.outputs`. Only offsite-backup and gatus also wait for
-`my.<feature>.enable`, since every host imports them (below). A feature that
+`my.compositor.outputs`. Only offsite-backup also waits for
+`my.offsite-backup.enable`, since every host imports it (below). A feature that
 needs another checks that it is imported, with an assertion, like
 jellyfin's `config.my ? media-library`.
 
@@ -72,8 +72,8 @@ sops-nix decrypts them at activation, with the host's own age key
 starts.
 
 A host starts from the `base` bundle: the core, the system and shell
-features every host has, and offsite-backup and gatus, whose entries any
-feature may declare; a host that doesn't enable them ignores the entries.
+features every host has, and offsite-backup, whose entries any feature may
+declare; a host that doesn't enable it ignores the entries.
 A host with a screen adds `desktop`: the desktop features, which
 lean on each other (app2unit, niri, theming, noctalia) and so come as one,
 and research's settings, which the app and research features read. Those
