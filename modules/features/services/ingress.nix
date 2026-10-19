@@ -18,6 +18,37 @@
       # certificate they all use (useACMEHost) is named after it.
       inherit (inputs.self.lib.site) domain;
       domainOf = subdomain: "${subdomain}.${domain}";
+
+      # The status page's check of a vhost (gatus.nix).
+      statusType = lib.types.submodule {
+        options = {
+          group = lib.mkOption {
+            type = lib.types.str;
+            description = "The group it is listed under on the status page.";
+          };
+
+          name = lib.mkOption {
+            type = lib.types.str;
+            description = "Its name on the status page.";
+          };
+
+          path = lib.mkOption {
+            type = lib.types.str;
+            default = "";
+            example = "/health";
+            description = "What to check, under the vhost, if not its front page.";
+          };
+        };
+      };
+      statusEndpoint =
+        domain: status: extra:
+        lib.optionalAttrs (status != null) {
+          ${status.name} = {
+            inherit (status) group;
+            url = "https://${domain}${status.path}";
+          }
+          // extra;
+        };
     in
     {
       options.my.ingress = {
@@ -37,28 +68,7 @@
                 };
 
                 status = lib.mkOption {
-                  type = lib.types.nullOr (
-                    lib.types.submodule {
-                      options = {
-                        group = lib.mkOption {
-                          type = lib.types.str;
-                          description = "The group it is listed under on the status page.";
-                        };
-
-                        name = lib.mkOption {
-                          type = lib.types.str;
-                          description = "Its name on the status page.";
-                        };
-
-                        path = lib.mkOption {
-                          type = lib.types.str;
-                          default = "";
-                          example = "/health";
-                          description = "What to check, under the vhost, if not its front page.";
-                        };
-                      };
-                    }
-                  );
+                  type = lib.types.nullOr statusType;
 
                   description = ''
                     What the status page checks there; null only for the
@@ -80,6 +90,43 @@
           '';
         };
 
+        public = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule (
+              { name, ... }:
+              {
+                options = {
+                  domain = lib.mkOption {
+                    type = lib.types.str;
+                    default = domainOf name;
+                    defaultText = lib.literalExpression "\"\${name}.\${site.domain}\"";
+                    description = "The name the internet reaches it by.";
+                  };
+
+                  status = lib.mkOption {
+                    type = lib.types.nullOr statusType;
+                    description = ''
+                      What the status page checks there, through public DNS
+                      and so through the router's port forward, as visitors
+                      come; null for a name that answers nothing from the
+                      internet, like kobo's.
+                    '';
+                  };
+                };
+              }
+            )
+          );
+
+          default = { };
+
+          description = ''
+            What the internet reaches, declared by the service's own module,
+            which fills in the vhost's content: a vhost on every address
+            with the wildcard certificate, the LAN interface's 443 open for
+            the router's forward, and the status page's check.
+          '';
+        };
+
         tailnetIp = lib.mkOption {
           type = lib.types.str;
           default = inputs.self.lib.site.hosts.${config.networking.hostName}.tailnetIp;
@@ -88,14 +135,12 @@
             This host's stable tailnet IPv4 address. The proxies' vhosts
             bind here instead of 0.0.0.0 so they are reachable only over
             Tailscale, even though nginx must keep a 0.0.0.0:443 listener
-            for the public vhosts: headscale, kobo, New Leaf's share links,
-            meetinn and the blog.
+            for the public vhosts.
           '';
         };
       };
 
       config = {
-        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ 443 ];
         users.groups.acme.members = [ "nginx" ];
 
         # Let nginx bind its internal vhosts to the tailnet IP before
@@ -104,16 +149,16 @@
         # Tailscale is down at boot.
         boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
-        my.gatus.endpoints = lib.concatMapAttrs (
-          subdomain:
-          { status, ... }:
-          lib.optionalAttrs (status != null) {
-            ${status.name} = {
-              inherit (status) group;
-              url = "https://${domainOf subdomain}${status.path}";
-            };
-          }
-        ) cfg.proxies;
+        # A public site is checked through public DNS, so through the
+        # router's port forward (by its hairpin NAT, from here), as visitors
+        # come; the host's own resolver knows the tailnet's names.
+        my.gatus.endpoints =
+          lib.concatMapAttrs (
+            subdomain: { status, ... }: statusEndpoint (domainOf subdomain) status { }
+          ) cfg.proxies
+          // lib.concatMapAttrs (
+            _: public: statusEndpoint public.domain public.status { dnsResolver = "tcp://9.9.9.9:53"; }
+          ) cfg.public;
 
         my.preservation.systemDirectories = [
           {
@@ -122,6 +167,14 @@
             user = "acme";
           }
         ];
+
+        networking.firewall.interfaces = {
+          tailscale0.allowedTCPPorts = [ 443 ];
+
+          # The LAN interface is also where the router's forward arrives,
+          # as the host has no WAN interface of its own.
+          ${config.my.lan.interface}.allowedTCPPorts = lib.mkIf (cfg.public != { }) [ 443 ];
+        };
 
         security.acme = {
           acceptTerms = true;
@@ -162,6 +215,13 @@
               rejectSSL = true;
               serverName = "_";
             })
+            // lib.mapAttrs' (
+              _: public:
+              lib.nameValuePair public.domain {
+                forceSSL = true;
+                useACMEHost = domain;
+              }
+            ) cfg.public
             // lib.mapAttrs' (
               subdomain: proxy:
               lib.nameValuePair (domainOf subdomain) {

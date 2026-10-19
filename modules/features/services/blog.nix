@@ -6,10 +6,7 @@
   # The blog, at the bare domain, public like meetinn: static files from the
   # Nix store, so nothing to persist or back up.
   flake.nixosModules.blog =
-    {
-      config,
-      ...
-    }:
+    _:
     let
       inherit (inputs.self.lib.site) domain;
     in
@@ -17,14 +14,14 @@
       imports = [ inputs.personal-blog.nixosModules.default ];
 
       config = {
-        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
+        my.ingress.public.blog = {
+          inherit domain;
 
-        # Through public DNS, so through the router's port forward (by its
-        # hairpin NAT, from here), as visitors come.
-        my.gatus.endpoints.blog = {
-          dnsResolver = "tcp://9.9.9.9:53";
-          group = "productivity";
-          url = "https://${domain}/";
+          status = {
+            group = "productivity";
+            name = "blog";
+            path = "/";
+          };
         };
 
         # The wildcard doesn't cover the bare domain. Its challenge is the
@@ -35,11 +32,6 @@
         services.bw20-blog = {
           inherit domain;
           enable = true;
-        };
-
-        services.nginx.virtualHosts.${domain} = {
-          forceSSL = true;
-          useACMEHost = domain;
         };
       };
     };

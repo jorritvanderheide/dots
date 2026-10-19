@@ -40,24 +40,20 @@
       # domain: the internet gets the share links, the tailnet the editor
       # with the share links next to it.
       config = {
-        my.gatus.endpoints = {
-          # /healthz needs no tailnet identity, and answers 503 when New Leaf
-          # can't write CVs or share links, or run Typst.
-          cv-editor = {
-            conditions = [ "[STATUS] == 200" ];
-            group = "productivity";
-            url = "https://${domain}/healthz";
-          };
+        # /healthz needs no tailnet identity, and answers 503 when New Leaf
+        # can't write CVs or share links, or run Typst.
+        my.gatus.endpoints.cv-editor = {
+          conditions = [ "[STATUS] == 200" ];
+          group = "productivity";
+          url = "https://${domain}/healthz";
+        };
 
-          # A file New Leaf syncs into the public webroot; "/" only redirects.
-          # Through public DNS, so through the router's port forward (by its
-          # hairpin NAT, from here): MagicDNS points the name at the tailnet
-          # vhost.
-          cv-share = {
-            dnsResolver = "tcp://9.9.9.9:53";
-            group = "productivity";
-            url = "https://${domain}/fonts/OFL.txt";
-          };
+        # The share links, public on purpose, like headscale. Checked at a
+        # file New Leaf syncs into the public webroot; "/" only redirects.
+        my.ingress.public.cv.status = {
+          group = "productivity";
+          name = "cv-share";
+          path = "/fonts/OFL.txt";
         };
 
         my.offsite-backup.entries.new-leaf = {
@@ -79,9 +75,6 @@
             user = "new-leaf";
           }
         ];
-
-        # Share links are public on purpose, like headscale.
-        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
 
         # The domain's public record points at the home address, where only
         # the share links answer. MagicDNS points it at dapple's tailnet
@@ -107,11 +100,6 @@
         };
 
         services.nginx.virtualHosts = {
-          ${domain} = {
-            forceSSL = true;
-            useACMEHost = site.domain;
-          };
-
           # The same domain on the tailnet address: nginx only considers
           # vhosts bound to it explicitly there, so the tailnet gets this one
           # and the internet the share links' public vhost (${domain}). Share links are

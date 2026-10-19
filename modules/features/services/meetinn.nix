@@ -19,16 +19,13 @@
       imports = [ inputs.meetinn.nixosModules.default ];
 
       config = {
-        networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
         sops.secrets.meetinn_admins.restartUnits = [ "meetinn.service" ];
         sops.secrets.meetinn_smtp_password.restartUnits = [ "meetinn.service" ];
 
-        # Through public DNS, so through the router's port forward (by its
-        # hairpin NAT, from here), as visitors come.
-        my.gatus.endpoints.meetinn = {
-          dnsResolver = "tcp://9.9.9.9:53";
+        my.ingress.public.inn.status = {
           group = "productivity";
-          url = "https://${domain}/healthz";
+          name = "meetinn";
+          path = "/healthz";
         };
 
         # Restic reads a ZFS snapshot, which SQLite opens like after a power
@@ -70,11 +67,6 @@
             passwordFile = config.sops.secrets.meetinn_smtp_password.path;
             user = "noreply@${site.domain}";
           };
-        };
-
-        services.nginx.virtualHosts.${domain} = {
-          forceSSL = true;
-          useACMEHost = site.domain;
         };
       };
     };

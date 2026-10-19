@@ -102,17 +102,17 @@
             lanDomain = "kobo.${inputs.self.lib.site.domain}";
           in
           {
-            networking.firewall.interfaces.${config.my.lan.interface}.allowedTCPPorts = [ 443 ];
+            # Public only in that the router's forward lands on this socket
+            # too: it answers the internet with a 404, and the sync API only
+            # the LAN subnet. Kobo firmware's sync/connectivity check requires
+            # HTTPS; plain HTTP gets reported as "no internet access". DNS-01
+            # (deSEC) issues a real cert regardless of what IP the name points
+            # to, so this stays a trusted cert even though the record resolves
+            # to a private LAN address.
+            my.ingress.public.kobo.status = null;
 
-            # Kobo firmware's sync/connectivity check requires HTTPS; plain
-            # HTTP gets reported as "no internet access". DNS-01 (deSEC)
-            # issues a real cert regardless of what IP the name points to, so
-            # this stays a trusted cert even though the record resolves to a
-            # private LAN address.
             services.nginx.virtualHosts.${lanDomain} = {
-              forceSSL = true;
               listenAddresses = [ "0.0.0.0" ];
-              useACMEHost = inputs.self.lib.site.domain;
 
               # Only the Kobo sync API (every route of it is under
               # /kobo/<token>), not the whole web UI with its login and admin

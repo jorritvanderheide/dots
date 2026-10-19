@@ -56,8 +56,12 @@ A service with a web page declares it in `my.ingress.proxies.<subdomain>`:
 its port, any nginx directives, and the `status` the status page checks.
 The `ingress` feature makes each one a vhost at
 `<subdomain>.<site.domain>` with the wildcard certificate, bound to the
-tailnet address and refusing other sources. A service without such a page
-declares its check in `my.gatus.endpoints` directly.
+tailnet address and refusing other sources. One the internet reaches
+declares `my.ingress.public.<name>` instead, with the `status` to check
+through public DNS, and fills in its own vhost's content: ingress adds the
+certificate and opens the LAN interface's 443 for the router's forward. A
+service without such a page declares its check in `my.gatus.endpoints`
+directly.
 
 A service that needs a secret declares it in `sops.secrets`, by its key in
 the host's file, and reads it from `config.sops.secrets.<key>.path`; one

@@ -52,9 +52,10 @@
           }
         ];
 
-        my.gatus.endpoints.headscale = {
+        my.ingress.public.vpn.status = {
           group = "infra";
-          url = "https://${domain}/health";
+          name = "headscale";
+          path = "/health";
         };
 
         my.offsite-backup.entries.headscale = {
@@ -75,15 +76,8 @@
         # The host's own client enrolls with the server next to it.
         my.tailscale.loginServer = "http://127.0.0.1:${toString port}";
 
-        # Scoped to the LAN interface, which is also where traffic forwarded in
-        # from the router arrives, since dapple has no WAN interface of its
-        # own. Public reachability is therefore governed by the router's port
-        # forward and the per-location rules on headscale's vhost, not here.
-        # tailnet access to 443 comes from my.ingress.
-        networking.firewall.interfaces.${config.my.lan.interface} = {
-          allowedTCPPorts = [ 443 ];
-          allowedUDPPorts = [ 3478 ];
-        };
+        # STUN, for the embedded DERP relay; 443 comes with my.ingress.public.
+        networking.firewall.interfaces.${config.my.lan.interface}.allowedUDPPorts = [ 3478 ];
 
         services.headscale = {
           inherit port;
@@ -138,9 +132,6 @@
         };
 
         services.nginx.virtualHosts.${domain} = {
-          forceSSL = true;
-          useACMEHost = site.domain;
-
           locations = {
             "^~ /swagger" = tailnetOnly;
 
