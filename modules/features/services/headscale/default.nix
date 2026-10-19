@@ -166,7 +166,7 @@
 
             # The admin API is the sensitive surface: it manages users, nodes
             # and preauth keys, guarded only by a bearer token. Keep it off
-            # the public path. "^~" so these win over "/".
+            # the public path, with /swagger. "^~" so these win over "/".
             "^~ /api" = tailnetOnly;
             "^~ /swagger" = tailnetOnly;
           };

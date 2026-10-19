@@ -71,6 +71,7 @@
             "**/noctalia-templates/**"
             "docs/**"
             "README.md"
+            "scripts/nix-order-tests/**"
             "secrets/**"
             "TODO.md"
           ];

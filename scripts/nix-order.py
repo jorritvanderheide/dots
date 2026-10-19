@@ -1,14 +1,15 @@
 """Orders the attributes in Nix files by docs/layout.md's "Ordering" rule.
 
 Run by `nix fmt` before nixfmt, so the flake's treefmt check fails on a file
-that is out of order. Rewrites the files it is given in place, and names any
-set it had to leave alone on stderr, and then exits 1: a set it can't order
-is one the check can't vouch for either.
+that is out of order. Rewrites the files it is given in place. A set with a
+comment that belongs to no attribute is named on stderr and left alone, and
+the exit status is then 1: the check can't vouch for it either.
 
 Usage: nix-order.py FILE..."""
 
 import sys
 import warnings
+from itertools import pairwise
 
 import tree_sitter_nix as tsn
 from tree_sitter import Language, Parser
@@ -17,6 +18,20 @@ warnings.simplefilter("ignore", DeprecationWarning)
 PARSER = Parser(Language(tsn.language()))
 ATTRSETS = ("attrset_expression", "rec_attrset_expression")
 BINDINGS = ("binding", "inherit", "inherit_from")
+MODULE = ("imports", "options", "config")
+
+# A value with one of these is a block. Any other value is a line, even one
+# nixfmt wrapped, so an attribute doesn't move with the width of its value.
+BLOCKY = (
+    "attrset_expression",
+    "rec_attrset_expression",
+    "list_expression",
+    "indented_string_expression",
+    "function_expression",
+    "let_expression",
+    "if_expression",
+    "with_expression",
+)
 
 
 class Skip(Exception):
@@ -24,22 +39,22 @@ class Skip(Exception):
 
 
 def main():
-    left_alone = False
+    failed = False
     for path in sys.argv[1:]:
         with open(path, "rb") as f:
             src = f.read()
         tree = PARSER.parse(src)
         if tree.root_node.has_error:
             print(f"{path}: parse error, left alone", file=sys.stderr)
-            left_alone = True
+            failed = True
             continue
-        ctx = {"src": src, "path": path, "left_alone": False}
+        ctx = {"src": src, "path": path, "failed": False}
         out = rewrite(tree.root_node, ctx)
         if out.encode() != src:
             with open(path, "w") as f:
                 f.write(out)
-        left_alone |= ctx["left_alone"]
-    sys.exit(1 if left_alone else 0)
+        failed |= ctx["failed"]
+    sys.exit(1 if failed else 0)
 
 
 def text(node, ctx):
@@ -53,12 +68,11 @@ def rewrite(node, ctx):
         try:
             return rewrite_attrset(node, ctx)
         except Skip as e:
-            if str(e) != "set on one line":
-                print(
-                    f"{ctx['path']}:{node.start_point[0] + 1}: {e}, left alone",
-                    file=sys.stderr,
-                )
-                ctx["left_alone"] = True
+            print(
+                f"{ctx['path']}:{node.start_point[0] + 1}: {e}, left alone",
+                file=sys.stderr,
+            )
+            ctx["failed"] = True
     if node.type == "formals":
         return rewrite_formals(node, ctx)
     return splice(node, ctx)
@@ -86,19 +100,17 @@ def exempt(node, ctx):
 
 
 def rewrite_formals(node, ctx):
+    """Function arguments alphabetical; `...` stays where it is."""
     formals = [c for c in node.children if c.type == "formal"]
     if any(c.type == "comment" for c in node.children):
         return splice(node, ctx)
-    ordered = sorted(
-        formals, key=lambda f: text(f.child_by_field_name("name"), ctx).lower()
+    ordered = iter(
+        sorted(formals, key=lambda f: text(f.child_by_field_name("name"), ctx).lower())
     )
     src, out, pos = ctx["src"], [], node.start_byte
-    slot = iter(ordered)
     for child in node.children:
         out.append(src[pos : child.start_byte].decode())
-        out.append(
-            rewrite(next(slot), ctx) if child.type == "formal" else rewrite(child, ctx)
-        )
+        out.append(rewrite(next(ordered) if child.type == "formal" else child, ctx))
         pos = child.end_byte
     out.append(src[pos : node.end_byte].decode())
     return "".join(out)
@@ -113,216 +125,121 @@ def elements(node):
             yield child
 
 
-BLOCKY = (
-    "attrset_expression",
-    "rec_attrset_expression",
-    "list_expression",
-    "indented_string_expression",
-    "function_expression",
-    "let_expression",
-    "if_expression",
-    "with_expression",
-)
+def paragraphs(nodes):
+    """The nodes split where a blank line sits between two of them."""
+    out = []
+    for n in nodes:
+        if out and n.start_point[0] == out[-1][-1].end_point[0] + 1:
+            out[-1].append(n)
+        else:
+            out.append([n])
+    return out
 
 
 def has_blocky(node):
     return node.type in BLOCKY or any(has_blocky(c) for c in node.children)
 
 
-def is_block(item, body):
-    """Multi-line, unless nixfmt only wrapped a plain value onto a second line."""
-    if "\n" not in body:
-        return False
-    n = item["node"]
-    if n.type != "binding":
-        return True
-    return has_blocky(n.child_by_field_name("expression"))
+def key(node, ctx):
+    if node.type != "binding":
+        return "inherit"
+    return text(node.child_by_field_name("attrpath"), ctx).replace('"', "").lower()
 
 
 def rewrite_attrset(node, ctx):
     elems = list(elements(node))
-    if not any(e.type in BINDINGS for e in elems):
+    # A set on one line has one attribute after nixfmt, which expands any
+    # other.
+    if node.start_point[0] == node.end_point[0] or not any(
+        e.type in BINDINGS for e in elems
+    ):
         return splice(node, ctx)
-    if node.start_point[0] == node.end_point[0]:
-        raise Skip("set on one line")
     open_row = node.start_point[0]
 
-    # Comment paragraphs before the first attribute that end in a blank line
-    # are a note about the whole set; they stay on top.
-    header, i = [], 0
-    while i < len(elems) and elems[i].type == "comment":
-        j = i
-        while (
-            j + 1 < len(elems)
-            and elems[j + 1].type == "comment"
-            and elems[j + 1].start_point[0] == elems[j].end_point[0] + 1
-        ):
-            j += 1
-        nxt = elems[j + 1] if j + 1 < len(elems) else None
-        if nxt is not None and nxt.start_point[0] > elems[j].end_point[0] + 1:
-            header.append(elems[i : j + 1])
-            i = j + 1
-        else:
-            break
-    if any(c.start_point[0] == open_row for para in header for c in para):
-        raise Skip("comment on the opening line")
-
-    items, pending, last = [], [], None
-    prev_end = header[-1][-1].end_point[0] if header else None
-    for e in elems[i:]:
+    # Each unit is an attribute with the comments directly above it, and a
+    # trailing one on its last line. Comment paragraphs before the first
+    # attribute, set off by a blank line, are a header about the whole set.
+    header, units, pending = [], [], []
+    for e in elems:
         if e.type == "comment":
-            if (
-                last is not None
-                and not pending
-                and e.start_point[0] == last["node"].end_point[0]
-            ):
-                last["trailing"] = e
-            elif e.start_point[0] == open_row:
+            if e.start_point[0] == open_row:
                 raise Skip("comment on the opening line")
+            if units and not pending and e.start_point[0] == units[-1]["end"]:
+                units[-1]["trailing"] = e
+                units[-1]["end"] = e.end_point[0]
             else:
                 pending.append(e)
             continue
-        if last is not None and e.start_point[0] == last["node"].end_point[0]:
-            raise Skip("two attributes on one line")
-        rows = [c.start_point[0] for c in pending] + [e.start_point[0]]
-        ends = [c.end_point[0] for c in pending]
-        if any(rows[k + 1] != ends[k] + 1 for k in range(len(pending))):
-            raise Skip("comment separated from its attribute by a blank line")
-        first_row = (pending[0] if pending else e).start_point[0]
-        before = last["trailing"] or last["node"] if last else None
-        gap = (
-            first_row
-            - (
-                before.end_point[0]
-                if before
-                else (prev_end if prev_end is not None else open_row)
-            )
-            > 1
+        *rest, lead = paragraphs(pending + [e])
+        if rest and units:
+            raise Skip("comment that belongs to no attribute")
+        header = rest
+        units.append(
+            {"node": e, "lead": lead[:-1], "trailing": None, "end": e.end_point[0]}
         )
-        last = {"node": e, "leading": pending, "trailing": None, "gap": gap}
-        items.append(last)
         pending = []
-    footer = pending
-    if (
-        footer
-        and footer[0].start_point[0]
-        == (items[-1]["trailing"] or items[-1]["node"]).end_point[0] + 1
-    ):
-        raise Skip("comment right after the last attribute")
+    if pending:
+        raise Skip("comment after the last attribute")
 
-    first = (
-        header[0][0]
-        if header
-        else (items[0]["leading"][0] if items[0]["leading"] else items[0]["node"])
-    )
-    end = footer[-1] if footer else (items[-1]["trailing"] or items[-1]["node"])
+    first = header[0][0] if header else (units[0]["lead"] or [units[0]["node"]])[0]
+    last = units[-1]["trailing"] or units[-1]["node"]
     line_start = ctx["src"].rfind(b"\n", 0, first.start_byte) + 1
     indent = ctx["src"][line_start : first.start_byte].decode()
     if indent.strip():
         raise Skip("attribute not at the start of its line")
 
-    keys = [key(it, ctx) for it in items]
-    heads = [k.split(".")[0] for k in keys]
-    module = {"imports", "options", "config"} & set(heads)
-    module = "config" in module and len(module) > 1
-
-    units = []
-    for it, k in zip(items, keys):
-        body = rewrite(it["node"], ctx)
-        block = is_block(it, body)
-        if it["trailing"]:
-            gap = ctx["src"][it["node"].end_byte : it["trailing"].start_byte].decode()
-            body += gap + text(it["trailing"], ctx)
-        lead = [text(c, ctx) for c in it["leading"]]
-        if it["node"].type != "binding":
-            rank = 0
+    heads = {key(u["node"], ctx).split(".")[0] for u in units}
+    module = "config" in heads and len(heads & set(MODULE)) > 1
+    for pos, u in enumerate(units):
+        n = u["node"]
+        k = key(n, ctx)
+        head = k.split(".")[0]
+        if n.type != "binding":
+            u["rank"] = 0
         elif k == "enable":
-            rank = 1
-        elif module and k.split(".")[0] in ("imports", "options", "config"):
-            rank = 2
+            u["rank"] = 1
+        elif module and head in MODULE:
+            u["rank"] = 2
         else:
-            rank = 3
-        member = {"key": k.lower(), "body": body}
-        # A comment covers the run of plain one-liners directly below it.
-        prev = units[-1] if units else None
-        if (
-            prev is not None
-            and prev["group"]
-            and rank == 3
-            and not lead
-            and not block
-            and not it["gap"]
-        ):
-            prev["members"].append(member)
-            continue
-        units.append(
-            {
-                "lead": lead,
-                "members": [member],
-                "block": block,
-                "commented": bool(lead),
-                "group": bool(lead) and not block and rank == 3,
-                "rank": rank,
-                "order": ("imports", "options", "config").index(k.split(".")[0])
-                if rank == 2
-                else 99,
-                "pos": len(units),
-            }
+            u["rank"] = 3
+        u["order"] = MODULE.index(head) if u["rank"] == 2 else len(MODULE)
+        u["block"] = n.start_point[0] != n.end_point[0] and (
+            n.type != "binding" or has_blocky(n.child_by_field_name("expression"))
         )
+        u["spaced"] = u["rank"] == 2 or u["block"] or bool(u["lead"])
+        u["key"] = (u["order"], k, pos)
 
-    for u in units:
-        u["members"].sort(key=lambda m: m["key"])
-        u["key"] = u["members"][0]["key"]
-        u["lines"] = u["lead"] + [m["body"] for m in u["members"]]
-
-    def by_name(u):
-        return (u["order"], u["key"], u["pos"])
-
-    leading = sorted(
-        (u for u in units if u["rank"] < 2), key=lambda u: (u["rank"], u["pos"])
-    )
-    # A module's imports, options and config keep that order whatever their
-    # length: all three go with the multi-line attributes, ahead of them.
-    singles = sorted(
-        (u for u in units if u["rank"] == 3 and not u["block"]), key=by_name
-    )
-    blocks = sorted(
-        (u for u in units if u["rank"] == 2 or (u["rank"] == 3 and u["block"])),
-        key=by_name,
-    )
+    # inherit, then enable, lead the set in their own order; then the bare
+    # lines, packed; then the paragraphs, a blank line between each.
+    leading = sorted((u for u in units if u["rank"] < 2), key=lambda u: u["rank"])
+    bare = sorted((u for u in units if u["rank"] == 3 and not u["spaced"]), key=key_of)
+    spaced = sorted((u for u in units if u["rank"] >= 2 and u["spaced"]), key=key_of)
 
     sep = "\n" + indent
-    out = []
-    for para in header:
-        out.append(("\n" + sep if out else "") + sep.join(text(c, ctx) for c in para))
-    head = leading + singles
-    for n, u in enumerate(head):
-        piece = sep.join(u["lines"])
-        prev = head[n - 1] if n else None
-        if prev is None:
-            out.append(("\n" + sep if out else "") + piece)
-        elif u["commented"] or prev["commented"] or prev["block"] or u["block"]:
-            out.append("\n" + sep + piece)
-        else:
-            out.append(sep + piece)
-    for u in blocks:
-        out.append(("\n" + sep if out else "") + sep.join(u["lines"]))
-    if footer:
-        out.append("\n" + sep + sep.join(text(c, ctx) for c in footer))
+    chunks = [(sep.join(text(c, ctx) for c in p), True) for p in header]
+    chunks += [(render(u, ctx, sep), u["spaced"]) for u in leading + bare + spaced]
+    out = chunks[0][0]
+    for (_, before), (piece, spaced) in pairwise(chunks):
+        out += ("\n" + sep if before or spaced else sep) + piece
 
     src = ctx["src"]
     return (
         src[node.start_byte : first.start_byte].decode()
-        + "".join(out)
-        + src[end.end_byte : node.end_byte].decode()
+        + out
+        + src[last.end_byte : node.end_byte].decode()
     )
 
 
-def key(item, ctx):
-    n = item["node"]
-    if n.type != "binding":
-        return "inherit"
-    return text(n.child_by_field_name("attrpath"), ctx).replace('"', "")
+def key_of(unit):
+    return unit["key"]
+
+
+def render(unit, ctx, sep):
+    body = rewrite(unit["node"], ctx)
+    if unit["trailing"]:
+        gap = ctx["src"][unit["node"].end_byte : unit["trailing"].start_byte].decode()
+        body += gap + text(unit["trailing"], ctx)
+    return sep.join([text(c, ctx) for c in unit["lead"]] + [body])
 
 
 if __name__ == "__main__":

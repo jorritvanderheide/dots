@@ -27,8 +27,8 @@
           keep-derivations = true;
           keep-outputs = true;
 
-          # Opportunistic GC between the weekly runs, so a heavy build day
-          # doesn't fill the disk while waiting for Sunday.
+          # With min-free: opportunistic GC between the weekly runs, so a
+          # heavy build day doesn't fill the disk while waiting for Sunday.
           max-free = 15 * 1024 * 1024 * 1024;
           min-free = 5 * 1024 * 1024 * 1024;
 

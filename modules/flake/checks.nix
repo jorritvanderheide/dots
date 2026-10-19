@@ -40,6 +40,32 @@
           touch $out
         '';
 
+        # The formatter's nix-order on its fixtures: each .in.nix becomes its
+        # .out.nix, a .out.nix stays as it is, and errors.nix fails with a
+        # message per set and stays as it is.
+        nix-order =
+          let
+            inherit (config.treefmt.settings.formatter.nix-order) command options;
+            fixtures = ../../scripts/nix-order-tests;
+          in
+          pkgs.runCommand "nix-order-check" { } ''
+            cp -r ${fixtures} tests
+            chmod -R u+w tests
+            for input in tests/*.in.nix; do
+              output="''${input%.in.nix}.out.nix"
+              ${command} ${lib.escapeShellArgs options} "$input" "$output"
+              diff -u "$output" "$input"
+              diff -u "${fixtures}/$(basename "$output")" "$output"
+            done
+            if ${command} ${lib.escapeShellArgs options} tests/errors.nix 2> errors; then
+              echo "errors.nix passed" >&2
+              exit 1
+            fi
+            diff -u ${fixtures}/errors.nix tests/errors.nix
+            [ "$(wc -l < errors)" = 3 ]
+            touch $out
+          '';
+
         # With the lints the formatter disables (formatter.nix). statix only
         # reads a file named statix.toml.
         statix =

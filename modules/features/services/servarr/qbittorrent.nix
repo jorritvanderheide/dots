@@ -63,9 +63,10 @@
             BitTorrent.Session.PeX = false;
 
             # Honour each category's save path (Auto Torrent Management)
-            # by default, and relocate already-running torrents when a
-            # save path changes. Without this, qBit ignores the category
-            # save path and dumps everything in DefaultSavePath.
+            # by default, and, with the two DisableAutoTMMTriggers, relocate
+            # already-running torrents when a save path changes. Without
+            # this, qBit ignores the category save path and dumps everything
+            # in DefaultSavePath.
             BitTorrent.Session.DisableAutoTMMByDefault = false;
             BitTorrent.Session.DisableAutoTMMTriggers.CategorySavePathChanged = false;
             BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
@@ -95,8 +96,9 @@
                 Address = "127.0.0.1";
                 Password_PBKDF2 = ''"@ByteArray(eBo1EBIF1iQdJISdjT4BDQ==:4yLawi5c8p2ez0phEqF00SBYm5ujtnQVL/w+hpSwT/nE+TZyvvyXuGZYVZbyyy52YVOpNXcLwjd/U/efG8O+BA==)"'';
 
-                # Behind nginx every visitor is 127.0.0.1: without this, a
-                # few failed logins ban everyone, the *arr apps included.
+                # Behind nginx every visitor is 127.0.0.1: without this and
+                # TrustedReverseProxiesList, a few failed logins ban everyone,
+                # the *arr apps included.
                 ReverseProxySupportEnabled = true;
                 TrustedReverseProxiesList = "127.0.0.1";
 

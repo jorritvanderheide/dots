@@ -102,43 +102,28 @@ What several features need is in `inputs.self.lib`, from two files in
 
 ## Ordering
 
-Inside an attribute set, an attribute's place follows from its shape and
-name only:
+An attribute set has two tiers, each alphabetical by the attribute path as
+written, ignoring case and quotes:
 
-1. Single-line attributes first, alphabetical, without blank lines between
-   them. A plain value that nixfmt wrapped onto a second line still counts
-   as single-line.
-2. Then multi-line attributes, alphabetical, with a blank line between each.
+1. Bare lines: attributes without a comment whose value is a line (a plain
+   value nixfmt wrapped still counts), packed together.
+2. Paragraphs: attributes with a comment above them or a block value (a
+   set, list, function, `let`, `if`, `with` or indented string), a blank
+   line between each.
 
-A comment doesn't move an attribute: a commented one-liner keeps its
-alphabetical place among the single lines, with a blank line above its
-comment and below the line. A comment can also cover a run of one-liners
-directly below it, like `min-free` and `max-free`: the run stays together,
-alphabetical inside, in the place of its first name, with a blank line
-above the comment and below the run. A comment about the whole set sits at
-its top, followed by a blank line.
+A comment belongs to the one attribute under it. A comment about the whole
+set sits at its top, followed by a blank line. Three things keep their own
+order: `inherit` lines, then `enable`, lead their set; a module's
+`imports`, `options` and `config` come in that order, as paragraphs ahead
+of the others; and `mkOption` arguments keep nixpkgs' order (`type`,
+`default`, `example`, `description`). `let` bindings and lists keep the
+order they're written in. Function arguments are alphabetical, with `...`
+last.
 
-Alphabetical goes by the attribute path as written, ignoring case and
-quotes, so `my.*`, `networking.*` and `services.*` each end up together.
-
-Exceptions:
-
-- `inherit` lines, then `enable`, lead their set.
-- `mkOption` arguments keep nixpkgs' order: `type`, `default`, `example`,
-  `description`.
-- A module's `imports`, `options` and `config` come in that order, ahead
-  of the other multi-line attributes, even one that fits on a line.
-- `let` bindings and lists keep their order: a `let` reads best top-down,
-  and in a list the order can matter.
-- Function arguments are alphabetical, with `...` last.
-
-`nix fmt` applies this order (`scripts/nix-order.py`, before nixfmt), so
-the flake check fails on a file that is out of order. A set it can't order,
-such as two attributes on one line or a comment parted from its attribute
-by a blank line, it names and leaves alone, and the check fails on that
-too. Attribute order never changes what Nix evaluates: a reorder that
-leaves every host's closure the same, apart from the revision it's built
-from, changed nothing but the layout.
+`nix fmt` applies this (`scripts/nix-order.py`, before nixfmt), and the
+flake check fails on a file that is out of order, or on a set with a
+comment that belongs to no attribute. The script's fixtures in
+`scripts/nix-order-tests/` show each rule, and the check runs them.
 
 ## Comments
 
