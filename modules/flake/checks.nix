@@ -59,12 +59,6 @@
               # Runs CI jobs as a shell; sandboxed in a later change.
               forgejo-runner-codeberg = "8.0";
 
-              # No syscall filter yet; sandboxed in a later change.
-              immich-machine-learning = "3.5";
-
-              # No syscall filter yet; sandboxed in a later change.
-              immich-server = "3.5";
-
               # nixpkgs' man-db index, run once after activation.
               mandb = "9.0";
 

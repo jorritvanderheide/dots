@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   ...
 }:
 {
@@ -15,8 +16,6 @@
     in
     {
       config = {
-        systemd.services.immich-server.serviceConfig = inputs.self.lib.restartAlways;
-
         my.ingress.proxies.photos = {
           inherit port;
 
@@ -103,6 +102,18 @@
         # Its database. Not the usual quarter of RAM: ZFS's ARC (a quarter
         # already) caches the same files again.
         services.postgresql.settings.shared_buffers = "1GB";
+
+        # nixpkgs' unit has no syscall filter and leaves the system
+        # writable; the state and cache directories stay writable under
+        # strict. Not MemoryDenyWriteExecute: Node's JIT.
+        systemd.services = lib.genAttrs [ "immich-server" "immich-machine-learning" ] (_: {
+          serviceConfig =
+            inputs.self.lib.sandbox
+            // inputs.self.lib.restartAlways
+            // {
+              ProtectSystem = "strict";
+            };
+        });
       };
     };
 }
