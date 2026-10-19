@@ -63,6 +63,13 @@ certificate and opens the LAN interface's 443 for the router's forward. A
 service without such a page declares its check in `my.gatus.endpoints`
 directly.
 
+A service's unit gets `inputs.self.lib.restartAlways`, and, where nixpkgs'
+module gives it no sandbox, `inputs.self.lib.sandbox`, with what it needs
+on top (a `ReadWritePaths`, an address family) and why. The flake check
+scores every unit that runs as its own user with `systemd-analyze
+security` (checks.nix): at most 2.0 of 10, or a ceiling named there with
+its reason.
+
 A service that needs a secret declares it in `sops.secrets`, by its key in
 the host's file, and reads it from `config.sops.secrets.<key>.path`; one
 that wants it inside a file of its own, like an env file, gets a
@@ -81,6 +88,42 @@ build on `desktop`. The host picks the rest by name from
 `inputs.self.nixosModules`, in the same groups as the folders (System,
 Services, ...), and sets the `my.*` options in its own module below the
 list.
+
+## Adding a service
+
+One file, `features/services/<name>.nix`, one import line in the host, and
+the secrets it needs in `secrets/<host>.yaml`. `services/contacts.nix` is
+the smallest complete one: copy it. In the file:
+
+1. `services.<name>`: nixpkgs' module, bound to `127.0.0.1` on a port
+   chosen in a `let`, as nginx proxies to it. Settings that are nixpkgs'
+   defaults aren't repeated.
+2. `my.ingress.proxies.<subdomain>`: the port, nginx directives if any,
+   and the `status` the status page checks (a health path where the app
+   has one). For a site the internet reaches, `my.ingress.public.<name>`
+   instead, and the vhost's content from the app's own module. Without a
+   web page, `my.gatus.endpoints.<name>`.
+3. `my.preservation.systemDirectories`: its state directory, with the
+   owner and the mode its unit expects (`0700` for one with secrets in
+   it). A `DynamicUser` service's lives under `/var/lib/private`, mode
+   `0777` (see ntfy.nix for why).
+4. `my.offsite-backup.entries.<name>`: the same paths, the units to stop
+   for a restore, and `restore` commands if it keeps a database
+   (immich.nix).
+5. `sops.secrets.<key>`: with `owner` where the service reads the file
+   itself, and `restartUnits`. Then `sops -e -i secrets/<host>.yaml` to
+   add the key.
+6. `systemd.services.<name>.serviceConfig`: `inputs.self.lib.restartAlways`,
+   plus `inputs.self.lib.sandbox` if nixpkgs' module gives none, plus
+   what the service needs on top. A unit that reads the media library
+   also gets `unitConfig.RequiresMountsFor` (servarr/default.nix).
+7. An assertion on a feature it needs (`config.my ? media-library`).
+
+Then the host's import list, in its group, and `nix flake check`: the
+hardening check names the unit if its sandbox is short. After the deploy,
+`systemctl status <name>` and a request through the proxy; a syscall
+filter that kills a service only shows there, and the fix is a documented
+exception in the service's file, not a looser `lib.sandbox`.
 
 ## Shared helpers
 

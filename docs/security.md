@@ -206,3 +206,9 @@ sudo headscale nodes list                # dapple has tag:server
 sudo nft list ruleset                    # the firewall, as nftables
 systemctl --failed                       # nothing: sops-nix decrypted without a YubiKey
 ```
+
+`nix flake check` scores every service that runs as its own user with
+`systemd-analyze security`, on the built system: at most 2.0 of 10, or
+the ceiling `modules/flake/checks.nix` names with its reason (Chromium
+behind FlareSolverr, nixpkgs' own daemons). The same numbers for the live
+units: `systemd-analyze security` on dapple.

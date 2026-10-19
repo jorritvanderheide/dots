@@ -40,6 +40,92 @@
           touch $out
         '';
 
+        # Every service that runs as its own user, on each host's built
+        # system, scored by systemd-analyze security (0 is sealed, 10 is
+        # root with everything): at most the ceiling, or the one named here
+        # with its reason. Not scored: root daemons (sshd, tailscaled, the
+        # Nix daemon), oneshots, timer runs and template units, whose
+        # exposure is their job or a moment's.
+        hardening =
+          let
+            ceiling = "2.0";
+
+            # Each with its reason: a nixpkgs unit this flake doesn't touch,
+            # or what the service needs.
+            ceilings = {
+              # Chromium: its own namespaces and @resources.
+              flaresolverr = "3.0";
+
+              # Runs CI jobs as a shell; sandboxed in a later change.
+              forgejo-runner-codeberg = "8.0";
+
+              # No syscall filter yet; sandboxed in a later change.
+              immich-machine-learning = "3.5";
+
+              # No syscall filter yet; sandboxed in a later change.
+              immich-server = "3.5";
+
+              # nixpkgs' man-db index, run once after activation.
+              mandb = "9.0";
+
+              # nixpkgs' unit.
+              ModemManager = "6.5";
+
+              # nixpkgs' unit (nsncd).
+              nscd = "8.5";
+
+              # No syscall filter yet; sandboxed in a later change.
+              ntfy-sh = "4.0";
+
+              # nixpkgs' unit.
+              systemd-timesyncd = "2.5";
+
+              # nixpkgs' unit (util-linux).
+              uuidd = "6.0";
+            };
+            units = lib.concatStringsSep "\n" (
+              lib.mapAttrsToList (name: limit: "[${name}]=${lib.replaceStrings [ "." ] [ "" ] limit}") ceilings
+            );
+          in
+          pkgs.runCommand "hardening-check"
+            {
+              nativeBuildInputs = [
+                pkgs.bubblewrap
+                pkgs.systemd
+              ];
+            }
+            ''
+              # systemd-analyze makes /run/systemd and a /tmp directory even
+              # offline, and the build sandbox has no /run: bwrap gives it both.
+              analyze() {
+                bwrap --ro-bind /nix /nix --proc /proc --dev /dev --tmpfs /run --tmpfs /tmp -- \
+                  systemd-analyze security --offline=true "$@"
+              }
+              declare -A ceilings=(
+                ${units}
+              )
+              status=0
+              for host in ${
+                lib.concatStringsSep " " (lib.mapAttrsToList (_: h: h.config.system.build.toplevel) hosts)
+              }; do
+                cd "$host/etc/systemd/system"
+                for unit in $(grep -lE '^(User|DynamicUser)=' *.service); do
+                  case $unit in *@*) continue ;; esac
+                  [ "$(basename "$(readlink "$unit")")" = "$unit" ] || continue
+                  [ -e "''${unit%.service}.timer" ] && continue
+                  grep -q '^Type=oneshot' "$unit" && continue
+                  name=''${unit%.service}
+                  limit=''${ceilings[$name]:-${lib.replaceStrings [ "." ] [ "" ] ceiling}}
+                  if ! analyze --root="$host" --threshold="$limit" "$unit" > /dev/null; then
+                    analyze --root="$host" "$unit" | grep '^→' || true
+                    echo "Above its ceiling of $limit/100 (checks.nix): sandbox it, or name it there with why." >&2
+                    status=1
+                  fi
+                done
+              done
+              [ $status -eq 0 ] && touch $out
+            '';
+
         # The formatter's nix-order on its fixtures: each .in.nix becomes its
         # .out.nix, a .out.nix stays as it is, and errors.nix fails with a
         # message per set and stays as it is.
