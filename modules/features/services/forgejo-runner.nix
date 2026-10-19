@@ -105,8 +105,9 @@
             runner.capacity = 1;
             runner.labels = [ "nix:host" ];
 
-            # One job at a time, so CI doesn't crowd dapple's services. No
-            # cache server: it listens on localhost, which jobs can't reach.
+            # No cache server: it listens on localhost, which jobs can't
+            # reach. runner.capacity is one job at a time, so CI doesn't
+            # crowd dapple's services.
             cache.enabled = false;
 
             server.connections = lib.mapAttrs (_: connection: {

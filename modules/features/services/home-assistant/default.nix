@@ -74,8 +74,9 @@
               time_zone = config.time.timeZone;
               unit_system = "metric";
 
-              # The home's location: from secrets.yaml
-              # (home-assistant-secrets), as this repository is public.
+              # The home's location, with latitude and longitude: from
+              # secrets.yaml (home-assistant-secrets), as this repository is
+              # public.
               elevation = "!secret elevation";
             };
 
@@ -85,7 +86,8 @@
               trusted_proxies = [ "127.0.0.1" ];
               use_x_forwarded_for = true;
 
-              # Ban an address after 5 failed logins (HA's default never does).
+              # Ban an address after login_attempts_threshold failed logins
+              # (HA's default never does).
               ip_ban_enabled = true;
 
               # Loopback is enough for the tailnet vhost, which proxies
@@ -118,10 +120,10 @@
           CapabilityBoundingSet = lib.mkForce [ "" ];
           Restart = lib.mkForce "always";
 
-          # Upstream grants these for default_config's DHCP sniffing and
-          # raw Bluetooth, neither of which this needs. With them, a
-          # compromised integration could rewrite the firewall or sniff
-          # the host's traffic.
+          # Upstream grants these, and the CapabilityBoundingSet, for
+          # default_config's DHCP sniffing and raw Bluetooth, neither of
+          # which this needs. With them, a compromised integration could
+          # rewrite the firewall or sniff the host's traffic.
           AmbientCapabilities = lib.mkForce [ "" ];
         };
 

@@ -11,8 +11,9 @@
         daemonIOSchedClass = "best-effort";
         daemonIOSchedPriority = 7;
 
-        # Yields to interactive work under contention, full speed when idle.
-        # Preferable to capping max-jobs/cores, which slows builds always.
+        # With the IO class and priority: yields to interactive work under
+        # contention, full speed when idle. Preferable to capping
+        # max-jobs/cores, which slows builds always.
         daemonCPUSchedPolicy = "batch";
 
         gc = {

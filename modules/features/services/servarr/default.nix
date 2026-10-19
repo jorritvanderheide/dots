@@ -202,8 +202,9 @@
             RestartSec = lib.mkForce "5s";
           };
 
-          # Only with the media library mounted: its mount is nofail, and
-          # without it, files would land in the root, which a reboot wipes.
+          # Only with the media library mounted, radarr and sonarr the same:
+          # its mount is nofail, and without it, files would land in the
+          # root, which a reboot wipes.
           lidarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
           prowlarr.serviceConfig = sandbox // {

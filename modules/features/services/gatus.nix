@@ -228,9 +228,10 @@
                 UMask = "0077";
                 User = "gatus";
 
-                # Its checks are HTTPS and TCP, and what it receives comes in
-                # over HTTP through nginx: no capabilities, devices or
-                # syscalls beyond a service's.
+                # No capabilities, and with the Private*, Protect*, Restrict*
+                # and SystemCall* settings, no devices or syscalls beyond a
+                # service's: its checks are HTTPS and TCP, and what it
+                # receives comes in over HTTP through nginx.
                 CapabilityBoundingSet = "";
 
                 RestrictAddressFamilies = [

@@ -56,10 +56,10 @@
             BitTorrent.Session.PeX = false;
             LegalNotice.Accepted = true;
 
-            # Private trackers: seed indefinitely (no ratio/time cap)
-            # and disable peer-discovery protocols (DHT, PeX, LSD) since
-            # most private trackers ban peers that announce torrents
-            # outside the tracker.
+            # Private trackers: no DHT, PeX or LSD, since most ban peers
+            # that announce torrents outside the tracker, and no ratio or
+            # time cap (GlobalMaxRatio, GlobalMaxSeedingMinutes,
+            # MaxRatioAction), so everything seeds indefinitely.
             BitTorrent.Session.DHT = false;
 
             # Honour each category's save path (Auto Torrent Management)
@@ -72,12 +72,12 @@
             Preferences = {
               Connection.GlobalUPLimit = 10240;
 
-              # Cap upload at 10 MiB/s so seeding doesn't saturate the
-              # upstream and tank latency for Jellyfin and the other
-              # services on this host. Download left uncapped.
-              # qBit's conf stores rate limits in KiB/s; reading any
-              # value above ~2 GiB/s overflows int32 internally and
-              # silently disables the cap.
+              # Download uncapped; GlobalUPLimit caps upload at 10 MiB/s so
+              # seeding doesn't saturate the upstream and tank latency for
+              # Jellyfin and the other services on this host. qBit's conf
+              # stores rate limits in KiB/s; reading any value above
+              # ~2 GiB/s overflows int32 internally and silently disables
+              # the cap.
               Connection.GlobalDLLimit = 0;
 
               # Save downloads on the media dataset so the *arr apps
