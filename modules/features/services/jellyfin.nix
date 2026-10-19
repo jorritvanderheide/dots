@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -19,6 +20,8 @@
     in
     {
       config = {
+        systemd.services.jellyfin.serviceConfig = inputs.self.lib.restartAlways;
+
         assertions = [
           {
             assertion = config.my ? media-library;
@@ -77,11 +80,6 @@
 
         services.jellyfin = {
           enable = true;
-        };
-
-        systemd.services.jellyfin.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
         };
 
         # Only with the media library mounted: its mount is nofail, and

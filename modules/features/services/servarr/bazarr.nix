@@ -1,7 +1,7 @@
 # Bazarr, which fetches subtitles for Sonarr's and Radarr's libraries. The
 # rest of the stack is in default.nix.
 {
-  lib,
+  inputs,
   ...
 }:
 {
@@ -68,10 +68,7 @@
           };
         };
 
-        systemd.services.bazarr.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
-
+        systemd.services.bazarr.serviceConfig = inputs.self.lib.restartAlways // {
           # Gives the media group write access to folders sonarr's and radarr's
           # UMask didn't cover (made by hand or by another app), so Bazarr can
           # put subtitles in them. "+" runs it as root. -h so that a folder

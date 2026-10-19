@@ -1,5 +1,5 @@
 {
-  lib,
+  inputs,
   ...
 }:
 {
@@ -13,6 +13,8 @@
     in
     {
       config = {
+        systemd.services.radicale.serviceConfig = inputs.self.lib.restartAlways;
+
         my.ingress.proxies.contacts = {
           inherit port;
 
@@ -54,11 +56,6 @@
         sops.secrets.radicale_htpasswd = {
           owner = "radicale";
           restartUnits = [ "radicale.service" ];
-        };
-
-        systemd.services.radicale.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
         };
       };
     };

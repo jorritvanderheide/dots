@@ -87,9 +87,7 @@
             };
           };
 
-          systemd.services.calibre-web.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
+          systemd.services.calibre-web.serviceConfig = inputs.self.lib.restartAlways // {
             UMask = "0077";
           };
 

@@ -1,5 +1,5 @@
 {
-  lib,
+  inputs,
   ...
 }:
 {
@@ -15,6 +15,8 @@
     in
     {
       config = {
+        systemd.services.immich-server.serviceConfig = inputs.self.lib.restartAlways;
+
         my.ingress.proxies.photos = {
           inherit port;
 
@@ -101,11 +103,6 @@
         # Its database. Not the usual quarter of RAM: ZFS's ARC (a quarter
         # already) caches the same files again.
         services.postgresql.settings.shared_buffers = "1GB";
-
-        systemd.services.immich-server.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
-        };
       };
     };
 }

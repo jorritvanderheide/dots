@@ -70,29 +70,20 @@
 
         # The module leaves the rest of the system writable, and
         # capabilities, syscalls and other processes open.
-        systemd.services.filebrowser.serviceConfig = {
-          CapabilityBoundingSet = "";
-          PrivateTmp = true;
-          PrivateUsers = true;
-          ProcSubset = "pid";
-          ProtectClock = true;
-          ProtectHome = true;
-          ProtectHostname = true;
-          ProtectKernelLogs = true;
-          ProtectProc = "invisible";
-          ProtectSystem = "strict";
-          ReadWritePaths = [ root ];
-          RemoveIPC = true;
-          Restart = "always";
-          RestartSec = "5s";
-          SystemCallArchitectures = "native";
+        systemd.services.filebrowser.serviceConfig =
+          inputs.self.lib.sandbox
+          // inputs.self.lib.restartAlways
+          // {
+            ProcSubset = "pid";
+            ProtectSystem = "strict";
+            ReadWritePaths = [ root ];
 
-          SystemCallFilter = [
-            "@system-service"
-            "~@privileged"
-            "~@resources"
-          ];
-        };
+            SystemCallFilter = [
+              "@system-service"
+              "~@privileged"
+              "~@resources"
+            ];
+          };
       };
     };
 }

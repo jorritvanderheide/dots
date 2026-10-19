@@ -86,10 +86,7 @@
 
           # The module sets no restart, and a crashed ntfy would take every
           # alert with it, the one saying ntfy is down included.
-          systemd.services.ntfy-sh.serviceConfig = {
-            Restart = "always";
-            RestartSec = "5s";
-          };
+          systemd.services.ntfy-sh.serviceConfig = inputs.self.lib.restartAlways;
         };
     };
 }

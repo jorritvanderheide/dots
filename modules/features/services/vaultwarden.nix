@@ -68,10 +68,7 @@
             restartUnits = [ "vaultwarden.service" ];
           };
 
-          systemd.services.vaultwarden.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
-
+          systemd.services.vaultwarden.serviceConfig = inputs.self.lib.restartAlways // {
             # What the admin page saves (config.json) overrides
             # services.vaultwarden.config. Keep signups and invitations off
             # there too, and leave the rest of what it saved (SMTP and so on)

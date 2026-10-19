@@ -141,6 +141,7 @@
       };
 
       config = {
+        systemd.services.nginx.serviceConfig = inputs.self.lib.restartAlways;
         users.groups.acme.members = [ "nginx" ];
 
         # Let nginx bind its internal vhosts to the tailnet IP before
@@ -263,11 +264,6 @@
         # deSEC's second nameserver, ns2.desec.org, can take minutes to serve
         # a new challenge record, longer than lego's default 2 minutes.
         systemd.services."acme-order-renew-${domain}".environment.DESEC_PROPAGATION_TIMEOUT = "600";
-
-        systemd.services.nginx.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
-        };
       };
     };
 }

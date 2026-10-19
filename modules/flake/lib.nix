@@ -78,6 +78,50 @@
         };
       };
 
+    # A service that stops, however it stopped, comes back after a pause.
+    # mkForce, as nixpkgs' modules set their own policy for some.
+    restartAlways = {
+      Restart = lib.mkForce "always";
+      RestartSec = lib.mkForce "5s";
+    };
+
+    # systemd's sandbox for a service that only talks over the network and
+    # writes its own state: nixpkgs' own for Sonarr and Radarr
+    # (servarr/sonarr.nix), minus their syscall exceptions. A service adds
+    # what it needs on top (a ReadWritePaths, an address family) with //.
+    sandbox = {
+      CapabilityBoundingSet = "";
+      LockPersonality = true;
+      NoNewPrivileges = true;
+      PrivateDevices = true;
+      PrivateTmp = true;
+      PrivateUsers = true;
+      ProtectClock = true;
+      ProtectControlGroups = true;
+      ProtectHome = true;
+      ProtectHostname = true;
+      ProtectKernelLogs = true;
+      ProtectKernelModules = true;
+      ProtectKernelTunables = true;
+      ProtectProc = "invisible";
+      RemoveIPC = true;
+      RestrictNamespaces = true;
+      RestrictRealtime = true;
+      RestrictSUIDSGID = true;
+      SystemCallArchitectures = "native";
+
+      RestrictAddressFamilies = [
+        "AF_INET"
+        "AF_INET6"
+        "AF_UNIX"
+      ];
+
+      SystemCallFilter = [
+        "@system-service"
+        "~@privileged"
+      ];
+    };
+
     # nginx access rules for a location or vhost only the tailnet may use.
     # The address it binds to isn't enough: Linux accepts a packet for any
     # local address on any interface, so a LAN device that routes

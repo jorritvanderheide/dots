@@ -1,7 +1,7 @@
 # qBittorrent, which the *arr apps hand their downloads to. The rest of the
 # stack is in default.nix.
 {
-  lib,
+  inputs,
   ...
 }:
 {
@@ -17,6 +17,7 @@
     in
     {
       config = {
+        systemd.services.qbittorrent.serviceConfig = inputs.self.lib.restartAlways;
         users.users.qbittorrent.extraGroups = [ "media" ];
 
         my.ingress.proxies.torrents = {
@@ -102,11 +103,6 @@
               };
             };
           };
-        };
-
-        systemd.services.qbittorrent.serviceConfig = {
-          Restart = lib.mkForce "always";
-          RestartSec = lib.mkForce "5s";
         };
 
         # Only with the media library mounted: its mount is nofail, and

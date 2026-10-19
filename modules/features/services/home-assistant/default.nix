@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -116,9 +117,8 @@
           restartUnits = [ "home-assistant.service" ];
         };
 
-        systemd.services.home-assistant.serviceConfig = {
+        systemd.services.home-assistant.serviceConfig = inputs.self.lib.restartAlways // {
           CapabilityBoundingSet = lib.mkForce [ "" ];
-          Restart = lib.mkForce "always";
 
           # Upstream grants these, and the CapabilityBoundingSet, for
           # default_config's DHCP sniffing and raw Bluetooth, neither of

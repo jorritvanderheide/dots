@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -20,44 +21,22 @@
         required = "Enabled";
       };
 
-      # nixpkgs' own sandbox for Sonarr and Radarr (servarr/sonarr.nix), for
-      # the apps whose modules come without one: Lidarr and Prowlarr (Bazarr
-      # has its own). Not its UMask: each app keeps its own.
-      sandbox = {
-        CapabilityBoundingSet = "";
-        LockPersonality = true;
-        NoNewPrivileges = true;
-        PrivateDevices = true;
-        PrivateTmp = true;
-        PrivateUsers = true;
-        ProtectClock = true;
-        ProtectControlGroups = true;
-        ProtectHome = true;
-        ProtectHostname = true;
-        ProtectKernelLogs = true;
-        ProtectKernelModules = true;
-        ProtectKernelTunables = true;
-        ProtectProc = "invisible";
-        RemoveIPC = true;
-        RestrictNamespaces = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        SystemCallArchitectures = "native";
-
-        RestrictAddressFamilies = [
-          "AF_INET"
-          "AF_INET6"
-          "AF_UNIX"
-        ];
-
-        SystemCallFilter = [
-          "@system-service"
-          "~@privileged"
-          "~@debug"
-          "~@mount"
-          "@chown"
-        ];
-      };
+      # For the apps whose modules come without a sandbox: Lidarr and
+      # Prowlarr (Bazarr has its own). The syscalls as nixpkgs sets them for
+      # Sonarr and Radarr: chown back in, for the files they fetch. Not
+      # their UMask: each app keeps its own.
+      sandbox =
+        inputs.self.lib.sandbox
+        // inputs.self.lib.restartAlways
+        // {
+          SystemCallFilter = [
+            "@system-service"
+            "~@privileged"
+            "~@debug"
+            "~@mount"
+            "@chown"
+          ];
+        };
 
       # Each app's subdomain. Their ports are nixpkgs' defaults, read back
       # from their settings.
@@ -194,36 +173,24 @@
         };
 
         systemd.services = {
+          lidarr.serviceConfig = sandbox;
+          prowlarr.serviceConfig = sandbox;
           radarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
           sonarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
-
-          lidarr.serviceConfig = sandbox // {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
-          };
 
           # Only with the media library mounted, radarr and sonarr the same:
           # its mount is nofail, and without it, files would land in the
           # root, which a reboot wipes.
           lidarr.unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
 
-          prowlarr.serviceConfig = sandbox // {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
-          };
-
-          radarr.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
+          radarr.serviceConfig = inputs.self.lib.restartAlways // {
             UMask = lib.mkForce "0002";
           };
 
           # Upstream's 0022 makes the series/season folders they create
           # unwritable for the media group, so Bazarr can't drop .srt
           # files next to the episodes.
-          sonarr.serviceConfig = {
-            Restart = lib.mkForce "always";
-            RestartSec = lib.mkForce "5s";
+          sonarr.serviceConfig = inputs.self.lib.restartAlways // {
             UMask = lib.mkForce "0002";
           };
         };
