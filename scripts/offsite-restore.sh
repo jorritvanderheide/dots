@@ -1,4 +1,4 @@
-# shellcheck shell=bash disable=SC2154 # entry_units, persisted: from the module
+# shellcheck shell=bash disable=SC2154 # for this file alone; the build checks it after the module's preamble
 # Restores services' data from the offsite backup (restic on Storj): every
 # entry of my.offsite-backup, or the ones named. It downloads everything
 # first, so a failed download changes nothing. Then it stops the entries'
