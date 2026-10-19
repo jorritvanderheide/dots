@@ -56,9 +56,6 @@
               # Chromium: its own namespaces and @resources.
               flaresolverr = "3.0";
 
-              # Runs CI jobs as a shell; sandboxed in a later change.
-              forgejo-runner-codeberg = "8.0";
-
               # nixpkgs' man-db index, run once after activation.
               mandb = "9.0";
 

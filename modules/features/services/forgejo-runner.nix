@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -118,15 +119,18 @@
         systemd.services = {
           nix-daemon.serviceConfig = internetOnly;
 
-          ${unit}.serviceConfig = internetOnly // {
-            ProtectHome = true;
-
-            RestrictAddressFamilies = [
-              "AF_UNIX"
-              "AF_INET"
-              "AF_INET6"
-            ];
-          };
+          # Jobs are shell steps and nix commands, which build through the
+          # daemon over its socket: no devices, capabilities, namespaces or
+          # privileged syscalls. The state directory stays writable under
+          # strict.
+          ${unit}.serviceConfig =
+            inputs.self.lib.sandbox
+            // inputs.self.lib.restartAlways
+            // internetOnly
+            // {
+              ProtectSystem = "strict";
+              UMask = "0077";
+            };
         };
       };
     };
