@@ -5,6 +5,38 @@
     { config, pkgs, ... }:
     let
       inherit (config.my.theming) fonts;
+
+      # GTK 4 reads gtk.css once per process, but re-reads its imports
+      # (noctalia.css, noctalia-overrides.css) whenever the color scheme,
+      # contrast or reduced-motion preference changes. Mode toggles change
+      # the color scheme; wallpaper changes don't, so running apps
+      # (Nautilus) kept the old colors. Flipping reduced-motion and back
+      # makes them reload without any visible change. The pause keeps the
+      # portal from seeing only the final, unchanged value.
+      gtkCssReload = pkgs.writeShellApplication {
+        name = "gtk-css-reload";
+
+        runtimeInputs = with pkgs; [
+          coreutils
+          dconf
+        ];
+
+        text = ''
+          key=/org/gnome/desktop/a11y/interface/reduced-motion
+          current=$(dconf read $key)
+          if [[ $current == "'reduce'" ]]; then
+            dconf write $key "'no-preference'"
+          else
+            dconf write $key "'reduce'"
+          fi
+          sleep 0.5
+          if [[ -n $current ]]; then
+            dconf write $key "$current"
+          else
+            dconf reset $key
+          fi
+        '';
+      };
     in
     {
       home-manager.sharedModules = [
@@ -36,7 +68,8 @@
 
             programs.noctalia.settings.theme.templates.user = {
               # Imported after the built-in template's noctalia.css by
-              # gtk.css, so these definitions win.
+              # gtk.css, so these definitions win. Rendered after it too, so
+              # gtk4_overrides' hook reloads both.
               gtk3_overrides = {
                 input_path = "${./noctalia-templates/gtk3-overrides.css}";
                 output_path = "${config.xdg.configHome}/gtk-3.0/noctalia-overrides.css";
@@ -45,6 +78,7 @@
               gtk4_overrides = {
                 input_path = "${./noctalia-templates/gtk4-overrides.css}";
                 output_path = "${config.xdg.configHome}/gtk-4.0/noctalia-overrides.css";
+                post_hook = lib.getExe gtkCssReload;
               };
             };
 
