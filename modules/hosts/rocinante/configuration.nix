@@ -79,6 +79,17 @@
                   };
                 };
 
+                # PhD office monitor
+                "LG Electronics LG HDR 4K 0x00078084" = {
+                  focus-at-startup = true;
+                  scale = 1.25;
+
+                  position = {
+                    x = -576;
+                    y = -1728;
+                  };
+                };
+
                 # Office monitor
                 "LG Electronics LG HDR 4K 210MAZVRJG93" = {
                   focus-at-startup = true;
