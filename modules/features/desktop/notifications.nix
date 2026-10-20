@@ -10,7 +10,7 @@ _: {
 
           # nm-applet, which it autostarts in the session, and
           # nm-connection-editor, for NetworkManager's connection profiles
-          # (e.g. ad-hoc Wi-Fi not declared in wifi.nix).
+          # (e.g. ad-hoc Wi-Fi not declared in wifi/default.nix).
           pkgs.networkmanagerapplet
         ];
 

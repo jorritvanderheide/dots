@@ -21,7 +21,7 @@
 
     config = {
       # Connections added by hand (nmcli, the applet). Those from Nix live
-      # in /run (wifi.nix).
+      # in /run (wifi/default.nix).
       my.preservation.systemDirectories = [
         {
           directory = "/etc/NetworkManager/system-connections";

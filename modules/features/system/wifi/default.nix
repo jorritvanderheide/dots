@@ -33,18 +33,19 @@
 
               "802-1x" = {
                 anonymous-identity = "anonymous@ru.nl";
+                domain-suffix-match = "ru.nl";
+                eap = "peap";
                 identity = "$EDUROAM_IDENTITY";
                 password = "$EDUROAM_PSK";
                 phase2-auth = "mschapv2";
 
-                # No ca-cert: RU's RADIUS backend is inconsistent about
-                # sending its intermediate cert chain, and wpa_supplicant's
-                # OpenSSL backend won't fill the gap from a local CA store
-                # during a live handshake (even a byte-for-byte correct
-                # bundle from RU's own eduroam CAT installer didn't help).
-                # Set it, from that installer, once RU's server sends the
-                # whole chain.
-                eap = "peap";
+                # GÉANT TLS RSA 1, which issues RU's RADIUS certificate
+                # (crt.harica.gr/HARICA-GEANT-TLS-R1.cer), then HARICA TLS
+                # RSA Root CA 2021 (from Mozilla's store) behind it:
+                # wpa_supplicant only takes a chain that ends in a
+                # self-signed root, so the intermediate alone fails. With
+                # it in the file, a server that leaves it out still passes.
+                ca-cert = "${./eduroam-ca.pem}";
               };
 
               connection = {
