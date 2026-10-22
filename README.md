@@ -141,6 +141,7 @@ all of them.
 | Jellyfin | `media` | Films, series and music |
 | Sonarr, Radarr, Lidarr | `series`, `movies`, `music` | Fetching media for Jellyfin |
 | Prowlarr, Bazarr, qBittorrent | `prowlarr`, `bazarr`, `torrents` | Indexers, subtitles, downloads |
+| slskd | `soulseek` | Soulseek downloads, which Soularr hands to Lidarr |
 | Vaultwarden | `passwords` | Passwords |
 | Calibre-Web | `books` | E-books, synced to a Kobo |
 | Radicale | `contacts` | Contacts and calendars |
@@ -224,7 +225,8 @@ update of its Yivi schemes and its mail, through Proton's SMTP. The
 Forgejo runner polls Codeberg for jobs, which fetch what they build from
 the internet (and nothing on the LAN or the tailnet). Besides
 those, the apps fetch what they're for, from the home address: qBittorrent's
-torrents (no VPN), Prowlarr's indexers (through FlareSolverr where
-Cloudflare guards one), metadata and subtitles for the *arr apps, Bazarr
-and Jellyfin, Recyclarr's quality profiles from GitHub, Vaultwarden's site
-icons, and Immich's machine-learning models on first use.
+torrents and slskd's Soulseek downloads (no VPN), Prowlarr's indexers
+(through FlareSolverr where Cloudflare guards one), metadata and subtitles
+for the *arr apps, Bazarr and Jellyfin, Recyclarr's quality profiles from
+GitHub, Vaultwarden's site icons, and Immich's machine-learning models on
+first use.
