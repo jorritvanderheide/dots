@@ -71,6 +71,7 @@
 
             my.servarr = {
               recyclarr.enable = true;
+              soulseek.enable = true;
               webuiUser = "jorrit";
             };
 
