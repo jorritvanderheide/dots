@@ -21,8 +21,48 @@
                 repeat = false;
               };
 
-              "Mod+Alt+Down" = {
+              "Mod+Alt+Ctrl+Down" = {
                 action = move-window-to-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+H" = {
+                action = move-window-to-monitor-left;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+J" = {
+                action = move-window-to-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+K" = {
+                action = move-window-to-monitor-up;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+L" = {
+                action = move-window-to-monitor-right;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Left" = {
+                action = move-window-to-monitor-left;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Right" = {
+                action = move-window-to-monitor-right;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Up" = {
+                action = move-window-to-monitor-up;
+                repeat = false;
+              };
+
+              "Mod+Alt+Down" = {
+                action = move-window-to-workspace-down;
                 repeat = false;
               };
 
@@ -32,37 +72,37 @@
               };
 
               "Mod+Alt+H" = {
-                action = move-column-left-or-to-monitor-left;
+                action = move-column-left;
                 repeat = false;
               };
 
               "Mod+Alt+J" = {
-                action = move-window-to-monitor-down;
+                action = move-window-to-workspace-down;
                 repeat = false;
               };
 
               "Mod+Alt+K" = {
-                action = move-window-to-monitor-up;
+                action = move-window-to-workspace-up;
                 repeat = false;
               };
 
               "Mod+Alt+L" = {
-                action = move-column-right-or-to-monitor-right;
+                action = move-column-right;
                 repeat = false;
               };
 
               "Mod+Alt+Left" = {
-                action = move-column-left-or-to-monitor-left;
+                action = move-column-left;
                 repeat = false;
               };
 
               "Mod+Alt+Right" = {
-                action = move-column-right-or-to-monitor-right;
+                action = move-column-right;
                 repeat = false;
               };
 
               "Mod+Alt+Up" = {
-                action = move-window-to-monitor-up;
+                action = move-window-to-workspace-up;
                 repeat = false;
               };
 
