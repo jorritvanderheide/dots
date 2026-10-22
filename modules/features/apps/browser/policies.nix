@@ -98,12 +98,6 @@
                 installation_mode = "force_installed";
               };
 
-              "{809ea8a3-a45d-41a2-9cb0-e7c7d7321db5}" = {
-                default_area = "navbar";
-                install_url = "https://addons.mozilla.org/firefox/downloads/latest/library_access/latest.xpi";
-                installation_mode = "force_installed";
-              };
-
               "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
                 default_area = "menupanel";
                 install_url = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
