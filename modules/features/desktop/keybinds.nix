@@ -169,6 +169,11 @@
                 repeat = false;
               };
 
+              "Mod+Tab" = {
+                action = spawn "false";
+                repeat = false;
+              };
+
               "Mod+Up" = {
                 action = focus-window-or-monitor-up;
                 repeat = false;
