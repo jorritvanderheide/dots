@@ -111,8 +111,48 @@
                 repeat = false;
               };
 
+              "Mod+Ctrl+Down" = {
+                action = focus-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+H" = {
+                action = focus-monitor-left;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+J" = {
+                action = focus-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+K" = {
+                action = focus-monitor-up;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+L" = {
+                action = focus-monitor-right;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+Left" = {
+                action = focus-monitor-left;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+Right" = {
+                action = focus-monitor-right;
+                repeat = false;
+              };
+
+              "Mod+Ctrl+Up" = {
+                action = focus-monitor-up;
+                repeat = false;
+              };
+
               "Mod+Down" = {
-                action = focus-window-or-monitor-down;
+                action = focus-window-or-workspace-down;
                 repeat = false;
               };
 
@@ -132,12 +172,12 @@
               };
 
               "Mod+J" = {
-                action = focus-window-or-monitor-down;
+                action = focus-window-or-workspace-down;
                 repeat = false;
               };
 
               "Mod+K" = {
-                action = focus-window-or-monitor-up;
+                action = focus-window-or-workspace-up;
                 repeat = false;
               };
 
@@ -215,7 +255,7 @@
               };
 
               "Mod+Up" = {
-                action = focus-window-or-monitor-up;
+                action = focus-window-or-workspace-up;
                 repeat = false;
               };
 
