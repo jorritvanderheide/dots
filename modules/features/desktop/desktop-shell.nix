@@ -82,7 +82,7 @@
             }
           )
           (
-            { config, ... }:
+            { config, pkgs, ... }:
             {
               programs = {
                 niri.settings.spawn-at-startup = [
@@ -183,10 +183,26 @@
                         timeout = 600;
                       };
 
+                      # Suspend, but not while a Claude Code turn is in
+                      # progress (busy markers written by the hooks in
+                      # coding-agent.nix). Runs as a transient user unit so
+                      # resume_command can cancel the wait when you return;
+                      # the pre-sleep lock above still applies.
                       lock-and-suspend = {
-                        action = "lock_and_suspend";
+                        action = "command";
                         enabled = true;
+                        resume_command = "${pkgs.systemd}/bin/systemctl --user stop idle-suspend";
                         timeout = 900;
+
+                        command = "${pkgs.systemd}/bin/systemd-run --user --collect --unit=idle-suspend ${pkgs.writeShellScript "idle-suspend" ''
+                          dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                          # Markers untouched for an hour are leftovers from an
+                          # interrupted or crashed session, not real work.
+                          while [ -n "$(${pkgs.findutils}/bin/find "$dir" -type f -mmin -60 2>/dev/null)" ]; do
+                            sleep 60
+                          done
+                          ${pkgs.systemd}/bin/systemctl suspend
+                        ''}";
                       };
 
                       screen-off = {

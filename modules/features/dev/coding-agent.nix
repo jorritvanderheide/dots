@@ -124,6 +124,47 @@
             '';
           };
         }
+
+        # Keep a marker in $XDG_RUNTIME_DIR/claude-busy for every session
+        # that's mid-turn, so the idle suspend in desktop-shell.nix holds off
+        # while Claude is working. PostToolUse refreshes the marker's mtime
+        # during long turns.
+        (
+          { lib, pkgs, ... }:
+          let
+            busy =
+              action:
+              let
+                script = pkgs.writeShellScript "claude-busy" ''
+                  dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                  id=$(${lib.getExe pkgs.jq} -r .session_id)
+                  mkdir -p "$dir"
+                  case "$1" in
+                    mark) touch "$dir/$id" ;;
+                    clear) rm -f "$dir/$id" ;;
+                  esac
+                '';
+              in
+              [
+                {
+                  hooks = [
+                    {
+                      command = "${script} ${action}";
+                      type = "command";
+                    }
+                  ];
+                }
+              ];
+          in
+          {
+            programs.claude-code.settings.hooks = {
+              PostToolUse = busy "mark";
+              SessionEnd = busy "clear";
+              Stop = busy "clear";
+              UserPromptSubmit = busy "mark";
+            };
+          }
+        )
       ];
 
       my.preservation = {
