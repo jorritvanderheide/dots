@@ -18,6 +18,13 @@
       url = "github:nix-community/home-manager";
     };
 
+    # Local until it has a remote: no other machine can fetch this, so
+    # dapple and CI can't evaluate kobo-deploy until it moves to github:.
+    kobo-app = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+file:///home/jorrit/Git/kobo-app";
+    };
+
     lanzaboote = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/lanzaboote/v1.2.0";

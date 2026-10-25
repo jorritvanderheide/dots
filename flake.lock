@@ -104,6 +104,25 @@
         "type": "github"
       }
     },
+    "kobo-app": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792931556,
+        "narHash": "sha256-JjM0mvHn+evCxFUz2C0+SOzVvb1TlPYKeNsEwF34mmY=",
+        "rev": "d55ac2358edfd106e7398f7caa0e5a2c35b830a8",
+        "revCount": 1,
+        "type": "git",
+        "url": "file:///home/jorrit/Git/kobo-app"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/jorrit/Git/kobo-app"
+      }
+    },
     "lanzaboote": {
       "inputs": {
         "crane": "crane",
@@ -392,6 +411,7 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "kobo-app": "kobo-app",
         "lanzaboote": "lanzaboote",
         "meetinn": "meetinn",
         "new-leaf": "new-leaf",

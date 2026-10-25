@@ -15,6 +15,7 @@ modules/
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   users/<user>/<part>.nix         more of the same module: mail, calendars, SSH hosts
   flake/                          checks, formatter, dev shell, apps, lib, site, installer ISO
+  kobo/                           the Kobo's app and its deploy, cross-built: not a host, as Kobo's init stays PID 1
 scripts/                          install, enroll-tpm, offsite-prune, and scripts used by modules
 secrets/                          <host>.yaml, encrypted with sops for the recipients in .sops.yaml
 docs/                             this, install, secrets and security

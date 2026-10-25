@@ -14,6 +14,8 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
         ".ssh/git@gitlab.science.ru.nl.pub".text =
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
+        ".ssh/kobo.pub".text =
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPVHAMFVZ/24DCKYsaKwP0svlTFHp4UFJd7YaqnFl4fh kobo";
       };
 
       programs.ssh.settings = {
@@ -49,6 +51,17 @@
           identityFile = "~/Git/ops/ssh/id_ilab";
           proxyJump = "lilo";
           user = "ilab";
+        };
+
+        # Kobo Clara BW, its built-in OpenSSH (.kobo/ssh-enabled). A key of
+        # its own: every Kobo ships the same host keys, so this one should
+        # open nothing else. Only it is offered, as the agent's keys hit
+        # MaxAuthTries before the password fallback.
+        "kobo" = {
+          hostname = "192.168.1.40";
+          identitiesOnly = true;
+          identityFile = "~/.ssh/kobo.pub";
+          user = "root";
         };
 
         "lilo" = {
