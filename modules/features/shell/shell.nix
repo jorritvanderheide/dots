@@ -88,8 +88,6 @@
                 "nlist" = "sudo nixos-rebuild list-generations";
                 "nrollback" = "nh os rollback";
                 "nsearch" = "nh search";
-                "nswitch" =
-                  "check-yubikey; and check-clean; and nh os switch /etc/nixos --hostname (hostname) --no-nom";
                 "ntest" = "check-yubikey; and nh os test /etc/nixos --hostname (hostname) --no-nom";
                 "nupdate" = "pushd /etc/nixos && nix flake update && popd";
 
@@ -99,6 +97,11 @@
                 # Nix
                 "nboot" =
                   "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
+
+                # comin restarts itself only after its own deploys, so after
+                # this one it would keep its old config, signers included.
+                "nswitch" =
+                  "check-yubikey; and check-clean; and nh os switch /etc/nixos --hostname (hostname) --no-nom; and sudo systemctl try-restart comin";
               };
             };
 

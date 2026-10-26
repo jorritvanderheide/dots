@@ -124,7 +124,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | Command | What it does |
 | --- | --- |
 | `jj git push` | Deploy: signs what it pushes (YubiKey in, a touch), and every host switches to the tip of `main` (comin); `sudo comin status` shows how far it got |
-| `nswitch` | Build and switch to this host's configuration (YubiKey in, no uncommitted changes) |
+| `nswitch` | Build and switch to this host's configuration, then restart comin onto it (YubiKey in, no uncommitted changes) |
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
 | `nbuild` | Build only |
