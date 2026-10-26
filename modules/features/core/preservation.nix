@@ -66,9 +66,7 @@
             # symlink. Without one, dbus-broker refuses to start, and every
             # D-Bus service fails with it. Seeded from the hostname once
             # /persist is mounted ("f" leaves an existing ID alone), before
-            # the real root's systemd reads it. The installer writes a
-            # random one first (install.sh), so this only covers an install
-            # without it.
+            # the real root's systemd reads it.
             tmpfiles.settings.machine-id."/sysroot/persist/system/etc/machine-id".f = {
               argument = builtins.substring 0 32 (builtins.hashString "sha256" config.networking.hostName);
               mode = "0444";

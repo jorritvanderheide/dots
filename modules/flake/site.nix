@@ -24,24 +24,17 @@ _: {
 
       # Every host, by name: what the others need to reach it. Headscale
       # hands out tailnet addresses in order, and dapple joined first
-      # (docs/install.md). And its install's /etc/machine-id: comin only
-      # deploys a commit to the install it names (comin.nix), so a
-      # reinstall, on new hardware or not, takes nothing from main until
-      # its new ID is in. The installer prints it.
+      # (docs/install.md).
       hosts = {
+        rocinante.tailnetIp = "100.64.0.2";
+
         dapple = {
           lanIp = "192.168.1.162";
-          machineId = "e29bc464514dba3b4f62af821e6a3d28";
           tailnetIp = "100.64.0.1";
 
           # Its SSH host key, which the ssh feature pins. The private half
           # is ssh_host_key in secrets/dapple.yaml (ssh-server.nix).
           hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBUeoBcfcYFUgUVYghcX5iksqBYrwIB/fgB/6QTucQ0L";
-        };
-
-        rocinante = {
-          machineId = "9da3586ff1e6d60341e709b85bbf7557";
-          tailnetIp = "100.64.0.2";
         };
       };
 
