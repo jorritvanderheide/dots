@@ -19,18 +19,42 @@
     let
       url = "${inputs.self.lib.site.statusPage}/api/v1/endpoints/deploys_${config.networking.hostName}/external";
 
+      # On a desktop, also a notification in the person's session, through
+      # their systemd user manager: comin's own desktop client would need
+      # its control socket, which is root's alone (below). Skipped when
+      # nobody is logged in.
+      notify = lib.optionalString config.services.graphical-desktop.enable ''
+        commit="''${COMIN_GIT_SHA:0:12}: ''${COMIN_GIT_MSG%%$'\n'*}"
+        if [[ -n "$COMIN_ERROR_MSG" || "$COMIN_STATUS" == failed ]]; then
+          urgency=critical title="Deploy: $COMIN_PHASE failed" body="$commit"$'\n'"''${COMIN_ERROR_MSG:0:300}"
+        elif [[ "$COMIN_PHASE" == deploy ]]; then
+          urgency=normal title="Deployed" body="$commit"
+        elif [[ "$COMIN_STATUS" == built ]]; then
+          urgency=low title="Built, switching" body="$commit"
+        fi
+        if [[ -v title ]]; then
+          systemd-run --machine=${inputs.self.lib.site.user}@.host --user --quiet --collect \
+            ${lib.getExe' pkgs.libnotify "notify-send"} --app-name=comin --urgency="$urgency" "$title" "$body" || true
+        fi
+      '';
+
       # Run after each build and each deployment: a failure of either, or a
       # deployment that worked, goes to the status page (gatus.nix) as
       # deploys/<host>. A build that worked is told by the deployment after
-      # it. An evaluation that fails runs neither; `sudo comin status` shows
-      # it.
+      # it, except in the notification. An evaluation that fails runs
+      # neither; `sudo comin status` shows it.
       report = pkgs.writeShellApplication {
         name = "comin-report";
-        runtimeInputs = [ pkgs.curl ];
+
+        runtimeInputs = [
+          pkgs.curl
+          pkgs.systemd
+        ];
 
         # The header on stdin, not in curl's arguments, which any local
         # user can read.
         text = ''
+          ${notify}
           if [[ -n "$COMIN_ERROR_MSG" || "$COMIN_STATUS" == failed ]]; then
             query=(--data-urlencode success=false --data-urlencode "error=$COMIN_PHASE of ''${COMIN_GIT_SHA:0:12} failed: ''${COMIN_ERROR_MSG:0:300}")
           elif [[ "$COMIN_PHASE" == deploy ]]; then
