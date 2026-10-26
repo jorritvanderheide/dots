@@ -29,8 +29,6 @@
           urgency=critical title="Deploy: $COMIN_PHASE failed" body="$commit"$'\n'"''${COMIN_ERROR_MSG:0:300}"
         elif [[ "$COMIN_PHASE" == deploy ]]; then
           urgency=normal title="Deployed" body="$commit"
-        elif [[ "$COMIN_STATUS" == built ]]; then
-          urgency=low title="Built, switching" body="$commit"
         fi
         if [[ -v title ]]; then
           systemd-run --machine=${inputs.self.lib.site.user}@.host --user --quiet --collect \
@@ -40,9 +38,9 @@
 
       # Run after each build and each deployment: a failure of either, or a
       # deployment that worked, goes to the status page (gatus.nix) as
-      # deploys/<host>. A build that worked is told by the deployment after
-      # it, except in the notification. An evaluation that fails runs
-      # neither; `sudo comin status` shows it.
+      # deploys/<host>, and in the notification. A build that worked is told
+      # by the deployment after it. An evaluation that fails runs neither;
+      # `sudo comin status` shows it.
       report = pkgs.writeShellApplication {
         name = "comin-report";
 
