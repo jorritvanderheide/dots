@@ -80,6 +80,15 @@ only those keys in it. The login key isn't one of them. Nix isn't a way
 around it either: dapple's Nix trusts only root, and what `ndeploy` copies
 over has to be signed by rocinante's deploy key (`rocinante-1`).
 
+**Someone with the Codeberg login** can't deploy: comin (`comin.nix`)
+only switches to a commit signed by a key in `lib.commitSigners`, a FIDO2
+key on each YubiKey, so an unsigned or foreign commit on `main` is
+skipped. Nor can code running as `jorrit` on rocinante while no YubiKey
+is in: it can push, but not sign. They can hold updates back, but not
+roll a host back: comin refuses
+a `main` that isn't on top of the one it saw last, and remembers which
+across reboots.
+
 **A machine posing as dapple**, say one at 192.168.1.162 on another
 network, gets refused: rocinante pins dapple's host key and checks it
 strictly, so neither the forwarded agent nor the sudo password goes there.
@@ -158,6 +167,17 @@ start, since that would otherwise win.
   deploy takes one touch instead of one for each of nh's sudo calls. In that
   window, anything running as `nixos` can use sudo too, but only what you
   start over SSH runs as `nixos`: every service has a user of its own.
+- **A signed push is a deploy, as root, on every host, and a YubiKey
+  being in is all signing takes.** The commit signing keys are made with
+  `no-touch-required`, so while one is plugged into rocinante, code
+  running as `jorrit` can sign and push, and with that deploy to dapple
+  without the touch that sudo there needs. Unplug it when you're done.
+  Someone with the Codeberg login alone can point `main` at
+  any other signed commit of yours on top of what's deployed, such as one
+  you pushed to another branch.
+- **comin fetches from Codeberg as root**, every minute, and parses what
+  it gets before checking any signature. Only Codeberg, or someone with a
+  certificate for it, can feed it data.
 - **Headscale listens on 127.0.0.1:8085**, a port any local process could
   take while Headscale restarts, and then act as control server. Moving it
   below 1024 would need dapple's own node to re-authenticate, the node every

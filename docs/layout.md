@@ -146,6 +146,8 @@ What several features need is in `inputs.self.lib`, from two files in
 - **`authorizedKeys`**, **`sudoKeys`** and **`deployKeys`**: who may SSH in,
   which YubiKeys may run sudo on dapple, and whose signed store paths a
   host deployed to accepts.
+- **`commitSigners`**: whose signed commits on Codeberg's `main` comin
+  deploys.
 
 ## Ordering
 

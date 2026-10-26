@@ -8,6 +8,18 @@
     preservation.url = "github:nix-community/preservation";
     systems.url = "github:nix-systems/default";
 
+    # A commit, so nupdate doesn't move it: comin runs as root and picks
+    # what gets deployed, so a newer one is a choice. Past v0.14.0, for
+    # postBuildCommand (comin.nix).
+    comin = {
+      url = "github:nlewo/comin/1399adecc682e557bc3ee914d929f8e20391a148";
+
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        treefmt-nix.follows = "treefmt-nix";
+      };
+    };
+
     disko = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/disko";

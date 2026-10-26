@@ -6,8 +6,8 @@
 {
   # The status page, and what alerts the phone through ntfy (ntfy.nix):
   # the services' checks, which each declares through my.ingress.proxies
-  # or my.gatus.endpoints, and what every host pushes about its disks and
-  # backups.
+  # or my.gatus.endpoints, and what every host pushes about its disks,
+  # backups and deploys.
   flake.nixosModules.gatus =
     {
       config,
@@ -154,6 +154,14 @@
                   }
                   // heartbeat { heartbeat.interval = "2h"; }
                 )
+                # What comin built and deployed last (comin.nix). No
+                # heartbeat: a push comes only when something changed.
+                {
+                  inherit token;
+                  alerts = pushAlerts;
+                  group = "deploys";
+                  name = host;
+                }
               ]
             ) hosts;
 

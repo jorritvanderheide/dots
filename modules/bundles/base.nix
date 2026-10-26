@@ -21,6 +21,7 @@
       zfs
 
       # System
+      comin
       disk-health
       locale
       networking

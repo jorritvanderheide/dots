@@ -7,6 +7,14 @@ _: {
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFzx+hZiOpD1jBicAGvWOnUWz8MvL3MANPlidpQixGX8 jorrit@rocinante"
     ];
 
+    # Whose signed commits on Codeberg's main the hosts deploy (comin.nix),
+    # as lines of an allowed signers file: a FIDO2 key on each YubiKey,
+    # which jj signs this flake's commits with on push (git.nix).
+    commitSigners = [
+      "jorrit+git@bw20.nl sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIHULULWxUcX3Lg1BsXJjB+istuEq1Y6xuWktI3QZXkdqAAAAEnNzaDpjb21taXQtc2lnbmluZw== commit signing, YubiKey 29635974"
+      "jorrit+git@bw20.nl sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAICm1/QH7eIsiAtMpeWNdvRcMUHpIJ/862FexkZ8Ks4Y0AAAAEnNzaDpjb21taXQtc2lnbmluZw== commit signing, YubiKey 38555351"
+    ];
+
     # Nix signing keys whose store paths a host you deploy to accepts
     # (ssh-server.nix): rocinante's, whose secret half is in its
     # secret-key-files.

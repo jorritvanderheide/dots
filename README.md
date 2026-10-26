@@ -83,8 +83,16 @@ boot, sops secrets, home-manager, and fish.
   the internet. A Headscale policy limits what each tailnet device reaches.
   [Section 7](#7-network-exposure) lists exactly what is reachable from
   where, and [Security](docs/security.md) who is kept out of what.
-- **Deploys** to dapple are signed by rocinante, and dapple's Nix trusts no
-  user but root, so the sudo password can't be skipped through Nix.
+- **Deploys** come from Codeberg:
+  [comin](https://github.com/nlewo/comin) on each host switches it to the
+  newest commit on `main` signed by a YubiKey's commit signing key, within
+  a minute or two of a push. In this repository jj signs commits as they
+  are pushed, with whichever YubiKey is plugged in and no touch, so a
+  deploy takes a key. A `testing-<host>` branch on top of
+  `main` is switched to with `test` instead, which a reboot undoes. Failed
+  builds and deploys show on the status page under deploys. `ndeploy`
+  still works by hand: signed by rocinante, and dapple's Nix trusts no user
+  but root, so the sudo password can't be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
 
@@ -111,6 +119,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 
 | Command | What it does |
 | --- | --- |
+| `jj git push` | Deploy: signs what it pushes (YubiKey in, no touch), and every host switches to the tip of `main` (comin); `sudo comin status` shows how far it got |
 | `nswitch` | Build and switch to this host's configuration (YubiKey in, no uncommitted changes) |
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
