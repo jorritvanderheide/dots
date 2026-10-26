@@ -65,6 +65,30 @@
           curl -X POST -G -fsS -o /dev/null --retry 3 --retry-all-errors --retry-delay 10 --config - ${lib.escapeShellArg url} "''${query[@]}" <<<"header = \"Authorization: Bearer $TOKEN\""
         '';
       };
+
+      # comin keeps what it switches to in a profile of its own,
+      # system-profiles/comin, but Lanzaboote makes boot entries from the
+      # system profile alone, so a reboot went back to the last
+      # nixos-rebuild. A deployment from main goes in the system profile
+      # too, and so in the boot menu. Not testing-<host>'s, which a reboot
+      # is meant to undo. If that fails, the report says so.
+      deployed = pkgs.writeShellApplication {
+        name = "comin-deployed";
+        runtimeInputs = [ config.nix.package ];
+
+        text = ''
+          if [[ "$COMIN_STATUS" == "done" && "$COMIN_GIT_REF" == */main ]]; then
+            new="$(readlink -f /nix/var/nix/profiles/system-profiles/comin)"
+            if [[ "$new" != "$(readlink -f /nix/var/nix/profiles/system)" ]]; then
+              if ! out="$(nix-env --profile /nix/var/nix/profiles/system --set "$new" 2>&1 &&
+                "$new/bin/switch-to-configuration" boot 2>&1)"; then
+                export COMIN_ERROR_MSG="no boot entry: ''${out: -300}"
+              fi
+            fi
+          fi
+          exec ${lib.getExe report}
+        '';
+      };
     in
     {
       imports = [ inputs.comin.nixosModules.comin ];
@@ -87,7 +111,7 @@
         services.comin = {
           enable = true;
           postBuildCommand = lib.getExe report;
-          postDeploymentCommand = lib.getExe report;
+          postDeploymentCommand = lib.getExe deployed;
           sshAllowedSignersPath = "${pkgs.writeText "comin-allowed-signers" (
             lib.concatLines inputs.self.lib.commitSigners
           )}";

@@ -29,19 +29,19 @@ _: {
               ];
 
               userSettings = {
-                # The adapter from nixpkgs rather than Zed's ACP registry: the
-                # registry has Zed npm-install it into ~/.local/share/zed, and
-                # two installs racing each other there left packages empty.
-                agent_servers.claude-acp = {
-                  type = "custom";
-                  command = lib.getExe pkgs.claude-agent-acp;
-                  args = [ ];
-                };
-
                 auto_update = false;
                 base_keymap = "VSCode";
                 load_direnv = "shell_hook";
                 vim_mode = false;
+
+                # The adapter from nixpkgs rather than Zed's ACP registry: the
+                # registry has Zed npm-install it into ~/.local/share/zed, and
+                # two installs racing each other there left packages empty.
+                agent_servers.claude-acp = {
+                  args = [ ];
+                  command = lib.getExe pkgs.claude-agent-acp;
+                  type = "custom";
+                };
 
                 languages.Nix = {
                   format_on_save = "on";
