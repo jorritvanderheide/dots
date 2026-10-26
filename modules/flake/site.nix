@@ -8,11 +8,11 @@ _: {
     ];
 
     # Whose signed commits on Codeberg's main the hosts deploy (comin.nix),
-    # as lines of an allowed signers file: a FIDO2 key on each YubiKey,
-    # which jj signs this flake's commits with on push (git.nix).
+    # as lines of an allowed signers file: the PIV key in slot 9a of a
+    # YubiKey, which jj signs this flake's commits with on push (git.nix).
+    # Only the backup YubiKey's so far.
     commitSigners = [
-      "jorrit+git@bw20.nl sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIHULULWxUcX3Lg1BsXJjB+istuEq1Y6xuWktI3QZXkdqAAAAEnNzaDpjb21taXQtc2lnbmluZw== commit signing, YubiKey 29635974"
-      "jorrit+git@bw20.nl sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAICm1/QH7eIsiAtMpeWNdvRcMUHpIJ/862FexkZ8Ks4Y0AAAAEnNzaDpjb21taXQtc2lnbmluZw== commit signing, YubiKey 38555351"
+      "jorrit+git@bw20.nl ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBO3EPGJ3J+Eo1p6/oYMMeLVeXc6G5WW3nuWCMQugJrdTkKW4F9uVcS1gXcOvBOWHTe2BzBs/FdEO98BzIq9QlM= commit signing, YubiKey 38555351"
     ];
 
     # Nix signing keys whose store paths a host you deploy to accepts

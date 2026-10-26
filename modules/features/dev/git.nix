@@ -11,18 +11,19 @@
           let
             cfg = config.my.git;
 
-            # ssh-keygen, but signing with the FIDO2 key on whichever
-            # YubiKey is plugged in, ~/.ssh/commit-signing-<serial>,
-            # whatever key it's given: one key per YubiKey, as for sudo on
-            # dapple (yubikey.nix). Made with no-touch-required: the key
-            # being in is enough. Anything else, such as verifying, goes
+            # Where yubikey-agent listens (below).
+            agentSocket = "yubikey-agent/socket";
+
+            # ssh-keygen, but signing through yubikey-agent with the PIV
+            # key in slot 9a of whichever YubiKey is plugged in, whatever
+            # key it's given. Anything else, such as verifying, goes
             # through as it is.
             yubikeySigner = pkgs.writeShellApplication {
               name = "ssh-keygen-yubikey";
 
               runtimeInputs = [
+                pkgs.coreutils
                 pkgs.openssh
-                pkgs.yubikey-manager
               ];
 
               text = ''
@@ -37,20 +38,21 @@
                   exec ssh-keygen "$@"
                 fi
 
-                for serial in $(ykman list --serials); do
-                  key="$HOME/.ssh/commit-signing-$serial"
-                  if [[ -e "$key" ]]; then
-                    for ((i = 0; i + 1 < ''${#args[@]}; i++)); do
-                      if [[ "''${args[i]}" == -f ]]; then
-                        args[i + 1]="$key"
-                      fi
-                    done
-                    exec ssh-keygen "''${args[@]}"
+                # The agent has one key, the plugged-in YubiKey's, or none.
+                export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/${agentSocket}"
+                key=$(mktemp)
+                trap 'rm -f "$key"' EXIT
+                if ! ssh-add -L > "$key" 2>/dev/null; then
+                  echo "Plug in a YubiKey with a commit signing key in PIV slot 9a to sign." >&2
+                  exit 1
+                fi
+
+                for ((i = 0; i + 1 < ''${#args[@]}; i++)); do
+                  if [[ "''${args[i]}" == -f ]]; then
+                    args[i + 1]="$key"
                   fi
                 done
-
-                echo "Plug in a YubiKey with a commit signing key (~/.ssh/commit-signing-<serial>) to sign." >&2
-                exit 1
+                ssh-keygen "''${args[@]}"
               '';
             };
           in
@@ -139,9 +141,9 @@
 
                     # In this flake, a signed commit on main is a deploy
                     # (comin.nix), so it's signed with a YubiKey, and only
-                    # as it's pushed: a push takes the key in, with no
-                    # touch. Nothing is signed before then, so rewriting
-                    # needs no key.
+                    # as it's pushed: a push takes the key in and a touch,
+                    # which covers the next 15 seconds of signing. Nothing
+                    # is signed before then, so rewriting needs no key.
                     "--scope" = [
                       {
                         "--when".repositories = [ "/etc/nixos" ];
@@ -190,6 +192,23 @@
                       name = cfg.userName;
                     };
                   };
+                };
+              };
+
+              # An agent for this flake's commit signing key only: the PIV
+              # key in slot 9a, made with a touch remembered for 15
+              # seconds and no PIN (docs/secrets.md). Not ssh-agent, whose
+              # PKCS#11 support wants the PIN to load a PIV key. It keeps
+              # the YubiKey's PIV applet to itself until it gets a SIGHUP,
+              # which age-plugin-yubikey sends it; for ykman piv, send one
+              # first. It reconnects by itself on the next signature.
+              systemd.user.services.yubikey-agent = {
+                Install.WantedBy = [ "default.target" ];
+                Unit.Description = "SSH agent with the YubiKey's PIV commit signing key";
+
+                Service = {
+                  ExecStart = "${pkgs.yubikey-agent}/bin/yubikey-agent -l %t/${agentSocket}";
+                  RuntimeDirectory = "yubikey-agent";
                 };
               };
             };

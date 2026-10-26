@@ -106,16 +106,20 @@ ssh-keygen -t ed25519-sk -O application=ssh:dapple-sudo -N "" \
   -f ~/.ssh/dapple-sudo-<serial>
 ```
 
-And its FIDO2 key for signing this repository's commits, which jj signs
-with on push (git.nix). Its `.pub`, as `jorrit+git@bw20.nl <key>`, goes in
-`lib.commitSigners`, the keys whose commits the hosts deploy (comin.nix).
-The hosts check against the list they run, so the commit that adds it has
-to be signed by a key already on it. It signs without a touch
-(`no-touch-required`), which comin and `ssh-keygen -Y verify` both accept:
+And its PIV key for signing this repository's commits, in slot 9a, which
+jj signs with on push through yubikey-agent (git.nix). No PIN, and a
+touch that covers 15 seconds. The certificate is only there because PIV
+tools list a key by it; a comma in its subject breaks the command. Its
+SSH form, from `ssh-keygen -i -m PKCS8 -f <pem>`, goes in
+`lib.commitSigners` as `jorrit+git@bw20.nl <key>`, the keys whose commits
+the hosts deploy (comin.nix). The hosts check against the list they run,
+so the commit that adds it has to be signed by a key already on it:
 
 ```sh
-ssh-keygen -t ed25519-sk -O application=ssh:commit-signing -O no-touch-required \
-  -N "" -f ~/.ssh/commit-signing-<serial>
+ykman piv keys generate --algorithm ECCP256 --pin-policy NEVER --touch-policy CACHED \
+  9a ~/.ssh/commit-signing-piv-<serial>.pem
+ykman piv certificates generate --valid-days 36500 \
+  --subject "CN=commit signing YubiKey <serial>" 9a ~/.ssh/commit-signing-piv-<serial>.pem
 ```
 
 Then:
@@ -214,8 +218,8 @@ or `ndeploy dapple`).
 
 ## Revoking a lost or compromised key
 
-1. Remove its recipient from `secrets/.sops.yaml`, and a YubiKey's FIDO2
-   keys from `lib.sudoKeys` and `lib.commitSigners`. Sign that commit with
+1. Remove its recipient from `secrets/.sops.yaml`, and a YubiKey's keys
+   from `lib.sudoKeys` and `lib.commitSigners`. Sign that commit with
    the other YubiKey: until the hosts run it, they still deploy whatever
    the lost one signs.
 2. `sops updatekeys secrets/<host>.yaml` for every file it was a recipient of.

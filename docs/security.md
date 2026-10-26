@@ -81,10 +81,11 @@ around it either: dapple's Nix trusts only root, and what `ndeploy` copies
 over has to be signed by rocinante's deploy key (`rocinante-1`).
 
 **Someone with the Codeberg login** can't deploy: comin (`comin.nix`)
-only switches to a commit signed by a key in `lib.commitSigners`, a FIDO2
-key on each YubiKey, so an unsigned or foreign commit on `main` is
-skipped. Nor can code running as `jorrit` on rocinante while no YubiKey
-is in: it can push, but not sign. They can hold updates back, but not
+only switches to a commit signed by a key in `lib.commitSigners`, a PIV
+key on a YubiKey, which can't be copied off it, so an unsigned or foreign
+commit on `main` is skipped. Nor can code running as `jorrit` on
+rocinante, short of a YubiKey being in and touched: it can push, but not
+sign. They can hold updates back, but not
 roll a host back: comin refuses
 a `main` that isn't on top of the one it saw last, and remembers which
 across reboots.
@@ -167,12 +168,11 @@ start, since that would otherwise win.
   deploy takes one touch instead of one for each of nh's sudo calls. In that
   window, anything running as `nixos` can use sudo too, but only what you
   start over SSH runs as `nixos`: every service has a user of its own.
-- **A signed push is a deploy, as root, on every host, and a YubiKey
-  being in is all signing takes.** The commit signing keys are made with
-  `no-touch-required`, so while one is plugged into rocinante, code
-  running as `jorrit` can sign and push, and with that deploy to dapple
-  without the touch that sudo there needs. Unplug it when you're done.
-  Someone with the Codeberg login alone can point `main` at
+- **A signed push is a deploy, as root, on every host, and a touch
+  covers 15 seconds of signing.** The YubiKey remembers a touch of its
+  PIV commit signing key for that long, so code running as `jorrit` that
+  signs right after one of your pushes deploys with it. Someone with the
+  Codeberg login alone can point `main` at
   any other signed commit of yours on top of what's deployed, such as one
   you pushed to another branch.
 - **comin fetches from Codeberg as root**, every minute, and parses what

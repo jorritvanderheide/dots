@@ -87,8 +87,9 @@ boot, sops secrets, home-manager, and fish.
   [comin](https://github.com/nlewo/comin) on each host switches it to the
   newest commit on `main` signed by a YubiKey's commit signing key, within
   a minute or two of a push. In this repository jj signs commits as they
-  are pushed, with whichever YubiKey is plugged in and no touch, so a
-  deploy takes a key. A `testing-<host>` branch on top of
+  are pushed, with the PIV key on whichever YubiKey is plugged in: a touch
+  covers 15 seconds of signing, so a deploy takes a key and a touch. A
+  `testing-<host>` branch on top of
   `main` is switched to with `test` instead, which a reboot undoes. Failed
   builds and deploys show on the status page under deploys. `ndeploy`
   still works by hand: signed by rocinante, and dapple's Nix trusts no user
@@ -119,7 +120,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 
 | Command | What it does |
 | --- | --- |
-| `jj git push` | Deploy: signs what it pushes (YubiKey in, no touch), and every host switches to the tip of `main` (comin); `sudo comin status` shows how far it got |
+| `jj git push` | Deploy: signs what it pushes (YubiKey in, a touch), and every host switches to the tip of `main` (comin); `sudo comin status` shows how far it got |
 | `nswitch` | Build and switch to this host's configuration (YubiKey in, no uncommitted changes) |
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
