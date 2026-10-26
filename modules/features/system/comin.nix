@@ -8,7 +8,7 @@
   # key in lib.commitSigners, and switches to it. A testing-<host> branch
   # on top of main goes first, with `test`, which a reboot undoes. The
   # signature is what takes a YubiKey: commits are signed as they are
-  # pushed, with a FIDO2 key on one (git.nix).
+  # pushed, with the PIV key on one (git.nix).
   flake.nixosModules.comin =
     {
       config,
@@ -22,7 +22,8 @@
       # Run after each build and each deployment: a failure of either, or a
       # deployment that worked, goes to the status page (gatus.nix) as
       # deploys/<host>. A build that worked is told by the deployment after
-      # it. An evaluation that fails runs neither; `comin status` shows it.
+      # it. An evaluation that fails runs neither; `sudo comin status` shows
+      # it.
       report = pkgs.writeShellApplication {
         name = "comin-report";
         runtimeInputs = [ pkgs.curl ];
@@ -52,9 +53,8 @@
         # Its clone, and the main it saw last, which a newer main has to be
         # on top of. After a force push to main it deploys nothing until
         # this is emptied, which also forgets that. Root's alone: comin
-        # makes its control socket
-        # writable by everyone, and through it any local user, a CI job
-        # too, could suspend it for good.
+        # makes its control socket writable by everyone, and through it any
+        # local user, a CI job too, could suspend it for good.
         my.preservation.systemDirectories = [
           {
             directory = "/var/lib/comin";

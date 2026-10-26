@@ -105,9 +105,12 @@ tools list a key by it; a comma in its subject breaks the command. Its
 SSH form, from `ssh-keygen -i -m PKCS8 -f <pem>`, goes in
 `lib.commitSigners` as `jorrit+git@bw20.nl <key>`, the keys whose commits
 the hosts deploy (comin.nix). The hosts check against the list they run,
-so the commit that adds it has to be signed by a key already on it:
+so the commit that adds it has to be signed by a key already on it.
+yubikey-agent keeps the PIV applet to itself between signatures, so let
+it go first:
 
 ```sh
+pkill -HUP yubikey-agent
 ykman piv keys generate --algorithm ECCP256 --pin-policy NEVER --touch-policy CACHED \
   9a ~/.ssh/commit-signing-piv-<serial>.pem
 ykman piv certificates generate --valid-days 36500 \

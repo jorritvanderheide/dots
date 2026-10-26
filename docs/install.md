@@ -254,8 +254,8 @@ YubiKey.
      ([Storj credentials](secrets.md#storj-credentials)).
 - **A YubiKey.** Revoke the lost key and enroll a new one, as in
   [Secrets and keys](secrets.md), with the passphrase identity or the other
-  key. The new key gets both identities, a no-PIN and a PIN one, like the
-  other.
+  key. The new key gets both identities, a no-PIN and a PIN one, and a
+  commit signing key, like the other.
 - **Both machines.** Vaultwarden runs on dapple, so Bitwarden only has the
   offline copy on your phone. It holds the passphrase identity, the SSH keys
   and your Codeberg login. With a YubiKey left, install dapple with
