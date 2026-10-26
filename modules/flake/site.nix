@@ -10,8 +10,8 @@ _: {
     # Whose signed commits on Codeberg's main the hosts deploy (comin.nix),
     # as lines of an allowed signers file: the PIV key in slot 9a of a
     # YubiKey, which jj signs this flake's commits with on push (git.nix).
-    # Only the backup YubiKey's so far.
     commitSigners = [
+      "jorrit+git@bw20.nl ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBgnjDkyrWlR18eZQB2Hz2ib1cL206CDcQVyF14okyxI9az6plTb36bylehxgLwyXEOTzhCfO7IKG8JdDKB+Ifw= commit signing, YubiKey 29635974"
       "jorrit+git@bw20.nl ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBO3EPGJ3J+Eo1p6/oYMMeLVeXc6G5WW3nuWCMQugJrdTkKW4F9uVcS1gXcOvBOWHTe2BzBs/FdEO98BzIq9QlM= commit signing, YubiKey 38555351"
     ];
 
