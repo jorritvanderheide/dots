@@ -89,9 +89,10 @@ boot, sops secrets, home-manager, and fish.
   a minute or two of a push. In this repository jj signs commits as they
   are pushed, with the PIV key on whichever YubiKey is plugged in: a touch
   covers 15 seconds of signing, so a deploy takes a key and a touch. A
-  `testing-<host>` branch on top of
-  `main` is switched to with `test` instead, which a reboot undoes. Failed
-  builds and deploys show on the status page under deploys. If comin
+  `testing-<host>` branch on top of `main` is switched to with `test`
+  instead, which a reboot undoes. Failed builds and deploys show on the
+  status page under deploys, and rocinante's desktop says when each build
+  and deploy is done. If comin
   can't deploy, `sudo nixos-rebuild switch --flake
   git+https://codeberg.org/BW20/dots#<host>` on the host does it by hand.
   dapple's Nix trusts no user but root, so the sudo password can't be
