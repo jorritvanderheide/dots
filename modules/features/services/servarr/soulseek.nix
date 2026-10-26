@@ -176,13 +176,12 @@
         # per album, and Lidarr moves them out of it, each as the media
         # group. Only with the media library mounted: its mount is nofail,
         # and without it, files would land in the root, which a reboot
-        # wipes.
+        # wipes. lib.sandbox on top of nixpkgs' own, which already confines
+        # its writes to the download folders: like Lidarr's (default.nix),
+        # .NET needs nothing past it.
         systemd.services.slskd = {
+          serviceConfig = inputs.self.lib.sandbox // inputs.self.lib.restartAlways // { UMask = "0002"; };
           unitConfig.RequiresMountsFor = [ config.my.media-library.dir ];
-
-          serviceConfig = inputs.self.lib.restartAlways // {
-            UMask = "0002";
-          };
         };
 
         # A run waits for its downloads and Lidarr's import, then exits;
