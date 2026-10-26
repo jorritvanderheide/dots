@@ -165,6 +165,16 @@ main() {
   install -d -m 0700 /mnt/persist/system/var/lib/sops
   install -m 0400 /tmp/host-age.key /mnt/persist/system/var/lib/sops/age.key
 
+  # A machine ID of this install's own, not the hostname's that the
+  # initrd would seed (preservation.nix): comin deploys only commits that
+  # name it (comin.nix), so this install takes nothing from main, and an
+  # old one keeps its own, until the ID is committed.
+  local machine_id
+  machine_id=$(tr -d - </proc/sys/kernel/random/uuid)
+  install -d -m 0755 /mnt/persist/system/etc
+  echo "$machine_id" >/mnt/persist/system/etc/machine-id
+  chmod 0444 /mnt/persist/system/etc/machine-id
+
   # --no-root-password: root's and jorrit's passwords come from sops
   # (secrets.nix, lib.mkUser), set again at every boot's activation.
   log_info "Installing NixOS..."
@@ -194,6 +204,7 @@ main() {
   if $new_hardware; then
     log_info "Commit modules/hosts/${hostname}/facter.json with them."
   fi
+  log_info "And its machine ID, ${machine_id}, as ${hostname}'s machineId in modules/flake/site.nix: until it's pushed, comin deploys nothing to it."
 }
 
 main "$@"

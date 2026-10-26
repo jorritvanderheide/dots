@@ -97,6 +97,12 @@
           # Its Prometheus metrics, which nothing here scrapes.
           exporter.listen_address = "127.0.0.1";
 
+          # Checked against the commit's own configuration, so pushing a
+          # reinstall's new ID moves deploys from the old install to the
+          # new one (lib.site.hosts). A mismatch only shows in comin's log
+          # and `sudo comin status`. A host never installed has none yet.
+          machineId = inputs.self.lib.site.hosts.${config.networking.hostName}.machineId or null;
+
           remotes = [
             {
               name = "codeberg";

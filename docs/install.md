@@ -54,8 +54,9 @@ The installer:
 4. Shows the disk it is about to wipe, with its size, and any it keeps,
    and waits for a `yes`. It keeps dapple's media disk, which has no
    offsite copy: its LUKS is opened and its pool imported, as they are.
-5. Partitions and formats the main disk with disko, puts the age key in
-   `/persist`, and runs `nixos-install`, whose activation decrypts the
+5. Partitions and formats the main disk with disko, puts the age key and
+   a new machine ID in `/persist`, and runs `nixos-install`, whose
+   activation decrypts the
    secrets with it: the accounts have their passwords from the first boot.
 6. Clones this repository to `/etc/nixos`, with Codeberg as the `codeberg`
    remote (pushing over SSH), and exports the pools, so the first boot
@@ -72,7 +73,12 @@ it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
 secrets file are uncommitted changes in its `/etc/nixos`: commit and push
 them after the first boot, or the next deploy from elsewhere puts the old
 file back. rocinante commits them where they are; for dapple, copy them
-into rocinante's clone and commit there. Its SSH host key is one of its
+into rocinante's clone and commit there. In the same commit, put the
+machine ID the installer printed (`cat /etc/machine-id`) in the host's
+`machineId` in `modules/flake/site.nix`. comin deploys a commit only to
+the install it names, so until that's pushed the new install takes
+nothing from `main`, and an old one, still running, keeps deploying; once
+it's pushed, the old one stops. Its SSH host key is one of its
 secrets, so `ssh dapple` trusts it from the first boot:
 
 ```sh
@@ -211,8 +217,9 @@ Without a second computer, as with a replacement laptop, run
 `install-host --new-hardware <hostname>` on the ISO's console instead, once
 the host's `configuration.nix` is on Codeberg. It gathers the report on the
 machine itself and installs with it. After the first boot, commit and push
-`modules/hosts/<hostname>/facter.json` with the new key's files, the same
-way ([Install](#install)).
+`modules/hosts/<hostname>/facter.json` with the new key's files and its
+machine ID, the same way ([Install](#install)). Until then comin deploys
+nothing to it, so nothing built for the old hardware lands on the new.
 
 ## Losing a machine
 
@@ -229,7 +236,8 @@ YubiKey.
 - **rocinante.** On its replacement, with a YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
-  boot, commit and push `facter.json` with the new key's files, and run
+  boot, commit and push `facter.json` with the new key's files and its
+  machine ID, and run
   `sudo offsite-restore`. Only what rocinante's backup holds comes back:
   Zotero, and its place on the tailnet.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
