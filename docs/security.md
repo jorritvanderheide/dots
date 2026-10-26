@@ -73,12 +73,9 @@ being on the LAN. It builds through the Nix daemon as an allowed, not a
 trusted, user: sandboxed builds, no say over substituters or keys. One job
 runs at a time.
 
-**Someone with the `nixos` SSH key** still needs the sudo password, or one
-of the YubiKeys and a touch: sudo on dapple also takes a signature from a
-FIDO2 key on either (`pam_rssh`), through an agent rocinante forwards with
-only those keys in it. The login key isn't one of them. Nix isn't a way
-around it either: dapple's Nix trusts only root, and what `ndeploy` copies
-over has to be signed by rocinante's deploy key (`rocinante-1`).
+**Someone with the `nixos` SSH key** still needs the sudo password. Nix
+isn't a way around it either: dapple's Nix trusts only root, and no key
+but the binary caches' signs what it accepts.
 
 **Someone with the Codeberg login** can't deploy: comin (`comin.nix`)
 only switches to a commit signed by a key in `lib.commitSigners`, a PIV
@@ -92,7 +89,7 @@ across reboots.
 
 **A machine posing as dapple**, say one at 192.168.1.162 on another
 network, gets refused: rocinante pins dapple's host key and checks it
-strictly, so neither the forwarded agent nor the sudo password goes there.
+strictly, so the sudo password doesn't go there.
 The key is a sops secret, so a reinstalled dapple has it from its first
 boot.
 
@@ -159,15 +156,6 @@ start, since that would otherwise win.
   send spam or mine from the home address, or fill the disk with Nix
   builds; not enough to reach the services, the LAN or the tailnet, or to
   become root. The VM test needs KVM, which Codeberg's own runners lack.
-- **rocinante forwards an SSH agent to dapple**, the one with only the
-  YubiKeys' sudo keys. While you're connected, anything on dapple running
-  as `nixos` can ask it to sign, and run sudo if you touch the key. The
-  YubiKey blinks when asked, so only touch it right after you ran sudo.
-- **sudo on dapple remembers a touch (or password) for 5 minutes across
-  all of `nixos`'s sessions**, not just the terminal it was typed in, so a
-  deploy takes one touch instead of one for each of nh's sudo calls. In that
-  window, anything running as `nixos` can use sudo too, but only what you
-  start over SSH runs as `nixos`: every service has a user of its own.
 - **A signed push is a deploy, as root, on every host, and a touch
   covers 15 seconds of signing.** The YubiKey remembers a touch of its
   PIV commit signing key for that long, so code running as `jorrit` that
@@ -209,7 +197,6 @@ From rocinante:
 curl -m5 http://100.64.0.1:6767/        # times out: only 443, 22 and 22000 on the tailnet
 curl -sk -m5 https://100.64.0.1/ -H 'Host: x'   # refused: unknown name
 ssh nixos@dapple nix store info          # Trusted: 0
-ssh -t dapple sudo -k true               # a YubiKey touch, no password
 ```
 
 On dapple:

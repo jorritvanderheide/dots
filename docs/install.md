@@ -231,11 +231,10 @@ YubiKey.
   `install-host --new-hardware rocinante` on its console. After the first
   boot, commit and push `facter.json` with the new key's files, and run
   `sudo offsite-restore`. Only what rocinante's backup holds comes back:
-  Zotero, and its place on the tailnet. Its Nix signing key is one of its
-  secrets, so `ndeploy` works from the first boot.
+  Zotero, and its place on the tailnet.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count what is on it as known: its secrets,
-  its tailnet node, its Storj credentials and its Nix signing key. Install
+  its tailnet node and its Storj credentials. Install
   its replacement as above, with these differences:
   1. Before installing, delete its node on dapple
      (`sudo headscale nodes list` for its ID, then
@@ -250,29 +249,9 @@ YubiKey.
      with `sops rotate -i secrets/rocinante.yaml` and new values for what
      is in it. The installer has already replaced its old age key. Its
      `gatus_push_token` is `gatus_push_token_rocinante` in
-     `secrets/dapple.yaml` too: change both, and `ndeploy dapple`.
+     `secrets/dapple.yaml` too: change both, and push.
   3. Revoke its Storj credentials and make new ones
      ([Storj credentials](secrets.md#storj-credentials)).
-  4. Replace its Nix signing key, which dapple trusts. For one deploy,
-     rocinante signs with both keys, so dapple takes the switch to the new
-     one by the old one's signature:
-     1. Make a new key, and print its public half:
-        ```sh
-        (umask 077; nix key generate-secret --key-name rocinante-2 > $XDG_RUNTIME_DIR/nix-key)
-        nix key convert-secret-to-public < $XDG_RUNTIME_DIR/nix-key
-        ```
-     2. In `secrets/rocinante.yaml`, rename `nix_signing_key` to
-        `nix_signing_key_old`, add the new key as `nix_signing_key`, and
-        delete `$XDG_RUNTIME_DIR/nix-key`. In `modules/flake/site.nix`,
-        put the printed key in `deployKeys` instead of `rocinante-1`. In
-        rocinante's `configuration.nix`, add `nix_signing_key_old` to
-        `sops.secrets` and to `secret-key-files`.
-     3. `nswitch`, then `ndeploy dapple`. From then on, dapple trusts only
-        the new key.
-     4. Take `nix_signing_key_old` out of the configuration and the
-        secrets file, `nswitch`, and sign what was built before with the
-        new key, for later deploys:
-        `sudo nix store sign --all --key-file /run/secrets/nix_signing_key`.
 - **A YubiKey.** Revoke the lost key and enroll a new one, as in
   [Secrets and keys](secrets.md), with the passphrase identity or the other
   key. The new key gets both identities, a no-PIN and a PIN one, like the

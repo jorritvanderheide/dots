@@ -91,7 +91,7 @@
           pkgs.sbctl # sbctl status
 
           # On the host itself rather than a flake app: dapple's /etc/nixos
-          # is a clone that ndeploy doesn't update.
+          # is a clone that nothing updates (comin keeps its own).
           (pkgs.writeShellApplication {
             name = "enroll-tpm";
             runtimeInputs = [ config.systemd.package ];

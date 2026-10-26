@@ -143,9 +143,7 @@ What several features need is in `inputs.self.lib`, from two files in
   domain, the status page, dapple's addresses and SSH host key, the LAN's
   subnet and the Syncthing devices.
   The host-local side, like which interface is on the LAN, is `my.lan`.
-- **`authorizedKeys`**, **`sudoKeys`** and **`deployKeys`**: who may SSH in,
-  which YubiKeys may run sudo on dapple, and whose signed store paths a
-  host deployed to accepts.
+- **`authorizedKeys`**: who may SSH in.
 - **`commitSigners`**: whose signed commits on Codeberg's `main` comin
   deploys.
 

@@ -91,9 +91,11 @@ boot, sops secrets, home-manager, and fish.
   covers 15 seconds of signing, so a deploy takes a key and a touch. A
   `testing-<host>` branch on top of
   `main` is switched to with `test` instead, which a reboot undoes. Failed
-  builds and deploys show on the status page under deploys. `ndeploy`
-  still works by hand: signed by rocinante, and dapple's Nix trusts no user
-  but root, so the sudo password can't be skipped through Nix.
+  builds and deploys show on the status page under deploys. If comin
+  can't deploy, `sudo nixos-rebuild switch --flake
+  git+https://codeberg.org/BW20/dots#<host>` on the host does it by hand.
+  dapple's Nix trusts no user but root, so the sudo password can't be
+  skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
 
@@ -125,7 +127,6 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nboot` | The same, from the next boot |
 | `ntest` | Switch without making it the boot default; fine on uncommitted changes |
 | `nbuild` | Build only |
-| `ndeploy <host> [switch\|boot]` | Build here, signed with rocinante's deploy key, and activate on another host over SSH (at the sudo prompt, any character, then a YubiKey touch) |
 | `nrollback` | Go back to the previous generation |
 | `nupdate` | Update `flake.lock` |
 | `nix fmt` | Format everything (nix-order, nixfmt, deadnix, statix, shfmt, ruff) |

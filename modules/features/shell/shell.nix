@@ -32,38 +32,11 @@
               # Rebuilds want the YubiKey in. Activation doesn't need it
               # (sops-nix decrypts with the host's own age key); the check is
               # by choice, so the key is at hand whenever the system changes.
-              # Only for the local host: ndeploy activates remotely.
               functions.check-yubikey = ''
                 if test (age-plugin-yubikey --list 2>/dev/null | count) -eq 0
                   echo "YubiKey not detected. Plug it in before rebuilding." >&2
                   return 1
                 end
-              '';
-
-              functions.ndeploy = ''
-                if test (count $argv) -eq 0
-                  echo "Usage: ndeploy <hostname> [switch|boot]"
-                  return 1
-                end
-                check-clean; or return 1
-                set -l action switch
-                if test (count $argv) -ge 2
-                  switch $argv[2]
-                    case switch boot
-                      set action $argv[2]
-                    case '*'
-                      echo "Invalid action: $argv[2] (must be switch or boot)"
-                      return 1
-                  end
-                end
-                # --use-substitutes lets the target pull cached paths from
-                # cache.nixos.org directly instead of forcing the full closure
-                # over the SSH/tailscale link. nh asks for the remote sudo
-                # password itself, whatever its elevation strategy, but sudo
-                # on dapple tries a YubiKey touch first (ssh-server.nix): at
-                # the prompt, any character (nh refuses an empty one) and a
-                # touch will do.
-                nh os $action /etc/nixos --hostname $argv[1] --target-host nixos@$argv[1] --use-substitutes --no-nom
               '';
 
               functions.nrun = ''

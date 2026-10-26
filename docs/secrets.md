@@ -73,8 +73,8 @@ ssh-keygen -y -f (sops -d --extract '["ssh_host_key"]' secrets/dapple.yaml | psu
 
 A new one comes from `ssh-keygen -t ed25519 -N "" -C root@dapple -f key`:
 `key` goes in the secret and `key.pub` in `site.nix`, in one commit. Then
-`ndeploy dapple`, which still connects with the old key, and `nswitch`, so
-rocinante pins the new one. Delete `key` and `key.pub`.
+push: comin gives dapple the new key, and rocinante the pin for it.
+Delete `key` and `key.pub`.
 
 ## Enrolling an additional YubiKey
 
@@ -96,14 +96,6 @@ refuses to pick: name its `/dev/hidraw*` path from the list.
 systemd-cryptenroll --fido2-device=list
 sudo systemd-cryptenroll --fido2-device=/dev/hidrawN --fido2-with-client-pin=yes \
   --fido2-with-user-presence=yes /dev/disk/by-partlabel/disk-main-luks
-```
-
-And its FIDO2 key for sudo on dapple, whose `.pub` goes in
-`lib.sudoKeys` (then `systemctl --user restart ssh-agent-sudo` loads it):
-
-```sh
-ssh-keygen -t ed25519-sk -O application=ssh:dapple-sudo -N "" \
-  -f ~/.ssh/dapple-sudo-<serial>
 ```
 
 And its PIV key for signing this repository's commits, in slot 9a, which
@@ -131,8 +123,8 @@ Then:
    decrypt instead of either.
 2. `sops updatekeys secrets/<host>.yaml`, for both files, to re-encrypt for
    the new set of recipients.
-3. Push, and deploy every host (`nswitch`, `ndeploy dapple`): each decrypts
-   the file it was built with.
+3. Push, and comin deploys every host: each decrypts the file it was
+   built with.
 4. Verify: unplug the old key, plug in only the new one, and decrypt a
    secret in the dev shell, for example
    `sops -d --extract '["restic_password"]' secrets/<host>.yaml >/dev/null`.
@@ -188,7 +180,7 @@ journalctl -fu restic-backups-offsite         # until: snapshot ... saved
 sudo /run/current-system/activate             # the host's own key again
 ```
 
-Don't deploy meanwhile: that can put the host's key back halfway.
+Don't push meanwhile: comin's deploy can put the host's key back halfway.
 
 ## A new host key
 
@@ -213,13 +205,12 @@ sudo chmod 0400 /persist/system/var/lib/sops/age.key
 
 Replace `<host>_host` in `secrets/.sops.yaml` with the printed `age1...`
 key, run `sops updatekeys secrets/<host>.yaml` from rocinante (for
-dapple's, with a YubiKey's PIN and a touch), push, and deploy (`nswitch`,
-or `ndeploy dapple`).
+dapple's, with a YubiKey's PIN and a touch), and push: comin deploys it.
 
 ## Revoking a lost or compromised key
 
-1. Remove its recipient from `secrets/.sops.yaml`, and a YubiKey's keys
-   from `lib.sudoKeys` and `lib.commitSigners`. Sign that commit with
+1. Remove its recipient from `secrets/.sops.yaml`, and a YubiKey's commit
+   signing key from `lib.commitSigners`. Sign that commit with
    the other YubiKey: until the hosts run it, they still deploy whatever
    the lost one signs.
 2. `sops updatekeys secrets/<host>.yaml` for every file it was a recipient of.

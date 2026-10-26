@@ -53,7 +53,6 @@
             my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
             networking.hostName = "rocinante";
-            sops.secrets.nix_signing_key = { };
             system.stateVersion = "26.05";
 
             my.compositor = {
@@ -144,16 +143,6 @@
                 librarySearchUrl = "https://ru.on.worldcat.org/search?queryString={searchTerms}";
                 openurlResolver = "https://ru.on.worldcat.org/atoztitles/link";
               };
-            };
-
-            nix.settings = {
-              # Signs what this host builds, so the hosts it deploys to accept
-              # what `ndeploy` copies without trusting the user who copies it
-              # (ssh-server.nix, lib.deployKeys). A secret, not a file on
-              # /persist, so a replacement laptop signs with it from its first
-              # boot. Generated with
-              # `nix key generate-secret --key-name rocinante-1`.
-              secret-key-files = [ config.sops.secrets.nix_signing_key.path ];
             };
 
             # Resolves .local names, to reach the installer ISO as

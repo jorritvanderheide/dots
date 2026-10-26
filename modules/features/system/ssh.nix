@@ -28,7 +28,7 @@
                   user = "nixos";
 
                   # Without tailscale, away from home, neither address
-                  # answers, and ssh (so ndeploy) would wait out the kernel's
+                  # answers, and ssh would wait out the kernel's
                   # TCP retries instead of failing.
                   connectTimeout = 10;
 

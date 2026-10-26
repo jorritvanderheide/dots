@@ -15,11 +15,6 @@ _: {
       "jorrit+git@bw20.nl ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBO3EPGJ3J+Eo1p6/oYMMeLVeXc6G5WW3nuWCMQugJrdTkKW4F9uVcS1gXcOvBOWHTe2BzBs/FdEO98BzIq9QlM= commit signing, YubiKey 38555351"
     ];
 
-    # Nix signing keys whose store paths a host you deploy to accepts
-    # (ssh-server.nix): rocinante's, whose secret half is in its
-    # secret-key-files.
-    deployKeys = [ "rocinante-1:vJ6haHwJG0MjuqKeBc/HimPc4OvrIvqf/FUqK9HxKsU=" ];
-
     # Facts more than one host needs.
     site = {
       acmeEmail = "jorrit+acme@bw20.nl";
@@ -63,12 +58,5 @@ _: {
       user = "jorrit";
     };
 
-    # Keys that may run sudo on dapple (ssh-server.nix), instead of the
-    # password: a FIDO2 key on each YubiKey, which signs only with a touch.
-    # rocinante forwards an agent with just these (yubikey.nix).
-    sudoKeys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIMYYBraKSjuNIGKNBS+PZbBgt62xtBdI8sM7db+48RVGAAAAD3NzaDpkYXBwbGUtc3Vkbw== sudo on dapple, YubiKey 29635974"
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIHm7J1sZHLzDlApmO/AvVs6l8Dlj0hiCSoPsNzOirNKgAAAAD3NzaDpkYXBwbGUtc3Vkbw== sudo on dapple, YubiKey 38555351"
-    ];
   };
 }
