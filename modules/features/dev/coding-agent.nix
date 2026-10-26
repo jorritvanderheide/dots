@@ -165,6 +165,17 @@
             };
           }
         )
+
+        # Let Claude Code read and edit anywhere in the home directory, not
+        # just below the directory a session starts in.
+        (
+          { config, ... }:
+          {
+            programs.claude-code.settings.permissions.additionalDirectories = [
+              config.home.homeDirectory
+            ];
+          }
+        )
       ];
 
       my.preservation = {
