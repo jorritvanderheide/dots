@@ -79,6 +79,24 @@
         description = "What the status page checks, declared by each service's own module.";
       };
 
+      options.my.gatus.pushes = lib.mkOption {
+        type = lib.types.attrsOf (
+          lib.types.submodule {
+            options.group = lib.mkOption {
+              type = lib.types.str;
+              description = "The group it is listed under on the status page.";
+            };
+          }
+        );
+        default = { };
+        example.blog.group = "deploys";
+        description = ''
+          What this host's own services push, by name, besides its disks,
+          backups and deploys: a verdict each, alerted at once. They push
+          with this host's token, gatus_push_token.
+        '';
+      };
+
       config = {
         sops.secrets = lib.genAttrs secretKeys (_: { });
 
@@ -163,7 +181,13 @@
                   name = host;
                 }
               ]
-            ) hosts;
+            ) hosts
+            ++ lib.mapAttrsToList (name: push: {
+              inherit name;
+              inherit (push) group;
+              alerts = pushAlerts;
+              token = "\${${variable "gatus_push_token"}}";
+            }) cfg.pushes;
 
             storage = {
               path = "/var/lib/gatus/data.db";

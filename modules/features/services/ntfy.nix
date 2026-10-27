@@ -34,6 +34,7 @@
         {
           sops.secrets.ntfy_password_hash = { };
           sops.secrets.ntfy_token = { };
+          sops.secrets.ntfy_token_rocinante = { };
 
           my.ingress.proxies.${subdomain} = {
             inherit port;
@@ -72,15 +73,16 @@
             };
           };
 
-          # The user's password hash (`ntfy user hash`) and Gatus's token
-          # (`ntfy token generate`). Single-quoted, so systemd keeps the
-          # hash's $ signs as they are.
+          # The user's password hash (`ntfy user hash`), and the tokens
+          # (`ntfy token generate`) Gatus publishes with and rocinante reads
+          # with (alerts.nix): one each, so either can be revoked alone.
+          # Single-quoted, so systemd keeps the hash's $ signs as they are.
           sops.templates."ntfy.env" = {
             restartUnits = [ "ntfy-sh.service" ];
 
             content = ''
               NTFY_AUTH_USERS='${site.user}:${config.sops.placeholder.ntfy_password_hash}:user'
-              NTFY_AUTH_TOKENS='${site.user}:${config.sops.placeholder.ntfy_token}:gatus'
+              NTFY_AUTH_TOKENS='${site.user}:${config.sops.placeholder.ntfy_token}:gatus,${site.user}:${config.sops.placeholder.ntfy_token_rocinante}:rocinante'
             '';
           };
 

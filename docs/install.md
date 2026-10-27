@@ -249,7 +249,8 @@ YubiKey.
      with `sops rotate -i secrets/rocinante.yaml` and new values for what
      is in it. The installer has already replaced its old age key. Its
      `gatus_push_token` is `gatus_push_token_rocinante` in
-     `secrets/dapple.yaml` too: change both, and push.
+     `secrets/dapple.yaml` too, and its `ntfy_token` is
+     `ntfy_token_rocinante` there: change both of each, and push.
   3. Revoke its Storj credentials and make new ones
      ([Storj credentials](secrets.md#storj-credentials)).
 - **A YubiKey.** Revoke the lost key and enroll a new one, as in

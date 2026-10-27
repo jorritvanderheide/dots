@@ -161,9 +161,9 @@ all of them.
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
 | meetinn | `inn` | ICT Netwerk Nijmegen's site, public; a demo until it has its own server |
-| Blog | bare domain | My blog, public |
+| Blog | bare domain | My blog, public; dapple builds it from every push to its repository |
 | Gatus | `status` | Monitoring of all of the above |
-| ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app |
+| ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app and rocinante's desktop |
 
 Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
 tailnet only, without a web page of its own.
@@ -181,8 +181,9 @@ a copy of every flake input, so the hosts can be built without the forges
 they come from ([Losing an upstream](docs/install.md#losing-an-upstream)).
 Locally, sanoid keeps hourly to yearly ZFS snapshots of `/persist`. Every
 host reports its disks' and pools' health to Gatus too
-(smartd and `zpool status`, hourly). Whatever Gatus sees go down, or come
-back, goes to the phone through ntfy.
+(smartd and `zpool status`, hourly), and the blog its deploys. Whatever
+Gatus sees go down, or come back, goes to the phone through ntfy, and to
+rocinante's desktop as a notification.
 
 <br/>
 

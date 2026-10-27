@@ -10,6 +10,7 @@
         desktop
 
         # System
+        alerts
         bluetooth
         firmware
         power

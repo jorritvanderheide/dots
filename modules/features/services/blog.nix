@@ -7,14 +7,52 @@
   # itself, from every push to its repository (its docs/architecture.md,
   # Deployment): the module only serves, and runs, what that builds.
   flake.nixosModules.blog =
-    _:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
-      inherit (inputs.self.lib.site) domain;
+      inherit (inputs.self.lib.site) domain statusPage;
+
+      # A deploy that published, or a commit that didn't build, goes to the
+      # status page as deploys/blog (gatus.nix), which alerts the phone, as
+      # comin's report does for the host's own deploys (comin.nix).
+      report = pkgs.writeShellApplication {
+        name = "personal-blog-report";
+        runtimeInputs = [ pkgs.curl ];
+
+        # The header on stdin, not in curl's arguments, which any local
+        # user can read.
+        text = ''
+          if [[ "$1" == success ]]; then
+            query=(--data-urlencode success=true)
+          else
+            rev="$(</var/lib/personal-blog/failed)"
+            query=(--data-urlencode success=false --data-urlencode "error=''${rev:0:12} doesn't build; the site that was there stays")
+          fi
+
+          TOKEN="$(<${config.sops.secrets.gatus_push_token.path})"
+          curl -X POST -G -fsS -o /dev/null --retry 3 --retry-all-errors --retry-delay 10 --config - ${lib.escapeShellArg "${statusPage}/api/v1/endpoints/deploys_blog/external"} "''${query[@]}" <<<"header = \"Authorization: Bearer $TOKEN\""
+        '';
+      };
     in
     {
       imports = [ inputs.personal-blog.nixosModules.default ];
 
       config = {
+        my.gatus.pushes.blog.group = "deploys";
+        sops.secrets.gatus_push_token = { };
+
+        systemd.services."personal-blog-report@" = {
+          description = "Tell the status page how a deploy of the blog went: %i";
+          serviceConfig = {
+            ExecStart = "${lib.getExe report} %i";
+            Type = "oneshot";
+          };
+        };
+
         my.ingress.public.blog = {
           inherit domain;
 
@@ -50,6 +88,8 @@
           inherit domain;
           enable = true;
           repository = "https://codeberg.org/BW20/personal-blog";
+          deploy.onFailure = [ "personal-blog-report@failure.service" ];
+          deploy.onSuccess = [ "personal-blog-report@success.service" ];
         };
       };
     };
