@@ -5,7 +5,7 @@
 }:
 {
   flake.nixosModules.desktop-shell =
-    { config, ... }:
+    { config, pkgs, ... }:
     let
       cfg = config.my.desktop-shell;
       inherit (config.my.compositor) outputs;
@@ -24,6 +24,13 @@
       };
 
       config = {
+        # For the recorder plugin. Not programs.gpu-screen-recorder: that
+        # also gives every user gsr-kms-server with cap_sys_admin, which
+        # only the plugin's "focused" and "region" sources need. Its
+        # default, the portal, records through PipeWire, after niri asks
+        # which screen or window to share.
+        environment.systemPackages = [ pkgs.gpu-screen-recorder ];
+
         home-manager.sharedModules = [
           inputs.noctalia.homeModules.default
           (
@@ -162,6 +169,7 @@
 
                       start = [
                         "pomodoro"
+                        "recorder"
                       ];
                     };
 
@@ -221,9 +229,13 @@
                     # snapshots of the preserved state too.
                     notification.history_retention_hours = 168;
 
-                    # From noctalia's built-in community source; fetched on
-                    # first start, kept current by its own auto-update.
-                    plugins.enabled = [ "thepunkoff/pomodoro" ];
+                    # From noctalia's built-in official and community
+                    # sources; fetched on first start, kept current by its
+                    # own auto-update.
+                    plugins.enabled = [
+                      "noctalia/screen_recorder"
+                      "thepunkoff/pomodoro"
+                    ];
 
                     shell = {
                       launch_apps_custom_command = "sh -c 'app2unit -s a -- $CMD; niri msg action close-overview'";
@@ -287,6 +299,10 @@
                     # instance; "pomodoro" above is this one. Click it for
                     # the timer's panel.
                     widget.pomodoro.type = "thepunkoff/pomodoro:widget";
+
+                    # Click to start recording, and again to stop; the file
+                    # goes to ~/Videos/Recordings.
+                    widget.recorder.type = "noctalia/screen_recorder:recorder";
                   };
                 };
               };
