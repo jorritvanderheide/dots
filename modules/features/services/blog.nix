@@ -45,6 +45,11 @@
         my.gatus.pushes.blog.group = "deploys";
         sops.secrets.gatus_push_token = { };
 
+        # The receiver's token, which In the Open sends, and the deploy key it
+        # pushes to Codeberg with: write access to personal-blog only.
+        sops.secrets.personal_blog_receiver_token.restartUnits = [ "personal-blog-receiver.service" ];
+        sops.secrets.personal_blog_receiver_ssh_key.restartUnits = [ "personal-blog-receiver.service" ];
+
         systemd.services."personal-blog-report@" = {
           description = "Tell the status page how a deploy of the blog went: %i";
           serviceConfig = {
@@ -90,6 +95,16 @@
           repository = "https://codeberg.org/BW20/personal-blog";
           deploy.onFailure = [ "personal-blog-report@failure.service" ];
           deploy.onSuccess = [ "personal-blog-report@success.service" ];
+
+          receiver = {
+            enable = true;
+            tokenFile = config.sops.secrets.personal_blog_receiver_token.path;
+            pushUrl = "ssh://git@codeberg.org/BW20/personal-blog.git";
+            sshKeyFile = config.sops.secrets.personal_blog_receiver_ssh_key.path;
+            # ssh-keyscan -t ed25519 codeberg.org, on 2026-10-27.
+            knownHosts = "codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
+            author = "In the Open <receiver@${domain}>";
+          };
         };
       };
     };
