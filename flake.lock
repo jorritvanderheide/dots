@@ -363,11 +363,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793116465,
+        "lastModified": 1793119812,
         "narHash": "sha256-67TBH/2KoV09D/6r8m/Gio81ZdL9Ds6kVQxNBXZ6Qv8=",
         "ref": "refs/heads/main",
-        "rev": "6cd93428c018523b202122b3d471c8773ab2c7c7",
-        "revCount": 71,
+        "rev": "77a112411b4874823d88eab5d37bd0ac864f1013",
+        "revCount": 72,
         "type": "git",
         "url": "https://codeberg.org/BW20/personal-blog"
       },
