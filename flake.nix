@@ -72,9 +72,12 @@
       url = "github:noctalia-dev/noctalia";
     };
 
-    # Not following nixpkgs: the blog builds with the Hugo it pins, as a newer
-    # one may not build it. Only its static files reach dapple.
-    personal-blog.url = "git+https://codeberg.org/BW20/personal-blog";
+    # Only its module: dapple builds the blog itself, from the repository
+    # and with the nixpkgs its own lock pins (blog.nix).
+    personal-blog = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BW20/personal-blog";
+    };
 
     # The offsite backup's snapshot, entries and restore command
     # (offsite-backup.nix). A commit, like comin: it runs as root.
