@@ -4,7 +4,7 @@
 }:
 {
   # The Brother QL-700 that prints MeetINN's name labels at the door
-  # (meetinn's README, "Name labels"). Its label page prints with
+  # (meetinn's README, "Name labels"). The check-in screen prints with
   # window.print(), which only Chromium with --kiosk-printing sends to the
   # default printer without a dialog for one window. Zen's way
   # (print.always_print_silent) would print everything that way.
