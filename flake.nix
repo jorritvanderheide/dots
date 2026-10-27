@@ -76,6 +76,13 @@
     # one may not build it. Only its static files reach dapple.
     personal-blog.url = "git+https://codeberg.org/BW20/personal-blog";
 
+    # The offsite backup's snapshot, entries and restore command
+    # (offsite-backup.nix). A commit, like comin: it runs as root.
+    snapback = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BW20/snapback?rev=41d0afba9b8d2586c8717899f6c6c4c59e8df9a1";
+    };
+
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Mic92/sops-nix";

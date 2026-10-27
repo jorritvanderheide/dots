@@ -444,6 +444,7 @@
         "noctalia": "noctalia",
         "personal-blog": "personal-blog",
         "preservation": "preservation",
+        "snapback": "snapback",
         "sops-nix": "sops-nix",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
@@ -469,6 +470,27 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
+      }
+    },
+    "snapback": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793094560,
+        "narHash": "sha256-ZbctMbmAtJVVmXNfJ5qgQz70DIxYQDn3BiOGbU00s6g=",
+        "ref": "refs/heads/main",
+        "rev": "41d0afba9b8d2586c8717899f6c6c4c59e8df9a1",
+        "revCount": 3,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/snapback"
+      },
+      "original": {
+        "rev": "41d0afba9b8d2586c8717899f6c6c4c59e8df9a1",
+        "type": "git",
+        "url": "https://codeberg.org/BW20/snapback"
       }
     },
     "sops-nix": {
