@@ -13,6 +13,7 @@
         alerts
         bluetooth
         firmware
+        label-printer
         power
         sound
         wifi
