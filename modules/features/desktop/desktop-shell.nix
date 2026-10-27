@@ -279,7 +279,7 @@
                       enabled = true;
 
                       transition = [
-                        "disc"
+                        "fade"
                       ];
                     };
 
