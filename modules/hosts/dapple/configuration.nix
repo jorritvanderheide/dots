@@ -13,7 +13,8 @@
         ssh-server
 
         # Services
-        blog
+        # blog: offline for now. Back with this line; until then bw20.nl
+        # gets no certificate and no answer (ingress.nix's catch-all).
         calibre-web
         contacts
         filebrowser
