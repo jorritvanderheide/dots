@@ -18,10 +18,21 @@
       inherit (inputs.self.lib) site;
       printer = "QL-700";
 
+      # Opens a meetinn-labels: link's address (the door page's link to the
+      # check-in screen), or the admin without one. Only the demo's pages or
+      # a dev server's on this machine: any site can link to
+      # meetinn-labels:, and a page in this Chromium prints without asking.
       labels = pkgs.writeShellScript "meetinn-labels" ''
+        url=''${1#meetinn-labels:}
+        url=''${url:-https://inn.${site.domain}/admin}
+        pattern='^(https://${lib.escapeRegex "inn.${site.domain}"}|http://localhost:[0-9]+)/'
+        if ! [[ $url =~ $pattern ]]; then
+          echo "meetinn-labels: not a MeetINN page: $url" >&2
+          exit 1
+        fi
         exec ${lib.getExe pkgs.chromium} --kiosk-printing \
           --user-data-dir="$HOME/.local/share/meetinn-labels" \
-          --app=https://inn.${site.domain}/admin
+          --app="$url"
       '';
     in
     {
@@ -51,10 +62,13 @@
         # again.
         home-manager.sharedModules = [
           {
+            xdg.mimeApps.defaultApplications."x-scheme-handler/meetinn-labels" = "meetinn-labels.desktop";
+
             xdg.desktopEntries.meetinn-labels = {
               comment = "Prints a name label for every check-in";
-              exec = "${labels}";
+              exec = "${labels} %u";
               icon = "printer";
+              mimeType = [ "x-scheme-handler/meetinn-labels" ];
               name = "MeetINN labels";
               type = "Application";
             };
