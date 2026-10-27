@@ -176,11 +176,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792583422,
-        "narHash": "sha256-KTOal7AKbSbHn6P+hA0mU/AoSpG7Z0ObzyJ4qtdhSxQ=",
+        "lastModified": 1793133758,
+        "narHash": "sha256-Cz0sBTjwk3mnCDNjNyUAmNWXWCz77Nbx4rkX6oizTss=",
         "ref": "refs/heads/main",
-        "rev": "00cbbea0e06b38fe32ae7967ef4bb8cc5c70ffdf",
-        "revCount": 277,
+        "rev": "365580a991fe38b997b7dd999a16c9f0173c319a",
+        "revCount": 282,
         "type": "git",
         "url": "https://codeberg.org/ict-netwerk-nijmegen/meetinn"
       },
