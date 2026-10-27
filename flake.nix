@@ -80,7 +80,7 @@
     # (offsite-backup.nix). A commit, like comin: it runs as root.
     snapback = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://codeberg.org/BW20/snapback?rev=41d0afba9b8d2586c8717899f6c6c4c59e8df9a1";
+      url = "git+https://codeberg.org/BW20/snapback?rev=d91a03a5b3ef99ba4a201e31991f52821f760170";
     };
 
     sops-nix = {
