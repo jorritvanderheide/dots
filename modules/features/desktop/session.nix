@@ -21,8 +21,6 @@
       };
 
       config = {
-        systemd.services.greetd.wants = [ "home-manager-${cfg.autologinuser}.service" ];
-
         home-manager.sharedModules = [
           {
             programs.niri.settings.spawn-at-startup = [
@@ -68,17 +66,6 @@
                 user = cfg.autologinuser;
               };
             };
-        };
-
-        # Avoid racing the autologin session against home-manager activation,
-        # which would make niri load a stale config from the previous generation.
-        # home-manager's NixOS module orders the activation service After=graphical.target,
-        # which would form a cycle with greetd (part of graphical.target). Override to
-        # run before the display manager instead.
-        systemd.services."home-manager-${cfg.autologinuser}" = {
-          after = lib.mkForce [ "nix-daemon.socket" ];
-          before = [ "greetd.service" ];
-          wantedBy = lib.mkForce [ "multi-user.target" ];
         };
       };
     };
