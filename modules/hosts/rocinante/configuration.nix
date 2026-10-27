@@ -126,6 +126,7 @@
               enable = true;
 
               paths = [
+                "/persist/home/jorrit/Git/obsidian"
                 "/persist/home/jorrit/Zotero"
               ];
             };
