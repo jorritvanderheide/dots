@@ -36,26 +36,15 @@
         };
 
         # services.kanata already gives the unit uinput (hardware.uinput)
-        # and its groups; this adds the restart policy.
+        # and its groups. No restart policy: its config waits for a
+        # keyboard that isn't there yet (linux-continue-if-no-devs-found),
+        # and drops and finds again one that goes away.
         systemd.services.kanata-main = {
           wantedBy = lib.mkForce [ "graphical.target" ];
 
           # Delay startup until after graphical session (compositor/lockscreen)
           # This saves ~2s from critical boot path
           after = [ "graphical.target" ];
-
-          serviceConfig = {
-            RestartSec = "2s";
-
-            # Restart if Kanata exits (e.g., no keyboards found at boot)
-            Restart = "on-failure";
-          };
-
-          # Allow a few retries for keyboards to appear during boot
-          unitConfig = {
-            StartLimitBurst = 10;
-            StartLimitIntervalSec = 60;
-          };
         };
       };
     };
