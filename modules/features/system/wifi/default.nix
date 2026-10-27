@@ -12,6 +12,7 @@
       secrets = {
         EDUROAM_IDENTITY = "wireless_eduroam_identity";
         EDUROAM_PSK = "wireless_eduroam";
+        HACKERSPACE_PSK = "wireless_hackerspace";
         HOTSPOT_PSK = "wireless_hotspot";
         IOTROAM_PSK = "wireless_iotroam";
         WIFI_HOME_24_SSID = "wireless_home_24_ssid";
@@ -61,6 +62,27 @@
 
               wifi-security = {
                 key-mgmt = "wpa-eap";
+              };
+            };
+
+            hackerspace = {
+              ipv4.method = "auto";
+              ipv6.method = "auto";
+
+              connection = {
+                id = "Hackerspace Nijmegen";
+                permissions = "user:${inputs.self.lib.site.user}:";
+                type = "wifi";
+              };
+
+              wifi = {
+                mode = "infrastructure";
+                ssid = "Hackerspace Nijmegen";
+              };
+
+              wifi-security = {
+                key-mgmt = "wpa-psk";
+                psk = "$HACKERSPACE_PSK";
               };
             };
 
