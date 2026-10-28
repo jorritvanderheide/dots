@@ -14,6 +14,7 @@
 
         # Services
         blog
+        blog-jeltje
         calibre-web
         contacts
         filebrowser
