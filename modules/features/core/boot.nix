@@ -29,15 +29,11 @@
 
       config = {
         boot = {
+          initrd.compressor = "zstd";
           plymouth.enable = true;
 
           # `quiet` still lets kernel errors onto the console, over the splash.
           consoleLogLevel = 0;
-
-          initrd = {
-            compressor = "zstd";
-            systemd.enable = true;
-          };
 
           # Quiet hides the kernel's own log spam. The rest keeps the console
           # silent, so nothing draws over the splash that plymouth leaves on
