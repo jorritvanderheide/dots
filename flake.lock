@@ -363,11 +363,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793168453,
-        "narHash": "sha256-NXkblUO1B7nKXktbRNM1FbonRVqIMhbG/JR3qNosGOM=",
+        "lastModified": 1793180386,
+        "narHash": "sha256-YKxp9Da1PJkbENMJULb3h1+BILsgS3mo3M0EPQT7cJs=",
         "ref": "refs/heads/main",
-        "rev": "72163e9fb4a487a9abcfc32d1c90f18f9f126897",
-        "revCount": 78,
+        "rev": "520e8bace019c56d91a3e57c53587807d927cb44",
+        "revCount": 89,
         "type": "git",
         "url": "https://codeberg.org/BW20/personal-blog"
       },
