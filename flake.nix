@@ -80,10 +80,11 @@
     };
 
     # The offsite backup's snapshot, entries and restore command
-    # (offsite-backup.nix). A commit, like comin: it runs as root.
+    # (offsite-backup.nix). A release, upgraded by hand: it runs as root,
+    # and flake.lock keeps the tag's commit, so a moved tag changes nothing.
     snapback = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://codeberg.org/BW20/snapback?rev=d91a03a5b3ef99ba4a201e31991f52821f760170";
+      url = "git+https://codeberg.org/BW20/snapback?ref=refs/tags/0.1.0";
     };
 
     sops-nix = {

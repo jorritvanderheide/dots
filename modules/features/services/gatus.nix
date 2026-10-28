@@ -147,47 +147,48 @@
             # moves by up to an hour. It is only checked a whole interval
             # after Gatus starts, and every deploy that changes this config
             # restarts it, so the backup pushes its failures too.
-            external-endpoints = lib.concatMap (
-              host:
-              let
-                heartbeat = lib.optionalAttrs (host == config.networking.hostName);
-                token = "\${${variable (pushTokenKey host)}}";
-              in
-              [
-                (
+            external-endpoints =
+              lib.concatMap (
+                host:
+                let
+                  heartbeat = lib.optionalAttrs (host == config.networking.hostName);
+                  token = "\${${variable (pushTokenKey host)}}";
+                in
+                [
+                  (
+                    {
+                      inherit token;
+                      alerts = pushAlerts;
+                      group = "backups";
+                      name = host;
+                    }
+                    // heartbeat { heartbeat.interval = "26h"; }
+                  )
+                  (
+                    {
+                      inherit token;
+                      alerts = pushAlerts;
+                      group = "disks";
+                      name = host;
+                    }
+                    // heartbeat { heartbeat.interval = "2h"; }
+                  )
+                  # What comin built and deployed last (comin.nix). No
+                  # heartbeat: a push comes only when something changed.
                   {
                     inherit token;
                     alerts = pushAlerts;
-                    group = "backups";
+                    group = "deploys";
                     name = host;
                   }
-                  // heartbeat { heartbeat.interval = "26h"; }
-                )
-                (
-                  {
-                    inherit token;
-                    alerts = pushAlerts;
-                    group = "disks";
-                    name = host;
-                  }
-                  // heartbeat { heartbeat.interval = "2h"; }
-                )
-                # What comin built and deployed last (comin.nix). No
-                # heartbeat: a push comes only when something changed.
-                {
-                  inherit token;
-                  alerts = pushAlerts;
-                  group = "deploys";
-                  name = host;
-                }
-              ]
-            ) hosts
-            ++ lib.mapAttrsToList (name: push: {
-              inherit name;
-              inherit (push) group;
-              alerts = pushAlerts;
-              token = "\${${variable "gatus_push_token"}}";
-            }) cfg.pushes;
+                ]
+              ) hosts
+              ++ lib.mapAttrsToList (name: push: {
+                inherit name;
+                inherit (push) group;
+                alerts = pushAlerts;
+                token = "\${${variable "gatus_push_token"}}";
+              }) cfg.pushes;
 
             storage = {
               path = "/var/lib/gatus/data.db";

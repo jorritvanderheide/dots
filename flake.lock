@@ -465,16 +465,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1793103519,
-        "narHash": "sha256-e0d+aVbyPgUseuRGqZYL26zbNqIEGGyokn3U3SDK8Zo=",
-        "ref": "refs/heads/main",
-        "rev": "d91a03a5b3ef99ba4a201e31991f52821f760170",
-        "revCount": 11,
+        "lastModified": 1793170478,
+        "narHash": "sha256-M/DhWY4jPZakKS1MMpc9jPTOZdLVbK6Iw7YQZu7JKxk=",
+        "ref": "refs/tags/0.1.0",
+        "rev": "b1b7952cbe2de61534f92b38f6ec6ca6efd11d0e",
+        "revCount": 12,
         "type": "git",
         "url": "https://codeberg.org/BW20/snapback"
       },
       "original": {
-        "rev": "d91a03a5b3ef99ba4a201e31991f52821f760170",
+        "ref": "refs/tags/0.1.0",
         "type": "git",
         "url": "https://codeberg.org/BW20/snapback"
       }

@@ -44,19 +44,7 @@
       config = {
         my.gatus.pushes.blog.group = "deploys";
         sops.secrets.gatus_push_token = { };
-
-        # The receiver's token, which In the Open sends, and the deploy key it
-        # pushes to Codeberg with: write access to personal-blog only.
-        sops.secrets.personal_blog_receiver_token.restartUnits = [ "personal-blog-receiver.service" ];
         sops.secrets.personal_blog_receiver_ssh_key.restartUnits = [ "personal-blog-receiver.service" ];
-
-        systemd.services."personal-blog-report@" = {
-          description = "Tell the status page how a deploy of the blog went: %i";
-          serviceConfig = {
-            ExecStart = "${lib.getExe report} %i";
-            Type = "oneshot";
-          };
-        };
 
         my.ingress.public.blog = {
           inherit domain;
@@ -67,15 +55,6 @@
             path = "/";
           };
         };
-
-        # The wildcard doesn't cover the bare domain. Its challenge is the
-        # same _acme-challenge TXT record, so the deSEC token needs nothing
-        # more.
-        security.acme.certs.${domain}.extraDomainNames = [ domain ];
-
-        # The deploy runs nix build as this user; the daemon only lets in
-        # wheel otherwise (nix.nix).
-        nix.settings.allowed-users = [ "personal-blog" ];
 
         # The links to the last build, and which commit it was: the site is
         # there at boot, without waiting for a build. The store paths they
@@ -89,21 +68,44 @@
           }
         ];
 
+        # The deploy runs nix build as this user; the daemon only lets in
+        # wheel otherwise (nix.nix).
+        nix.settings.allowed-users = [ "personal-blog" ];
+
+        # The wildcard doesn't cover the bare domain. Its challenge is the
+        # same _acme-challenge TXT record, so the deSEC token needs nothing
+        # more.
+        security.acme.certs.${domain}.extraDomainNames = [ domain ];
+
         services.personal-blog = {
           inherit domain;
           enable = true;
-          repository = "https://codeberg.org/BW20/personal-blog";
           deploy.onFailure = [ "personal-blog-report@failure.service" ];
           deploy.onSuccess = [ "personal-blog-report@success.service" ];
+          repository = "https://codeberg.org/BW20/personal-blog";
 
           receiver = {
             enable = true;
-            tokenFile = config.sops.secrets.personal_blog_receiver_token.path;
+            author = "In the Open <receiver@${domain}>";
             pushUrl = "ssh://git@codeberg.org/BW20/personal-blog.git";
             sshKeyFile = config.sops.secrets.personal_blog_receiver_ssh_key.path;
+            tokenFile = config.sops.secrets.personal_blog_receiver_token.path;
+
             # ssh-keyscan -t ed25519 codeberg.org, on 2026-10-27.
             knownHosts = "codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
-            author = "In the Open <receiver@${domain}>";
+          };
+        };
+
+        # The receiver's token, which In the Open sends, and the deploy key it
+        # pushes to Codeberg with: write access to personal-blog only.
+        sops.secrets.personal_blog_receiver_token.restartUnits = [ "personal-blog-receiver.service" ];
+
+        systemd.services."personal-blog-report@" = {
+          description = "Tell the status page how a deploy of the blog went: %i";
+
+          serviceConfig = {
+            ExecStart = "${lib.getExe report} %i";
+            Type = "oneshot";
           };
         };
       };
