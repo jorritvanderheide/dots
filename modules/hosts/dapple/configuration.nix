@@ -43,6 +43,7 @@
             ...
           }:
           {
+            hardware.facter.detected.dhcp.interfaces = [ config.my.lan.interface ];
             my.calibre-web.lanSync.enable = true;
             my.forgejo-runner.connections.bw20 = "e0bbfda6-5c10-4cc0-b7b7-e00b8c951e7d";
             my.lan.interface = "enp2s0";
@@ -52,6 +53,11 @@
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             networking.hostName = "dapple";
             system.stateVersion = "26.05";
+
+            # dapple is wired-only, and rtw89 can't bring the Realtek card's
+            # WiFi back up once a switch restarts NetworkManager ("mac init
+            # fail, ret:-110"), which fails the deploy.
+            boot.blacklistedKernelModules = [ "rtw89_8852be" ];
 
             # nixos-facter finds the Realtek card's Bluetooth, which nothing
             # here uses.
