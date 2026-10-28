@@ -39,6 +39,14 @@
                 end
               '';
 
+              # Builds another host's config too (`nbuild dapple`); every host
+              # is x86_64-linux, so it builds locally.
+              functions.nbuild = ''
+                set -l host $argv[1]
+                test -n "$host"; or set host (hostname)
+                nh os build /etc/nixos --hostname $host --no-nom
+              '';
+
               functions.nrun = ''
                 nix run nixpkgs#$argv[1] -- $argv[2..]
               '';
@@ -82,7 +90,6 @@
               ];
 
               shellAliases = {
-                "nbuild" = "nh os build /etc/nixos --hostname (hostname) --no-nom";
                 "ncheck" = "nix flake check /etc/nixos";
                 "nformat" = "pushd /etc/nixos && sudo nix fmt . && popd";
                 "nlist" = "sudo nixos-rebuild list-generations";
