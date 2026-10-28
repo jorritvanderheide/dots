@@ -356,26 +356,6 @@
         "type": "github"
       }
     },
-    "personal-blog": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793182284,
-        "narHash": "sha256-zTX1SQqwhL5RRiTs+inCqCPcPu7h0cj9a2ag+Ew6R5s=",
-        "ref": "refs/heads/main",
-        "rev": "102edac0b5d99dc774bde1a65fac7c1625c9e9dc",
-        "revCount": 96,
-        "type": "git",
-        "url": "https://codeberg.org/BW20/personal-blog"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://codeberg.org/BW20/personal-blog"
-      }
-    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -428,8 +408,8 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-zotero": "nixpkgs-zotero",
         "noctalia": "noctalia",
-        "personal-blog": "personal-blog",
         "preservation": "preservation",
+        "small-press": "small-press",
         "snapback": "snapback",
         "sops-nix": "sops-nix",
         "systems": "systems",
@@ -456,6 +436,26 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
+      }
+    },
+    "small-press": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793188119,
+        "narHash": "sha256-LkQLj1bPyYbyNxI42aQCh4Yj12Fwn3Tn8BRX9/iyL1Y=",
+        "ref": "refs/heads/main",
+        "rev": "7ede3421b14b7720e85d961032c7d6d358418305",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/small-press"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/BW20/small-press"
       }
     },
     "snapback": {

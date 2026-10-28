@@ -3,8 +3,9 @@
   ...
 }:
 {
-  # The blog, at the bare domain, public like meetinn. dapple builds it
-  # itself, from every push to its repository (its docs/architecture.md,
+  # The blog, at the bare domain, public like meetinn: the site bw20 on
+  # small-press, whose module serves every site on it. dapple builds it
+  # itself, from every push to its repository (small-press's architecture,
   # Deployment): the module only serves, and runs, what that builds.
   flake.nixosModules.blog =
     {
@@ -20,7 +21,7 @@
       # status page as deploys/blog (gatus.nix), which alerts the phone, as
       # comin's report does for the host's own deploys (comin.nix).
       report = pkgs.writeShellApplication {
-        name = "personal-blog-report";
+        name = "small-press-bw20-report";
         runtimeInputs = [ pkgs.curl ];
 
         # The header on stdin, not in curl's arguments, which any local
@@ -29,7 +30,7 @@
           if [[ "$1" == success ]]; then
             query=(--data-urlencode success=true)
           else
-            rev="$(</var/lib/personal-blog/failed)"
+            rev="$(</var/lib/small-press-bw20/failed)"
             query=(--data-urlencode success=false --data-urlencode "error=''${rev:0:12} doesn't build; the site that was there stays")
           fi
 
@@ -39,12 +40,12 @@
       };
     in
     {
-      imports = [ inputs.personal-blog.nixosModules.default ];
+      imports = [ inputs.small-press.nixosModules.default ];
 
       config = {
         my.gatus.pushes.blog.group = "deploys";
         sops.secrets.gatus_push_token = { };
-        sops.secrets.personal_blog_receiver_ssh_key.restartUnits = [ "personal-blog-receiver.service" ];
+        sops.secrets.personal_blog_receiver_ssh_key.restartUnits = [ "small-press-bw20-receiver.service" ];
 
         my.ingress.public.blog = {
           inherit domain;
@@ -61,27 +62,27 @@
         # point at are GC roots, so only the links need keeping.
         my.preservation.systemDirectories = [
           {
-            directory = "/var/lib/personal-blog";
-            group = "personal-blog";
+            directory = "/var/lib/small-press-bw20";
+            group = "small-press-bw20";
             mode = "0755";
-            user = "personal-blog";
+            user = "small-press-bw20";
           }
         ];
 
         # The deploy runs nix build as this user; the daemon only lets in
         # wheel otherwise (nix.nix).
-        nix.settings.allowed-users = [ "personal-blog" ];
+        nix.settings.allowed-users = [ "small-press-bw20" ];
 
         # The wildcard doesn't cover the bare domain. Its challenge is the
         # same _acme-challenge TXT record, so the deSEC token needs nothing
         # more.
         security.acme.certs.${domain}.extraDomainNames = [ domain ];
 
-        services.personal-blog = {
+        services.small-press.sites.bw20 = {
           inherit domain;
-          enable = true;
-          deploy.onFailure = [ "personal-blog-report@failure.service" ];
-          deploy.onSuccess = [ "personal-blog-report@success.service" ];
+          program = "personal-blog";
+          deploy.onFailure = [ "small-press-bw20-report@failure.service" ];
+          deploy.onSuccess = [ "small-press-bw20-report@success.service" ];
           repository = "https://codeberg.org/BW20/personal-blog";
 
           receiver = {
@@ -98,9 +99,9 @@
 
         # The receiver's token, which In the Open sends, and the deploy key it
         # pushes to Codeberg with: write access to personal-blog only.
-        sops.secrets.personal_blog_receiver_token.restartUnits = [ "personal-blog-receiver.service" ];
+        sops.secrets.personal_blog_receiver_token.restartUnits = [ "small-press-bw20-receiver.service" ];
 
-        systemd.services."personal-blog-report@" = {
+        systemd.services."small-press-bw20-report@" = {
           description = "Tell the status page how a deploy of the blog went: %i";
 
           serviceConfig = {

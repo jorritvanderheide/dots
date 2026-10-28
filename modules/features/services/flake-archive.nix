@@ -20,7 +20,7 @@
       lock = lib.importJSON (inputs.self + "/flake.lock");
 
       # One folder per node, by its name in flake.lock (nixpkgs_2 is the
-      # one nodes.personal-blog.inputs names), from the store path the flake
+      # one nodes.small-press.inputs names), from the store path the flake
       # itself was evaluated with.
       sources = pkgs.linkFarm "flake-inputs" (
         lib.mapAttrs (_: node: builtins.fetchTree node.locked) (removeAttrs lock.nodes [ lock.root ])
