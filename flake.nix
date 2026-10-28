@@ -74,7 +74,7 @@
 
     # Only its module: dapple builds each site itself, from the site's
     # repository and with the nixpkgs that repository's lock pins
-    # (blog.nix).
+    # (blog.nix, blog-jeltje.nix).
     small-press = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "git+https://codeberg.org/BW20/small-press";

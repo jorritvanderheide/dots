@@ -19,8 +19,8 @@
       dir = "/var/lib/flake-archive";
       lock = lib.importJSON (inputs.self + "/flake.lock");
 
-      # One folder per node, by its name in flake.lock (nixpkgs_2 is the
-      # one nodes.small-press.inputs names), from the store path the flake
+      # One folder per node, by its name in flake.lock (flake-compat_2 is the
+      # one nodes.pre-commit.inputs names), from the store path the flake
       # itself was evaluated with.
       sources = pkgs.linkFarm "flake-inputs" (
         lib.mapAttrs (_: node: builtins.fetchTree node.locked) (removeAttrs lock.nodes [ lock.root ])
