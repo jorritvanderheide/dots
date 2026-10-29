@@ -76,7 +76,7 @@
 
       vaultPath = lib.mkOption {
         type = lib.types.str;
-        default = "Git/obsidian";
+        default = "Git/Obsidian/obsidian";
         description = ''
           Obsidian vault location, relative to the user's home directory.
         '';
