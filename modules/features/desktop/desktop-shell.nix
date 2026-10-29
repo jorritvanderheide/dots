@@ -169,7 +169,6 @@
 
                       start = [
                         "pomodoro"
-                        "recorder"
                       ];
                     };
 
@@ -233,7 +232,6 @@
                     # sources; fetched on first start, kept current by its
                     # own auto-update.
                     plugins.enabled = [
-                      "noctalia/screen_recorder"
                       "thepunkoff/pomodoro"
                     ];
 
@@ -299,10 +297,6 @@
                     # instance; "pomodoro" above is this one. Click it for
                     # the timer's panel.
                     widget.pomodoro.type = "thepunkoff/pomodoro:widget";
-
-                    # Click to start recording, and again to stop; the file
-                    # goes to ~/Videos/Recordings.
-                    widget.recorder.type = "noctalia/screen_recorder:recorder";
                   };
                 };
               };
