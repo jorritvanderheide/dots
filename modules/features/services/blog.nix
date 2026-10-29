@@ -80,9 +80,9 @@
 
         services.small-press.sites.bw20 = {
           inherit domain;
-          program = "personal-blog";
           deploy.onFailure = [ "small-press-bw20-report@failure.service" ];
           deploy.onSuccess = [ "small-press-bw20-report@success.service" ];
+          program = "personal-blog";
           repository = "https://codeberg.org/BW20/personal-blog";
 
           receiver = {

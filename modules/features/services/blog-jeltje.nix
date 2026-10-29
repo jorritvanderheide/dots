@@ -44,8 +44,8 @@
 
       config = {
         my.gatus.pushes.jeltje.group = "deploys";
-        sops.secrets.gatus_push_token = { };
         sops.secrets.blog_jeltje_receiver_ssh_key.restartUnits = [ "small-press-jeltje-receiver.service" ];
+        sops.secrets.gatus_push_token = { };
 
         # A subdomain, so the wildcard certificate covers it; its A record
         # in deSEC points at the router, as cv's does.
@@ -73,9 +73,9 @@
 
         services.small-press.sites.jeltje = {
           inherit domain;
-          program = "blog-jeltje";
           deploy.onFailure = [ "small-press-jeltje-report@failure.service" ];
           deploy.onSuccess = [ "small-press-jeltje-report@success.service" ];
+          program = "blog-jeltje";
           repository = "https://codeberg.org/BW20/blog-jeltje";
 
           receiver = {
