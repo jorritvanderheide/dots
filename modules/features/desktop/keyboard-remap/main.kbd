@@ -12,12 +12,15 @@
   tap-time @tapTime@
   hold-time @holdTime@
   idle-time @idleTime@
+)
 
-  ;; Not the home-row mod keys themselves (a s d f, j k l ;): one pressed
-  ;; while another is held stacks the mods, instead of turning the held one
-  ;; into its letter.
-  left-keys  (q w e r t g z x c v grv tab caps)
-  right-keys (y u i o p h n m , . / ' ret bspc)
+;; Hands for tap-hold-opposite-hand. Each home-row mod treats its
+;; own hand's mod keys as neutral: one pressed while another is
+;; held stacks the mods, instead of turning the held one into its
+;; letter. Keys of neither hand (b, the number row) fire the mod.
+(defhands
+  (left  q w e r t g z x c v grv tab caps a s d f)
+  (right y u i o p h n m , . / ' ret bspc j k l ;)
 )
 
 (defvirtualkeys
@@ -33,39 +36,57 @@
   )
 
   ;; Homerow mods - Left hand
-  ;; tap-hold-release-keys fires the modifier when the next key is
-  ;; RELEASED (chords like k+s trigger before hold-time elapses),
+  ;; tap-hold-opposite-hand fires the modifier as soon as an
+  ;; opposite-hand key is PRESSED (a rolled f+. still gives '>'),
   ;; and resolves to the plain letter as soon as a same-hand key
   ;; is pressed (rolls like 'as' can never produce a modifier).
+  ;; Space is neutral, so a rolled 'f ' stays 'f '. Held alone
+  ;; past hold-time, the key is the modifier (Shift+click).
   ;; The hold also activates a mask layer that kills the other
   ;; same-hand keys, so a modifier only ever combines with
   ;; opposite-hand keys. The same hand's other HRM keys stay
   ;; holdable on the mask layer so mods can stack (a+s+p gives
   ;; Meta+Alt+P), but their taps are dead there.
-  a (tap-hold-release-keys $tap-time $hold-time (multi a @.tp) (multi lmet (layer-while-held lmask)) $left-keys)
-  s (tap-hold-release-keys $tap-time $hold-time (multi s @.tp) (multi lalt (layer-while-held lmask)) $left-keys)
-  d (tap-hold-release-keys $tap-time $hold-time (multi d @.tp) (multi lctl (layer-while-held lmask)) $left-keys)
-  f (tap-hold-release-keys $tap-time $hold-time (multi f @.tp) (multi lsft (layer-while-held lmask)) $left-keys)
+  a (tap-hold-opposite-hand $hold-time (multi a @.tp) (multi lmet (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  s (tap-hold-opposite-hand $hold-time (multi s @.tp) (multi lalt (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  d (tap-hold-opposite-hand $hold-time (multi d @.tp) (multi lctl (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  f (tap-hold-opposite-hand $hold-time (multi f @.tp) (multi lsft (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
 
   ;; Homerow mods - Right hand
-  j (tap-hold-release-keys $tap-time $hold-time (multi j @.tp) (multi rsft (layer-while-held rmask)) $right-keys)
-  k (tap-hold-release-keys $tap-time $hold-time (multi k @.tp) (multi rctl (layer-while-held rmask)) $right-keys)
-  l (tap-hold-release-keys $tap-time $hold-time (multi l @.tp) (multi ralt (layer-while-held rmask)) $right-keys)
-  ; (tap-hold-release-keys $tap-time $hold-time (multi ; @.tp) (multi rmet (layer-while-held rmask)) $right-keys)
+  j (tap-hold-opposite-hand $hold-time (multi j @.tp) (multi rsft (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  k (tap-hold-opposite-hand $hold-time (multi k @.tp) (multi rctl (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  l (tap-hold-opposite-hand $hold-time (multi l @.tp) (multi ralt (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  ; (tap-hold-opposite-hand $hold-time (multi ; @.tp) (multi rmet (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
 
   ;; Masked homerow mods, used on the mask layers: tap is dead
   ;; (a same-hand mod+letter must never fire), hold stacks the
   ;; next modifier. This distinguishes s-as-key (released before
   ;; the target key: blocked) from s-as-mod (still held when the
   ;; target key fires: stacks).
-  am (tap-hold-release-keys $tap-time $hold-time XX (multi lmet (layer-while-held lmask)) $left-keys)
-  sm (tap-hold-release-keys $tap-time $hold-time XX (multi lalt (layer-while-held lmask)) $left-keys)
-  dm (tap-hold-release-keys $tap-time $hold-time XX (multi lctl (layer-while-held lmask)) $left-keys)
-  fm (tap-hold-release-keys $tap-time $hold-time XX (multi lsft (layer-while-held lmask)) $left-keys)
-  jm (tap-hold-release-keys $tap-time $hold-time XX (multi rsft (layer-while-held rmask)) $right-keys)
-  km (tap-hold-release-keys $tap-time $hold-time XX (multi rctl (layer-while-held rmask)) $right-keys)
-  lm (tap-hold-release-keys $tap-time $hold-time XX (multi ralt (layer-while-held rmask)) $right-keys)
-  sem (tap-hold-release-keys $tap-time $hold-time XX (multi rmet (layer-while-held rmask)) $right-keys)
+  am (tap-hold-opposite-hand $hold-time XX (multi lmet (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  sm (tap-hold-opposite-hand $hold-time XX (multi lalt (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  dm (tap-hold-opposite-hand $hold-time XX (multi lctl (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  fm (tap-hold-opposite-hand $hold-time XX (multi lsft (layer-while-held lmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys a s d f spc) (tap-repress-timeout $tap-time))
+  jm (tap-hold-opposite-hand $hold-time XX (multi rsft (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  km (tap-hold-opposite-hand $hold-time XX (multi rctl (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  lm (tap-hold-opposite-hand $hold-time XX (multi ralt (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
+  sem (tap-hold-opposite-hand $hold-time XX (multi rmet (layer-while-held rmask))
+    (timeout hold) (unknown-hand hold) (neutral-keys j k l ; spc) (tap-repress-timeout $tap-time))
 
   ;; Space as navigation layer on hold
   spacenav (tap-hold $tap-time $hold-time spc (layer-while-held nav))
