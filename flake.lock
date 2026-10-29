@@ -445,11 +445,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793198933,
-        "narHash": "sha256-SgSwEkewQcCjy3N5qprEYTj1D//Ekbv4fwAy0h2cS/c=",
+        "lastModified": 1793274166,
+        "narHash": "sha256-9TJxRxKAv/PlSKpOKPEFHP3ajAFvCVsvjt5S5EHk/Yk=",
         "ref": "refs/heads/main",
-        "rev": "3b8a611a49a835e4ea3209d89879f23405fdfa86",
-        "revCount": 4,
+        "rev": "b856d2974f0de360703dac8d64e5c1738501db29",
+        "revCount": 13,
         "type": "git",
         "url": "https://codeberg.org/BW20/small-press"
       },
