@@ -171,6 +171,20 @@
                       }
                     ];
 
+                    # `jj sync`: fetch, and rebase the change at hand onto the
+                    # remote's main, where a site's receiver pushes too. Each
+                    # repository has one remote, origin or codeberg, so the
+                    # alias names none. Declared here, as a repository's own
+                    # jj config lives under ~/.config, which a boot wipes.
+                    aliases.sync = [
+                      "util"
+                      "exec"
+                      "--"
+                      "sh"
+                      "-c"
+                      "jj git fetch && jj rebase --branch @ --destination 'remote_bookmarks(exact:\"main\")'"
+                    ];
+
                     # What a bare `jj sign` signs: the unsigned commits on this
                     # line, such as those made while signing was dropped. jj
                     # signs every revision it's given again, and its default,
