@@ -87,7 +87,7 @@
                 };
 
                 # VLC is the visible player, presented as a generic "Videos"
-                # entry (mirroring "Music"); its own entry is hidden.
+                # entry; its own entry is hidden.
                 vlc = {
                   name = "VLC media player";
                   noDisplay = true;
