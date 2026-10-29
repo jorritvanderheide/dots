@@ -178,6 +178,44 @@
                     };
                 };
               };
+
+              # Keeps Zotero's local HTTP server (port 23119, which Paper
+              # Trail and Better BibTeX's CAYW endpoint use) up without a
+              # window. The Obsidian wrapper in notes.nix starts and stops
+              # it. Skipped when Zotero is already open, since a second
+              # instance cannot share the profile.
+              systemd.user.services.zotero-headless = {
+                Unit.Description = "Zotero without a window";
+
+                Service = {
+                  Environment = "MOZ_HEADLESS=1";
+                  ExecCondition = "${pkgs.bash}/bin/sh -c '! ${pkgs.procps}/bin/pgrep -u %u -x zotero-bin'";
+                  ExecStart = lib.getExe config.programs.zotero.package;
+                };
+              };
+
+              # The headless instance holds the profile lock, and a normal
+              # launch against it exits 255 without a window, so opening
+              # Zotero from the launcher or a zotero:// link stops it first,
+              # and brings it back once Zotero quits if Obsidian still holds
+              # its lock (see notes.nix). A launch that only hands a link to
+              # an open Zotero returns at once; ExecCondition skips the start
+              # then. Overrides the package's entry the same way
+              # session-restore.nix does for Zen; wrapping the package instead
+              # would rebuild the pinned Zotero from source.
+              xdg.dataFile."applications/zotero.desktop".source =
+                pkgs.runCommand "zotero-stop-headless.desktop" { }
+                  ''
+                    substitute ${config.programs.zotero.package}/share/applications/zotero.desktop $out \
+                      --replace-fail 'Exec=zotero' 'Exec=${pkgs.writeShellScript "zotero" ''
+                        systemctl --user stop zotero-headless.service
+                        ${lib.getExe config.programs.zotero.package} "$@"
+                        status=$?
+                        ${lib.getExe' pkgs.util-linux "flock"} --nonblock --close "$XDG_RUNTIME_DIR/obsidian.lock" true ||
+                          systemctl --user start --no-block zotero-headless.service
+                        exit $status
+                      ''}'
+                  '';
             }
           )
         ];
