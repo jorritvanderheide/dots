@@ -35,7 +35,6 @@ in
 
           systemPackages = with pkgs; [
             batsignal
-            blueman
             brightnessctl
             imv
             playerctl
