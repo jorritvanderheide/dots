@@ -128,7 +128,7 @@
               enable = true;
 
               paths = [
-                "/persist/home/jorrit/Git/obsidian"
+                "/persist/home/jorrit/${config.my.research.vaultPath}"
                 "/persist/home/jorrit/Zotero"
               ];
             };
