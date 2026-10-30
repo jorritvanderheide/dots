@@ -165,10 +165,10 @@
                         "bluetooth"
                         "volume"
                         "battery"
+                        "caffeine"
                       ];
 
                       start = [
-                        "caffeine"
                         "pomodoro"
                       ];
                     };
