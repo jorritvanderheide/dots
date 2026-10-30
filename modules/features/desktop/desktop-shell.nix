@@ -168,6 +168,7 @@
                       ];
 
                       start = [
+                        "caffeine"
                         "pomodoro"
                       ];
                     };
