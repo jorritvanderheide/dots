@@ -40,7 +40,8 @@
               };
 
               wallpapers = lib.mapAttrs' (
-                file: _: lib.nameValuePair (lib.removeSuffix ".png" file) "${inputs.wallpapers}/${file}"
+                file: _:
+                lib.nameValuePair (lib.head (builtins.match "(.*)\\.[^.]+" file)) "${inputs.wallpapers}/${file}"
               ) (builtins.readDir inputs.wallpapers);
             };
 

@@ -561,8 +561,8 @@
     "wallpapers": {
       "flake": false,
       "locked": {
-        "lastModified": 1793108159,
-        "narHash": "sha256-ujB99AbOBM95VbfNbb2d9zk4TApn6u5Nqys6VAjbQEQ=",
+        "lastModified": 1793546087,
+        "narHash": "sha256-/xdockiYP/U2EDoXghkTTAlJxF6Es3cRUygYymmSyH8=",
         "path": "/home/jorrit/Pictures/Wallpapers",
         "type": "path"
       },
