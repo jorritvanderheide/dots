@@ -219,10 +219,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1793534618,
-        "narHash": "sha256-9EN4fdhKUcRlHPlsB0cUtkolQIkb3M4hmNCJO/1A6ws=",
-        "rev": "c9d4292fa8dd9ab9b6c5d3a4d0ae937677e91ef8",
-        "revCount": 1,
+        "lastModified": 1793535598,
+        "narHash": "sha256-SjIDYYELXYiU4JEZ3taE62egv+x2pyIn2LGBAjGnP+Q=",
+        "rev": "dc52e1962020610957410fa607ede053fcd218e4",
+        "revCount": 2,
         "type": "git",
         "url": "file:///home/jorrit/Git/nihil-shell"
       },
@@ -437,6 +437,7 @@
         "sops-nix": "sops-nix",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
+        "wallpapers": "wallpapers",
         "zen-browser": "zen-browser"
       }
     },
@@ -555,6 +556,19 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "wallpapers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793108159,
+        "narHash": "sha256-ujB99AbOBM95VbfNbb2d9zk4TApn6u5Nqys6VAjbQEQ=",
+        "path": "/home/jorrit/Pictures/Wallpapers",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/jorrit/Pictures/Wallpapers",
+        "type": "path"
       }
     },
     "xwayland-satellite-stable": {

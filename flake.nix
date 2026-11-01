@@ -108,6 +108,12 @@
       url = "github:numtide/treefmt-nix";
     };
 
+    # Local like nihil-shell, to keep the images out of this public repository.
+    wallpapers = {
+      flake = false;
+      url = "path:/home/jorrit/Pictures/Wallpapers";
+    };
+
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
 
