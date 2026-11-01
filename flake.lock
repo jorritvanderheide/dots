@@ -209,6 +209,28 @@
         "url": "https://codeberg.org/BW20/new-leaf"
       }
     },
+    "nihil-shell": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793534618,
+        "narHash": "sha256-9EN4fdhKUcRlHPlsB0cUtkolQIkb3M4hmNCJO/1A6ws=",
+        "rev": "c9d4292fa8dd9ab9b6c5d3a4d0ae937677e91ef8",
+        "revCount": 1,
+        "type": "git",
+        "url": "file:///home/jorrit/Git/nihil-shell"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/jorrit/Git/nihil-shell"
+      }
+    },
     "niri-flake": {
       "inputs": {
         "niri-stable": "niri-stable",
@@ -403,6 +425,7 @@
         "lanzaboote": "lanzaboote",
         "meetinn": "meetinn",
         "new-leaf": "new-leaf",
+        "nihil-shell": "nihil-shell",
         "niri-flake": "niri-flake",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
