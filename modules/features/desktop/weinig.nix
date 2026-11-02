@@ -114,6 +114,7 @@
               bar.main.enabled = false;
               notification.enable_daemon = false;
               osd.enabled = false;
+              shell.polkit_agent = lib.mkForce false;
               shell.screen_corners.enabled = lib.mkForce false;
               wallpaper.enabled = lib.mkForce false;
 
