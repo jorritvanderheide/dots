@@ -68,7 +68,6 @@
             "**/*.kbd"
             "**/assets/**"
             "**/facter.json"
-            "**/noctalia-templates/**"
             "docs/**"
             "README.md"
             "scripts/nix-order-tests/**"

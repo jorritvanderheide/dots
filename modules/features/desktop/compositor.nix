@@ -132,12 +132,10 @@ in
                   gaps = 80.0;
                   shadow.enable = true;
 
-                  # Until noctalia has written its colors (noctalia.kdl, in
-                  # theming), which then override these.
                   border = {
                     enable = true;
-                    active.color = "#ff5555";
-                    inactive.color = "#44475a";
+                    active.color = "#d0d0d0";
+                    inactive.color = "#303030";
                     width = 4;
                   };
 

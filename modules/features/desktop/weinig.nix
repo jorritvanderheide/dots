@@ -122,6 +122,7 @@
             noctalia.settings = {
               backdrop.enabled = lib.mkForce false;
               bar.main.enabled = false;
+              battery.warning_threshold = 0;
               notification.enable_daemon = false;
               osd.enabled = false;
               shell.polkit_agent = lib.mkForce false;
