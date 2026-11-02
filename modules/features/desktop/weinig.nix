@@ -116,6 +116,10 @@
               osd.enabled = false;
               shell.screen_corners.enabled = lib.mkForce false;
               wallpaper.enabled = lib.mkForce false;
+
+              # noctalia draws its own notifications even without its daemon, and the indicator
+              # already shows headphones connecting and disconnecting.
+              bluetooth.connection_notifications = false;
             };
 
             weinig = {
