@@ -58,22 +58,27 @@
         in
         {
           programs = {
-            # An edge of the screen flashes towards the session's window. An interrupted turn has
-            # no Stop, so going idle counts as done as well.
-            claude-code.settings.hooks = {
-              PostToolUse = [ (agentHook "" "working") ];
-              PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
-              SessionEnd = [ (agentHook "" "clear") ];
-              Stop = [ (agentHook "" "done") ];
-              UserPromptSubmit = [ (agentHook "" "working") ];
+            claude-code.settings = {
+              # An edge of the screen flashes towards the session's window. An interrupted turn has
+              # no Stop, so going idle counts as done as well.
+              hooks = {
+                PostToolUse = [ (agentHook "" "working") ];
+                PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
+                SessionEnd = [ (agentHook "" "clear") ];
+                Stop = [ (agentHook "" "done") ];
+                UserPromptSubmit = [ (agentHook "" "working") ];
 
-              Notification = [
-                (agentHook "permission_prompt" "waiting")
-                (agentHook "idle_prompt" "done")
-              ];
+                Notification = [
+                  (agentHook "permission_prompt" "waiting")
+                  (agentHook "idle_prompt" "done")
+                ];
 
-              # Not on compact, which happens in the middle of a turn.
-              SessionStart = [ (agentHook "startup|resume|clear|fork" "done") ];
+                # Not on compact, which happens in the middle of a turn.
+                SessionStart = [ (agentHook "startup|resume|clear|fork" "done") ];
+              };
+
+              # Ghostty would show its own notification for what the edge flashes for.
+              preferredNotifChannel = "notifications_disabled";
             };
 
             niri.settings = {
