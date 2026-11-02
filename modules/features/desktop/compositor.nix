@@ -132,11 +132,12 @@ in
                   gaps = 80.0;
                   shadow.enable = true;
 
+                  # Weinig's hairline: its `white` and `line` (shell/theme/Theme.qml).
                   border = {
                     enable = true;
-                    active.color = "#d0d0d0";
-                    inactive.color = "#303030";
-                    width = 4;
+                    active.color = "#ffffff";
+                    inactive.color = "#2a2a2a";
+                    width = 1;
                   };
 
                   preset-column-widths = [
