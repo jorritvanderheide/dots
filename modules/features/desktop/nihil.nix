@@ -4,11 +4,7 @@
   ...
 }:
 {
-  # Trying the NIHIL shell: it takes the bar, launcher, notifications and OSD.
-  # noctalia keeps running for what NIHIL doesn't do: the lock screen, idle and
-  # suspend, the polkit agent, clipboard, screenshots and the theme colors.
-  # Everything here overrides desktop-shell.nix and keybinds.nix, so dropping
-  # this module brings noctalia's parts back.
+  # Only the dot-matrix wallpapers of Nihil, while Weinig has none (weinig.nix).
   flake.nixosModules.nihil = {
     home-manager.sharedModules = [
       inputs.nihil-shell.homeModules.default
@@ -21,7 +17,7 @@
           programs = {
             nihil = {
               enable = true;
-              barOutputs = [ "eDP-1" ];
+              systemd.enable = false;
               terminal = "ghostty";
               wallpaper = "wallhaven-exvvqk";
 
@@ -46,17 +42,8 @@
             };
 
             niri.settings.binds = {
-              "Mod+D".action = spawn "nihil" "msg" "drawers" "toggle" "dashboard";
-              "Mod+M".action = lib.mkForce (spawn "nihil-osd-volume" "mute");
-              "Mod+N".action = spawn "nihil" "msg" "drawers" "toggle" "panel";
               "Mod+Shift+W".action = lib.mkForce (spawn "nihil-wallpaper" "prev");
-              "Mod+Space".action = lib.mkForce (spawn "nihil" "msg" "drawers" "toggle" "launcher");
               "Mod+W".action = lib.mkForce (spawn "nihil-wallpaper" "next");
-              "XF86AudioLowerVolume".action = lib.mkForce (spawn "nihil-osd-volume" "down");
-              "XF86AudioMute".action = lib.mkForce (spawn "nihil-osd-volume" "mute");
-              "XF86AudioRaiseVolume".action = lib.mkForce (spawn "nihil-osd-volume" "up");
-              "XF86MonBrightnessDown".action = lib.mkForce (spawn "nihil-osd-brightness" "down");
-              "XF86MonBrightnessUp".action = lib.mkForce (spawn "nihil-osd-brightness" "up");
             };
 
             # One wallpaper behind the workspaces in the overview, as with
@@ -73,10 +60,6 @@
 
             noctalia.settings = {
               backdrop.enabled = lib.mkForce false;
-              bar.main.enabled = false;
-              notification.enable_daemon = false;
-              osd.enabled = false;
-              shell.screen_corners.enabled = lib.mkForce false;
               wallpaper.enabled = lib.mkForce false;
             };
           };

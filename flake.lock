@@ -438,6 +438,7 @@
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
         "wallpapers": "wallpapers",
+        "weinig-shell": "weinig-shell",
         "zen-browser": "zen-browser"
       }
     },
@@ -569,6 +570,29 @@
       "original": {
         "path": "/home/jorrit/Pictures/Wallpapers",
         "type": "path"
+      }
+    },
+    "weinig-shell": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793605553,
+        "narHash": "sha256-ebXGGT8hiwG2XRFNLpTfGelFYb16L5/aX3unPnxulsw=",
+        "ref": "refs/heads/main",
+        "rev": "e2e85ef1cd12d0c288b831e18bca4ff45225789b",
+        "revCount": 14,
+        "type": "git",
+        "url": "https://codeberg.org/BW20/weinig-shell"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/BW20/weinig-shell"
       }
     },
     "xwayland-satellite-stable": {

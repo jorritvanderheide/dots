@@ -114,6 +114,15 @@
       url = "path:/home/jorrit/Pictures/Wallpapers";
     };
 
+    weinig-shell = {
+      url = "git+https://codeberg.org/BW20/weinig-shell";
+
+      inputs = {
+        home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
 

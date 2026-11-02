@@ -20,6 +20,7 @@
       polkit
       session
       theming
+      weinig
 
       # Research
       research
