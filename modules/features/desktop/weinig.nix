@@ -4,9 +4,9 @@
   ...
 }:
 {
-  # Trying Weinig: it takes the frame, the bar, the launcher and notifications. noctalia
-  # keeps the rest until Weinig has it, from the lock screen to the clipboard, and Nihil the
-  # wallpaper (nihil.nix). Dropping this module brings noctalia's bar back.
+  # Trying Weinig: it takes the frame, the bar, the launcher, notifications and the wallpaper.
+  # noctalia keeps the rest until Weinig has it, from the lock screen to the clipboard. Dropping
+  # this module brings noctalia's bar and wallpaper back.
   flake.nixosModules.weinig = {
     home-manager.sharedModules = [
       inputs.weinig-shell.homeModules.default
@@ -17,18 +17,36 @@
         in
         {
           programs = {
-            niri.settings.binds = {
-              "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
+            niri.settings = {
+              binds = {
+                "Mod+Shift+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "previous");
+                "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
+                "Mod+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "next");
 
-              # The bar's status isn't there yet, so noctalia's panel has to do.
-              "Mod+N".action = spawn "noctalia" "msg" "panel-toggle" "control-center";
+                # The bar's status isn't there yet, so noctalia's panel has to do.
+                "Mod+N".action = spawn "noctalia" "msg" "panel-toggle" "control-center";
+              };
+
+              # One wallpaper behind the workspaces in the overview, as with noctalia's
+              # backdrop (compositor.nix).
+              layer-rules = [
+                {
+                  place-within-backdrop = true;
+
+                  matches = [
+                    { namespace = "^weinig-wallpaper$"; }
+                  ];
+                }
+              ];
             };
 
             noctalia.settings = {
+              backdrop.enabled = lib.mkForce false;
               bar.main.enabled = false;
               notification.enable_daemon = false;
               osd.enabled = false;
               shell.screen_corners.enabled = lib.mkForce false;
+              wallpaper.enabled = lib.mkForce false;
             };
 
             weinig = {
@@ -51,6 +69,10 @@
                     "-e"
                   ];
                 };
+
+                # The folder itself rather than a copy in the store, so that images added to
+                # it show up without a rebuild.
+                wallpaper.directory = "${config.home.homeDirectory}/Pictures/Wallpapers";
               };
             };
           };

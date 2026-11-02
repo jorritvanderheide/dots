@@ -45,16 +45,6 @@
       url = "git+https://codeberg.org/BW20/new-leaf";
     };
 
-    # Local until it has a remote, so this can't deploy: comin can't fetch it.
-    nihil-shell = {
-      url = "git+file:///home/jorrit/Git/nihil-shell";
-
-      inputs = {
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
     # niri-flake's and nixos-hardware's own nixpkgs only build their
     # packages and checks, which we don't use: niri comes from nixpkgs
     # (compositor.nix).
@@ -106,12 +96,6 @@
     treefmt-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:numtide/treefmt-nix";
-    };
-
-    # Local like nihil-shell, to keep the images out of this public repository.
-    wallpapers = {
-      flake = false;
-      url = "path:/home/jorrit/Pictures/Wallpapers";
     };
 
     weinig-shell = {

@@ -15,7 +15,6 @@
       files
       keybinds
       keyboard-remap
-      nihil
       notifications
       polkit
       session

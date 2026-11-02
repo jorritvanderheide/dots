@@ -209,28 +209,6 @@
         "url": "https://codeberg.org/BW20/new-leaf"
       }
     },
-    "nihil-shell": {
-      "inputs": {
-        "home-manager": [
-          "home-manager"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793535598,
-        "narHash": "sha256-SjIDYYELXYiU4JEZ3taE62egv+x2pyIn2LGBAjGnP+Q=",
-        "rev": "dc52e1962020610957410fa607ede053fcd218e4",
-        "revCount": 2,
-        "type": "git",
-        "url": "file:///home/jorrit/Git/nihil-shell"
-      },
-      "original": {
-        "type": "git",
-        "url": "file:///home/jorrit/Git/nihil-shell"
-      }
-    },
     "niri-flake": {
       "inputs": {
         "niri-stable": "niri-stable",
@@ -425,7 +403,6 @@
         "lanzaboote": "lanzaboote",
         "meetinn": "meetinn",
         "new-leaf": "new-leaf",
-        "nihil-shell": "nihil-shell",
         "niri-flake": "niri-flake",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
@@ -437,7 +414,6 @@
         "sops-nix": "sops-nix",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
-        "wallpapers": "wallpapers",
         "weinig-shell": "weinig-shell",
         "zen-browser": "zen-browser"
       }
@@ -557,19 +533,6 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
-      }
-    },
-    "wallpapers": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793546087,
-        "narHash": "sha256-/xdockiYP/U2EDoXghkTTAlJxF6Es3cRUygYymmSyH8=",
-        "path": "/home/jorrit/Pictures/Wallpapers",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/jorrit/Pictures/Wallpapers",
-        "type": "path"
       }
     },
     "weinig-shell": {
