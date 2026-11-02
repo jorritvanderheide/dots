@@ -21,11 +21,27 @@
             matcher: state:
             let
               script = pkgs.writeShellScript "weinig-agent" ''
-                id=$(${lib.getExe pkgs.jq} -r .session_id)
+                input=$(cat)
+                id=$(${lib.getExe pkgs.jq} -r .session_id <<<"$input")
+                folder=$(${lib.getExe pkgs.jq} -r '.cwd // ""' <<<"$input")
                 if [ "$1" = clear ]; then
                   exec ${lib.getExe config.programs.weinig.package} msg agent clear "$id"
                 fi
-                exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$1"
+
+                # The processes above this one, for the window the agent is in.
+                pids=""
+                pid=$PPID
+                while [ "$pid" -gt 1 ] && [ -r "/proc/$pid/status" ]; do
+                  pids="$pids $pid"
+                  while read -r key value; do
+                    if [ "$key" = PPid: ]; then
+                      pid=$value
+                      break
+                    fi
+                  done <"/proc/$pid/status"
+                done
+
+                exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$1" "$pids" "$folder"
               '';
             in
             {
@@ -42,8 +58,8 @@
         in
         {
           programs = {
-            # An LED for each session in the bar. An interrupted turn has no Stop, so going
-            # idle counts as done as well, which is also what ends a denied permission's red.
+            # An edge of the screen flashes towards the session's window. An interrupted turn has
+            # no Stop, so going idle counts as done as well.
             claude-code.settings.hooks = {
               PostToolUse = [ (agentHook "" "working") ];
               PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
