@@ -11,12 +11,55 @@
     home-manager.sharedModules = [
       inputs.weinig-shell.homeModules.default
       (
-        { config, ... }:
+        { config, pkgs, ... }:
         let
           inherit (config.lib.niri.actions) spawn;
+
+          # In the background, so that the shell can't hold up an agent, and whether it is
+          # running or not.
+          agentHook =
+            matcher: state:
+            let
+              script = pkgs.writeShellScript "weinig-agent" ''
+                id=$(${lib.getExe pkgs.jq} -r .session_id)
+                if [ "$1" = clear ]; then
+                  exec ${lib.getExe config.programs.weinig.package} msg agent clear "$id"
+                fi
+                exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$1"
+              '';
+            in
+            {
+              inherit matcher;
+
+              hooks = [
+                {
+                  async = true;
+                  command = "${script} ${state}";
+                  type = "command";
+                }
+              ];
+            };
         in
         {
           programs = {
+            # An LED for each session in the bar. An interrupted turn has no Stop, so going
+            # idle counts as done as well, which is also what ends a denied permission's red.
+            claude-code.settings.hooks = {
+              PostToolUse = [ (agentHook "" "working") ];
+              PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
+              SessionEnd = [ (agentHook "" "clear") ];
+              Stop = [ (agentHook "" "done") ];
+              UserPromptSubmit = [ (agentHook "" "working") ];
+
+              Notification = [
+                (agentHook "permission_prompt" "waiting")
+                (agentHook "idle_prompt" "done")
+              ];
+
+              # Not on compact, which happens in the middle of a turn.
+              SessionStart = [ (agentHook "startup|resume|clear|fork" "done") ];
+            };
+
             niri.settings = {
               binds = {
                 "Mod+M".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
