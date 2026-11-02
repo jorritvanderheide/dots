@@ -26,6 +26,7 @@
 
             noctalia.settings = {
               bar.main.enabled = false;
+              osd.enabled = false;
               shell.screen_corners.enabled = lib.mkForce false;
             };
 
