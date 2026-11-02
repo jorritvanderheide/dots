@@ -72,9 +72,6 @@
                   (agentHook "permission_prompt" "waiting")
                   (agentHook "idle_prompt" "done")
                 ];
-
-                # Not on compact, which happens in the middle of a turn.
-                SessionStart = [ (agentHook "startup|resume|clear|fork" "done") ];
               };
 
               # Ghostty would show its own notification for what the edge flashes for.
