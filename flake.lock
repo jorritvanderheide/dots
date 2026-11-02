@@ -545,10 +545,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1793635074,
-        "narHash": "sha256-bmH8DgH60KHtjGEYEquy3VkG9tR057pTqOxdp5IQt2k=",
-        "rev": "63f73ce6fbd48a711da3a8eef3a5ed2fc521d134",
-        "revCount": 56,
+        "lastModified": 1793635409,
+        "narHash": "sha256-9ZhKdSE8XxtoVx3GqIx/0wfexS+kg9ldKTzxxjY0uX8=",
+        "rev": "168522660d1afbae677bdbad34d74fe65f16a3f8",
+        "revCount": 57,
         "type": "git",
         "url": "file:///home/jorrit/Git/weinig-shell"
       },
