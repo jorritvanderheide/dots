@@ -4,8 +4,8 @@
   ...
 }:
 {
-  # Trying Weinig: it takes the frame, the bar and the launcher. noctalia keeps the
-  # rest until Weinig has it, from the lock screen to notifications, and Nihil the
+  # Trying Weinig: it takes the frame, the bar, the launcher and notifications. noctalia
+  # keeps the rest until Weinig has it, from the lock screen to the clipboard, and Nihil the
   # wallpaper (nihil.nix). Dropping this module brings noctalia's bar back.
   flake.nixosModules.weinig = {
     home-manager.sharedModules = [
@@ -26,6 +26,7 @@
 
             noctalia.settings = {
               bar.main.enabled = false;
+              notification.enable_daemon = false;
               osd.enabled = false;
               shell.screen_corners.enabled = lib.mkForce false;
             };
