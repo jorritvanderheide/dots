@@ -4,9 +4,10 @@
   ...
 }:
 {
-  # Trying Weinig: it takes the frame, the bar, the launcher, notifications and the wallpaper.
-  # noctalia keeps the rest until Weinig has it, from the lock screen to the clipboard. Dropping
-  # this module brings noctalia's bar and wallpaper back.
+  # Trying Weinig: it takes the frame, the bar, the launcher, notifications, the wallpaper, the lock
+  # screen and idle.
+  # noctalia keeps the rest until Weinig has it, from the clipboard to the calendar. Dropping
+  # this module brings noctalia's bar, wallpaper and lock screen back.
   flake.nixosModules.weinig = {
     home-manager.sharedModules = [
       inputs.weinig-shell.homeModules.default
@@ -117,12 +118,24 @@
                   ];
                 }
               ];
+
+              # The session logs in by itself, so this is what asks for the password. First, and
+              # if it can't lock, the session ends and the console asks instead.
+              spawn-at-startup = lib.mkBefore [
+                {
+                  command = [
+                    (lib.getExe config.programs.weinig.package)
+                    "lock-start"
+                  ];
+                }
+              ];
             };
 
             noctalia.settings = {
               backdrop.enabled = lib.mkForce false;
               bar.main.enabled = false;
               battery.warning_threshold = 0;
+              lockscreen.enabled = lib.mkForce false;
               notification.enable_daemon = false;
               osd.enabled = false;
               shell.polkit_agent = lib.mkForce false;
@@ -132,10 +145,34 @@
               # noctalia draws its own notifications even without its daemon, and the indicator
               # already shows headphones connecting and disconnecting.
               bluetooth.connection_notifications = false;
+
+              # Weinig locks and goes idle (programs.weinig.idle).
+              idle.behavior = {
+                lock-and-suspend.enabled = lib.mkForce false;
+                lock.enabled = lib.mkForce false;
+                screen-off.enabled = lib.mkForce false;
+              };
             };
 
             weinig = {
               enable = true;
+
+              # Suspend, but not while a Claude Code turn is in progress (busy markers written by
+              # the hooks in coding-agent.nix). As a transient unit, so that returning can cancel
+              # the wait.
+              idle = {
+                suspendResumeCommand = "${pkgs.systemd}/bin/systemctl --user stop idle-suspend";
+
+                suspendCommand = "${pkgs.systemd}/bin/systemd-run --user --collect --unit=idle-suspend ${pkgs.writeShellScript "idle-suspend" ''
+                  dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                  # Markers untouched for an hour are leftovers from an interrupted or crashed
+                  # session, not real work.
+                  while [ -n "$(${pkgs.findutils}/bin/find "$dir" -type f -mmin -60 2>/dev/null)" ]; do
+                    sleep 60
+                  done
+                  ${pkgs.systemd}/bin/systemctl suspend
+                ''}";
+              };
 
               settings = {
                 primaryOutput = "eDP-1";
@@ -164,5 +201,8 @@
         }
       )
     ];
+
+    # Instead of noctalia locking when it can, Weinig locks first, or ends the session.
+    my.desktop-shell.lockOnStartup = lib.mkForce false;
   };
 }
