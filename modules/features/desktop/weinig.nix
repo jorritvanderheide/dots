@@ -79,6 +79,7 @@
             niri.settings = {
               binds = {
                 "Mod+M".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
+                "Mod+N".action = spawn "weinig" "msg" "notifications" "toggleMute";
                 "Mod+Shift+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "previous");
                 "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
                 "Mod+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "next");
@@ -89,7 +90,7 @@
                 "XF86MonBrightnessUp".action = lib.mkForce (spawn "weinig" "msg" "brightness" "up");
 
                 # The bar's status isn't there yet, so noctalia's panel has to do.
-                "Mod+N".action = spawn "noctalia" "msg" "panel-toggle" "control-center";
+                "Mod+Shift+N".action = spawn "noctalia" "msg" "panel-toggle" "control-center";
               };
 
               # One wallpaper behind the workspaces in the overview, as with noctalia's
