@@ -28,6 +28,16 @@
                   exec ${lib.getExe config.programs.weinig.package} msg agent clear "$id"
                 fi
 
+                # A turn that ends on a question is waiting for an answer, not only done.
+                state=$1
+                if [ "$state" = stop ]; then
+                  state=done
+                  last=$(${lib.getExe pkgs.jq} -r '.last_assistant_message // ""' <<<"$input")
+                  if [[ $last =~ \?[[:space:]*_\`\)\"]*$ ]]; then
+                    state=waiting
+                  fi
+                fi
+
                 # The processes above this one, for the window the agent is in.
                 pids=""
                 pid=$PPID
@@ -41,7 +51,7 @@
                   done <"/proc/$pid/status"
                 done
 
-                exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$1" "$pids" "$folder"
+                exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$state" "$pids" "$folder"
               '';
             in
             {
@@ -65,7 +75,7 @@
                 PostToolUse = [ (agentHook "" "working") ];
                 PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
                 SessionEnd = [ (agentHook "" "clear") ];
-                Stop = [ (agentHook "" "done") ];
+                Stop = [ (agentHook "" "stop") ];
                 UserPromptSubmit = [ (agentHook "" "working") ];
 
                 Notification = [
