@@ -115,7 +115,7 @@
     };
 
     weinig-shell = {
-      url = "git+https://codeberg.org/BW20/weinig-shell";
+      url = "git+file:///home/jorrit/Git/weinig-shell";
 
       inputs = {
         home-manager.follows = "home-manager";

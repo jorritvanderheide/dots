@@ -582,17 +582,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1793619495,
-        "narHash": "sha256-++GMjtSZKGlfTMaQeHRq+dqu+3KanZUF2JSMjzVtQ/k=",
-        "ref": "refs/heads/main",
-        "rev": "feecf0f90248aa5ed48c82c2ea57d01b61cbe46d",
-        "revCount": 27,
+        "lastModified": 1793622275,
+        "narHash": "sha256-WvXuMNNAFJx2paWi4gyeOkNRtBq1AnCqiT+RMaDoU10=",
+        "rev": "1ca1e11e4b692138adc3f87969a87a95f4e83caa",
+        "revCount": 32,
         "type": "git",
-        "url": "https://codeberg.org/BW20/weinig-shell"
+        "url": "file:///home/jorrit/Git/weinig-shell"
       },
       "original": {
         "type": "git",
-        "url": "https://codeberg.org/BW20/weinig-shell"
+        "url": "file:///home/jorrit/Git/weinig-shell"
       }
     },
     "xwayland-satellite-stable": {
