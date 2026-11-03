@@ -235,6 +235,11 @@
                 repeat = false;
               };
 
+              "Mod+Shift+T" = {
+                action = spawn "weinig" "msg" "theme" "toggle";
+                repeat = false;
+              };
+
               "Mod+Shift+W" = {
                 action = spawn "weinig" "msg" "wallpaper" "previous";
                 repeat = false;

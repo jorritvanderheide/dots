@@ -114,7 +114,7 @@ in
                   gaps = 48.0;
                   shadow.enable = true;
 
-                  # Weinig's hairline: its `white`, `line` and `signal` (shell/theme/Theme.qml).
+                  # Weinig's hairline: its `bright`, `line` and `signal` (shell/theme/Theme.qml).
                   border = {
                     enable = true;
                     active.color = "#ffffff";
