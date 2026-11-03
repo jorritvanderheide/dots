@@ -58,6 +58,11 @@ body.theme-dark.css-settings-manager {
   --text-faint: {{colors.outline.dark.hex}};
   --text-accent: {{colors.primary.dark.hex}};
   --text-on-accent: {{colors.on_primary.dark.hex}};
+  /* Border works these out from the accent, as if it were a mid tone, which comes out far too light
+   * with white. And it has a white knob on the toggle, on a track that is the accent. */
+  --interactive-normal: {{colors.surface_container_high.dark.hex}};
+  --interactive-hover: {{colors.surface_container_highest.dark.hex}};
+  --toggle-thumb-enabled-color-dark: {{colors.on_primary.dark.hex}};
   --color-red-rgb: {{colors.red.dark.rgb_csv}};
   --color-orange-rgb: {{colors.orange.dark.rgb_csv}};
   --color-yellow-rgb: {{colors.yellow.dark.rgb_csv}};
