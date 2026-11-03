@@ -327,6 +327,11 @@
                 repeat = false;
               };
 
+              "Mod+Alt+T" = {
+                action = spawn "weinig" "msg" "theme" "toggle";
+                repeat = false;
+              };
+
               "Mod+Alt+Up" = {
                 action = spawn stack "slide" "up";
                 repeat = false;
@@ -465,11 +470,6 @@
 
               "Mod+Shift+N" = {
                 action = spawn "weinig" "msg" "notifications" "toggle";
-                repeat = false;
-              };
-
-              "Mod+Shift+T" = {
-                action = spawn "weinig" "msg" "theme" "toggle";
                 repeat = false;
               };
 
