@@ -110,7 +110,7 @@ in
                   background-color = "transparent";
                   default-column-width.proportion = 1.0;
                   focus-ring.enable = false;
-                  gaps = 48.0;
+                  gaps = 36.0;
                   shadow.enable = true;
 
                   # Weinig's hairline: its `bright`, `line` and `signal` (shell/theme/Theme.qml).
