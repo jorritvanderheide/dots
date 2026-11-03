@@ -27,16 +27,18 @@
               text = ''
                 laptop=eDP-1
 
-                named() {
-                  jq -r --arg output "$1" '[.[] | select(.name and .output == $output) | .name] | sort | .[]' <<<"$state"
-                }
-
                 read_state() {
                   state=$(niri msg --json workspaces)
-                  mapfile -t list < <(jq -r '[.[].name // empty] | sort | .[]' <<<"$state")
-                  external=$(jq -r --arg laptop "$laptop" 'if any(.[]; .output == $laptop) then [.[].output | select(. != $laptop)][0] // "" else "" end' <<<"$state")
-                  mapfile -t upper < <(named "$external")
-                  mapfile -t lower < <(named "$laptop")
+                  {
+                    read -r external
+                    read -ra list
+                    read -ra upper
+                    read -ra lower
+                  } < <(jq -r --arg laptop "$laptop" '
+                    def named($output): map(select(.name and .output == $output) | .name) | sort | join(" ");
+                    (if any(.[]; .output == $laptop) then [.[].output | select(. != $laptop)][0] // "" else "" end) as $external
+                    | $external, (map(.name // empty) | sort | join(" ")), named($external), named($laptop)
+                  ' <<<"$state")
                 }
 
                 # The workspace this many places from the focused one in the list, if any.
@@ -61,13 +63,13 @@
                 # Whether no window is on this workspace or any after it, which makes it the end
                 # of the list: the first empty one after the last window.
                 ends_here() {
-                  jq -e --argjson windows "$(niri msg --json windows)" --arg from "$1" 'any(.[]; .name and .name >= $from and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
+                  jq -e --argjson windows "$windows" --arg from "$1" 'any(.[]; .name and .name >= $from and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
                 }
 
                 # Whether no window is on this workspace or any before it, which makes it the top
                 # of the list: the first empty one before the first window.
                 starts_here() {
-                  jq -e --argjson windows "$(niri msg --json windows)" --arg to "$1" 'any(.[]; .name and .name <= $to and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
+                  jq -e --argjson windows "$windows" --arg to "$1" 'any(.[]; .name and .name <= $to and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
                 }
 
                 occupied() {
@@ -199,7 +201,30 @@
                   exec 9>"$XDG_RUNTIME_DIR/niri-stack.lock"
                   flock 9
                   read_state
-                  place
+                  windows=$(niri msg --json windows)
+                  if ! in_place; then
+                    place
+                    windows=$(niri msg --json windows)
+                  fi
+                }
+
+                # Whether place would change nothing, in one go as it nearly always would not.
+                in_place() {
+                  jq -e --argjson windows "$windows" --arg laptop "$laptop" --arg external "$external" '
+                    [$windows[].workspace_id] as $busy
+                    | map(. + {busy: (.id as $id | $busy | index($id) != null)}) as $all
+                    | ($all | map(select(.name)) | sort_by(.name)) as $list
+                    | ($list | map(select(.output == $external))) as $upper
+                    | ($list | map(select(.output == $laptop))) as $lower
+                    | (any($all[]; .name == null and .busy) | not)
+                    and (($list[0].busy | not) or $list[-1].busy)
+                    and all(($upper, $lower); map(.idx) == (map(.idx) | sort))
+                    and ($external == "" or (
+                      ($upper | length) > 0 and ($lower | length) > 0
+                      and $upper[-1].name < $lower[0].name
+                      and $upper[-1].is_active and $lower[0].is_active
+                    ))
+                  ' <<<"$state" >/dev/null
                 }
 
                 case "$1" in
