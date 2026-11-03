@@ -61,11 +61,13 @@
             ];
           };
 
+          # The templates carry {{ }} placeholders a formatter could break.
           global.excludes = [
             "**/*.hujson"
             "**/*.kbd"
             "**/assets/**"
             "**/facter.json"
+            "**/theming/templates/**"
             "docs/**"
             "README.md"
             "scripts/nix-order-tests/**"

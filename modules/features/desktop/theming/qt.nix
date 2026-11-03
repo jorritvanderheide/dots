@@ -1,7 +1,7 @@
-# Qt's fonts and dark palette. The rest of the theme is in default.nix.
+# Qt's fonts and colors. The rest of the theme is in default.nix.
 {
   flake.nixosModules.theming =
-    { config, pkgs, ... }:
+    { config, ... }:
     let
       inherit (config.my.theming) fonts;
     in
@@ -9,31 +9,30 @@
       home-manager.sharedModules = [
         (
           { config, lib, ... }:
+          let
+            colors = config.programs.weinig.theme.render "qtct.conf" ./templates/qtct.conf;
+          in
           {
+            # Fusion, not Kvantum, which ignores qtct palettes: Fusion draws with
+            # the qtct palette, so these colors actually show.
             qt = {
               enable = true;
               platformTheme.name = "qtct";
             }
-            //
-              lib.mapAttrs
-                (_: package: {
-                  Appearance = {
-                    color_scheme_path = "${package}/share/${lib.getName package}/colors/darker.conf";
-                    custom_palette = true;
-                    icon_theme = config.gtk.iconTheme.name;
-                    standard_dialogs = "default";
-                    style = "Fusion";
-                  };
+            // lib.genAttrs [ "qt5ctSettings" "qt6ctSettings" ] (_: {
+              Appearance = {
+                color_scheme_path = "${colors}";
+                custom_palette = true;
+                icon_theme = config.gtk.iconTheme.name;
+                standard_dialogs = "default";
+                style = "Fusion";
+              };
 
-                  Fonts = {
-                    fixed = ''"${fonts.monospace.name},${toString fonts.size}"'';
-                    general = ''"${fonts.sansSerif.name},${toString fonts.size}"'';
-                  };
-                })
-                {
-                  qt5ctSettings = pkgs.libsForQt5.qt5ct;
-                  qt6ctSettings = pkgs.qt6Packages.qt6ct;
-                };
+              Fonts = {
+                fixed = ''"${fonts.monospace.name},${toString fonts.size}"'';
+                general = ''"${fonts.sansSerif.name},${toString fonts.size}"'';
+              };
+            });
           }
         )
       ];

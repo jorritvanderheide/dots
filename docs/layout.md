@@ -42,8 +42,8 @@ defines the same `flake.nixosModules.<feature>`, and flake-parts merges
 them into one module: `services/home-assistant/` keeps the service in
 `default.nix` and the house's automations in `automations.nix`;
 `services/servarr/` has a file per app, `desktop/theming/` a file per themed
-target (`gtk.nix`, `qt.nix`, ...). The folder also holds the non-Nix files
-the feature reads, like keyboard-remap's
+target (`gtk.nix`, `zen.nix`, ...). The folder also holds the non-Nix files
+the feature reads, like theming's `templates/` or keyboard-remap's
 `main.kbd`. A user can be split the same way.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
