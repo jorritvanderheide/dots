@@ -67,11 +67,6 @@
     # still built. Drop once NixOS/nixpkgs#569006 reaches nixos-unstable.
     nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
 
-    noctalia = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:noctalia-dev/noctalia";
-    };
-
     # Only its module: dapple builds each site itself, from the site's
     # repository and with the nixpkgs that repository's lock pins
     # (blog.nix, blog-jeltje.nix).

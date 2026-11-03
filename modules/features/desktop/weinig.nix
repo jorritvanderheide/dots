@@ -4,17 +4,13 @@
   ...
 }:
 {
-  # Trying Weinig: it takes the frame, the bar, the launcher, notifications, the wallpaper, the lock
-  # screen, idle, the clipboard and the control panel.
-  # noctalia keeps the rest until Weinig has it, like the calendar. Dropping
-  # this module brings noctalia's bar, wallpaper and lock screen back.
+  # Weinig is the desktop's shell, from the frame to the lock screen.
   flake.nixosModules.weinig = {
     home-manager.sharedModules = [
       inputs.weinig-shell.homeModules.default
       (
         { config, pkgs, ... }:
         let
-          inherit (config.lib.niri.actions) spawn;
 
           # In the background, so that the shell can't hold up an agent, and whether it is
           # running or not.
@@ -90,27 +86,8 @@
             };
 
             niri.settings = {
-              binds = {
-                "Mod+Backspace".action = lib.mkForce (spawn "weinig" "lock-session");
-                "Mod+Ctrl+N".action = spawn "weinig" "msg" "notifications" "toggle";
-                "Mod+M".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
-                "Mod+N".action = spawn "weinig" "msg" "notifications" "toggleMute";
-                "Mod+O".action = lib.mkForce (spawn "weinig" "msg" "colour" "pick");
-                "Mod+P".action = lib.mkForce (spawn "niri" "msg" "action" "screenshot");
-                "Mod+Shift+N".action = spawn "weinig" "msg" "notifications" "toggle";
-                "Mod+Shift+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "previous");
-                "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
-                "Mod+V".action = lib.mkForce (spawn "weinig" "msg" "clipboard" "toggle");
-                "Mod+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "next");
-                "XF86AudioLowerVolume".action = lib.mkForce (spawn "weinig" "msg" "volume" "down");
-                "XF86AudioMute".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
-                "XF86AudioRaiseVolume".action = lib.mkForce (spawn "weinig" "msg" "volume" "up");
-                "XF86MonBrightnessDown".action = lib.mkForce (spawn "weinig" "msg" "brightness" "down");
-                "XF86MonBrightnessUp".action = lib.mkForce (spawn "weinig" "msg" "brightness" "up");
-              };
-
-              # One wallpaper behind the workspaces in the overview, as with noctalia's
-              # backdrop (compositor.nix).
+              # One wallpaper behind the workspaces in the overview, which let it through
+              # (compositor.nix).
               layer-rules = [
                 {
                   place-within-backdrop = true;
@@ -131,30 +108,6 @@
                   ];
                 }
               ];
-            };
-
-            noctalia.settings = {
-              backdrop.enabled = lib.mkForce false;
-              bar.main.enabled = false;
-              battery.warning_threshold = 0;
-              lockscreen.enabled = lib.mkForce false;
-              notification.enable_daemon = false;
-              osd.enabled = false;
-              shell.clipboard_enabled = false;
-              shell.polkit_agent = lib.mkForce false;
-              shell.screen_corners.enabled = lib.mkForce false;
-              wallpaper.enabled = lib.mkForce false;
-
-              # noctalia draws its own notifications even without its daemon, and the indicator
-              # already shows headphones connecting and disconnecting.
-              bluetooth.connection_notifications = false;
-
-              # Weinig locks and goes idle (programs.weinig.idle).
-              idle.behavior = {
-                lock-and-suspend.enabled = lib.mkForce false;
-                lock.enabled = lib.mkForce false;
-                screen-off.enabled = lib.mkForce false;
-              };
             };
 
             weinig = {
@@ -204,8 +157,5 @@
         }
       )
     ];
-
-    # Instead of noctalia locking when it can, Weinig locks first, or ends the session.
-    my.desktop-shell.lockOnStartup = lib.mkForce false;
   };
 }

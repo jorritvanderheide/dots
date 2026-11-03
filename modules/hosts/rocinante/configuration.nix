@@ -51,7 +51,6 @@
         (
           { config, ... }:
           {
-            my.desktop-shell.lockOnStartup = true;
             my.power.laptop.enable = true;
             my.session.autologinuser = "jorrit";
             networking.hostName = "rocinante";

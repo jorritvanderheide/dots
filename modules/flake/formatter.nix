@@ -61,8 +61,6 @@
             ];
           };
 
-          # Noctalia's templates carry {{ }} placeholders a formatter could
-          # break.
           global.excludes = [
             "**/*.hujson"
             "**/*.kbd"

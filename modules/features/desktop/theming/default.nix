@@ -73,7 +73,6 @@
 
         home-manager.sharedModules = [
           (_: {
-            programs.noctalia.settings.shell.font_family = fonts.sansSerif.name;
 
             # Read by libadwaita apps, and by what follows the system through the
             # portal (Zed, Zen, Obsidian); the interface font is gtk.font (gtk.nix).

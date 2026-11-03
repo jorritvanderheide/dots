@@ -79,7 +79,7 @@ in
                   theme = config.home.pointerCursor.name;
                 };
 
-                # Allows notification actions and window activation from Noctalia.
+                # Allows notification actions and window activation from the shell.
                 debug.honor-xdg-activation-with-invalid-serial = [ ];
 
                 hotkey-overlay = {
@@ -105,23 +105,6 @@ in
                     tap-button-map = "left-right-middle";
                   };
                 };
-
-                # place-within-backdrop renders the wallpaper layer surface
-                # once as a shared backdrop instead of duplicated per
-                # workspace tile in niri's overview. "noctalia-backdrop" is
-                # noctalia's blurred/tinted copy (my.desktop-shell's
-                # settings.backdrop), used here instead of the sharp
-                # "noctalia-wallpaper" layer so the blur is visible at all
-                # times (not just in overview), not only stationary.
-                layer-rules = [
-                  {
-                    place-within-backdrop = true;
-
-                    matches = [
-                      { namespace = "^noctalia-backdrop$"; }
-                    ];
-                  }
-                ];
 
                 layout = {
                   always-center-single-column = true;

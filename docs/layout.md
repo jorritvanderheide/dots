@@ -42,8 +42,8 @@ defines the same `flake.nixosModules.<feature>`, and flake-parts merges
 them into one module: `services/home-assistant/` keeps the service in
 `default.nix` and the house's automations in `automations.nix`;
 `services/servarr/` has a file per app, `desktop/theming/` a file per themed
-target (`gtk.nix`, `zen.nix`, ...). The folder also holds the non-Nix files
-the feature reads, like theming's `noctalia-templates/` or keyboard-remap's
+target (`gtk.nix`, `qt.nix`, ...). The folder also holds the non-Nix files
+the feature reads, like keyboard-remap's
 `main.kbd`. A user can be split the same way.
 
 A service that keeps data declares it twice: in `my.preservation`, so it
@@ -82,7 +82,7 @@ A host starts from the `base` bundle: the core, the system and shell
 features every host has, and offsite-backup, whose entries any feature may
 declare; a host that doesn't enable it ignores the entries.
 A host with a screen adds `desktop`: the desktop features, which
-lean on each other (app2unit, niri, theming, noctalia) and so come as one,
+lean on each other (app2unit, niri, theming, weinig) and so come as one,
 and research's settings, which the app and research features read. Those
 build on `desktop`. The host picks the rest by name from
 `inputs.self.nixosModules`, in the same groups as the folders (System,

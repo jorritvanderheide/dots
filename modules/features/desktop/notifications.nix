@@ -5,7 +5,7 @@ _: {
       config = {
         environment.systemPackages = [
           # `notify-send` for scripts and debugging, regardless of which
-          # daemon (noctalia, here) receives it.
+          # daemon (Weinig, here) receives it.
           pkgs.libnotify
 
           # nm-applet, which it autostarts in the session, and

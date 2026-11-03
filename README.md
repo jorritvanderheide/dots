@@ -56,7 +56,7 @@ host, and what to do after losing a machine.
 
 | Host | What it is | Runs |
 | --- | --- | --- |
-| **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Weinig and Noctalia shells |
+| **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Weinig shell |
 | **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to Storj |
 
 Both get the same core: ZFS on LUKS, secure boot, a root that rolls back on
