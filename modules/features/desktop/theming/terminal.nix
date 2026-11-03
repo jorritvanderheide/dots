@@ -11,7 +11,7 @@
         (
           { osConfig, ... }:
           let
-            inherit (osConfig.programs.weinig.theme) render;
+            inherit (osConfig.programs.weinig.theme) render renderIn;
           in
           {
             # The terminal's ANSI colors, so it follows Ghostty's palette.
@@ -23,7 +23,7 @@
 
             programs.ghostty.settings = {
               font-size = fonts.size;
-              theme = "weinig";
+              theme = "light:weinig-light,dark:weinig-dark";
 
               font-family = [
                 fonts.monospace.name
@@ -33,7 +33,8 @@
 
             xdg.configFile = {
               "eza/theme.yml".source = render "eza-theme.yml" ./templates/eza-theme.yml;
-              "ghostty/themes/weinig".source = render "ghostty-theme" ./templates/ghostty;
+              "ghostty/themes/weinig-dark".source = renderIn "dark" "ghostty-dark" ./templates/ghostty;
+              "ghostty/themes/weinig-light".source = renderIn "light" "ghostty-light" ./templates/ghostty;
             };
           }
         )

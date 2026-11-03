@@ -3,7 +3,7 @@
   ...
 }:
 {
-  # The fonts and cursor, and dark mode. Each target has a file of its own here.
+  # The fonts and cursor. Each target has a file of its own here.
   flake.nixosModules.theming =
     {
       config,
@@ -74,10 +74,8 @@
         home-manager.sharedModules = [
           (_: {
 
-            # Read by libadwaita apps, and by what follows the system through the
-            # portal (Zed, Zen, Obsidian); the interface font is gtk.font (gtk.nix).
+            # The interface font is gtk.font (gtk.nix).
             dconf.settings."org/gnome/desktop/interface" = {
-              color-scheme = "prefer-dark";
               document-font-name = "${fonts.serif.name} ${toString (fonts.size - 1)}";
               monospace-font-name = "${fonts.monospace.name} ${toString fonts.size}";
             };
