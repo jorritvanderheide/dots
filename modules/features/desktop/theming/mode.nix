@@ -62,7 +62,7 @@
     in
     {
       my.preservation.homeDirectories = [ ".local/state/weinig" ];
-      programs.weinig.settings.theme.onChange = lib.getExe follow;
+      programs.weinig.theme.onChange = lib.getExe follow;
 
       home-manager.sharedModules = [
         (

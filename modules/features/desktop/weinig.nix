@@ -121,6 +121,9 @@
       programs.weinig = {
         enable = true;
 
+        # niri-stack (keybinds.nix) makes them one list over the monitors.
+        bar.workspaces = "all";
+
         # Ghostty, below.
         desktop.terminal = false;
 
@@ -141,40 +144,35 @@
           ''}";
         };
 
+        launcher = {
+          launchCommand = [
+            "app2unit"
+            "-s"
+            "a"
+            "--"
+            "$CMD"
+          ];
+
+          terminal = [
+            "ghostty"
+            "-e"
+          ];
+        };
+
         # This config has its own keys and rules.
         niri.enable = false;
 
-        settings = {
-          # niri-stack (keybinds.nix) makes them one list over the monitors.
-          bar.workspaces = "all";
+        # The monitors at a desk, and not those of a meeting room, which show what I share.
+        primaryOutput = [
+          "LG HDR 4K"
+          "eDP-1"
+        ];
 
-          launcher = {
-            launchCommand = [
-              "app2unit"
-              "-s"
-              "a"
-              "--"
-              "$CMD"
-            ];
-
-            terminal = [
-              "ghostty"
-              "-e"
-            ];
-          };
-
-          # The monitors at a desk, and not those of a meeting room, which show what I share.
-          primaryOutput = [
-            "LG HDR 4K"
-            "eDP-1"
-          ];
-
-          # The folder itself rather than a copy in the store, so that images added to
-          # it show up without a rebuild.
-          wallpaper.directory = "${
-            config.users.users.${config.my.session.autologinuser}.home
-          }/Pictures/Wallpapers";
-        };
+        # The folder itself rather than a copy in the store, so that images added to
+        # it show up without a rebuild.
+        wallpaper.directory = "${
+          config.users.users.${config.my.session.autologinuser}.home
+        }/Pictures/Wallpapers";
       };
     };
 }
