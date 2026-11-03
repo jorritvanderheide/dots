@@ -142,8 +142,6 @@
         niri.enable = false;
 
         settings = {
-          primaryOutput = "eDP-1";
-
           # niri-stack (keybinds.nix) makes them one list over the monitors.
           bar.workspaces = "all";
 
@@ -161,6 +159,12 @@
               "-e"
             ];
           };
+
+          # The monitors at a desk, and not those of a meeting room, which show what I share.
+          primaryOutput = [
+            "LG HDR 4K"
+            "eDP-1"
+          ];
 
           # The folder itself rather than a copy in the store, so that images added to
           # it show up without a rebuild.
