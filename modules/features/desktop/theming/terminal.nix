@@ -9,9 +9,9 @@
     {
       home-manager.sharedModules = [
         (
-          { config, ... }:
+          { osConfig, ... }:
           let
-            inherit (config.programs.weinig.theme) render;
+            inherit (osConfig.programs.weinig.theme) render;
           in
           {
             # The terminal's ANSI colors, so it follows Ghostty's palette.

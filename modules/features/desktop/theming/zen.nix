@@ -3,9 +3,9 @@
   flake.nixosModules.theming = {
     home-manager.sharedModules = [
       (
-        { config, ... }:
+        { osConfig, ... }:
         let
-          colors = config.programs.weinig.theme.render "zen-colors.css" ./templates/zen-colors.css;
+          colors = osConfig.programs.weinig.theme.render "zen-colors.css" ./templates/zen-colors.css;
         in
         {
           programs.zen-browser.profiles."default" = {

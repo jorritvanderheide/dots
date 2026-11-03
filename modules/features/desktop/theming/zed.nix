@@ -8,10 +8,10 @@
     {
       home-manager.sharedModules = [
         (
-          { config, ... }:
+          { osConfig, ... }:
           {
             xdg.configFile."zed/themes/weinig.json".source =
-              config.programs.weinig.theme.render "zed.json" ./templates/zed.json;
+              osConfig.programs.weinig.theme.render "zed.json" ./templates/zed.json;
 
             # Zed's sizes are in pixels.
             programs.zed-editor.userSettings = {

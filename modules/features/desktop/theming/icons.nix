@@ -6,7 +6,7 @@
     {
       home-manager.sharedModules = [
         (
-          { config, ... }:
+          { osConfig, ... }:
           let
             # Numix's folder icons are fixed colors, so a separate theme on top of
             # Numix-Circle carries recolored ones: Numix's custom folder set, whose
@@ -35,7 +35,7 @@
                   default-*) ln -s ../''${context/default-/custom-} $theme/$link ;;
                 esac
               done
-              find $theme -type f -name '*.svg' -exec sed -i -f ${config.programs.weinig.theme.render "numix-folders.sed" ./templates/numix-folders.sed} {} +
+              find $theme -type f -name '*.svg' -exec sed -i -f ${osConfig.programs.weinig.theme.render "numix-folders.sed" ./templates/numix-folders.sed} {} +
             '';
           in
           {

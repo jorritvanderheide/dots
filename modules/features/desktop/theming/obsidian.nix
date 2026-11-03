@@ -11,14 +11,19 @@
     {
       home-manager.sharedModules = [
         (
-          { config, lib, ... }:
+          {
+            config,
+            lib,
+            osConfig,
+            ...
+          }:
           {
             # A real file, as the vault is a git repository of its own. The name it
             # was switched on under, in Settings > Appearance > CSS snippets.
             home.activation.obsidianSnippet = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
               vault=${lib.escapeShellArg "${config.home.homeDirectory}/${vaultPath}"}
               if [ -d "$vault/.obsidian" ]; then
-                run install -D -m 644 ${config.programs.weinig.theme.render "obsidian-border.css" ./templates/obsidian-border.css} "$vault/.obsidian/snippets/noctalia.css"
+                run install -D -m 644 ${osConfig.programs.weinig.theme.render "obsidian-border.css" ./templates/obsidian-border.css} "$vault/.obsidian/snippets/noctalia.css"
               fi
             '';
           }

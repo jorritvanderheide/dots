@@ -8,9 +8,9 @@
     {
       home-manager.sharedModules = [
         (
-          { config, ... }:
+          { osConfig, ... }:
           let
-            inherit (config.programs.weinig.theme) render;
+            inherit (osConfig.programs.weinig.theme) render;
 
             # The base's colors, and the definitions that win over them.
             css =

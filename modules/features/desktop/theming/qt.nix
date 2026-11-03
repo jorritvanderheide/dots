@@ -8,9 +8,14 @@
     {
       home-manager.sharedModules = [
         (
-          { config, lib, ... }:
+          {
+            config,
+            lib,
+            osConfig,
+            ...
+          }:
           let
-            colors = config.programs.weinig.theme.render "qtct.conf" ./templates/qtct.conf;
+            colors = osConfig.programs.weinig.theme.render "qtct.conf" ./templates/qtct.conf;
           in
           {
             # Fusion, not Kvantum, which ignores qtct palettes: Fusion draws with
