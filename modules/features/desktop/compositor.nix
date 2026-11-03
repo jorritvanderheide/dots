@@ -34,7 +34,6 @@ in
           sessionVariables.NIXOS_OZONE_WL = "1";
 
           systemPackages = with pkgs; [
-            batsignal
             brightnessctl
             imv
             playerctl
@@ -112,7 +111,7 @@ in
                   default-column-width.proportion = 1.0;
                   empty-workspace-above-first = true;
                   focus-ring.enable = false;
-                  gaps = 80.0;
+                  gaps = 48.0;
                   shadow.enable = true;
 
                   # Weinig's hairline: its `white` and `line` (shell/theme/Theme.qml).
@@ -145,15 +144,6 @@ in
                 };
 
                 spawn-at-startup = [
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "batsignal"
-                    ];
-                  }
                   {
                     command = [
                       "app2unit"
