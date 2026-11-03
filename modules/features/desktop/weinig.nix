@@ -11,111 +11,32 @@
       imports = [ inputs.weinig-shell.nixosModules.default ];
 
       home-manager.sharedModules = [
-        (
-          { pkgs, ... }:
-          let
-
-            # In the background, so that the shell can't hold up an agent, and whether it is
-            # running or not.
-            agentHook =
-              matcher: state:
-              let
-                script = pkgs.writeShellScript "weinig-agent" ''
-                  input=$(cat)
-                  id=$(${lib.getExe pkgs.jq} -r .session_id <<<"$input")
-                  folder=$(${lib.getExe pkgs.jq} -r '.cwd // ""' <<<"$input")
-                  if [ "$1" = clear ]; then
-                    exec ${lib.getExe config.programs.weinig.package} msg agent clear "$id"
-                  fi
-
-                  # A turn that ends on a question is waiting for an answer, not only done.
-                  state=$1
-                  if [ "$state" = stop ]; then
-                    state=done
-                    last=$(${lib.getExe pkgs.jq} -r '.last_assistant_message // ""' <<<"$input")
-                    if [[ $last =~ \?[[:space:]*_\`\)\"]*$ ]]; then
-                      state=waiting
-                    fi
-                  fi
-
-                  # The processes above this one, for the window the agent is in.
-                  pids=""
-                  pid=$PPID
-                  while [ "$pid" -gt 1 ] && [ -r "/proc/$pid/status" ]; do
-                    pids="$pids $pid"
-                    while read -r key value; do
-                      if [ "$key" = PPid: ]; then
-                        pid=$value
-                        break
-                      fi
-                    done <"/proc/$pid/status"
-                  done
-
-                  exec ${lib.getExe config.programs.weinig.package} msg agent set "$id" "$state" "$pids" "$folder"
-                '';
-              in
+        {
+          programs.niri.settings = {
+            # One wallpaper behind the workspaces in the overview, which let it through
+            # (compositor.nix).
+            layer-rules = [
               {
-                inherit matcher;
+                place-within-backdrop = true;
 
-                hooks = [
-                  {
-                    async = true;
-                    command = "${script} ${state}";
-                    type = "command";
-                  }
+                matches = [
+                  { namespace = "^weinig-wallpaper$"; }
                 ];
-              };
-          in
-          {
-            programs = {
-              claude-code.settings = {
-                # An edge of the screen flashes towards the session's window. An interrupted turn has
-                # no Stop, so going idle counts as done as well.
-                hooks = {
-                  PostToolUse = [ (agentHook "" "working") ];
-                  PreToolUse = [ (agentHook "AskUserQuestion|ExitPlanMode" "waiting") ];
-                  SessionEnd = [ (agentHook "" "clear") ];
-                  Stop = [ (agentHook "" "stop") ];
-                  UserPromptSubmit = [ (agentHook "" "working") ];
+              }
+            ];
 
-                  Notification = [
-                    (agentHook "permission_prompt" "waiting")
-                    (agentHook "idle_prompt" "done")
-                  ];
-                };
-
-                # Ghostty would show its own notification for what the edge flashes for.
-                preferredNotifChannel = "notifications_disabled";
-              };
-
-              niri.settings = {
-                # One wallpaper behind the workspaces in the overview, which let it through
-                # (compositor.nix).
-                layer-rules = [
-                  {
-                    place-within-backdrop = true;
-
-                    matches = [
-                      { namespace = "^weinig-wallpaper$"; }
-                    ];
-                  }
+            # The session logs in by itself, so this is what asks for the password. First, and
+            # if it can't lock, the session ends and the console asks instead.
+            spawn-at-startup = lib.mkBefore [
+              {
+                command = [
+                  (lib.getExe config.programs.weinig.package)
+                  "lock-start"
                 ];
-
-                # The session logs in by itself, so this is what asks for the password. First, and
-                # if it can't lock, the session ends and the console asks instead.
-                spawn-at-startup = lib.mkBefore [
-                  {
-                    command = [
-                      (lib.getExe config.programs.weinig.package)
-                      "lock-start"
-                    ];
-                  }
-                ];
-              };
-
-            };
-          }
-        )
+              }
+            ];
+          };
+        }
       ];
 
       programs.weinig = {
