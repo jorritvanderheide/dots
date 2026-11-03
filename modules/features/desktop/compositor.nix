@@ -109,7 +109,6 @@ in
                   always-center-single-column = true;
                   background-color = "transparent";
                   default-column-width.proportion = 1.0;
-                  empty-workspace-above-first = true;
                   focus-ring.enable = false;
                   gaps = 48.0;
                   shadow.enable = true;

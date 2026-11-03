@@ -5,9 +5,242 @@
         (
           {
             config,
+            lib,
+            pkgs,
             ...
           }:
+          let
+            # One list of workspaces, with the monitors as a window over it: the external shows
+            # one and the laptop the next. niri keeps workspaces per monitor, so the external
+            # holds the list up to its window and the laptop the rest, showing its first.
+            # Sliding moves one workspace across. They are named, as only names reach the other
+            # monitor, and not numbers, as niri reads those as an index.
+            stackPackage = pkgs.writeShellApplication {
+              name = "niri-stack";
+
+              runtimeInputs = [
+                config.programs.niri.package
+                pkgs.jq
+                pkgs.util-linux
+              ];
+
+              text = ''
+                laptop=eDP-1
+
+                named() {
+                  jq -r --arg output "$1" '[.[] | select(.name and .output == $output) | .name] | sort | .[]' <<<"$state"
+                }
+
+                read_state() {
+                  state=$(niri msg --json workspaces)
+                  mapfile -t list < <(jq -r '[.[].name // empty] | sort | .[]' <<<"$state")
+                  external=$(jq -r --arg laptop "$laptop" 'if any(.[]; .output == $laptop) then [.[].output | select(. != $laptop)][0] // "" else "" end' <<<"$state")
+                  mapfile -t upper < <(named "$external")
+                  mapfile -t lower < <(named "$laptop")
+                }
+
+                # The workspace this many places from the focused one in the list, if any.
+                neighbour() {
+                  focused=$(jq -r '.[] | select(.is_focused) | .name // empty' <<<"$state")
+                  for i in "''${!list[@]}"; do
+                    j=$((i + $1))
+                    if [ "''${list[i]}" = "$focused" ] && [ "$j" -ge 0 ] && [ "$j" -lt "''${#list[@]}" ]; then
+                      echo "''${list[j]}"
+                    fi
+                  done
+                }
+
+                order() {
+                  i=1
+                  for ws in "$@"; do
+                    niri msg action move-workspace-to-index --reference "$ws" "$i"
+                    i=$((i + 1))
+                  done
+                }
+
+                # Whether no window is on this workspace or any after it, which makes it the end
+                # of the list: the first empty one after the last window.
+                ends_here() {
+                  jq -e --argjson windows "$(niri msg --json windows)" --arg from "$1" 'any(.[]; .name and .name >= $from and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
+                }
+
+                # Whether no window is on this workspace or any before it, which makes it the top
+                # of the list: the first empty one before the first window.
+                starts_here() {
+                  jq -e --argjson windows "$(niri msg --json windows)" --arg to "$1" 'any(.[]; .name and .name <= $to and (.id as $id | any($windows[]; .workspace_id == $id))) | not' <<<"$state" >/dev/null
+                }
+
+                occupied() {
+                  jq -e --argjson windows "$(niri msg --json windows)" --arg ws "$1" 'any(.[]; .name == $ws and (.id as $id | any($windows[]; .workspace_id == $id)))' <<<"$state" >/dev/null
+                }
+
+                # Keeps an empty workspace above the first window. Once one reaches the first
+                # workspace, every name moves one down the list, which brings the empty last
+                # workspace to the top. No window or screen changes for it.
+                make_room() {
+                  if occupied "''${list[0]}" && ! occupied "''${list[-1]}"; then
+                    niri msg action set-workspace-name --workspace "''${list[-1]}" shifting
+                    for ((i = ''${#list[@]} - 1; i > 0; i--)); do
+                      niri msg action set-workspace-name --workspace "''${list[i - 1]}" "''${list[i]}"
+                    done
+                    niri msg action set-workspace-name --workspace shifting "''${list[0]}"
+                    read_state
+                  fi
+                }
+
+                # Down moves what is shown down the screens, so to earlier in the list. The
+                # focused workspace keeps the focus if it stays visible.
+                slide() {
+                  if [ -z "$external" ]; then
+                    focused=$(jq -r '.[] | select(.is_focused) | .name // empty' <<<"$state")
+                    if [ "$1" = up ] && ends_here "$focused"; then return; fi
+                    if [ "$1" = down ] && starts_here "$focused"; then return; fi
+                    if [ "$1" = down ]; then ws=$(neighbour -1); else ws=$(neighbour 1); fi
+                  elif [ "$1" = down ]; then
+                    if [ "''${#upper[@]}" -lt 2 ] || starts_here "''${upper[-1]}"; then return; fi
+                    ws=''${upper[-1]}
+                    niri msg action move-workspace-to-monitor --reference "$ws" "$laptop"
+                    niri msg action move-workspace-to-index --reference "$ws" 1
+                  else
+                    if [ "''${#lower[@]}" -lt 2 ] || ends_here "''${lower[0]}"; then return; fi
+                    ws=''${lower[0]}
+                    niri msg action move-workspace-to-monitor --reference "$ws" "$external"
+                    niri msg action move-workspace-to-index --reference "$ws" "$((''${#upper[@]} + 1))"
+                  fi
+                  if [ -n "$ws" ]; then niri msg action focus-workspace "$ws"; fi
+                }
+
+                # Moves the focused window along the list, sliding along if it would leave the screens.
+                window() {
+                  if [ "$1" = down ]; then target=$(neighbour 1) away=up; else target=$(neighbour -1) away=down; fi
+                  if [ -z "$target" ]; then return; fi
+                  if [ -n "$external" ] && [ "$(jq --arg ws "$target" '.[] | select(.name == $ws) | .is_active' <<<"$state")" = false ]; then
+                    slide "$away"
+                  fi
+                  niri msg action move-window-to-workspace "$target"
+                }
+
+                # Windows on a workspace outside the list go to an empty one in it, preferably
+                # the one their monitor is to show.
+                adopt() {
+                  windows=$(niri msg --json windows)
+                  mapfile -t stray < <(jq -r --argjson windows "$windows" '.[] | select(.name == null and (.id as $id | any($windows[]; .workspace_id == $id))) | "\(.id) \(.output)"' <<<"$state")
+                  mapfile -t taken < <(jq -r --argjson windows "$windows" '.[] | select(.name and (.id as $id | any($windows[]; .workspace_id == $id))) | .name' <<<"$state")
+                  for entry in "''${stray[@]}"; do
+                    read -r id output <<<"$entry"
+                    shown=""
+                    if [ "$output" = "$laptop" ] && [ "''${#lower[@]}" -gt 0 ]; then shown=''${lower[0]}; fi
+                    if [ "$output" != "$laptop" ] && [ "''${#upper[@]}" -gt 0 ]; then shown=''${upper[-1]}; fi
+                    target=""
+                    for ws in "$shown" "''${list[@]}"; do
+                      case " ''${taken[*]} " in
+                        *" $ws "*) ;;
+                        *)
+                          if [ -n "$ws" ]; then
+                            target=$ws
+                            break
+                          fi
+                          ;;
+                      esac
+                    done
+                    if [ -z "$target" ]; then continue; fi
+                    taken+=("$target")
+                    jq -r --argjson id "$id" 'map(select(.workspace_id == $id)) | sort_by(.layout.pos_in_scrolling_layout) | .[].id' <<<"$windows" |
+                      while read -r window; do
+                        niri msg action move-window-to-workspace --window-id "$window" --focus false "$target"
+                      done
+                  done
+                }
+
+                sort_monitor() {
+                  if ! jq -e --arg output "$1" 'map(select(.name and .output == $output)) | sort_by(.idx) | map(.name) | . == sort' <<<"$state" >/dev/null; then
+                    shift
+                    order "$@"
+                  fi
+                }
+
+                # Puts everything back in place: the list split over the monitors, every window
+                # on it, and the screens showing the two workspaces at the split.
+                place() {
+                  make_room
+                  if [ -z "$external" ]; then
+                    adopt
+                    sort_monitor "$laptop" "''${list[@]}"
+                    read_state
+                    return
+                  fi
+                  if [ "''${#upper[@]}" -eq 0 ]; then
+                    niri msg action move-workspace-to-monitor --reference "''${list[0]}" "$external"
+                  elif [ "''${#lower[@]}" -eq 0 ]; then
+                    niri msg action move-workspace-to-monitor --reference "''${list[-1]}" "$laptop"
+                  fi
+                  read_state
+                  for ws in "''${lower[@]}"; do
+                    if [[ $ws < "''${upper[-1]}" ]]; then
+                      niri msg action move-workspace-to-monitor --reference "$ws" "$external"
+                    fi
+                  done
+                  read_state
+                  adopt
+                  sort_monitor "$external" "''${upper[@]}"
+                  sort_monitor "$laptop" "''${lower[@]}"
+                  if ! jq -e --arg upper "''${upper[-1]}" --arg lower "''${lower[0]}" 'map(select(.is_active) | .name) | contains([$upper, $lower])' <<<"$state" >/dev/null; then
+                    focused=$(jq -r '.[] | select(.is_focused) | .output' <<<"$state")
+                    niri msg action focus-workspace "''${lower[0]}"
+                    niri msg action focus-workspace "''${upper[-1]}"
+                    if [ "$focused" = "$laptop" ]; then niri msg action focus-monitor "$laptop"; fi
+                  fi
+                  read_state
+                }
+
+                # One at a time, in the order of the presses: each acts on the state it read, over
+                # several actions, and a second one in between can split the list wrongly.
+                settle() {
+                  exec 9>"$XDG_RUNTIME_DIR/niri-stack.lock"
+                  flock 9
+                  read_state
+                  place
+                }
+
+                case "$1" in
+                  focus)
+                    read_state
+                    if [ -n "$external" ]; then
+                      niri msg action "focus-window-or-monitor-$2"
+                    else
+                      niri msg action "focus-window-or-workspace-$2"
+                    fi
+                    ;;
+                  slide)
+                    settle
+                    slide "$2"
+                    ;;
+                  window)
+                    settle
+                    window "$2"
+                    ;;
+                  watch)
+                    niri msg --json event-stream |
+                      jq --unbuffered -r '.WorkspacesChanged.workspaces // empty | "\(map(.output) | unique | length) \(map(.name // empty) | length)"' |
+                      while read -r layout; do
+                        if [ "$layout" != "''${last:-}" ]; then
+                          last=$layout
+                          (settle)
+                        fi
+                      done
+                    ;;
+                esac
+              '';
+            };
+            stack = lib.getExe stackPackage;
+          in
           {
+            home.packages = [ stackPackage ];
+
+            # A slide changes the size of every window on the workspace it moves, as the monitors
+            # differ, and this would animate over that. Nothing else uses it any more.
+            programs.niri.settings.animations.workspace-switch.enable = false;
+
             programs.niri.settings.binds = with config.lib.niri.actions; {
               "Alt+Tab" = {
                 action = spawn "true";
@@ -15,7 +248,7 @@
               };
 
               "Mod+Alt+Ctrl+Down" = {
-                action = move-window-to-monitor-down;
+                action = spawn stack "window" "down";
                 repeat = false;
               };
 
@@ -25,12 +258,12 @@
               };
 
               "Mod+Alt+Ctrl+J" = {
-                action = move-window-to-monitor-down;
+                action = spawn stack "window" "down";
                 repeat = false;
               };
 
               "Mod+Alt+Ctrl+K" = {
-                action = move-window-to-monitor-up;
+                action = spawn stack "window" "up";
                 repeat = false;
               };
 
@@ -50,12 +283,12 @@
               };
 
               "Mod+Alt+Ctrl+Up" = {
-                action = move-window-to-monitor-up;
+                action = spawn stack "window" "up";
                 repeat = false;
               };
 
               "Mod+Alt+Down" = {
-                action = move-window-to-workspace-down;
+                action = spawn stack "slide" "down";
                 repeat = false;
               };
 
@@ -70,12 +303,12 @@
               };
 
               "Mod+Alt+J" = {
-                action = move-window-to-workspace-down;
+                action = spawn stack "slide" "down";
                 repeat = false;
               };
 
               "Mod+Alt+K" = {
-                action = move-window-to-workspace-up;
+                action = spawn stack "slide" "up";
                 repeat = false;
               };
 
@@ -95,7 +328,7 @@
               };
 
               "Mod+Alt+Up" = {
-                action = move-window-to-workspace-up;
+                action = spawn stack "slide" "up";
                 repeat = false;
               };
 
@@ -150,7 +383,7 @@
               };
 
               "Mod+Down" = {
-                action = focus-window-or-workspace-down;
+                action = spawn stack "focus" "down";
                 repeat = false;
               };
 
@@ -170,12 +403,12 @@
               };
 
               "Mod+J" = {
-                action = focus-window-or-workspace-down;
+                action = spawn stack "focus" "down";
                 repeat = false;
               };
 
               "Mod+K" = {
-                action = focus-window-or-workspace-up;
+                action = spawn stack "focus" "up";
                 repeat = false;
               };
 
@@ -256,7 +489,7 @@
               };
 
               "Mod+Up" = {
-                action = focus-window-or-workspace-up;
+                action = spawn stack "focus" "up";
                 repeat = false;
               };
 
@@ -323,6 +556,28 @@
               "XF86MonBrightnessUp" = {
                 action = spawn "weinig" "msg" "brightness" "up";
                 allow-when-locked = true;
+              };
+            };
+
+            programs.niri.settings.workspaces = lib.genAttrs (map (n: "w${toString n}") (lib.range 1 9)) (_: {
+              open-on-output = "eDP-1";
+            });
+
+            systemd.user.services.niri-stack = {
+              Install.WantedBy = [ "graphical-session.target" ];
+
+              Service = {
+                ExecStart = "${stack} watch";
+                RestartSec = 5;
+
+                # The event stream ends when niri does.
+                Restart = "always";
+              };
+
+              Unit = {
+                After = [ "graphical-session.target" ];
+                Description = "Keep niri's workspaces one list across the monitors";
+                PartOf = [ "graphical-session.target" ];
               };
             };
           }
