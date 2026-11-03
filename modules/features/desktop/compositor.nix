@@ -139,7 +139,7 @@ in
 
                 overview = {
                   backdrop-color = "transparent";
-                  workspace-shadow.enable = true;
+                  workspace-shadow.enable = false;
                   zoom = 0.66;
                 };
 
