@@ -5,7 +5,7 @@
 }:
 {
   # Trying Weinig: it takes the frame, the bar, the launcher, notifications, the wallpaper, the lock
-  # screen and idle.
+  # screen, idle, the clipboard and the control panel.
   # noctalia keeps the rest until Weinig has it, like the calendar. Dropping
   # this module brings noctalia's bar, wallpaper and lock screen back.
   flake.nixosModules.weinig = {
@@ -97,6 +97,7 @@
                 "Mod+N".action = spawn "weinig" "msg" "notifications" "toggleMute";
                 "Mod+O".action = lib.mkForce (spawn "weinig" "msg" "colour" "pick");
                 "Mod+P".action = lib.mkForce (spawn "niri" "msg" "action" "screenshot");
+                "Mod+Shift+N".action = spawn "weinig" "msg" "notifications" "toggle";
                 "Mod+Shift+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "previous");
                 "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
                 "Mod+V".action = lib.mkForce (spawn "weinig" "msg" "clipboard" "toggle");
@@ -106,9 +107,6 @@
                 "XF86AudioRaiseVolume".action = lib.mkForce (spawn "weinig" "msg" "volume" "up");
                 "XF86MonBrightnessDown".action = lib.mkForce (spawn "weinig" "msg" "brightness" "down");
                 "XF86MonBrightnessUp".action = lib.mkForce (spawn "weinig" "msg" "brightness" "up");
-
-                # The bar's status isn't there yet, so noctalia's panel has to do.
-                "Mod+Shift+N".action = spawn "noctalia" "msg" "panel-toggle" "control-center";
               };
 
               # One wallpaper behind the workspaces in the overview, as with noctalia's
