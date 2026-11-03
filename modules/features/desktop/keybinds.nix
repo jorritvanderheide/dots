@@ -219,6 +219,12 @@
                   done
                 }
 
+                # Shows the workspace with this id again, for when its monitor is gone.
+                refocus() {
+                  name=$(niri msg --json workspaces | jq -r --argjson id "$1" '.[] | select(.id == $id) | .name // empty')
+                  if [ -n "$name" ]; then niri msg action focus-workspace "$name"; fi
+                }
+
                 # One at a time, in the order of the presses: each acts on the state it read, over
                 # several actions, and a second one in between can split the list wrongly.
                 settle() {
@@ -290,16 +296,33 @@
                     window "$2"
                     ;;
                   watch)
+                    last="" focused="" screens=0
                     niri msg --json event-stream |
-                      jq --unbuffered -r 'if .WorkspaceActivated then "activated" else .WorkspacesChanged.workspaces // empty | "\(map(.output) | unique | length) \(map(.name // empty) | length)" end' |
-                      while read -r layout; do
-                        if [ "$layout" = activated ]; then
+                      jq --unbuffered -r '
+                        if .WorkspaceActivated then
+                          "activated \(if .WorkspaceActivated.focused then .WorkspaceActivated.id else "" end)"
+                        else
+                          .WorkspacesChanged.workspaces // empty
+                          | "\(map(.output) | unique | length) \(map(.name // empty) | length) \(map(select(.is_focused) | .id)[0] // "")"
+                        end
+                      ' |
+                      while read -r first second third; do
+                        if [ "$first" = activated ]; then
+                          if [ -n "$second" ]; then focused=$second; fi
                           (settle follow)
-                        elif [ "$layout" != "''${last:-}" ]; then
+                          continue
+                        fi
+
+                        layout="$first $second"
+                        if [ "$layout" != "$last" ]; then
                           last=$layout
                           place_outputs
                           (settle)
+                          # By now niri has moved the focus, so this is the one from before.
+                          if [ "$first" -lt "$screens" ] && [ -n "$focused" ]; then refocus "$focused"; fi
+                          screens=$first
                         fi
+                        focused=$third
                       done
                     ;;
                 esac
