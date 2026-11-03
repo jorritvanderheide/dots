@@ -22,10 +22,11 @@
           alsa.support32Bit = true;
           pulse.enable = true;
 
-          # LDAC at its highest bitrate (990 kbps), not the adaptive one.
+          # LDAC at the adaptive bitrate. A fixed 990 kbps stutters when the
+          # signal weakens.
           wireplumber.extraConfig."51-bluez-ldac"."monitor.bluez.rules" = [
             {
-              actions.update-props."bluez5.a2dp.ldac.quality" = "hq";
+              actions.update-props."bluez5.a2dp.ldac.quality" = "auto";
               matches = [ { "device.name" = "~bluez_card.*"; } ];
             }
           ];
