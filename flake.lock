@@ -516,18 +516,15 @@
     },
     "weinig-shell": {
       "inputs": {
-        "home-manager": [
-          "home-manager"
-        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1793715858,
-        "narHash": "sha256-jzK7Yr2ebWrW7qt0p8EGyT1xkKh5fnt63X0kG7LaMHY=",
-        "rev": "7ced624c2fd06ee4145e1cd4007261be04f54d86",
-        "revCount": 152,
+        "lastModified": 1793720451,
+        "narHash": "sha256-+dRVvlXkyWyKozEU5vHkb7BkF7utoT5HZPzFXNS/Osk=",
+        "rev": "790fa5258d9bb9ed0875f8d312484df2e8b70792",
+        "revCount": 162,
         "type": "git",
         "url": "file:///home/jorrit/Git/weinig-shell"
       },

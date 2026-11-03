@@ -94,12 +94,8 @@
     };
 
     weinig-shell = {
+      inputs.nixpkgs.follows = "nixpkgs";
       url = "git+file:///home/jorrit/Git/weinig-shell";
-
-      inputs = {
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs";
-      };
     };
 
     zen-browser = {
