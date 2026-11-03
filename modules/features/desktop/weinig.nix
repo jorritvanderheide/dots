@@ -144,6 +144,9 @@
           ''}";
         };
 
+        # This Framework's hardware switches, open or not.
+        inUse.switches = true;
+
         launcher = {
           launchCommand = [
             "app2unit"
