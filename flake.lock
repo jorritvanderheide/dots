@@ -523,14 +523,15 @@
       "locked": {
         "lastModified": 1793725448,
         "narHash": "sha256-evCC31Mq/RzU22YlqT1eW59AvfF8gffisajew3BqOlk=",
+        "ref": "refs/heads/main",
         "rev": "a29c8525b197b104c05824ece01addc984991440",
         "revCount": 172,
         "type": "git",
-        "url": "file:///home/jorrit/Git/weinig-shell"
+        "url": "https://codeberg.org/BW20/weinig-shell"
       },
       "original": {
         "type": "git",
-        "url": "file:///home/jorrit/Git/weinig-shell"
+        "url": "https://codeberg.org/BW20/weinig-shell"
       }
     },
     "xwayland-satellite-stable": {

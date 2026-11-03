@@ -95,7 +95,7 @@
 
     weinig-shell = {
       inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+file:///home/jorrit/Git/weinig-shell";
+      url = "git+https://codeberg.org/BW20/weinig-shell";
     };
 
     zen-browser = {
