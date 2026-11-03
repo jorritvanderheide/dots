@@ -109,17 +109,25 @@ in
                   always-center-single-column = true;
                   background-color = "transparent";
                   default-column-width.proportion = 1.0;
-                  focus-ring.enable = false;
                   gaps = 36.0;
                   shadow.enable = true;
 
-                  # Weinig's hairline: its `bright`, `line` and `signal` (shell/theme/Theme.qml).
+                  # Weinig's hairline: its `line` and `signal` (shell/theme/Theme.qml).
                   border = {
                     enable = true;
-                    active.color = "#ffffff";
+                    active.color = "#2a2a2a";
                     inactive.color = "#2a2a2a";
                     urgent.color = "#d71921";
                     width = 1;
+                  };
+
+                  # A light on that hairline under the window (niri-active-line.patch), not a
+                  # ring. Weinig's `bright` and `signal`, and none on a screen without focus.
+                  focus-ring = {
+                    enable = true;
+                    active.color = "#ffffff";
+                    inactive.color = "#00000000";
+                    urgent.color = "#d71921";
                   };
 
                   preset-column-widths = [
@@ -246,11 +254,13 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for three patches. niri hardcodes
+          # (flake.nix). Still a build from source, for four patches. niri hardcodes
           # what three-finger swipes do, and here they slide the workspace list. It
           # hardcodes four-finger swipes as opening the overview, and here those go
-          # to the app. And it shows windows half way through a resize, and here the
+          # to the app. It shows windows half way through a resize, and here the
           # screens hold their last frame while a move to another monitor settles.
+          # And it can only draw a ring around a window, and here that is a light
+          # on the border under it.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
@@ -258,6 +268,7 @@ in
               ./niri-swipe-slide.patch
               ./niri-freeze-frame.patch
               ./niri-no-overview-swipe.patch
+              ./niri-active-line.patch
             ];
           });
         };
