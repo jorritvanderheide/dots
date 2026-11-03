@@ -1,0 +1,140 @@
+--- a/src/niri.rs
++++ b/src/niri.rs
+@@ -191,6 +191,18 @@
+ // should be ~1.995 seconds.
+ const FRAME_CALLBACK_THROTTLE: Option<Duration> = Some(Duration::from_millis(995));
+ 
++/// How long the outputs stay on their last frame at least, for all of a workspace move's actions to
++/// land in one picture.
++const FRAME_FREEZE_MIN: Duration = Duration::from_millis(60);
++/// How long they stay on it at most, for a window that does not redraw in time.
++const FRAME_FREEZE_MAX: Duration = Duration::from_millis(300);
++const FRAME_FREEZE_TICK: Duration = Duration::from_millis(8);
++
++pub struct FrameFreeze {
++    ready_after: Instant,
++    deadline: Instant,
++}
++
+ pub struct Niri {
+     pub config: Rc<RefCell<Config>>,
+ 
+@@ -228,6 +240,9 @@
+     // however it may have none (when there are no outputs connected) or multiple (when mirroring).
+     pub layout: Layout<Mapped>,
+ 
++    /// While set, the outputs stay on their last frame: see [`Niri::freeze_frame`].
++    pub frame_freeze: Option<FrameFreeze>,
++
+     // This space does not actually contain any windows, but all outputs are mapped into it
+     // according to their global position.
+     pub global_space: Space<Window>,
+@@ -2498,6 +2513,7 @@
+             clock: animation_clock,
+ 
+             layout,
++            frame_freeze: None,
+             global_space: Space::default(),
+             sorted_outputs: Vec::default(),
+             output_state: HashMap::new(),
+@@ -3656,6 +3672,55 @@
+     }
+ 
+     /// Schedules an immediate redraw on all outputs if one is not already scheduled.
++    /// Keeps the outputs on their last frame until the windows have redrawn at their new size, so
++    /// that moving windows between outputs shows no frame with them half way.
++    pub fn freeze_frame(&mut self) {
++        let now = Instant::now();
++        let running = self.frame_freeze.is_some();
++        self.frame_freeze = Some(FrameFreeze {
++            ready_after: now + FRAME_FREEZE_MIN,
++            deadline: now + FRAME_FREEZE_MAX,
++        });
++        if running {
++            return;
++        }
++
++        self.event_loop
++            .insert_source(Timer::from_duration(FRAME_FREEZE_TICK), |_, _, state| {
++                state.niri.frame_freeze_tick()
++            })
++            .unwrap();
++    }
++
++    fn frame_freeze_tick(&mut self) -> TimeoutAction {
++        let Some(freeze) = &self.frame_freeze else {
++            return TimeoutAction::Drop;
++        };
++
++        let now = Instant::now();
++        let ready = now >= freeze.ready_after
++            && !self
++                .layout
++                .windows()
++                .any(|(_, mapped)| mapped.has_uncommitted_configure());
++        if ready || now >= freeze.deadline {
++            self.frame_freeze = None;
++            self.queue_redraw_all();
++            return TimeoutAction::Drop;
++        }
++
++        // Without renders no frame callbacks go out, and a client waiting for one could not commit
++        // its new size.
++        if let Some(output) = self.output_state.keys().next().cloned() {
++            let time = get_monotonic_time();
++            self.layout.with_windows_mut(|mapped, _| {
++                mapped.send_frame(&output, time, Some(FRAME_FREEZE_TICK), |_, _| None);
++            });
++        }
++
++        TimeoutAction::ToDuration(FRAME_FREEZE_TICK)
++    }
++
+     pub fn queue_redraw_all(&mut self) {
+         for state in self.output_state.values_mut() {
+             state.redraw_state = mem::take(&mut state.redraw_state).queue_redraw();
+@@ -4617,7 +4682,9 @@
+             }
+ 
+             // Render.
+-            res = backend.render(self, output, target_presentation_time);
++            if self.frame_freeze.is_none() || !matches!(self.lock_state, LockState::Unlocked) {
++                res = backend.render(self, output, target_presentation_time);
++            }
+         }
+ 
+         let is_locked = self.is_locked();
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -1299,6 +1299,7 @@
+                     };
+ 
+                     if let Some(output) = output {
++                        self.niri.freeze_frame();
+                         self.niri
+                             .layout
+                             .move_to_output(None, &output, Some(index), activate);
+@@ -2094,6 +2095,7 @@
+                 {
+                     if let Some(new_output) = self.niri.output_by_name_match(&output_name).cloned()
+                     {
++                        self.niri.freeze_frame();
+                         if self.niri.layout.move_workspace_to_output_by_id(
+                             old_idx,
+                             output,
+--- a/src/window/mapped.rs
++++ b/src/window/mapped.rs
+@@ -351,6 +351,13 @@
+         self.recompute_window_rules(rules, is_at_startup)
+     }
+ 
++    pub fn has_uncommitted_configure(&self) -> bool {
++        self.needs_configure
++            || with_toplevel_last_uncommitted_configure(self.toplevel(), |configure| {
++                configure.is_some()
++            })
++    }
++
+     pub fn set_needs_configure(&mut self) {
+         self.needs_configure = true;
+     }
