@@ -327,11 +327,6 @@
                 repeat = false;
               };
 
-              "Mod+Alt+T" = {
-                action = spawn "weinig" "msg" "theme" "toggle";
-                repeat = false;
-              };
-
               "Mod+Alt+Up" = {
                 action = spawn stack "slide" "up";
                 repeat = false;
@@ -404,6 +399,13 @@
 
               "Mod+H" = {
                 action = focus-column-or-monitor-left;
+                repeat = false;
+              };
+
+              # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
+              # Mod and Alt mask T, which is on the same hand.
+              "Mod+ISO_Level3_Shift+T" = {
+                action = spawn "weinig" "msg" "theme" "toggle";
                 repeat = false;
               };
 
