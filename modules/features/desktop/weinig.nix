@@ -144,6 +144,9 @@
         settings = {
           primaryOutput = "eDP-1";
 
+          # niri-stack (keybinds.nix) makes them one list over the monitors.
+          bar.workspaces = "all";
+
           launcher = {
             launchCommand = [
               "app2unit"

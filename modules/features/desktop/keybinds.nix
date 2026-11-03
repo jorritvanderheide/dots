@@ -203,9 +203,30 @@
                   read_state
                   windows=$(niri msg --json windows)
                   if ! in_place; then
+                    if [ "''${1:-}" = follow ]; then follow; fi
                     place
                     windows=$(niri msg --json windows)
                   fi
+                }
+
+                # Moves the split to a workspace something else made current, such as a click on
+                # it in the bar or the overview, for place to then show it rather than undo it.
+                follow() {
+                  if [ -z "$external" ] || [ "''${#upper[@]}" -eq 0 ] || [ "''${#lower[@]}" -eq 0 ]; then return; fi
+                  shown_upper=$(jq -r --arg output "$external" '.[] | select(.output == $output and .is_active) | .name // empty' <<<"$state")
+                  shown_lower=$(jq -r --arg output "$laptop" '.[] | select(.output == $output and .is_active) | .name // empty' <<<"$state")
+                  if [ -n "$shown_upper" ] && [ "$shown_upper" != "''${upper[-1]}" ]; then
+                    for ((i = ''${#upper[@]} - 1; i >= 0; i--)); do
+                      if [ "''${upper[i]}" = "$shown_upper" ]; then break; fi
+                      niri msg action move-workspace-to-monitor --reference "''${upper[i]}" "$laptop"
+                    done
+                  elif [ -n "$shown_lower" ] && [ "$shown_lower" != "''${lower[0]}" ]; then
+                    for ws in "''${lower[@]}"; do
+                      if [ "$ws" = "$shown_lower" ]; then break; fi
+                      niri msg action move-workspace-to-monitor --reference "$ws" "$external"
+                    done
+                  fi
+                  read_state
                 }
 
                 # Whether place would change nothing, in one go as it nearly always would not.
@@ -246,9 +267,11 @@
                     ;;
                   watch)
                     niri msg --json event-stream |
-                      jq --unbuffered -r '.WorkspacesChanged.workspaces // empty | "\(map(.output) | unique | length) \(map(.name // empty) | length)"' |
+                      jq --unbuffered -r 'if .WorkspaceActivated then "activated" else .WorkspacesChanged.workspaces // empty | "\(map(.output) | unique | length) \(map(.name // empty) | length)" end' |
                       while read -r layout; do
-                        if [ "$layout" != "''${last:-}" ]; then
+                        if [ "$layout" = activated ]; then
+                          (settle follow)
+                        elif [ "$layout" != "''${last:-}" ]; then
                           last=$layout
                           (settle)
                         fi
