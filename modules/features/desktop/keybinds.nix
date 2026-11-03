@@ -483,11 +483,6 @@
                 repeat = false;
               };
 
-              "Mod+Escape" = {
-                action = toggle-overview;
-                repeat = false;
-              };
-
               "Mod+F" = {
                 action = fullscreen-window;
                 repeat = false;

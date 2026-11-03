@@ -1,0 +1,15 @@
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -3751,12 +3751,6 @@
+
+             // We handled this event.
+             return;
+-        } else if event.fingers() == 4 {
+-            self.niri.layout.overview_gesture_begin();
+-            self.niri.queue_redraw_all();
+-
+-            // We handled this event.
+-            return;
+         }
+
+         let serial = SERIAL_COUNTER.next_serial();

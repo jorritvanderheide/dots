@@ -246,16 +246,18 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for two patches. niri hardcodes
-          # what three-finger swipes do, and here they slide the workspace list. And
-          # it shows windows half way through a resize, and here the screens hold
-          # their last frame while a move to another monitor settles.
+          # (flake.nix). Still a build from source, for three patches. niri hardcodes
+          # what three-finger swipes do, and here they slide the workspace list. It
+          # hardcodes four-finger swipes as opening the overview, and here those go
+          # to the app. And it shows windows half way through a resize, and here the
+          # screens hold their last frame while a move to another monitor settles.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
             patches = (old.patches or [ ]) ++ [
               ./niri-swipe-slide.patch
               ./niri-freeze-frame.patch
+              ./niri-no-overview-swipe.patch
             ];
           });
         };
