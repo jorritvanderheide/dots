@@ -72,53 +72,28 @@
                 "LG Electronics LG HDR 4K 0x0004C67F" = {
                   focus-at-startup = true;
                   scale = 1.25;
-
-                  position = {
-                    x = -576;
-                    y = -1728;
-                  };
                 };
 
                 # PhD office monitor
                 "LG Electronics LG HDR 4K 0x00078084" = {
                   focus-at-startup = true;
                   scale = 1.25;
-
-                  position = {
-                    x = -576;
-                    y = -1728;
-                  };
                 };
 
                 # Office monitor
                 "LG Electronics LG HDR 4K 210MAZVRJG93" = {
                   focus-at-startup = true;
                   scale = 1.25;
-
-                  position = {
-                    x = 0;
-                    y = -1728;
-                  };
                 };
 
                 # Meeting room 18th floor
                 "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
                   scale = 2;
-
-                  position = {
-                    x = 0;
-                    y = -1080;
-                  };
                 };
 
                 # Corner office 19th floor
                 "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
                   scale = 1.5;
-
-                  position = {
-                    x = 320;
-                    y = -720;
-                  };
                 };
               };
             };

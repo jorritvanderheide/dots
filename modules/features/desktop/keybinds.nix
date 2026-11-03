@@ -195,6 +195,30 @@
                   read_state
                 }
 
+                # Puts every other screen centred above the laptop, each above the one before, as
+                # niri's config can't say that for a screen it doesn't know by name.
+                place_outputs() {
+                  niri msg --json outputs | jq -r --arg laptop "$laptop" '
+                    .[$laptop].logical as $base
+                    | select($base)
+                    | to_entries
+                    | map(select(.key != $laptop and .value.logical))
+                    | sort_by(.key) as $others
+                    | foreach $others[] as $other ($base.y;
+                        . - $other.value.logical.height;
+                        {
+                          name: $other.key,
+                          x: ($base.x + ($base.width - $other.value.logical.width) / 2 | floor),
+                          y: .,
+                          at: $other.value.logical
+                        })
+                    | select(.x != .at.x or .y != .at.y)
+                    | "\(.name) \(.x) \(.y)"
+                  ' | while read -r name x y; do
+                    niri msg output "$name" position set -- "$x" "$y"
+                  done
+                }
+
                 # One at a time, in the order of the presses: each acts on the state it read, over
                 # several actions, and a second one in between can split the list wrongly.
                 settle() {
@@ -273,6 +297,7 @@
                           (settle follow)
                         elif [ "$layout" != "''${last:-}" ]; then
                           last=$layout
+                          place_outputs
                           (settle)
                         fi
                       done
