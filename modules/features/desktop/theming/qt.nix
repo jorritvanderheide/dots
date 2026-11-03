@@ -11,12 +11,8 @@
           {
             config,
             lib,
-            osConfig,
             ...
           }:
-          let
-            colors = osConfig.programs.weinig.theme.render "qtct.conf" ./templates/qtct.conf;
-          in
           {
             # Fusion, not Kvantum, which ignores qtct palettes: Fusion draws with
             # the qtct palette, so these colors actually show.
@@ -26,11 +22,13 @@
             }
             // lib.genAttrs [ "qt5ctSettings" "qt6ctSettings" ] (_: {
               Appearance = {
-                color_scheme_path = "${colors}";
                 custom_palette = true;
                 icon_theme = config.gtk.iconTheme.name;
                 standard_dialogs = "default";
                 style = "Fusion";
+
+                # This mode's file (mode.nix).
+                color_scheme_path = "${config.xdg.stateHome}/weinig/theme/qtct.conf";
               };
 
               Fonts = {

@@ -9,9 +9,9 @@
     {
       home-manager.sharedModules = [
         (
-          { osConfig, ... }:
+          { config, osConfig, ... }:
           let
-            inherit (osConfig.programs.weinig.theme) render renderIn;
+            inherit (osConfig.programs.weinig.theme) renderIn;
           in
           {
             # The terminal's ANSI colors, so it follows Ghostty's palette.
@@ -32,9 +32,12 @@
             };
 
             xdg.configFile = {
-              "eza/theme.yml".source = render "eza-theme.yml" ./templates/eza-theme.yml;
               "ghostty/themes/weinig-dark".source = renderIn "dark" "ghostty-dark" ./templates/ghostty;
               "ghostty/themes/weinig-light".source = renderIn "light" "ghostty-light" ./templates/ghostty;
+
+              # This mode's file (mode.nix).
+              "eza/theme.yml".source =
+                config.lib.file.mkOutOfStoreSymlink "${config.xdg.stateHome}/weinig/theme/eza-theme.yml";
             };
           }
         )

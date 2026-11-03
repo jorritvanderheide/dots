@@ -8,17 +8,11 @@
     {
       home-manager.sharedModules = [
         (
-          { osConfig, ... }:
+          { config, ... }:
           let
-            inherit (osConfig.programs.weinig.theme) render;
-
-            # The base's colors, and the definitions that win over them.
-            css =
-              version:
-              pkgs.concatText "gtk${version}.css" [
-                (render "gtk${version}-base.css" ./templates/gtk${version}-base.css)
-                (render "gtk${version}-overrides.css" ./templates/gtk${version}-overrides.css)
-              ];
+            # This mode's files (mode.nix).
+            themeFile =
+              name: config.lib.file.mkOutOfStoreSymlink "${config.xdg.stateHome}/weinig/theme/${name}";
           in
           {
             gtk = {
@@ -40,8 +34,8 @@
             };
 
             xdg.configFile = {
-              "gtk-3.0/gtk.css".source = css "3";
-              "gtk-4.0/gtk.css".source = css "4";
+              "gtk-3.0/gtk.css".source = themeFile "gtk3.css";
+              "gtk-4.0/gtk.css".source = themeFile "gtk4.css";
             };
           }
         )

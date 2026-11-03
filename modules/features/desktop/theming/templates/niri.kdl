@@ -1,0 +1,7 @@
+// The border's colors for each mode (theming/mode.nix), included last so that it wins.
+layout {
+    border {
+        active-color "{{colors.primary.default.hex}}"
+        inactive-color "{{colors.outline_variant.default.hex}}"
+    }
+}
