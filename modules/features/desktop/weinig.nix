@@ -6,7 +6,7 @@
 {
   # Trying Weinig: it takes the frame, the bar, the launcher, notifications, the wallpaper, the lock
   # screen and idle.
-  # noctalia keeps the rest until Weinig has it, from the clipboard to the calendar. Dropping
+  # noctalia keeps the rest until Weinig has it, like the calendar. Dropping
   # this module brings noctalia's bar, wallpaper and lock screen back.
   flake.nixosModules.weinig = {
     home-manager.sharedModules = [
@@ -94,8 +94,11 @@
                 "Mod+Ctrl+N".action = spawn "weinig" "msg" "notifications" "toggle";
                 "Mod+M".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
                 "Mod+N".action = spawn "weinig" "msg" "notifications" "toggleMute";
+                "Mod+O".action = lib.mkForce (spawn "weinig" "msg" "colour" "pick");
+                "Mod+P".action = lib.mkForce (spawn "niri" "msg" "action" "screenshot");
                 "Mod+Shift+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "previous");
                 "Mod+Space".action = lib.mkForce (spawn "weinig" "msg" "launcher" "toggle");
+                "Mod+V".action = lib.mkForce (spawn "weinig" "msg" "clipboard" "toggle");
                 "Mod+W".action = lib.mkForce (spawn "weinig" "msg" "wallpaper" "next");
                 "XF86AudioLowerVolume".action = lib.mkForce (spawn "weinig" "msg" "volume" "down");
                 "XF86AudioMute".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
@@ -138,6 +141,7 @@
               lockscreen.enabled = lib.mkForce false;
               notification.enable_daemon = false;
               osd.enabled = false;
+              shell.clipboard_enabled = false;
               shell.polkit_agent = lib.mkForce false;
               shell.screen_corners.enabled = lib.mkForce false;
               wallpaper.enabled = lib.mkForce false;
