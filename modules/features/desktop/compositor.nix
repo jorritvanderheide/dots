@@ -130,7 +130,7 @@ in
                   ];
 
                   struts = {
-                    bottom = 0;
+                    bottom = 16.0;
                     left = 16.0;
                     right = 16.0;
                     top = 16.0;
