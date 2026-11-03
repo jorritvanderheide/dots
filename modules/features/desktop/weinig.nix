@@ -91,6 +91,7 @@
 
             niri.settings = {
               binds = {
+                "Mod+Backspace".action = lib.mkForce (spawn "weinig" "lock-session");
                 "Mod+Ctrl+N".action = spawn "weinig" "msg" "notifications" "toggle";
                 "Mod+M".action = lib.mkForce (spawn "weinig" "msg" "volume" "mute");
                 "Mod+N".action = spawn "weinig" "msg" "notifications" "toggleMute";

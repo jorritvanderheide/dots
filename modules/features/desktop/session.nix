@@ -21,6 +21,8 @@
       };
 
       config = {
+        systemd.services.greetd.after = [ "home-manager-${cfg.autologinuser}.service" ];
+
         home-manager.sharedModules = [
           {
             programs.niri.settings.spawn-at-startup = [
@@ -61,9 +63,16 @@
               # starts the same session for whoever logs in.
               default_session.command = "${lib.getExe' config.services.greetd.package "agreety"} --cmd ${lib.escapeShellArg sessionCommand}";
 
+              # Only once home-manager has written niri's config, as that is what
+              # locks the session: without it, niri would start with its default
+              # config and an open desktop. Ending here leads to the console login.
               initial_session = {
-                command = sessionCommand;
                 user = cfg.autologinuser;
+
+                command = "${pkgs.writeShellScript "autologin-session" ''
+                  ${lib.getExe' pkgs.systemd "systemctl"} is-active --quiet home-manager-${cfg.autologinuser}.service || exit 1
+                  exec ${sessionCommand}
+                ''}";
               };
             };
         };
