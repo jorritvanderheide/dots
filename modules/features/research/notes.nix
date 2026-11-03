@@ -33,13 +33,15 @@
                   ''} $out/bin/obsidian
                 '';
               })
-              # Scripts/export.sh renders vault notes to docx/pdf/md/tex.
+              # Due Credit exports vault notes through it.
               pandoc
-              # texlive is the PDF engine pandoc shells out to. acmart is not
-              # used by the export script, which is venue-neutral; it is here
-              # for compiling an actual ACM submission locally once there is
-              # one, and can go if that never happens.
-              (texliveMedium.withPackages (ps: [ ps.acmart ]))
+              # The PDF engines pandoc shells out to: xelatex for Due Credit, and
+              # lualatex for app/export/verslag.sh in the vault, which is what
+              # these two are for.
+              (texliveSmall.withPackages (ps: [
+                ps.lualatex-math
+                ps.selnolig
+              ]))
             ];
           }
         ];
