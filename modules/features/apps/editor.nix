@@ -8,6 +8,11 @@ _: {
     }:
     {
       config = {
+        # niri draws the border and rounds the corners. Zed's own border sits inside
+        # that, with a different radius, as a second line. Its `window_decorations`
+        # setting left that line there on 1.25.3, this doesn't.
+        environment.sessionVariables.ZED_WINDOW_DECORATIONS = "server";
+
         home-manager.sharedModules = [
           {
             home = {
