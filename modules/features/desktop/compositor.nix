@@ -245,9 +245,13 @@ in
         programs.niri = {
           enable = true;
 
-          # From nixpkgs, which cache.nixos.org builds, not niri-flake: its niri,
-          # built against our nixpkgs (flake.nix), would be a build from source.
-          package = pkgs.niri;
+          # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
+          # (flake.nix). Still a build from source, for a patch: niri hardcodes
+          # what three-finger swipes do, and here they slide the workspace list.
+          package = pkgs.niri.overrideAttrs (old: {
+            doCheck = false;
+            patches = (old.patches or [ ]) ++ [ ./niri-swipe-slide.patch ];
+          });
         };
 
         # The prompt gnome-keyring shows when an app first stores a secret,

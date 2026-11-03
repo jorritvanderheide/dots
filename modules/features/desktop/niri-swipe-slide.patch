@@ -1,0 +1,18 @@
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -3830,10 +3830,14 @@
+                                 .layout
+                                 .view_offset_gesture_begin(&output, Some(ws_idx), true);
+                         }
+-                    } else {
++                    } else if is_overview_open {
+                         self.niri
+                             .layout
+                             .workspace_switch_gesture_begin(&output, true);
++                    } else {
++                        // One swipe, one slide of the workspace list over the monitors.
++                        let direction = if cy > 0. { "up" } else { "down" };
++                        spawn(vec!["niri-stack", "slide", direction], None);
+                     }
+                 }
+             }
