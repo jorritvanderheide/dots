@@ -75,7 +75,12 @@
           {
             home.activation.followTheme = lib.hm.dag.entryAfter [ "dconfSettings" ] ''
               mode=$(cat ${lib.escapeShellArg "${config.xdg.stateHome}/weinig/mode"} 2>/dev/null || echo dark)
-              run ${lib.getExe follow} "$mode"
+              # At boot there is no session yet, and so no bus for dconf, as for the settings before this.
+              if [[ -v DBUS_SESSION_BUS_ADDRESS ]]; then
+                run ${lib.getExe follow} "$mode"
+              else
+                run ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon ${lib.getExe follow} "$mode"
+              fi
             '';
 
             # Optional, as the build checks the config without the state folder.
