@@ -86,7 +86,7 @@
         # The monitors at my desks, by serial, as a meeting room can have the same model. The one
         # that is there is the primary one, and any other is one I present on.
         trustedOutputs = [
-          "0x0004C67F" # Home
+          # "0x0004C67F" # Home
           "0x00078084" # PhD office
           "210MAZVRJG93" # Office
         ];
