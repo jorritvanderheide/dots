@@ -11,7 +11,7 @@
 +                .window
 +                .size()
 +                .to_f64()
-+                .to_physical_precise_down(self.scale)
++                .to_physical_precise_floor(self.scale)
 +                .to_logical(self.scale);
 +            let geo = Rectangle::new(window_render_loc, clip_size);
              let radius = radius.fit_to(window_size.w as f32, window_size.h as f32);
