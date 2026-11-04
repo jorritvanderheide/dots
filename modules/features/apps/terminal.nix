@@ -11,7 +11,7 @@
             installBatSyntax = true;
 
             settings = {
-              app-notifications = "no-clipboard-copy";
+              app-notifications = "no-clipboard-copy,no-config-reload";
               clipboard-trim-trailing-spaces = true;
               confirm-close-surface = false;
               cursor-invert-fg-bg = true;
