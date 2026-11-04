@@ -71,6 +71,9 @@ in
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
+                # Between columns, at once, as between workspaces (keybinds.nix).
+                animations.horizontal-view-movement.enable = false;
+
                 cursor = {
                   hide-after-inactive-ms = 1000;
                   hide-when-typing = true;
@@ -255,9 +258,9 @@ in
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
           # (flake.nix). Still a build from source, for four patches. niri hardcodes
-          # what three-finger swipes do, and here they slide the workspace list. It
-          # hardcodes four-finger swipes as opening the overview, and here those go
-          # to the app. It shows windows half way through a resize, and here the
+          # what three-finger swipes do, and here up and down slide the workspace list,
+          # and left and right move one column. It hardcodes four-finger swipes as
+          # opening the overview, and here those go to the app. It shows windows half way through a resize, and here the
           # screens hold their last frame while a move to another monitor settles.
           # And it can only draw a ring around a window, and here that is a light
           # on the border under it.

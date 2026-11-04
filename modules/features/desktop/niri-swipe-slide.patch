@@ -1,6 +1,23 @@
 --- a/src/input/mod.rs
 +++ b/src/input/mod.rs
-@@ -3830,10 +3830,14 @@
+@@ -3812,7 +3812,15 @@
+                 self.niri.gesture_swipe_3f_cumulative = None;
+ 
+                 if let Some(output) = self.niri.output_under_cursor() {
+-                    if cx.abs() > cy.abs() {
++                    if cx.abs() > cy.abs() && !is_overview_open {
++                        // One swipe, one column.
++                        let action = if cx > 0. {
++                            Action::FocusColumnRight
++                        } else {
++                            Action::FocusColumnLeft
++                        };
++                        self.do_action(action, false);
++                    } else if cx.abs() > cy.abs() {
+                         let output_ws = if is_overview_open {
+                             self.niri.workspace_under_cursor(true)
+                         } else {
+@@ -3830,10 +3838,14 @@
                                  .layout
                                  .view_offset_gesture_begin(&output, Some(ws_idx), true);
                          }
