@@ -1,6 +1,8 @@
-_: {
+{ inputs, ... }:
+{
   flake.nixosModules.password-manager =
     {
+      lib,
       pkgs,
       ...
     }:
@@ -29,6 +31,19 @@ _: {
                 ];
               }
             ];
+
+            # It saves the size it had on a monitor with the laptop's screen as its display, and
+            # at the next start maximizes itself for being larger than that, under the shell. In
+            # KDL, as niri-flake has no setting for this yet.
+            programs.niri.config = lib.mkAfter (
+              with inputs.niri-flake.lib.kdl;
+              [
+                (plain "window-rule" [
+                  (leaf "match" { app-id = "^bitwarden$"; })
+                  (leaf "open-maximized-to-edges" [ false ])
+                ])
+              ]
+            );
 
             # So ssh finds the agent even where SSH_AUTH_SOCK isn't set.
             programs.ssh.extraConfig = ''
