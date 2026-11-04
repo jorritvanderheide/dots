@@ -47,7 +47,7 @@
 
     # niri-flake's and nixos-hardware's own nixpkgs only build their
     # packages and checks, which we don't use: niri comes from nixpkgs
-    # (compositor.nix).
+    # (compositor/default.nix).
     niri-flake = {
       url = "github:sodiboo/niri-flake";
 

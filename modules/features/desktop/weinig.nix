@@ -14,7 +14,7 @@
         {
           programs.niri.settings = {
             # One wallpaper behind the workspaces in the overview, which let it through
-            # (compositor.nix).
+            # (compositor/default.nix).
             layer-rules = [
               {
                 place-within-backdrop = true;
