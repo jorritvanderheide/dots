@@ -247,8 +247,7 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for four patches. niri hardcodes
-          # what three-finger swipes do, and here left and right move one column. It
+          # (flake.nix). Still a build from source, for three patches. niri
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
@@ -258,7 +257,6 @@ in
             doCheck = false;
 
             patches = (old.patches or [ ]) ++ [
-              ./niri-swipe-column.patch
               ./niri-swipe-window.patch
               ./niri-desk-monitor.patch
               ./niri-opaque-edge.patch
