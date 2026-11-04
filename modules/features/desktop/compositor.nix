@@ -71,7 +71,7 @@ in
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
-                # Between columns, at once, as between workspaces (keybinds.nix).
+                # Between columns, at once.
                 animations.horizontal-view-movement.enable = false;
 
                 cursor = {
@@ -114,7 +114,7 @@ in
                   default-column-width.proportion = 1.0;
                   focus-ring.enable = false;
                   gaps = 36.0;
-                  shadow.enable = true;
+                  shadow.enable = false;
 
                   # Weinig's hairline: its `line` and `signal` (shell/theme/Theme.qml).
                   border = {
@@ -250,17 +250,17 @@ in
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
           # (flake.nix). Still a build from source, for three patches. niri hardcodes
-          # what three-finger swipes do, and here up and down slide the workspace list,
-          # and left and right move one column. It hardcodes four-finger swipes as
-          # opening the overview, and here those go to the app. And it shows windows half way through a resize, and here the
-          # screens hold their last frame while a move to another monitor settles.
+          # what three-finger swipes do, and here left and right move one column. It
+          # hardcodes four-finger swipes as opening the overview, and here up and down push the
+          # focused window to the monitor that way. And it has no such thing as a desk: here plugging in that monitor moves all
+          # workspaces to it, and the laptop's screen stays on one empty one until it is gone.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
             patches = (old.patches or [ ]) ++ [
-              ./niri-swipe-slide.patch
-              ./niri-freeze-frame.patch
-              ./niri-no-overview-swipe.patch
+              ./niri-swipe-column.patch
+              ./niri-swipe-window.patch
+              ./niri-desk-monitor.patch
             ];
           });
         };

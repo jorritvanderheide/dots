@@ -42,9 +42,6 @@
       programs.weinig = {
         enable = true;
 
-        # niri-stack (keybinds.nix) makes them one list over the monitors.
-        bar.workspaces = "all";
-
         # Ghostty, below.
         desktop.terminal = false;
 

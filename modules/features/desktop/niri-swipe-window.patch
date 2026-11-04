@@ -1,0 +1,83 @@
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -3750,8 +3750,8 @@
+             // We handled this event.
+             return;
+         } else if event.fingers() == 4 {
+-            self.niri.layout.overview_gesture_begin();
+-            self.niri.queue_redraw_all();
++            self.niri.gesture_swipe_4f_cumulative = Some((0., 0.));
++            self.niri.gesture_swipe_4f_active = true;
+ 
+             // We handled this event.
+             return;
+@@ -3792,6 +3792,32 @@
+ 
+         let uninverted_delta_y = delta_y;
+ 
++        // One swipe pushes the focused window to the monitor that way, whichever way the touchpad
++        // scrolls, and sideways does nothing.
++        if self.niri.gesture_swipe_4f_active {
++            if let Some((cx, cy)) = &mut self.niri.gesture_swipe_4f_cumulative {
++                *cx += delta_x;
++                *cy += delta_y;
++
++                let (cx, cy) = (*cx, *cy);
++                if cx * cx + cy * cy >= 16. * 16. {
++                    self.niri.gesture_swipe_4f_cumulative = None;
++
++                    if cy.abs() > cx.abs() {
++                        let action = if cy < 0. {
++                            Action::MoveWindowToMonitorUp
++                        } else {
++                            Action::MoveWindowToMonitorDown
++                        };
++                        self.do_action(action, false);
++                    }
++                }
++            }
++
++            // We handled this event.
++            return;
++        }
++
+         let device = event.device();
+         if let Some(device) = (&device as &dyn Any).downcast_ref::<input::Device>() {
+             if device.config_scroll_natural_scroll_enabled() {
+@@ -3906,6 +3932,14 @@
+     fn on_gesture_swipe_end<I: InputBackend>(&mut self, event: I::GestureSwipeEndEvent) {
+         self.niri.gesture_swipe_3f_cumulative = None;
+ 
++        if self.niri.gesture_swipe_4f_active {
++            self.niri.gesture_swipe_4f_cumulative = None;
++            self.niri.gesture_swipe_4f_active = false;
++
++            // We handled this event.
++            return;
++        }
++
+         let mut handled = false;
+         let res = self.niri.layout.workspace_switch_gesture_end(Some(true));
+         if let Some(output) = res {
+--- a/src/niri.rs
++++ b/src/niri.rs
+@@ -370,6 +370,10 @@
+     pub pointer_inside_hot_corner: bool,
+     pub tablet_cursor_location: Option<Point<f64, Logical>>,
+     pub gesture_swipe_3f_cumulative: Option<(f64, f64)>,
++    /// How far four fingers have gone, until that decides what the swipe does.
++    pub gesture_swipe_4f_cumulative: Option<(f64, f64)>,
++    /// Whether four fingers are on the touchpad, which only goes to niri.
++    pub gesture_swipe_4f_active: bool,
+     pub overview_scroll_swipe_gesture: ScrollSwipeGesture,
+     pub vertical_wheel_tracker: ScrollTracker,
+     pub horizontal_wheel_tracker: ScrollTracker,
+@@ -2581,6 +2585,8 @@
+             pointer_inside_hot_corner: false,
+             tablet_cursor_location: None,
+             gesture_swipe_3f_cumulative: None,
++            gesture_swipe_4f_cumulative: None,
++            gesture_swipe_4f_active: false,
+             overview_scroll_swipe_gesture: ScrollSwipeGesture::new(),
+             vertical_wheel_tracker: ScrollTracker::new(120),
+             horizontal_wheel_tracker: ScrollTracker::new(120),
