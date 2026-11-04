@@ -17,7 +17,7 @@
           "{{colors.tertiary.default.hex}}"
         ],
         "background.appearance": "opaque",
-        "border": "{{colors.outline.default.hex}}",
+        "border": "{{colors.outline_variant.default.hex}}",
         "border.variant": "{{colors.outline_variant.default.hex}}",
         "border.focused": "{{colors.primary.default.hex}}",
         "border.selected": "{{colors.primary.default.hex}}",
