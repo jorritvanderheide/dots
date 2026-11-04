@@ -1,27 +1,19 @@
 --- a/src/layout/mod.rs
 +++ b/src/layout/mod.rs
-@@ -55,6 +55,61 @@
+@@ -55,6 +55,53 @@
  pub use self::monitor::MonitorRenderElement;
  use self::monitor::{Monitor, WorkspaceSwitch};
  use self::workspace::{OutputId, Workspace};
 +
-+/// The monitor at the desk, by serial, as a meeting room can have the same model.
-+const DESK_MONITOR_SERIAL: &str = "210MAZVRJG93";
++/// The monitors at the desks, by serial, as a meeting room can have the same model.
++const DESK_MONITOR_SERIALS: &[&str] = &[@deskSerials@];
 +const LAPTOP_CONNECTOR: &str = "eDP-1";
 +
 +fn is_desk_monitor(output: &Output) -> bool {
 +    output
 +        .user_data()
 +        .get::<niri_config::OutputName>()
-+        .is_some_and(|name| name.serial.as_deref() == Some(DESK_MONITOR_SERIAL))
-+}
-+
-+/// With the desk's monitor there, the laptop's screen stays on the workspace it is on.
-+fn lock_laptop_workspace<W: LayoutElement>(monitors: &mut [Monitor<W>]) {
-+    let docked = monitors.iter().any(|mon| is_desk_monitor(&mon.output));
-+    for mon in monitors {
-+        mon.single_workspace = docked && mon.output_name() == LAPTOP_CONNECTOR;
-+    }
++        .is_some_and(|name| name.serial.as_deref().is_some_and(|serial| DESK_MONITOR_SERIALS.contains(&serial)))
 +}
 +
 +/// Moves all of the laptop's workspaces to the desk's monitor, which then shows and has the focus
@@ -62,7 +54,7 @@
  use crate::animation::{Animation, Clock};
  use crate::input::swipe_tracker::SwipeTracker;
  use crate::layout::scrolling::ScrollDirection;
-@@ -737,7 +792,7 @@
+@@ -737,7 +784,7 @@
              MonitorSet::Normal {
                  mut monitors,
                  primary_idx,
@@ -71,7 +63,7 @@
              } => {
                  let primary = &mut monitors[primary_idx];
  
-@@ -811,6 +866,12 @@
+@@ -811,6 +858,11 @@
                  monitor.set_overview_progress(self.overview_progress.as_ref());
                  monitors.push(monitor);
  
@@ -79,12 +71,11 @@
 +                if is_desk_monitor(&monitors[new_idx].output) {
 +                    dock_laptop(&mut monitors, new_idx, &mut active_monitor_idx);
 +                }
-+                lock_laptop_workspace(&mut monitors);
 +
                  MonitorSet::Normal {
                      monitors,
                      primary_idx,
-@@ -885,6 +946,19 @@
+@@ -885,6 +937,18 @@
                      let primary = &mut monitors[primary_idx];
                      primary.append_workspaces(workspaces);
  
@@ -99,115 +90,7 @@
 +                            primary.active_workspace_idx = idx;
 +                        }
 +                    }
-+                    lock_laptop_workspace(&mut monitors);
 +
                      MonitorSet::Normal {
                          monitors,
                          primary_idx,
---- a/src/layout/monitor.rs
-+++ b/src/layout/monitor.rs
-@@ -70,6 +70,8 @@
-     pub(super) previous_workspace_id: Option<WorkspaceId>,
-     /// In-progress switch between workspaces.
-     pub(super) workspace_switch: Option<WorkspaceSwitch>,
-+    /// Whether this stays on the workspace it is on, as the laptop's screen does at a desk.
-+    pub(super) single_workspace: bool,
-     /// Indication where an interactively-moved window is about to be placed.
-     pub(super) insert_hint: Option<InsertHint>,
-     /// Insert hint element for rendering.
-@@ -342,6 +344,7 @@
-             overview_open: false,
-             overview_progress: None,
-             workspace_switch: None,
-+            single_workspace: false,
-             clock,
-             base_options,
-             options,
-@@ -439,6 +442,10 @@
-         idx: usize,
-         config: Option<niri_config::Animation>,
-     ) {
-+        if self.single_workspace && self.active_workspace_idx != idx {
-+            return;
-+        }
-+
-         // FIXME: also compute and use current velocity.
-         let current_idx = self.workspace_render_idx();
- 
-@@ -783,6 +790,10 @@
-     }
- 
-     pub fn move_to_workspace_up(&mut self, focus: bool) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let source_workspace_idx = self.active_workspace_idx;
- 
-         let new_idx = source_workspace_idx.saturating_sub(1);
-@@ -817,6 +828,10 @@
-     }
- 
-     pub fn move_to_workspace_down(&mut self, focus: bool) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let source_workspace_idx = self.active_workspace_idx;
- 
-         let new_idx = min(source_workspace_idx + 1, self.workspaces.len() - 1);
-@@ -856,6 +871,10 @@
-         idx: usize,
-         activate: ActivateWindow,
-     ) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let source_workspace_idx = if let Some(window) = window {
-             self.workspaces
-                 .iter()
-@@ -1240,6 +1259,10 @@
-     }
- 
-     pub fn move_workspace_down(&mut self) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let mut new_idx = min(self.active_workspace_idx + 1, self.workspaces.len() - 1);
-         if new_idx == self.active_workspace_idx {
-             return;
-@@ -1266,6 +1289,10 @@
-     }
- 
-     pub fn move_workspace_up(&mut self) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let mut new_idx = self.active_workspace_idx.saturating_sub(1);
-         if new_idx == self.active_workspace_idx {
-             return;
-@@ -1780,6 +1807,10 @@
-     }
- 
-     pub fn workspace_switch_gesture_begin(&mut self, is_touchpad: bool) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         let center_idx = self.active_workspace_idx;
-         let current_idx = self.workspace_render_idx();
- 
-@@ -1798,6 +1829,10 @@
-     }
- 
-     pub fn dnd_scroll_gesture_begin(&mut self) {
-+        if self.single_workspace {
-+            return;
-+        }
-+
-         if let Some(WorkspaceSwitch::Gesture(WorkspaceSwitchGesture {
-             dnd_last_event_time: Some(_),
-             ..

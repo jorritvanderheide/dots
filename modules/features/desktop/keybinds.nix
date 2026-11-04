@@ -69,11 +69,6 @@
                 repeat = false;
               };
 
-              "Mod+Alt+Ctrl+H" = {
-                action = move-window-to-monitor-left;
-                repeat = false;
-              };
-
               "Mod+Alt+Ctrl+J" = {
                 action = move-window-to-monitor-down;
                 repeat = false;
@@ -81,21 +76,6 @@
 
               "Mod+Alt+Ctrl+K" = {
                 action = move-window-to-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+L" = {
-                action = move-window-to-monitor-right;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Left" = {
-                action = move-window-to-monitor-left;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Right" = {
-                action = move-window-to-monitor-right;
                 repeat = false;
               };
 
@@ -159,11 +139,6 @@
                 repeat = false;
               };
 
-              "Mod+Ctrl+H" = {
-                action = focus-monitor-left;
-                repeat = false;
-              };
-
               "Mod+Ctrl+J" = {
                 action = focus-monitor-down;
                 repeat = false;
@@ -174,23 +149,8 @@
                 repeat = false;
               };
 
-              "Mod+Ctrl+L" = {
-                action = focus-monitor-right;
-                repeat = false;
-              };
-
-              "Mod+Ctrl+Left" = {
-                action = focus-monitor-left;
-                repeat = false;
-              };
-
               "Mod+Ctrl+N" = {
                 action = spawn "weinig" "msg" "notifications" "toggle";
-                repeat = false;
-              };
-
-              "Mod+Ctrl+Right" = {
-                action = focus-monitor-right;
                 repeat = false;
               };
 
@@ -210,7 +170,7 @@
               };
 
               "Mod+H" = {
-                action = focus-column-or-monitor-left;
+                action = focus-column-left;
                 repeat = false;
               };
 
@@ -232,12 +192,12 @@
               };
 
               "Mod+L" = {
-                action = focus-column-or-monitor-right;
+                action = focus-column-right;
                 repeat = false;
               };
 
               "Mod+Left" = {
-                action = focus-column-or-monitor-left;
+                action = focus-column-left;
                 repeat = false;
               };
 
@@ -278,7 +238,7 @@
               };
 
               "Mod+Right" = {
-                action = focus-column-or-monitor-right;
+                action = focus-column-right;
                 repeat = false;
               };
 

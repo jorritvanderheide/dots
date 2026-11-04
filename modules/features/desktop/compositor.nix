@@ -71,9 +71,6 @@ in
                 prefer-no-csd = true;
                 xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
 
-                # Between columns, at once.
-                animations.horizontal-view-movement.enable = false;
-
                 cursor = {
                   hide-after-inactive-ms = 1000;
                   hide-when-typing = true;
@@ -112,6 +109,7 @@ in
                   always-center-single-column = true;
                   background-color = "transparent";
                   default-column-width.proportion = 1.0;
+                  empty-workspace-above-first = true;
                   focus-ring.enable = false;
                   gaps = 36.0;
                   shadow.enable = false;
@@ -249,11 +247,13 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for three patches. niri hardcodes
+          # (flake.nix). Still a build from source, for four patches. niri hardcodes
           # what three-finger swipes do, and here left and right move one column. It
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
-          # focused window to the monitor that way. And it has no such thing as a desk: here plugging in that monitor moves all
-          # workspaces to it, and the laptop's screen stays on one empty one until it is gone.
+          # focused window to the monitor that way. And it has no such thing as a desk: here
+          # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
+          # empty. And at a fractional scale it leaves a black line on the right and bottom of
+          # windows that say they are opaque.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
@@ -261,7 +261,14 @@ in
               ./niri-swipe-column.patch
               ./niri-swipe-window.patch
               ./niri-desk-monitor.patch
+              ./niri-opaque-edge.patch
             ];
+
+            # The monitors that patch counts as a desk's: those I trust (weinig.nix).
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace src/layout/mod.rs --replace-fail '@deskSerials@' \
+                '${lib.concatMapStringsSep ", " builtins.toJSON config.programs.weinig.trustedOutputs}'
+            '';
           });
         };
 
