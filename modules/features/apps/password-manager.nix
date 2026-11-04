@@ -1,11 +1,37 @@
-{ inputs, ... }:
-{
+_: {
   flake.nixosModules.password-manager =
     {
       lib,
       pkgs,
       ...
     }:
+    let
+      # Bitwarden saves the size it had on a monitor, with the laptop's screen as its display. At
+      # the next start it is larger than that, so it maximizes itself, and it asks niri too late
+      # for a window rule to refuse. Without a saved size it opens as any other window, as a column.
+      start = pkgs.writeShellApplication {
+        name = "start-bitwarden";
+
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.jq
+        ];
+
+        text = ''
+          data=$HOME/.config/Bitwarden/data.json
+          if [ -f "$data" ]; then
+            new=$(mktemp "$data.XXXXXX")
+            if jq 'if .global_desktopSettings_window then .global_desktopSettings_window |= del(.width, .height, .x, .y, .displayBounds, .isMaximized) else . end' "$data" >"$new"; then
+              mv "$new" "$data"
+            else
+              rm -f "$new"
+            fi
+          fi
+
+          exec app2unit -s a -- bitwarden
+        '';
+      };
+    in
     {
       config = {
         environment.systemPackages = [
@@ -22,28 +48,9 @@
 
             programs.niri.settings.spawn-at-startup = [
               {
-                command = [
-                  "app2unit"
-                  "-s"
-                  "a"
-                  "--"
-                  "bitwarden"
-                ];
+                command = [ (lib.getExe start) ];
               }
             ];
-
-            # It saves the size it had on a monitor with the laptop's screen as its display, and
-            # at the next start maximizes itself for being larger than that, under the shell. In
-            # KDL, as niri-flake has no setting for this yet.
-            programs.niri.config = lib.mkAfter (
-              with inputs.niri-flake.lib.kdl;
-              [
-                (plain "window-rule" [
-                  (leaf "match" { app-id = "^bitwarden$"; })
-                  (leaf "open-maximized-to-edges" [ false ])
-                ])
-              ]
-            );
 
             # So ssh finds the agent even where SSH_AUTH_SOCK isn't set.
             programs.ssh.extraConfig = ''
