@@ -1,0 +1,19 @@
+--- a/src/layout/tile.rs
++++ b/src/layout/tile.rs
+@@ -1166,7 +1166,15 @@
+         // If we're not resizing, render the window itself.
+         let has_border_shader = BorderRenderElement::has_shader(ctx.renderer);
+         if !pushed_resize {
+-            let geo = Rectangle::new(window_render_loc, window_size);
++            // A size between two pixels gets a last row and column that the window only half fills,
++            // which an opaque one such as Zed leaves black, so these stay outside the clip.
++            let clip_size: Size<f64, Logical> = self
++                .window
++                .size()
++                .to_f64()
++                .to_physical_precise_down(self.scale)
++                .to_logical(self.scale);
++            let geo = Rectangle::new(window_render_loc, clip_size);
+             let radius = radius.fit_to(window_size.w as f32, window_size.h as f32);
+ 
+             let clip_shader = ClippedSurfaceRenderElement::shader(ctx.renderer).cloned();

@@ -251,15 +251,15 @@ in
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
-          # empty. And at a fractional scale it leaves a black line on the right and bottom of
-          # windows that say they are opaque.
+          # empty. And at a fractional scale it shows the last row and column of a window that
+          # only half fills them, which are black in some apps.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
             patches = (old.patches or [ ]) ++ [
               ./niri-swipe-window.patch
               ./niri-desk-monitor.patch
-              ./niri-opaque-edge.patch
+              ./niri-whole-pixel-clip.patch
             ];
 
             # The monitors that patch counts as a desk's: those I trust (weinig.nix).
