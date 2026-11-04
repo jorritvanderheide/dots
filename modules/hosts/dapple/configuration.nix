@@ -29,6 +29,7 @@
         meetinn
         new-leaf
         ntfy
+        pubhubs-preview
         servarr
         syncthing
         vaultwarden

@@ -163,6 +163,7 @@ all of them.
 | meetinn | `inn` | ICT Netwerk Nijmegen's site, public; a demo until it has its own server |
 | Blog | bare domain | My blog, public; dapple builds it from every push to its repository |
 | Jeltje's blog | `jeltje` | Jeltje's blog, public, built the same way from its own repository |
+| PubHubs preview | `pubhubs` | The new PubHubs website, public; temporary, and copied over by hand |
 | Gatus | `status` | Monitoring of all of the above |
 | ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app and rocinante's desktop |
 
@@ -191,7 +192,7 @@ rocinante's desktop as a notification.
 ## 7 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
-There, five things are served, at names that point straight at the home
+There, six things are served, at names that point straight at the home
 address (DNS at deSEC, no proxy):
 
 - **Headscale** at `vpn`: the control protocol, the DERP relay and its STUN,
@@ -205,13 +206,14 @@ address (DNS at deSEC, no proxy):
 - **The blog** at the bare domain: static pages, with a 403 for the AI
   crawlers its robots.txt names.
 - **Jeltje's blog** at `jeltje`: the same, from its own repository.
+- **The PubHubs preview** at `pubhubs`: static pages, marked noindex.
 
 `kobo` answers too, but with a 403: its sync API is for the LAN subnet
 only. A name no vhost claims gets no certificate and no answer.
 
 **From the tailnet**, every service in [section 6](#6-services-on-dapple)
-but meetinn and the blogs, over HTTPS on dapple's tailnet address. Those
-three answer only at the public address, like any visitor's. SSH, Syncthing
+but meetinn, the blogs and the PubHubs preview, over HTTPS on dapple's tailnet
+address. Those four answer only at the public address, like any visitor's. SSH, Syncthing
 (22000/tcp) and the home LAN (through dapple's subnet route) only from the
 devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson) names:
