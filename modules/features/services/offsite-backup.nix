@@ -87,7 +87,7 @@
               query="success=false&error=$MONITOR_SERVICE_RESULT-$MONITOR_EXIT_STATUS"
             fi
             TOKEN="$(<${config.sops.secrets.gatus_push_token.path})"
-            curl -X POST -fsS -o /dev/null --config - "${healthcheckUrl}?$query" <<<"header = \"Authorization: Bearer $TOKEN\""
+            curl -X POST -fsS -o /dev/null --retry 3 --retry-all-errors --retry-delay 10 --config - "${healthcheckUrl}?$query" <<<"header = \"Authorization: Bearer $TOKEN\""
           '';
         };
 
