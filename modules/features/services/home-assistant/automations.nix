@@ -119,6 +119,16 @@
                 }
               ];
 
+              # Humidity settles with or without a boost, and this must not
+              # undo a mode that a boost didn't set.
+              conditions = [
+                {
+                  condition = "state";
+                  entity_id = "select.bedroom_mode";
+                  state = "exhaust";
+                }
+              ];
+
               triggers = [
                 {
                   for.minutes = 5;
@@ -129,12 +139,18 @@
                        <= states('sensor.bathroom_humidity_baseline') | float(0) + 3 }}
                   '';
                 }
-                # Cap, in case humidity never settles back down.
+                # Cap, in case humidity never settles back down. On the mode,
+                # as the unit can end "powerful" by itself after 30 minutes.
                 {
-                  entity_id = "switch.bedroom_ventilator_powerful";
+                  entity_id = "select.bedroom_mode";
                   for.minutes = 45;
-                  to = "on";
+                  to = "exhaust";
                   trigger = "state";
+                }
+                # A restart loses both waits, so end any boost that was running.
+                {
+                  event = "start";
+                  trigger = "homeassistant";
                 }
               ];
             }
