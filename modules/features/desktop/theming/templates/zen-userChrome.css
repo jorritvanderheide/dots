@@ -68,10 +68,6 @@
   background-color: var(--surface) !important;
 }
 
-#zen-workspaces-button {
-  background-color: var(--surface) !important;
-}
-
 #zen-appcontent-navbar-container {
   background-color: var(--frame) !important;
 }
