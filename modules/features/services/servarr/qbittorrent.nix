@@ -52,10 +52,20 @@
             BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
             BitTorrent.Session.GlobalMaxRatio = -1;
             BitTorrent.Session.GlobalMaxSeedingMinutes = -1;
+            BitTorrent.Session.GlobalUPSpeedLimit = 10240;
             BitTorrent.Session.LSDEnabled = false;
             BitTorrent.Session.MaxRatioAction = 0;
             BitTorrent.Session.PeXEnabled = false;
             LegalNotice.Accepted = true;
+
+            # Append `.!qB` to in-progress files so *arr never tries
+            # to import a half-downloaded file mid-flight.
+            BitTorrent.Session.AddExtensionToIncompleteFiles = true;
+
+            # Save downloads on the media dataset so the *arr apps
+            # (in the `media` group) can hardlink-import from the
+            # category subdirs into the library.
+            BitTorrent.Session.DefaultSavePath = "${torrentsDir}/";
 
             # Private trackers: no DHT, PeX or LSD, since most ban peers
             # that announce torrents outside the tracker, and no ratio or
@@ -70,26 +80,15 @@
             # in DefaultSavePath.
             BitTorrent.Session.DisableAutoTMMByDefault = false;
 
+            # Download uncapped; GlobalUPSpeedLimit caps upload at 10 MiB/s
+            # so seeding doesn't saturate the upstream and tank latency for
+            # Jellyfin and the other services on this host. qBit's conf
+            # stores rate limits in KiB/s; reading any value above
+            # ~2 GiB/s overflows int32 internally and silently disables
+            # the cap.
+            BitTorrent.Session.GlobalDLSpeedLimit = 0;
+
             Preferences = {
-              Connection.GlobalUPLimit = 10240;
-
-              # Download uncapped; GlobalUPLimit caps upload at 10 MiB/s so
-              # seeding doesn't saturate the upstream and tank latency for
-              # Jellyfin and the other services on this host. qBit's conf
-              # stores rate limits in KiB/s; reading any value above
-              # ~2 GiB/s overflows int32 internally and silently disables
-              # the cap.
-              Connection.GlobalDLLimit = 0;
-
-              # Save downloads on the media dataset so the *arr apps
-              # (in the `media` group) can hardlink-import from the
-              # category subdirs into the library.
-              Downloads.SavePath = "${torrentsDir}/";
-
-              # Append `.!qB` to in-progress files so *arr never tries
-              # to import a half-downloaded file mid-flight.
-              Downloads.UseIncompleteExtension = true;
-
               WebUI = {
                 Address = "127.0.0.1";
                 Password_PBKDF2 = ''"@ByteArray(eBo1EBIF1iQdJISdjT4BDQ==:4yLawi5c8p2ez0phEqF00SBYm5ujtnQVL/w+hpSwT/nE+TZyvvyXuGZYVZbyyy52YVOpNXcLwjd/U/efG8O+BA==)"'';
