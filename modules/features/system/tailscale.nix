@@ -51,8 +51,12 @@
             units = [ "tailscaled.service" ];
           };
 
+          # Its node key, which is its place on the tailnet.
           my.preservation.systemDirectories = [
-            "/var/lib/tailscale"
+            {
+              directory = "/var/lib/tailscale";
+              mode = "0700";
+            }
           ];
 
           services.tailscale = {
