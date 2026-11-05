@@ -243,6 +243,10 @@ in
           ".local/share/keyrings"
         ];
 
+        # niri is built here, with patches. A trusted key may sign any path
+        # (nix.nix), so no cache that nothing is fetched from.
+        niri-flake.cache.enable = false;
+
         programs.niri = {
           enable = true;
 
