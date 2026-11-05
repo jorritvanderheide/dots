@@ -71,6 +71,17 @@
         # wheel otherwise (nix.nix).
         nix.settings.allowed-users = [ "small-press-jeltje" ];
 
+        # Public, and each request can carry 21 MB before its token is
+        # checked. A post with its images comes as one burst.
+        services.nginx.appendHttpConfig = ''
+          limit_req_zone $binary_remote_addr zone=jeltje_micropub:1m rate=30r/m;
+        '';
+
+        services.nginx.virtualHosts.${domain}.locations."/micropub".extraConfig = ''
+          limit_req zone=jeltje_micropub burst=30 nodelay;
+          limit_req_status 429;
+        '';
+
         services.small-press.sites.jeltje = {
           inherit domain;
           deploy.onFailure = [ "small-press-jeltje-report@failure.service" ];

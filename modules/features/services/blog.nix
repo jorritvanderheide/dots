@@ -78,6 +78,17 @@
         # more.
         security.acme.certs.${domain}.extraDomainNames = [ domain ];
 
+        # Public, and each request can carry 21 MB before its token is
+        # checked. A post with its images comes as one burst.
+        services.nginx.appendHttpConfig = ''
+          limit_req_zone $binary_remote_addr zone=bw20_micropub:1m rate=30r/m;
+        '';
+
+        services.nginx.virtualHosts.${domain}.locations."/micropub".extraConfig = ''
+          limit_req zone=bw20_micropub burst=30 nodelay;
+          limit_req_status 429;
+        '';
+
         services.small-press.sites.bw20 = {
           inherit domain;
           deploy.onFailure = [ "small-press-bw20-report@failure.service" ];
