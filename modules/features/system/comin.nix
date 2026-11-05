@@ -102,9 +102,7 @@
 
         # Its clone, and the main it saw last, which a newer main has to be
         # on top of. After a force push to main it deploys nothing until
-        # this is emptied, which also forgets that. Root's alone: comin
-        # makes its control socket writable by everyone, and through it any
-        # local user, a CI job too, could suspend it for good.
+        # this is emptied, which also forgets that.
         my.preservation.systemDirectories = [
           {
             directory = "/var/lib/comin";
@@ -114,14 +112,26 @@
 
         services.comin = {
           enable = true;
+          buildRetryTimer = 600;
           postBuildCommand = lib.getExe report;
           postDeploymentCommand = lib.getExe deployed;
           sshAllowedSignersPath = "${pkgs.writeText "comin-allowed-signers" (
             lib.concatLines inputs.self.lib.commitSigners
           )}";
 
+          # Three tries, ten minutes apart: time for a network problem to
+          # pass, while a broken build doesn't rebuild and alert forever.
+          buildAttemptsLimit = 3;
+
           # Its Prometheus metrics, which nothing here scrapes.
           exporter.listen_address = "127.0.0.1";
+
+          # Through its control socket a local user, a CI job too, could
+          # suspend it for good. Its default is the group users.
+          grpc = {
+            unix_socket_group = "root";
+            unix_socket_mode = "0700";
+          };
 
           remotes = [
             {

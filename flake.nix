@@ -10,9 +10,9 @@
 
     # A commit, so nupdate doesn't move it: comin runs as root and picks
     # what gets deployed, so a newer one is a choice. Past v0.14.0, for
-    # postBuildCommand (comin.nix).
+    # postBuildCommand and buildAttemptsLimit (comin.nix).
     comin = {
-      url = "github:nlewo/comin/1399adecc682e557bc3ee914d929f8e20391a148";
+      url = "github:nlewo/comin/004a55ced41d72340373ebc6774e29a417512638";
 
       inputs = {
         nixpkgs.follows = "nixpkgs";
