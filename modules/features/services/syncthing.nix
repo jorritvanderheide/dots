@@ -74,13 +74,16 @@
         # (File Browser runs as it too). lib.sandbox's syscalls as they are:
         # Syncthing lowers its own CPU and I/O priority (setLowPriority),
         # with setpriority and ioprio_set from @resources.
-        systemd.services.syncthing.serviceConfig = inputs.self.lib.sandbox // {
-          CapabilityBoundingSet = lib.mkForce "";
-          ProtectSystem = "strict";
-          ReadWritePaths = [ dataDir ];
-          RestrictAddressFamilies = inputs.self.lib.sandbox.RestrictAddressFamilies ++ [ "AF_NETLINK" ];
-          UMask = "0077";
-        };
+        systemd.services.syncthing.serviceConfig =
+          inputs.self.lib.sandbox
+          // inputs.self.lib.restartAlways
+          // {
+            CapabilityBoundingSet = lib.mkForce "";
+            ProtectSystem = "strict";
+            ReadWritePaths = [ dataDir ];
+            RestrictAddressFamilies = inputs.self.lib.sandbox.RestrictAddressFamilies ++ [ "AF_NETLINK" ];
+            UMask = "0077";
+          };
       };
     };
 }
