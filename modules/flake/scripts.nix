@@ -26,6 +26,7 @@
           age
           age-plugin-yubikey
           ccid
+          cryptsetup
           git
           jujutsu
           kmod

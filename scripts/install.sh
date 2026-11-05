@@ -24,6 +24,22 @@ readonly NIX="nix --extra-experimental-features nix-command --extra-experimental
 readonly REPO_URL="https://codeberg.org/BW20/dots.git"
 readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
 
+# A pool on a disk the installer keeps has to import before disko runs: when
+# its import fails, for a damaged pool or features this ISO's ZFS doesn't know,
+# disko creates the pool anew over the data. A disk that isn't LUKS yet is a
+# new one, for disko to format.
+check_kept_pool() {
+  local dev=$1 crypt=$2 pool=$3
+  cryptsetup isLuks "$dev" || return 0
+  # Without a trailing newline, as disko reads it.
+  [[ -e /dev/mapper/$crypt ]] || cryptsetup open --key-file <(printf %s "$(</tmp/secret.key)") "$dev" "$crypt" ||
+    die "luks_password doesn't open ${dev}. No disk was changed."
+  zpool list "$pool" >/dev/null 2>&1 || zpool import -N -f "$pool" ||
+    die "Pool ${pool} on ${dev}, which this keeps, won't import, and disko would create it anew. No disk was changed. Fix the import, or wipe ${dev} by hand if it should start over."
+  zpool export "$pool"
+  cryptsetup close "$crypt"
+}
+
 main() {
   local new_hardware=false
   if [[ ${1:-} == --new-hardware ]]; then
@@ -88,17 +104,27 @@ main() {
   local disks
   # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
   disks=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk" \
-    --apply 'disks: builtins.concatStringsSep "\n" (map (name: "${disks.${name}.device} ${if disks.${name}.destroy then "wipe" else "keep"}") (builtins.attrNames disks))')
-  local -a wipe_disks=() keep_disks=()
-  local dev action
-  while read -r dev action; do
+    --apply 'disks: builtins.concatStringsSep "\n" (map (name: let d = disks.${name}; in "${d.device} ${if d.destroy then "wipe" else "keep"} ${d.content.name or "-"} ${d.content.content.pool or "-"}") (builtins.attrNames disks))')
+  local -a wipe_disks=() keep_disks=() keep_luks=()
+  local dev action crypt pool
+  while read -r dev action crypt pool; do
     [[ -e $dev ]] || die "Disk ${dev} not found."
     if [[ $action == wipe ]]; then
       wipe_disks+=("$dev")
     else
       keep_disks+=("$dev")
+      keep_luks+=("$dev $crypt $pool")
     fi
   done <<<"$disks"
+
+  # A regenerated hardware report can name the kept disk as the main one.
+  local wiped kept
+  for wiped in "${wipe_disks[@]}"; do
+    for kept in "${keep_disks[@]}"; do
+      [[ $(readlink -f "$wiped") != $(readlink -f "$kept") ]] ||
+        die "${wiped} is the disk to wipe and also ${kept}, the disk to keep. Is the hardware report's first disk the right one?"
+    done
+  done
 
   # Decrypt with whichever YubiKey is plugged in: each host has its own,
   # and all of them are recipients. SOPS_AGE_KEY_FILE overrides it, e.g.
@@ -155,6 +181,11 @@ main() {
   [[ $confirm == "yes" ]] || die "Aborted."
   # zpool create can't load the module itself on the live ISO.
   modprobe zfs
+  local kept_disk
+  for kept_disk in "${keep_luks[@]}"; do
+    read -r dev crypt pool <<<"$kept_disk"
+    check_kept_pool "$dev" "$crypt" "$pool"
+  done
   local disko_script
   disko_script=$($NIX build --no-link --print-out-paths \
     "${flake}#nixosConfigurations.${hostname}.config.system.build.diskoScript")

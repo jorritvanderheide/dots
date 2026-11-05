@@ -54,6 +54,8 @@ The installer:
 4. Shows the disk it is about to wipe, with its size, and any it keeps,
    and waits for a `yes`. It keeps dapple's media disk, which has no
    offsite copy: its LUKS is opened and its pool imported, as they are.
+   If the pool won't import, or one disk would be both wiped and kept, it
+   stops before touching any disk.
 5. Partitions and formats the main disk with disko, puts the age key in
    `/persist`, and runs `nixos-install`, whose activation decrypts the
    secrets with it: the accounts have their passwords from the first boot.
