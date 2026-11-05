@@ -93,6 +93,13 @@
               fi
             done
 
+            # A faulted pool has no capacity, only a dash.
+            while read -r pool capacity; do
+              if [[ "$capacity" == [0-9]* ]] && ((capacity >= 95)); then
+                problems+=("zpool $pool is $capacity% full")
+              fi
+            done < <(zpool list -Hp -o name,capacity)
+
             # A smartd that died would otherwise look like no warnings.
             if ! systemctl is-active --quiet smartd; then
               problems+=("smartd isn't running")

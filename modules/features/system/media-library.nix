@@ -96,6 +96,18 @@
             };
           };
 
+          # Room to work in if the pool ever fills: even a delete needs space
+          # on ZFS. `zfs set reservation=none zmedia/reserved` hands it back.
+          datasets.reserved = {
+            type = "zfs_fs";
+
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+              reservation = "10G";
+            };
+          };
+
           options = {
             ashift = "12";
             autotrim = "on";
