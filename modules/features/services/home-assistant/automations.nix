@@ -90,9 +90,22 @@
                   data.option = "exhaust";
                   target.entity_id = "select.bedroom_mode";
                 }
+                # Someone may still be asleep during quiet hours.
                 {
-                  action = "switch.turn_on";
-                  target.entity_id = "switch.bedroom_ventilator_powerful";
+                  "if" = [
+                    {
+                      condition = "state";
+                      entity_id = "input_boolean.quiet_hours";
+                      state = "off";
+                    }
+                  ];
+
+                  "then" = [
+                    {
+                      action = "switch.turn_on";
+                      target.entity_id = "switch.bedroom_ventilator_powerful";
+                    }
+                  ];
                 }
               ];
 
@@ -128,7 +141,7 @@
                   "if" = [
                     {
                       condition = "state";
-                      entity_id = "input_boolean.quiet_hours";
+                      entity_id = "fan.bedroom_fan";
                       state = "on";
                     }
                   ];
