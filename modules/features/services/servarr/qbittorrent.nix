@@ -52,16 +52,16 @@
             BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
             BitTorrent.Session.GlobalMaxRatio = -1;
             BitTorrent.Session.GlobalMaxSeedingMinutes = -1;
-            BitTorrent.Session.LSD = false;
+            BitTorrent.Session.LSDEnabled = false;
             BitTorrent.Session.MaxRatioAction = 0;
-            BitTorrent.Session.PeX = false;
+            BitTorrent.Session.PeXEnabled = false;
             LegalNotice.Accepted = true;
 
             # Private trackers: no DHT, PeX or LSD, since most ban peers
             # that announce torrents outside the tracker, and no ratio or
             # time cap (GlobalMaxRatio, GlobalMaxSeedingMinutes,
             # MaxRatioAction), so everything seeds indefinitely.
-            BitTorrent.Session.DHT = false;
+            BitTorrent.Session.DHTEnabled = false;
 
             # Honour each category's save path (Auto Torrent Management)
             # by default, and, with the two DisableAutoTMMTriggers, relocate
