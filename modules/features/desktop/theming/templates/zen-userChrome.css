@@ -2,16 +2,16 @@
 :root {
   /* --- Zen Color Variables --- */
   --zen-primary-color: var(--primary) !important;
-  --zen-colors-primary: var(--base) !important;
+  --zen-colors-primary: var(--frame) !important;
   --zen-colors-secondary: var(--surface) !important;
-  --zen-colors-tertiary: var(--base) !important;
+  --zen-colors-tertiary: var(--frame) !important;
   --zen-colors-border: var(--outline) !important;
 
   /* --- Backgrounds --- */
-  --toolbar-bgcolor: var(--base) !important;
-  --zen-themed-toolbar-bg: var(--base) !important;
-  --zen-main-browser-background: var(--base) !important;
-  --toolbox-bgcolor-inactive: var(--base) !important;
+  --toolbar-bgcolor: var(--frame) !important;
+  --zen-themed-toolbar-bg: var(--frame) !important;
+  --zen-main-browser-background: var(--frame) !important;
+  --toolbox-bgcolor-inactive: var(--frame) !important;
   --zen-urlbar-background: var(--surface) !important;
   --zen-colors-input-bg: var(--surface) !important;
   --zen-themed-toolbar-bg-transparent: transparent !important;
@@ -24,7 +24,7 @@
   --toolbar-color: var(--text) !important;
   --toolbox-textcolor: var(--text) !important;
   --toolbox-textcolor-inactive: var(--text) !important;
-  --tab-selected-textcolor: var(--primary) !important;
+  --tab-selected-textcolor: var(--text) !important;
   --newtab-text-primary-color: var(--text) !important;
 
   /* --- Popups, Menus & Sidebars --- */
@@ -32,12 +32,12 @@
   --arrowpanel-background: var(--overlay) !important;
   --sidebar-text-color: var(--text) !important;
   --lwt-sidebar-text-color: var(--text) !important;
-  --lwt-sidebar-background-color: var(--base) !important;
+  --lwt-sidebar-background-color: var(--frame) !important;
 }
 
 #zen-browser-background {
-  --zen-main-browser-background: var(--base) !important;
-  --zen-main-browser-background-old: var(--base) !important;
+  --zen-main-browser-background: var(--frame) !important;
+  --zen-main-browser-background-old: var(--frame) !important;
 }
 
 /* --- Sidebar & Layout --- */
@@ -45,12 +45,17 @@
 #navigator-toolbox,
 #zen-tabbox-wrapper,
 .sidebar-panel {
-  background-color: var(--base) !important;
+  background-color: var(--frame) !important;
 }
 
 #zen-sidebar-splitter {
-  background-color: var(--base) !important;
+  background-color: var(--frame) !important;
   opacity: 1 !important;
+}
+
+/* The page as a card on the frame, with the hairline of Obsidian's cards. */
+#tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent) !important;
 }
 
 .sidebar-placesTree {
@@ -62,7 +67,7 @@
 }
 
 #zen-appcontent-navbar-container {
-  background-color: var(--base) !important;
+  background-color: var(--frame) !important;
 }
 
 /* --- Navigation Controls --- */
@@ -161,12 +166,14 @@ toolbarbutton#tabs-newtab-button {
   color: var(--base) !important;
 }
 
+/* Flat, with the same fill and hairline as Obsidian's active tab. */
 .tab-background[selected=""] {
-  background: var(--hl_low) !important;
+  background: color-mix(in srgb, var(--primary) 15%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent) !important;
 }
 
 .tabbrowser-tab:hover > .tab-stack > .tab-background {
-  background-color: var(--hl_med) !important;
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
 }
 
 #zenEditBookmarkPanelFaviconContainer {
@@ -179,7 +186,7 @@ toolbarbutton#tabs-newtab-button {
 }
 
 #TabsToolbar, hbox#titlebar {
-  background-color: var(--base) !important;
+  background-color: var(--frame) !important;
 }
 
 .zen-current-workspace-indicator-name {
