@@ -96,6 +96,10 @@
       config = {
         sops.secrets.gatus_push_token = { };
 
+        # For the deploy by hand in the README, when comin can't: Nix runs
+        # git to fetch a git+https flake, and comin's is on its own PATH alone.
+        environment.systemPackages = [ pkgs.git ];
+
         # Its clone, and the main it saw last, which a newer main has to be
         # on top of. After a force push to main it deploys nothing until
         # this is emptied, which also forgets that. Root's alone: comin
