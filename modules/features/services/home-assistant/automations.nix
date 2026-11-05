@@ -14,6 +14,7 @@
       co2Speed =
         {
           alias,
+          extraConditions ? [ ],
           fan,
           id,
           sensor,
@@ -40,7 +41,8 @@
               entity_id = fan;
               state = "on";
             }
-          ];
+          ]
+          ++ extraConditions;
 
           triggers = [
             {
@@ -114,8 +116,26 @@
                 }
                 {
                   action = "select.select_option";
-                  data.option = "ventilate";
+                  data.option = "{{ 'supply' if is_state('input_boolean.quiet_hours', 'on') else 'ventilate' }}";
                   target.entity_id = "select.bedroom_mode";
+                }
+                # The speed doesn't always fall back when "powerful" ends.
+                {
+                  "if" = [
+                    {
+                      condition = "state";
+                      entity_id = "input_boolean.quiet_hours";
+                      state = "on";
+                    }
+                  ];
+
+                  "then" = [
+                    {
+                      action = "fan.set_percentage";
+                      data.percentage = 33;
+                      target.entity_id = "fan.bedroom_fan";
+                    }
+                  ];
                 }
               ];
 
@@ -227,6 +247,11 @@
                               condition = "state";
                               entity_id = "select.bedroom_mode";
                               state = "supply";
+                            }
+                            {
+                              condition = "state";
+                              entity_id = "input_boolean.quiet_hours";
+                              state = "off";
                             }
                           ];
 
@@ -360,6 +385,151 @@
                 }
               ];
             }
+            {
+              alias = "Bedroom: quiet hours schedule";
+              id = "bedroom_quiet_hours_schedule";
+
+              actions = [
+                {
+                  "else" = [
+                    {
+                      action = "input_boolean.turn_off";
+                      target.entity_id = "input_boolean.quiet_hours";
+                    }
+                  ];
+
+                  "if" = [
+                    {
+                      condition = "trigger";
+                      id = "on";
+                    }
+                  ];
+
+                  "then" = [
+                    {
+                      action = "input_boolean.turn_on";
+                      target.entity_id = "input_boolean.quiet_hours";
+                    }
+                  ];
+                }
+              ];
+
+              triggers = [
+                {
+                  at = "22:00:00";
+                  id = "on";
+                  trigger = "time";
+                }
+                {
+                  at = "08:00:00";
+                  id = "off";
+                  trigger = "time";
+                }
+              ];
+            }
+            {
+              alias = "Bedroom: quiet hours";
+              id = "bedroom_quiet_hours";
+
+              actions = [
+                {
+                  "else" = [
+                    {
+                      "if" = [
+                        {
+                          condition = "state";
+                          entity_id = "select.bedroom_mode";
+                          state = "supply";
+                        }
+                        {
+                          condition = "state";
+                          entity_id = "input_boolean.cooking_boost";
+                          state = "off";
+                        }
+                      ];
+
+                      "then" = [
+                        {
+                          action = "select.select_option";
+                          data.option = "ventilate";
+                          target.entity_id = "select.bedroom_mode";
+                        }
+                      ];
+                    }
+                  ];
+
+                  "if" = [
+                    {
+                      condition = "trigger";
+                      id = "on";
+                    }
+                  ];
+
+                  "then" = [
+                    {
+                      "if" = [
+                        {
+                          condition = "state";
+                          entity_id = "select.bedroom_mode";
+                          state = "ventilate";
+                        }
+                      ];
+
+                      "then" = [
+                        {
+                          action = "select.select_option";
+                          data.option = "supply";
+                          target.entity_id = "select.bedroom_mode";
+                        }
+                      ];
+                    }
+                    {
+                      "if" = [
+                        {
+                          condition = "state";
+                          entity_id = "fan.bedroom_fan";
+                          state = "on";
+                        }
+                        {
+                          condition = "state";
+                          entity_id = "select.bedroom_mode";
+                          state = "supply";
+                        }
+                      ];
+
+                      "then" = [
+                        {
+                          action = "fan.set_percentage";
+                          data.percentage = 33;
+                          target.entity_id = "fan.bedroom_fan";
+                        }
+                      ];
+                    }
+                  ];
+                }
+              ];
+
+              # Heat recovery reverses the airflow about every 75 seconds, and
+              # that sound annoys at night. Supply doesn't reverse, at the cost
+              # of the heat recovery. A shower boost keeps exhaust, and its end
+              # returns to this.
+              triggers = [
+                {
+                  entity_id = "input_boolean.quiet_hours";
+                  from = "off";
+                  id = "on";
+                  to = "on";
+                  trigger = "state";
+                }
+                {
+                  entity_id = "input_boolean.quiet_hours";
+                  from = "on";
+                  id = "off";
+                  to = "off";
+                  trigger = "state";
+                }
+              ];
+            }
             (co2Speed {
               alias = "Kitchen: more air when CO2 is high";
               fan = "fan.kitchen_fan";
@@ -373,12 +543,29 @@
               id = "bedroom_co2_speed";
               sensor = "sensor.bedroom_co2";
               target = "number.bedroom_ventilator_co2_target";
+
+              # Hold one speed through the night: the changes disturb sleep.
+              extraConditions = [
+                {
+                  condition = "state";
+                  entity_id = "input_boolean.quiet_hours";
+                  state = "off";
+                }
+              ];
             })
           ];
 
-          input_boolean.cooking_boost = {
-            icon = "mdi:fan-chevron-up";
-            name = "Cooking boost";
+          input_boolean = {
+            cooking_boost = {
+              icon = "mdi:fan-chevron-up";
+              name = "Cooking boost";
+            };
+
+            # On from 22:00 to 08:00, or whenever someone flips it.
+            quiet_hours = {
+              icon = "mdi:weather-night";
+              name = "Quiet hours";
+            };
           };
 
           # What "normal" bathroom humidity is right now, for spotting
