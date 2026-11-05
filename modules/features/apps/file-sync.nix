@@ -17,6 +17,12 @@
           (
             { config, ... }:
             {
+              # ~/Documents is a filesystem of its own, so what's deleted
+              # there goes to a trash folder inside it, which would sync.
+              home.file."Documents/.stignore".text = ''
+                .Trash-*
+              '';
+
               services.syncthing = {
                 enable = true;
 
