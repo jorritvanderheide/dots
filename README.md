@@ -193,7 +193,8 @@ a copy of every flake input, so the hosts can be built without the forges
 they come from ([Losing an upstream](docs/install.md#losing-an-upstream)).
 Locally, sanoid keeps hourly to yearly ZFS snapshots of `/persist`. Every
 host reports its disks' and pools' health to Gatus too
-(smartd and `zpool status`, hourly), and the blogs their deploys. Whatever
+(smartd and `zpool status`, hourly), and its failed units, and the blogs their
+deploys. Whatever
 Gatus sees go down, or come back, goes to the phone through ntfy, and to
 rocinante's desktop as a notification.
 

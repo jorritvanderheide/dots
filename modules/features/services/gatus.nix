@@ -92,7 +92,7 @@
         example.blog.group = "deploys";
         description = ''
           What this host's own services push, by name, besides its disks,
-          backups and deploys: a verdict each, alerted at once. They push
+          units, backups and deploys: a verdict each, alerted at once. They push
           with this host's token, gatus_push_token.
         '';
       };
@@ -139,8 +139,9 @@
               }
             ) cfg.endpoints;
 
-            # Every host reports its disks hourly (disk-health.nix) and each
-            # run of its offsite backup (offsite-backup.nix). A heartbeat
+            # Every host reports its disks and units hourly (disk-health.nix,
+            # unit-health.nix) and each run of its offsite backup
+            # (offsite-backup.nix). A heartbeat
             # turns an endpoint red when its pushes stop, but only this
             # host's silence means something broke; a laptop's means it's
             # off. A day and two hours for the daily backup, whose start
@@ -169,6 +170,15 @@
                       inherit token;
                       alerts = pushAlerts;
                       group = "disks";
+                      name = host;
+                    }
+                    // heartbeat { heartbeat.interval = "2h"; }
+                  )
+                  (
+                    {
+                      inherit token;
+                      alerts = pushAlerts;
+                      group = "units";
                       name = host;
                     }
                     // heartbeat { heartbeat.interval = "2h"; }

@@ -23,6 +23,7 @@
       # System
       comin
       disk-health
+      unit-health
       locale
       networking
       ssh
