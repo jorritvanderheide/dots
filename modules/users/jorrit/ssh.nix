@@ -40,7 +40,7 @@
         "ilab1" = {
           hostname = "ilab1.ihub.ru.nl";
           identitiesOnly = true;
-          identityFile = "~/Git/ops/ssh/id_ilab";
+          identityFile = "~/Git/PubHubs/ops/ssh/id_ilab";
           proxyJump = "lilo";
           user = "ilab";
         };
@@ -48,7 +48,7 @@
         "ilab2" = {
           hostname = "ilab2.ihub.ru.nl";
           identitiesOnly = true;
-          identityFile = "~/Git/ops/ssh/id_ilab";
+          identityFile = "~/Git/PubHubs/ops/ssh/id_ilab";
           proxyJump = "lilo";
           user = "ilab";
         };
@@ -72,7 +72,7 @@
         "ph" = {
           hostname = "ph.ihub.ru.nl";
           identitiesOnly = true;
-          identityFile = "~/Git/ops/ssh/id_ilab";
+          identityFile = "~/Git/PubHubs/ops/ssh/id_ilab";
           proxyJump = "lilo";
           user = "ilab";
         };
