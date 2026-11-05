@@ -20,8 +20,6 @@
     in
     {
       config = {
-        systemd.services.jellyfin.serviceConfig = inputs.self.lib.restartAlways;
-
         assertions = [
           {
             assertion = config.my ? media-library;
@@ -80,6 +78,13 @@
 
         services.jellyfin = {
           enable = true;
+        };
+
+        # nixpkgs' 0077 makes the .nfo files it saves next to the media private
+        # to it, so Sonarr and Radarr fail on them at every scan and leave them
+        # behind when a title goes. The library's group is media.
+        systemd.services.jellyfin.serviceConfig = inputs.self.lib.restartAlways // {
+          UMask = lib.mkForce "0007";
         };
 
         # Only with the media library mounted: its mount is nofail, and
