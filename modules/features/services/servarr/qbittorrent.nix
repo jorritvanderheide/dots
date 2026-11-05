@@ -52,8 +52,6 @@
             BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
             BitTorrent.Session.GlobalMaxRatio = -1;
             BitTorrent.Session.GlobalUPSpeedLimit = 10240;
-            BitTorrent.Session.LSDEnabled = false;
-            BitTorrent.Session.PeXEnabled = false;
             LegalNotice.Accepted = true;
 
             # Append `.!qB` to in-progress files so *arr never tries
@@ -64,10 +62,6 @@
             # (in the `media` group) can hardlink-import from the
             # category subdirs into the library.
             BitTorrent.Session.DefaultSavePath = "${torrentsDir}/";
-
-            # Private trackers: no DHT, PeX or LSD, since most ban peers
-            # that announce torrents outside the tracker.
-            BitTorrent.Session.DHTEnabled = false;
 
             # Honour each category's save path (Auto Torrent Management)
             # by default, and, with the two DisableAutoTMMTriggers, relocate
@@ -90,6 +84,12 @@
             # shares their blocks, so seeding forever would keep every title's
             # space in use after it left the library.
             BitTorrent.Session.GlobalMaxSeedingMinutes = 30 * 24 * 60;
+
+            # DHT and PeX stay on, as most indexers here are public and their
+            # torrents find more peers with them. A private tracker's torrent
+            # skips both by its own flag. No LSD: it looks for peers on the
+            # LAN, where no other client runs.
+            BitTorrent.Session.LSDEnabled = false;
 
             Preferences = {
               WebUI = {
