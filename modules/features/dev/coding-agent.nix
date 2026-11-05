@@ -167,13 +167,27 @@
         )
 
         # Let Claude Code read and edit anywhere in the home directory, not
-        # just below the directory a session starts in.
+        # just below the directory a session starts in, but for what holds
+        # logins and keys: a prompt injected by a web page or a file could
+        # otherwise ask for those. Binds its file tools only, not its shell.
         (
           { config, ... }:
           {
-            programs.claude-code.settings.permissions.additionalDirectories = [
-              config.home.homeDirectory
-            ];
+            programs.claude-code.settings.permissions = {
+              additionalDirectories = [
+                config.home.homeDirectory
+              ];
+
+              deny = map (path: "Read(~/${path})") [
+                ".config/Bitwarden/**"
+                ".config/Signal/**"
+                ".config/gh/**"
+                ".local/share/keyrings/**"
+                ".thunderbird/**/key4.db"
+                ".thunderbird/**/logins.json"
+                "Git/PubHubs/ops/ssh/**"
+              ];
+            };
           }
         )
       ];
