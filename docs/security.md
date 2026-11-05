@@ -115,8 +115,9 @@ new repository's first backup, which restic can't finish without deleting
 its own lock ([A first or very large backup](secrets.md#a-first-or-very-large-backup)).
 
 **A thief** gets encrypted disks, and no boot menu editor to add `init=` or
-a debug shell at boot. The hosts boot with secure boot, with our own keys,
-and the TPM only unlocks a disk for that
+a debug shell at boot, though not against someone who swaps a disk's volume
+([Accepted on purpose](#accepted-on-purpose)). The hosts boot with secure
+boot, with our own keys, and the TPM only unlocks a disk for that
 ([Secure boot](install.md#secure-boot)). rocinante's disk also opens with
 either YubiKey's FIDO2 slot, which needs the key's PIN and a touch, so the
 laptop and a key together still aren't enough.
@@ -150,6 +151,15 @@ start, since that would otherwise win.
 
 ## Accepted on purpose
 
+- **The TPM doesn't check which disk it unlocks.** Its slot is bound to PCR 7
+  alone, which says what booted, and nothing in the initrd checks the volume
+  it opened. So someone with the machine could keep a copy of the LUKS header,
+  put in a volume of their own under the same name, and type its password at
+  the prompt. The signed initrd then starts their `init`, PCR 7 is unchanged,
+  and the TPM unseals the real disk's key. Not tested, but nothing here stops
+  it. It takes time alone with the machine, and matters most for dapple. The
+  fix is a check of PCR 15 in the initrd, which takes reboots at each host's
+  console, and a mistake in it stops a boot.
 - **A CI workflow runs code on dapple**: whoever can start one in a
   repository of an owner the runner serves (`my.forgejo-runner.connections`:
   their committers, and a fork's pull request unless Codeberg holds those
