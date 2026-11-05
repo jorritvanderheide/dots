@@ -42,8 +42,10 @@
 
         # On each switch that changes the inputs, which is when they change,
         # and on the boot, where the marker skips the 15 seconds rsync takes
-        # to find nothing to do. --times lets it skip the files it copied
-        # before. One rsync per input, through the trailing slash of its
+        # to find nothing to do. --checksum because every file in the store
+        # has mtime 1, so an edit that keeps a file's size looks unchanged
+        # to rsync, and --executability because the narHash covers that bit.
+        # One rsync per input, through the trailing slash of its
         # link: one over the whole farm would need --copy-dirlinks, which
         # also follows the links inside an input (nixos-hardware has one),
         # and the copy would no longer match its narHash.
@@ -59,7 +61,7 @@
             fi
             shopt -s nullglob
             for source in ${sources}/*; do
-              rsync --recursive --links --times --delete --mkpath "$source/" "${dir}/''${source##*/}/"
+              rsync --recursive --links --times --delete --mkpath --checksum --executability "$source/" "${dir}/''${source##*/}/"
             done
             # Nodes the lock no longer has.
             for copy in ${dir}/*; do
