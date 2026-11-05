@@ -17,6 +17,16 @@ secrets are in this repository, encrypted per host. See
 
 <br/>
 
+![The frame and bar, with notifications in the corner and the calendar open](https://codeberg.org/BW20/weinig-shell/raw/branch/main/images/overview.png)
+
+| The launcher | The lock screen |
+| --- | --- |
+| ![The launcher along the top](https://codeberg.org/BW20/weinig-shell/raw/branch/main/images/launcher.png) | ![The lock screen](https://codeberg.org/BW20/weinig-shell/raw/branch/main/images/lock.png) |
+
+[Weinig](https://codeberg.org/BW20/weinig-shell), the shell that rocinante runs.
+
+<br/>
+
 ## Table of contents
 
 - [1 Installation](#1-installation)
