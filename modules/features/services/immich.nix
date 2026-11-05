@@ -106,14 +106,40 @@
         # nixpkgs' unit has no syscall filter and leaves the system
         # writable; the state and cache directories stay writable under
         # strict. Not MemoryDenyWriteExecute: Node's JIT.
-        systemd.services = lib.genAttrs [ "immich-server" "immich-machine-learning" ] (_: {
-          serviceConfig =
-            inputs.self.lib.sandbox
-            // inputs.self.lib.restartAlways
-            // {
-              ProtectSystem = "strict";
+        systemd.services =
+          lib.genAttrs [ "immich-server" "immich-machine-learning" ] (_: {
+            serviceConfig =
+              inputs.self.lib.sandbox
+              // inputs.self.lib.restartAlways
+              // {
+                ProtectSystem = "strict";
+              };
+          })
+          // {
+            # The dumps are the only copy of the database a restore has, and
+            # their schedule is in Immich's own settings, where it can be
+            # turned off. Failing shows on the status page (unit-health.nix).
+            immich-dump-age = {
+              description = "Check that Immich's nightly database dump is recent";
+              serviceConfig.Type = "oneshot";
+
+              script = ''
+                if [[ -z $(${pkgs.findutils}/bin/find ${config.services.immich.mediaLocation}/backups -name 'immich-db-backup-*.sql.gz' -mmin -2880) ]]; then
+                  echo "No Immich database dump from the last two days." >&2
+                  exit 1
+                fi
+              '';
             };
-        });
+          };
+
+        systemd.timers.immich-dump-age = {
+          wantedBy = [ "timers.target" ];
+
+          timerConfig = {
+            OnCalendar = "06:00";
+            Persistent = true;
+          };
+        };
       };
     };
 }
