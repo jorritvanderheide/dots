@@ -47,6 +47,10 @@
           units = [ "filebrowser.service" ];
         };
 
+        # It works in Syncthing's files, as Syncthing's user, and a restore
+        # stops if something still has them open.
+        my.offsite-backup.entries.syncthing.units = [ "filebrowser.service" ];
+
         my.preservation.systemDirectories = [
           {
             directory = "/var/lib/filebrowser";
