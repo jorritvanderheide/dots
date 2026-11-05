@@ -11,6 +11,7 @@
 
         # System
         alerts
+        auto-brightness
         bluetooth
         firmware
         label-printer
