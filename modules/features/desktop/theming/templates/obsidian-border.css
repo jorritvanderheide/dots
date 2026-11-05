@@ -87,3 +87,23 @@ body.theme-dark.css-settings-manager.css-settings-manager {
   --background-mod-left-split: {{colors.surface.dark.hex}} !important;
   --background-mod-right-split: {{colors.surface.dark.hex}} !important;
 }
+
+/* Flat tabs, toggles and buttons. Border bevels them with stacks of inset
+ * shadows, which read as a gradient. A hairline keeps the edge where the fill
+ * alone wouldn't show it; the toggle's knob needs none. */
+body.css-settings-manager {
+  --shadow-activated-tab-header-light: inset 0 0 0 1px var(--background-modifier-border);
+  --shadow-activated-tab-header-dark: inset 0 0 0 1px var(--background-modifier-border);
+  --input-shadow-light: 0 0 0 1px var(--background-modifier-border);
+  --input-shadow-dark: 0 0 0 1px var(--background-modifier-border);
+  --input-shadow-hover-light: 0 0 0 1px var(--background-modifier-border);
+  --input-shadow-hover-dark: 0 0 0 1px var(--background-modifier-border);
+  --toggle-track-shadow-light: 0 0 0 1px var(--background-modifier-border);
+  --toggle-track-shadow-dark: 0 0 0 1px var(--background-modifier-border);
+  --toggle-track-hovered-shadow-light: 0 0 0 1px var(--background-modifier-border);
+  --toggle-track-hovered-shadow-dark: 0 0 0 1px var(--background-modifier-border);
+  --toggle-thumb-shadow-light: none;
+  --toggle-thumb-shadow-dark: none;
+  --toggle-thumb-enabled-shadow-light: none;
+  --toggle-thumb-enabled-shadow-dark: none;
+}
