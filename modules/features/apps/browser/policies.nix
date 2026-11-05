@@ -217,14 +217,14 @@
               ];
 
               Remove = [
-                "bing"
-                "duckduckgo"
-                "ebay-nl"
-                "ecosia"
-                "google"
-                "perplexity"
-                "qwant"
-                "wikipedia"
+                "Bing"
+                "DuckDuckGo"
+                "eBay"
+                "Ecosia"
+                "Google"
+                "Perplexity"
+                "Qwant"
+                "Wikipedia (en)"
               ];
             };
 
