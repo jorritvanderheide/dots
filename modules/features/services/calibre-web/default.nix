@@ -89,6 +89,12 @@
 
           systemd.services.calibre-web.serviceConfig = inputs.self.lib.restartAlways // {
             UMask = "0077";
+
+            # nixpkgs' filter denies @resources, which kills calibre's helper
+            # process at its nice(), and most conversions fail with a broken
+            # pipe. After the denies: the first line sets the default, and a
+            # later allow takes one call out of it.
+            SystemCallFilter = lib.mkAfter [ "setpriority" ];
           };
 
           systemd.tmpfiles.rules = [
