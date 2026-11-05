@@ -42,10 +42,11 @@
           # The policy stays hujson, for its comments, so it can't take the
           # addresses from lib.site: the build checks it has them instead.
           {
-            message = "headscale-policy.hujson's addresses differ from lib.site's dapple.tailnetIp or lan.subnet";
+            message = "headscale-policy.hujson's addresses differ from lib.site's tailnetIps or lan.subnet";
 
             assertion = lib.all (line: lib.hasInfix line policy) [
               ''"dapple": "${site.hosts.dapple.tailnetIp}"''
+              ''"rocinante": "${site.hosts.rocinante.tailnetIp}"''
               ''"lan": "${site.lan.subnet}"''
               ''"${site.lan.subnet}": ["tag:server"]''
             ];
