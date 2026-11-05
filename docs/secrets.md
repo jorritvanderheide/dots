@@ -201,14 +201,14 @@ file needs.
 To replace the key of a running host by hand, on the host:
 
 ```sh
-sudo install -d -m 0700 /persist/system/var/lib/sops
-sudo nix shell nixpkgs#age -c age-keygen -o /persist/system/var/lib/sops/age.key  # prints the public key
-sudo chmod 0400 /persist/system/var/lib/sops/age.key
+sudo nix shell nixpkgs#age -c sh -c 'age-keygen >>/persist/system/var/lib/sops/age.key'  # prints the public key
 ```
 
-Replace `<host>_host` in `secrets/.sops.yaml` with the printed `age1...`
-key, run `sops updatekeys secrets/<host>.yaml` from rocinante (for
-dapple's, with a YubiKey's PIN and a touch), and push: comin deploys it.
+That adds the new key to the file, next to the old one, so a reboot before
+the deploy still decrypts. Replace `<host>_host` in `secrets/.sops.yaml` with
+the printed `age1...` key, run `sops updatekeys secrets/<host>.yaml` from
+rocinante (for dapple's, with a YubiKey's PIN and a touch), and push: comin
+deploys it. Then remove the old key's lines from the file.
 
 ## Revoking a lost or compromised key
 
@@ -224,7 +224,7 @@ dapple's, with a YubiKey's PIN and a touch), and push: comin deploys it.
    makes a new data key.
 4. Change the secrets themselves: the old copies still open with the lost
    key. In particular, change the LUKS password (`cryptsetup luksChangeKey`
-   on every disk, then `sudo enroll-tpm`), the restic password
+   on every disk, and `sudo enroll-tpm` after step 5), the restic password
    (`restic key add`, then `restic key remove` the old one, with the
    owner's S3 key), the Storj
    credentials, the user password hashes, dapple's SSH host key, and the

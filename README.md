@@ -95,8 +95,9 @@ boot, sops secrets, home-manager, and fish.
   where, and [Security](docs/security.md) who is kept out of what.
 - **Deploys** come from Codeberg:
   [comin](https://github.com/nlewo/comin) on each host switches it to the
-  newest commit on `main` signed by a YubiKey's commit signing key, within
-  a minute or two of a push. In this repository jj signs commits as they
+  tip of `main` if a YubiKey's commit signing key signed it, a minute or
+  two after a push plus the build; an unsigned tip deploys nothing, and
+  says so only in `sudo comin status`. In this repository jj signs commits as they
   are pushed, with the PIV key on whichever YubiKey is plugged in: a touch
   covers 15 seconds of signing, so a deploy takes a key and a touch. A
   `testing-<host>` branch on top of `main` is switched to with `test`
@@ -136,7 +137,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `jj git push` | Deploy: signs what it pushes (YubiKey in, a touch), and every host switches to the tip of `main` (comin); `sudo comin status` shows how far it got |
 | `nswitch` | Build and switch to this host's configuration, then restart comin onto it (YubiKey in, no uncommitted changes) |
 | `nboot` | The same, from the next boot |
-| `ntest` | Switch without making it the boot default; fine on uncommitted changes |
+| `ntest` | Switch without making it the boot default (YubiKey in); fine on uncommitted changes |
 | `nbuild` | Build only |
 | `nrollback` | Go back to the previous generation |
 | `nupdate` | Update `flake.lock` |
@@ -215,16 +216,18 @@ address (DNS at deSEC, no proxy):
 - **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
   Yivi tickets, the admin included (its login is a Yivi email disclosure).
 - **The blog** at the bare domain: static pages, with a 403 for the AI
-  crawlers its robots.txt names.
+  crawlers its robots.txt names, and `/micropub`, where posts come in, with
+  a token and a rate limit.
 - **Jeltje's blog** at `jeltje`: the same, from its own repository.
 - **The PubHubs preview** at `pubhubs`: static pages, marked noindex.
 
-`kobo` answers too, but with a 403: its sync API is for the LAN subnet
-only. A name no vhost claims gets no certificate and no answer.
+`kobo` answers too, but with a 403 on `/kobo/`, as its sync API is for the
+LAN subnet only, and a 404 on anything else. A name no vhost claims gets no
+certificate and no answer.
 
 **From the tailnet**, every service in [section 6](#6-services-on-dapple)
-but meetinn, the blogs and the PubHubs preview, over HTTPS on dapple's tailnet
-address. Those four answer only at the public address, like any visitor's. SSH, Syncthing
+but Headscale, meetinn, the blogs and the PubHubs preview, over HTTPS on dapple's tailnet
+address. Those five answer only at the public address, like any visitor's. SSH, Syncthing
 (22000/tcp) and the home LAN (through dapple's subnet route) only from the
 devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson) names:
@@ -247,8 +250,9 @@ interface.
 mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
-the status page's checks of the public sites but Headscale, at the public
-address through the router's hairpin NAT, and meetinn's hourly
+the status page's checks of the public sites, at the public
+address through the router's hairpin NAT, the blogs' polling of Codeberg and
+their receivers' pushes to it, and meetinn's hourly
 update of its Yivi schemes and its mail, through Proton's SMTP. The
 Forgejo runner polls Codeberg for jobs, which fetch what they build from
 the internet (and nothing on the LAN or the tailnet). Besides

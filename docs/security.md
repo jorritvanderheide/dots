@@ -57,7 +57,8 @@ tailnet sources that don't arrive on `tailscale0`.
   root or the one service that needs them, and kept off command lines
   (`/proc/*/cmdline` is readable by everyone);
 - can't read other services' state: the directories with passwords or
-  tokens in them are 0700, Prowlarr's 0777 one inside a 0700 parent;
+  tokens in them are 0700, Headscale's and meetinn's 0750 for their own
+  group, Prowlarr's 0777 one inside a 0700 parent;
 - can't become root through Nix: dapple's Nix trusts only root;
 - can't plant a lasting SSH key: SSH reads only the keys declared in this
   repository, not `~/.ssh`;
@@ -207,7 +208,8 @@ sudo nft list ruleset                    # the firewall, as nftables
 systemctl --failed                       # nothing: sops-nix decrypted without a YubiKey
 ```
 
-`nix flake check` scores every service that runs as its own user with
+`nix flake check` scores every long-running service that runs as its own
+user (not oneshots, timer-run or template units) with
 `systemd-analyze security`, on the built system: at most 2.0 of 10, or
 the ceiling `modules/flake/checks.nix` names with its reason (Chromium
 behind FlareSolverr, nixpkgs' own daemons). The same numbers for the live

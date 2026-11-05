@@ -66,9 +66,9 @@ directly.
 A service's unit gets `inputs.self.lib.restartAlways`, and, where nixpkgs'
 module gives it no sandbox, `inputs.self.lib.sandbox`, with what it needs
 on top (a `ReadWritePaths`, an address family) and why. The flake check
-scores every unit that runs as its own user with `systemd-analyze
-security` (checks.nix): at most 2.0 of 10, or a ceiling named there with
-its reason.
+scores every long-running unit that runs as its own user with
+`systemd-analyze security` (checks.nix): at most 2.0 of 10, or a ceiling
+named there with its reason.
 
 A service that needs a secret declares it in `sops.secrets`, by its key in
 the host's file, and reads it from `config.sops.secrets.<key>.path`; one

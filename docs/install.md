@@ -233,15 +233,15 @@ YubiKey.
   `install-host --new-hardware rocinante` on its console. After the first
   boot, commit and push `facter.json` with the new key's files, and run
   `sudo offsite-restore`. Only what rocinante's backup holds comes back:
-  Zotero, and its place on the tailnet.
+  Zotero, the Obsidian vault, and its place on the tailnet.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count what is on it as known: its secrets,
   its tailnet node and its Storj credentials. Install
   its replacement as above, with these differences:
   1. Before installing, delete its node on dapple
      (`sudo headscale nodes list` for its ID, then
-     `sudo headscale nodes delete -i <id>`). Restore only Zotero,
-     `sudo offsite-restore other`, not `tailscale`, which would bring back
+     `sudo headscale nodes delete -i <id>`). Restore only Zotero and the
+     vault, `sudo offsite-restore other`, not `tailscale`, which would bring back
      the stolen node's key. Join the tailnet as a new host
      ([Joining the tailnet](#joining-the-tailnet)), and put its new address
      in place of `100.64.0.2` in the access policy and in the browser's
