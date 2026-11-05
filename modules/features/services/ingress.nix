@@ -159,7 +159,18 @@
           ) cfg.proxies
           // lib.concatMapAttrs (
             _: public: statusEndpoint public.domain public.status { dnsResolver = "tcp://9.9.9.9:53"; }
-          ) cfg.public;
+          ) cfg.public
+          // {
+            # One check, as every vhost has the one certificate. A renewal
+            # that keeps failing reports nowhere else, until they all break
+            # on the same day. Renewal starts with a third of its 90 days
+            # left, so this gives two weeks to fix it.
+            certificate = {
+              conditions = [ "[CERTIFICATE_EXPIRATION] > 336h" ];
+              group = "infra";
+              url = inputs.self.lib.site.statusPage;
+            };
+          };
 
         my.preservation.systemDirectories = [
           {
