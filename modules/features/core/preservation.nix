@@ -88,6 +88,8 @@
 
           preserveAt."/persist" = {
             users = lib.genAttrs normalUsers (_username: {
+              files = withParentConfig "file" cfg.homeFiles;
+
               commonMountOptions = [
                 "x-gvfs-hide"
                 "x-gdu.hide"
@@ -100,11 +102,6 @@
                 "Videos"
               ]
               ++ withParentConfig "directory" cfg.homeDirectories;
-
-              files = [
-                ".screenrc"
-              ]
-              ++ withParentConfig "file" cfg.homeFiles;
             });
           };
 
@@ -120,6 +117,7 @@
                 group = "nixos";
                 mode = "0775";
               }
+              "/var/lib/NetworkManager"
               "/var/log"
               {
                 configureParent = true;
@@ -148,6 +146,14 @@
             ];
           };
         };
+
+        # Its state in /var/log, which persists: at its default path a reboot
+        # forgets when it last ran, and a host that reboots more often than
+        # a log's interval never rotates it.
+        services.logrotate.extraArgs = [
+          "--state"
+          "/var/log/logrotate.status"
+        ];
 
         systemd.tmpfiles.rules = [
           "d /persist/home 0755 root root -"
