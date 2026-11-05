@@ -86,16 +86,6 @@
                   focus-at-startup = true;
                   scale = 1.25;
                 };
-
-                # Meeting room 18th floor
-                "Philips Consumer Electronics Company 86BDL4550D 0x01010101" = {
-                  scale = 2;
-                };
-
-                # Corner office 19th floor
-                "Sharp Corporation PN-60TA3/B3 0x0CAE2D06" = {
-                  scale = 1.5;
-                };
               };
             };
 

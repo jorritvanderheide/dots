@@ -1,0 +1,41 @@
+--- a/src/utils/scale.rs
++++ b/src/utils/scale.rs
+@@ -13,6 +13,8 @@
+ const MOBILE_TARGET_DPI: f64 = 135.;
+ const LARGE_TARGET_DPI: f64 = 110.;
+ const LARGE_MIN_SIZE_INCHES: f64 = 20.;
++const ROOM_MIN_SIZE_INCHES: f64 = 50.;
++const ROOM_LOGICAL_HEIGHT: f64 = 1080.;
+ 
+ /// Calculates the ideal scale for a monitor.
+ pub fn guess_monitor_scale(size_mm: Size<i32, Raw>, resolution: Size<i32, Physical>) -> f64 {
+@@ -22,6 +24,12 @@
+ 
+     let diag_inches = f64::from(size_mm.w * size_mm.w + size_mm.h * size_mm.h).sqrt() / 25.4;
+ 
++    // Looked at from across a room, where a DPI meant for a desk comes out too small to read.
++    if diag_inches >= ROOM_MIN_SIZE_INCHES {
++        let scale = f64::from(resolution.h) / ROOM_LOGICAL_HEIGHT;
++        return scale.clamp(f64::from(MIN_SCALE), f64::from(MAX_SCALE));
++    }
++
+     let target_dpi = if diag_inches < LARGE_MIN_SIZE_INCHES {
+         MOBILE_TARGET_DPI
+     } else {
+@@ -99,6 +107,16 @@
+         assert_snapshot!(check((340, 210), (2560, 1600)), @"1.5");
+         // Acer Nitro XV320QU LV 31.5"
+         assert_snapshot!(check((700, 390), (2560, 1440)), @"1");
++        // Generic 43" 4K; below the size of a room screen
++        assert_snapshot!(check((952, 535), (3840, 2160)), @"1");
++        // Generic 55" 1080p
++        assert_snapshot!(check((1210, 680), (1920, 1080)), @"1");
++        // Generic 60" 4K
++        assert_snapshot!(check((1330, 750), (3840, 2160)), @"2");
++        // Generic 86" 4K
++        assert_snapshot!(check((1895, 1066), (3840, 2160)), @"2");
++        // Generic 86" 8K
++        assert_snapshot!(check((1895, 1066), (7680, 4320)), @"4");
+         // Surface Pro 6
+         assert_snapshot!(check((260, 170), (2736, 1824)), @"2");
+     }

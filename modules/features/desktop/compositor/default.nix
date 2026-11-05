@@ -247,14 +247,16 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for four patches. niri
+          # (flake.nix). Still a build from source, for five patches. niri
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
           # empty. And at a fractional scale it shows the last row and column of a window that
           # only half fills them, which are black in some apps. And it puts a lost screen's
           # workspaces at the bottom: here those of a desk come first, focused, and those of any
-          # other right above where I am.
+          # other right above where I am. And without a scale in the config it guesses one for a
+          # distance of a desk, which on a screen in a meeting room is too small to read: from 50
+          # inches, here it aims for a desktop 1080 high.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
@@ -263,6 +265,7 @@ in
               ./niri-desk-monitor.patch
               ./niri-whole-pixel-clip.patch
               ./niri-lost-screen.patch
+              ./niri-room-scale.patch
             ];
 
             # The monitors that patch counts as a desk's: those I trust (weinig.nix).
