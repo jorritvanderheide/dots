@@ -73,10 +73,29 @@
 
             # `zpool status -x` lists only the pools that need attention: not
             # just a degraded one, also one whose devices have had errors.
-            if [[ "$(zpool status -x)" != "all pools are healthy" ]]; then
-              for pool in $(zpool status -x | sed -n 's/^ *pool: //p'); do
+            # Output with no pool in it is an error of its own.
+            status="$(zpool status -x 2>&1 || true)"
+            if [[ "$status" != "all pools are healthy" ]]; then
+              mapfile -t pools < <(sed -n 's/^ *pool: //p' <<<"$status")
+              for pool in "''${pools[@]}"; do
                 problems+=("zpool $pool needs attention (zpool status $pool)")
               done
+              if ((!''${#pools[@]})); then
+                problems+=("zpool status -x: ''${status%%$'\n'*}")
+              fi
+            fi
+
+            # That only knows the imported pools, and a pool that didn't
+            # import stops no boot if its mount is nofail, like zmedia's.
+            for pool in ${lib.escapeShellArgs (lib.attrNames config.disko.devices.zpool)}; do
+              if ! zpool list "$pool" >/dev/null 2>&1; then
+                problems+=("zpool $pool isn't imported")
+              fi
+            done
+
+            # A smartd that died would otherwise look like no warnings.
+            if ! systemctl is-active --quiet smartd; then
+              problems+=("smartd isn't running")
             fi
 
             for warning in ${warningsDir}/smartd-*; do
