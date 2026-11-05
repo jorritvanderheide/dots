@@ -12,8 +12,16 @@
           let
             torrentDir = "${config.home.homeDirectory}/Videos/Torrents";
 
-            videoTypes = [
+            mediaTypes = [
+              "audio/flac"
+              "audio/mp4"
+              "audio/mpeg"
+              "audio/ogg"
+              "audio/x-wav"
+              "video/3gpp"
               "video/mp4"
+              "video/x-flv"
+              "video/x-m4v"
               "video/x-matroska"
               "video/webm"
               "video/mpeg"
@@ -71,12 +79,18 @@
                   terminal = false;
                 };
 
+                # mpv's other entry, which claims the audio types otherwise.
+                umpv = {
+                  name = "umpv Media Player";
+                  noDisplay = true;
+                };
+
                 videos = {
                   comment = "VLC media player";
                   exec = "vlc %U";
                   genericName = "Video player";
                   icon = "vlc";
-                  mimeType = videoTypes;
+                  mimeType = mediaTypes;
                   name = "Videos";
                   type = "Application";
 
@@ -97,7 +111,7 @@
               mimeApps.defaultApplications = {
                 "x-scheme-handler/magnet" = "mpv-magnet.desktop";
               }
-              // lib.genAttrs videoTypes (_: "videos.desktop");
+              // lib.genAttrs mediaTypes (_: "videos.desktop");
             };
           }
         )

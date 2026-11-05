@@ -135,6 +135,14 @@
                     };
                 };
               };
+
+              # setAsDefaultBrowser also claims these for Zen.
+              xdg.mimeApps.defaultApplications = lib.mapAttrs (_: lib.mkForce) {
+                "application/json" = "dev.zed.Zed.desktop";
+                "text/markdown" = "dev.zed.Zed.desktop";
+                "text/plain" = "dev.zed.Zed.desktop";
+                "x-scheme-handler/mailto" = "thunderbird.desktop";
+              };
             }
           )
         ];
