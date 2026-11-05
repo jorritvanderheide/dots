@@ -58,6 +58,12 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent) !important;
 }
 
+/* Beside the sidebar, Zen leaves no room left of the card, which cuts that side
+   of the hairline off. Compact mode has a gap there already. */
+:root:not([inDOMFullscreen="true"]):not([popup-window]):not([zen-compact-mode="true"]) #tabbrowser-tabbox {
+  margin-left: 1px !important;
+}
+
 .sidebar-placesTree {
   background-color: var(--surface) !important;
 }
