@@ -51,10 +51,8 @@
             BitTorrent.Session.DisableAutoTMMTriggers.CategorySavePathChanged = false;
             BitTorrent.Session.DisableAutoTMMTriggers.DefaultSavePathChanged = false;
             BitTorrent.Session.GlobalMaxRatio = -1;
-            BitTorrent.Session.GlobalMaxSeedingMinutes = -1;
             BitTorrent.Session.GlobalUPSpeedLimit = 10240;
             BitTorrent.Session.LSDEnabled = false;
-            BitTorrent.Session.MaxRatioAction = 0;
             BitTorrent.Session.PeXEnabled = false;
             LegalNotice.Accepted = true;
 
@@ -68,9 +66,7 @@
             BitTorrent.Session.DefaultSavePath = "${torrentsDir}/";
 
             # Private trackers: no DHT, PeX or LSD, since most ban peers
-            # that announce torrents outside the tracker, and no ratio or
-            # time cap (GlobalMaxRatio, GlobalMaxSeedingMinutes,
-            # MaxRatioAction), so everything seeds indefinitely.
+            # that announce torrents outside the tracker.
             BitTorrent.Session.DHTEnabled = false;
 
             # Honour each category's save path (Auto Torrent Management)
@@ -87,6 +83,13 @@
             # ~2 GiB/s overflows int32 internally and silently disables
             # the cap.
             BitTorrent.Session.GlobalDLSpeedLimit = 0;
+
+            # 30 days of seeding, then a torrent stops (the default action),
+            # and Remove Completed in Sonarr and Radarr deletes it. What they
+            # imported stays: the library's files are copies of their own. ZFS
+            # shares their blocks, so seeding forever would keep every title's
+            # space in use after it left the library.
+            BitTorrent.Session.GlobalMaxSeedingMinutes = 30 * 24 * 60;
 
             Preferences = {
               WebUI = {
