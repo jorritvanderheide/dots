@@ -235,9 +235,8 @@ in
           )
         ];
 
-        # dconf is where GSettings apps keep their state (Gelly its server
-        # and login, the rest window sizes and preferences); home-manager
-        # still reapplies what's declared at every boot.
+        # dconf is where GSettings apps keep their state, like window sizes
+        # and preferences; home-manager still reapplies what's declared at every boot.
         my.preservation.homeDirectories = [
           ".config/dconf"
           ".local/share/keyrings"
