@@ -36,9 +36,20 @@
 
           # The header on stdin, not in curl's arguments, which any local user
           # can read. Retried for about five minutes: the timer fires the
-          # moment a laptop wakes, before its Wi-Fi is back.
+          # moment a laptop wakes, before its Wi-Fi is back. On wake a unit
+          # that exits on suspend, like zfs-zed, is in auto-restart for a
+          # moment, so whatever shows up is checked again 10 seconds later.
           script = ''
-            mapfile -t units < <(systemctl list-units --plain --no-legend --full --state=failed --state=auto-restart | awk '{print $1}')
+            unhealthy() {
+              systemctl list-units --plain --no-legend --full --state=failed --state=auto-restart | awk '{print $1}'
+            }
+
+            mapfile -t units < <(unhealthy)
+
+            if ((''${#units[@]})); then
+              sleep 10
+              mapfile -t units < <(unhealthy)
+            fi
 
             if ((''${#units[@]})); then
               error="''${units[*]}"
