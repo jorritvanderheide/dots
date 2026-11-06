@@ -499,42 +499,45 @@
 	}
 }
 
-/* Custom text selection styling */
-::selection {
-  background-color: var(--primary) !important;
-  color: var(--base) !important;
-}
+/* Pages that have the color variables, see zen-colors.css */
+@-moz-document url-prefix("chrome:"), url-prefix("about:") {
+  /* Custom text selection styling */
+  ::selection {
+    background-color: var(--primary) !important;
+    color: var(--base) !important;
+  }
 
-/* Style checkboxes and radio buttons globally in content */
-*|input[type="checkbox"],
-[type="checkbox"],
-*|input[type="radio"],
-[type="radio"] {
-  accent-color: var(--primary) !important;
-}
+  /* Style checkboxes and radio buttons */
+  *|input[type="checkbox"],
+  [type="checkbox"],
+  *|input[type="radio"],
+  [type="radio"] {
+    accent-color: var(--primary) !important;
+  }
 
-/* Style external links globally in content (like New Tab settings) */
-.external-link {
-  color: var(--secondary) !important;
-}
-.external-link:hover {
-  color: color-mix(in srgb, var(--secondary) 70%, transparent) !important;
-}
+  /* Style external links (like New Tab settings) */
+  .external-link {
+    color: var(--secondary) !important;
+  }
+  .external-link:hover {
+    color: color-mix(in srgb, var(--secondary) 70%, transparent) !important;
+  }
 
-/* Style new tab customize panel and its wrapper with a darker base background */
-.customize-menu-animate-wrapper {
-  background-color: var(--base) !important;
-}
- .customize-menu,
-.close-button-wrapper {
-  background-color: transparent !important;
-}
+  /* Style new tab customize panel and its wrapper with a darker base background */
+  .customize-menu-animate-wrapper {
+    background-color: var(--base) !important;
+  }
+  .customize-menu,
+  .close-button-wrapper {
+    background-color: transparent !important;
+  }
 
-/* Style personalize (Customize) button on New Tab page */
-.personalize-button {
-  background-color: color-mix(in srgb, var(--subtle) 40%, transparent) !important;
-  color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--outline) 20%, transparent) !important;
-  backdrop-filter: blur(10px);
-  transition: background-color 0.2s ease, transform 0.2s ease !important;
+  /* Style personalize (Customize) button on New Tab page */
+  .personalize-button {
+    background-color: color-mix(in srgb, var(--subtle) 40%, transparent) !important;
+    color: var(--text) !important;
+    border: 1px solid color-mix(in srgb, var(--outline) 20%, transparent) !important;
+    backdrop-filter: blur(10px);
+    transition: background-color 0.2s ease, transform 0.2s ease !important;
+  }
 }
