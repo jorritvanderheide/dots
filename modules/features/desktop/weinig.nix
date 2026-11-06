@@ -65,6 +65,21 @@
         # This Framework's hardware switches, open or not.
         inUse.switches = true;
 
+        # Weinig's list of keys, from the keys of this config with a title (keybinds.nix), by
+        # title, as its own are off.
+        keys.list = lib.sort (a: b: a.title < b.title) (
+          lib.mapAttrsToList
+            (key: bind: {
+              inherit key;
+              inherit (bind.hotkey-overlay) title;
+            })
+            (
+              lib.filterAttrs (
+                _: bind: bind.hotkey-overlay ? title
+              ) config.home-manager.users.${config.my.session.autologinuser}.programs.niri.settings.binds
+            )
+        );
+
         launcher = {
           launchCommand = [
             "app2unit"

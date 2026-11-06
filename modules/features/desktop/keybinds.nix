@@ -131,6 +131,7 @@
 
               "Mod+Backspace" = {
                 action = spawn "weinig" "lock-session";
+                hotkey-overlay.title = "Lock the screen";
                 repeat = false;
               };
 
@@ -151,6 +152,7 @@
 
               "Mod+Ctrl+N" = {
                 action = spawn "weinig" "msg" "notifications" "toggle";
+                hotkey-overlay.title = "Open the notification centre";
                 repeat = false;
               };
 
@@ -178,6 +180,7 @@
               # Mod and Alt mask T, which is on the same hand.
               "Mod+ISO_Level3_Shift+T" = {
                 action = spawn "weinig" "msg" "theme" "toggle";
+                hotkey-overlay.title = "Switch between dark and light";
                 repeat = false;
               };
 
@@ -204,21 +207,25 @@
               "Mod+M" = {
                 action = spawn "weinig" "msg" "volume" "mute";
                 allow-when-locked = true;
+                hotkey-overlay.title = "Mute the sound";
                 repeat = false;
               };
 
               "Mod+N" = {
                 action = spawn "weinig" "msg" "notifications" "toggleMute";
+                hotkey-overlay.title = "Mute notifications";
                 repeat = false;
               };
 
               "Mod+O" = {
                 action = spawn "weinig" "msg" "colour" "pick";
+                hotkey-overlay.title = "Pick a colour";
                 repeat = false;
               };
 
               "Mod+P" = {
                 action = spawn "niri" "msg" "action" "screenshot";
+                hotkey-overlay.title = "Take a screenshot";
                 repeat = false;
               };
 
@@ -234,6 +241,7 @@
 
               "Mod+Return" = {
                 action = spawn "app2unit" "-s" "a" "--" "ghostty";
+                hotkey-overlay.title = "Open a terminal";
                 repeat = false;
               };
 
@@ -247,13 +255,21 @@
                 repeat = false;
               };
 
+              "Mod+Shift+Slash" = {
+                action = spawn "weinig" "msg" "keys" "toggle";
+                hotkey-overlay.title = "Show the keys";
+                repeat = false;
+              };
+
               "Mod+Shift+W" = {
                 action = spawn "weinig" "msg" "wallpaper" "previous";
+                hotkey-overlay.title = "Previous wallpaper";
                 repeat = false;
               };
 
               "Mod+Space" = {
                 action = spawn "weinig" "msg" "launcher" "toggle";
+                hotkey-overlay.title = "Open the launcher";
                 repeat = false;
               };
 
@@ -269,11 +285,13 @@
 
               "Mod+V" = {
                 action = spawn "weinig" "msg" "clipboard" "toggle";
+                hotkey-overlay.title = "Open the clipboard history";
                 repeat = false;
               };
 
               "Mod+W" = {
                 action = spawn "weinig" "msg" "wallpaper" "next";
+                hotkey-overlay.title = "Next wallpaper";
                 repeat = false;
               };
 
@@ -284,6 +302,7 @@
 
               "XF86AudioMedia" = {
                 action = spawn "app2unit" "-s" "a" "--" "zeditor" "--new" "/etc/nixos";
+                hotkey-overlay.title = "Open this config in Zed";
                 repeat = false;
               };
 
