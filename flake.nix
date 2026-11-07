@@ -85,12 +85,6 @@
       url = "github:nixos/nixos-hardware";
     };
 
-    # Temporary: today's zotero builds on a prebuilt Firefox ESR 140 that
-    # nixpkgs marks insecure, and this rev's on an older one from source that
-    # isn't marked. Drop with permittedInsecurePackages in zotero.nix, or
-    # when Zotero moves to a newer ESR.
-    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
-
     # Only its module: dapple builds each site itself, from the site's
     # repository and with the nixpkgs that repository's lock pins
     # (blog.nix, blog-jeltje.nix).

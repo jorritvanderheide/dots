@@ -262,22 +262,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-zotero": {
-      "locked": {
-        "lastModified": 1790185690,
-        "narHash": "sha256-xJ+X4hBtOcAFGBOe5nAMyMUeF9foJBmIOu3NjBqBycU=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "4975466d324710c576dc11ad614684e6bd8cad8e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "4975466d324710c576dc11ad614684e6bd8cad8e",
-        "type": "github"
-      }
-    },
     "preservation": {
       "locked": {
         "lastModified": 1792953443,
@@ -307,7 +291,6 @@
         "nix-wrapper-modules": "nix-wrapper-modules",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-zotero": "nixpkgs-zotero",
         "preservation": "preservation",
         "small-press": "small-press",
         "snapback": "snapback",

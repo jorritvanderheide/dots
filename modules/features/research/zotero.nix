@@ -96,9 +96,6 @@
               programs.zotero = {
                 enable = true;
 
-                # Temporary pin, see the nixpkgs-zotero input in flake.nix.
-                package = inputs.nixpkgs-zotero.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zotero;
-
                 profiles.default = {
                   extensions.packages = [
                     better-bibtex
@@ -202,7 +199,7 @@
               # an open Zotero returns at once; ExecCondition skips the start
               # then. Overrides the package's entry the same way
               # session-restore.nix does for Zen; wrapping the package instead
-              # would rebuild the pinned Zotero from source.
+              # would rebuild Zotero from source.
               xdg.dataFile."applications/zotero.desktop".source =
                 pkgs.runCommand "zotero-stop-headless.desktop" { }
                   ''
@@ -225,6 +222,12 @@
           # attachment storage live in the separate data directory.
           ".zotero"
           "Zotero"
+        ];
+
+        # Zotero 10 still runs on Firefox ESR 140, which reached end of life
+        # on 2026-10-13. Drop this when Zotero moves to a newer ESR.
+        nixpkgs.config.permittedInsecurePackages = [
+          "firefox-esr-140-bin-unwrapped-140.17.0esr"
         ];
       };
     };
