@@ -280,10 +280,10 @@ inputs' own, in `/var/lib/flake-archive`, and backs it up offsite with its
 services. It's refreshed on each deploy that changes the lock. Each node of
 the lock has a folder there, by its name in the lock: `nodes.root.inputs`
 names the flake's own inputs' nodes, and an input's own input has a node
-of its own, such as lanzaboote's pre-commit's `flake-compat`, which is
-`flake-compat_2` (`nodes.pre-commit.inputs`). dapple's build needs every node in the
-lock, even one nothing uses, like niri-flake's `niri-unstable`, so one
-that is gone needs its copy too.
+of its own, such as lanzaboote's `crane` (`nodes.lanzaboote.inputs`). A
+name two nodes share gets a suffix, like `nixpkgs_2`. dapple's build needs
+every node in the lock, even one the hosts don't use, like `treefmt-nix`,
+so one that is gone needs its copy too.
 
 If an input's forge or repository is gone, or a tag was moved, build from
 its copy, on rocinante:
@@ -305,7 +305,7 @@ its copy, on rocinante:
 
 3. Lock the input to the copy, with those, adding `&revCount=<revCount>`
    if it has one. `<input>` is its path, such as `nixpkgs` or
-   `lanzaboote/pre-commit/flake-compat`:
+   `lanzaboote/crane`:
 
    ```sh
    nix flake lock /etc/nixos --override-input <input> "path:$HOME/flake-archive/<node>?rev=<rev>&lastModified=<lastModified>"
