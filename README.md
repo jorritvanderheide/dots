@@ -160,7 +160,6 @@ replace `.` with `git+https://codeberg.org/BW20/dots`.
 | `nix run .#ghostty` | Ghostty, with its settings and both themes; the fonts come from the machine |
 | `nix run .#eza` | eza with icons; the colors follow the mode only on rocinante, elsewhere they are eza's own |
 | `nix run .#fd` | fd, hidden files included |
-| `nix run .#jujutsu` | jj, as me: it signs every commit, so it needs `~/.ssh/signing-key.pub` and its key in an SSH agent, or it can't even `jj git init` |
 
 <br/>
 
