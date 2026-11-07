@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -12,9 +13,15 @@
       config = {
         environment.systemPackages = with pkgs; [
           bat
-          fd
           parallel
           ripgrep
+
+          # Hidden files too, for every caller, scripts included.
+          (inputs.nix-wrapper-modules.lib.wrapPackage {
+            inherit pkgs;
+            flags."--hidden" = true;
+            package = fd;
+          })
         ];
 
         home-manager.sharedModules = [
@@ -27,11 +34,6 @@
                 enable = true;
                 enableFishIntegration = true;
                 icons = "auto";
-              };
-
-              fd = {
-                enable = true;
-                hidden = true;
               };
 
               tmux = {
