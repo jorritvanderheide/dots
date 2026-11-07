@@ -10,20 +10,27 @@
       ...
     }:
     {
-      imports = [ inputs.nix-wrapper-modules.nixosModules.eza ];
+      imports = [
+        inputs.nix-wrapper-modules.nixosModules.eza
+
+        # fd has no module of its own.
+        (inputs.nix-wrapper-modules.lib.getInstallModule {
+          name = "fd";
+
+          value =
+            { pkgs, wlib, ... }:
+            {
+              imports = [ wlib.modules.default ];
+              package = pkgs.fd;
+            };
+        })
+      ];
 
       config = {
         environment.systemPackages = with pkgs; [
           bat
           parallel
           ripgrep
-
-          # Hidden files too, for every caller, scripts included.
-          (inputs.nix-wrapper-modules.lib.wrapPackage {
-            inherit pkgs;
-            flags."--hidden" = true;
-            package = fd;
-          })
         ];
 
         home-manager.sharedModules = [
@@ -67,6 +74,12 @@
         wrappers.eza = {
           enable = true;
           flags."--icons" = "auto";
+        };
+
+        # Hidden files too, for every caller, scripts included.
+        wrappers.fd = {
+          enable = true;
+          flags."--hidden" = true;
         };
       };
     };

@@ -150,6 +150,18 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `sudo offsite-restore [--snapshot ID] [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
 | `nix run .#offsite-prune -- <host>` | Prune and check a host's offsite backup, with the Storj owner key from Bitwarden (every few months) |
 
+The programs that rocinante builds with their config in a wrapper
+(`wrappers.*`), rather than reading it from `$HOME`, are packages of this
+flake too, so they run with that config anywhere. From another machine,
+replace `.` with `git+https://codeberg.org/BW20/dots`.
+
+| Command | What runs |
+| --- | --- |
+| `nix run .#ghostty` | Ghostty, with its settings and both themes; the fonts come from the machine |
+| `nix run .#eza` | eza with icons; the colors follow the mode only on rocinante, elsewhere they are eza's own |
+| `nix run .#fd` | fd, hidden files included |
+| `nix run .#jujutsu` | jj, as me: it signs every commit, so it needs `~/.ssh/signing-key.pub` and its key in an SSH agent, or it can't even `jj git init` |
+
 <br/>
 
 ## 6 Services on dapple
