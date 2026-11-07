@@ -2,29 +2,29 @@
 # theirs from it. The rest of the theme is in default.nix.
 {
   flake.nixosModules.theming =
-    { config, ... }:
+    { config, lib, ... }:
     let
       inherit (config.my.theming) fonts;
       inherit (config.programs.weinig.theme) renderIn;
     in
     {
       home-manager.sharedModules = [
-        (
-          { config, ... }:
-          {
-            # The terminal's ANSI colors, so it follows Ghostty's palette.
-            programs.bat.config.theme = "ansi";
+        {
+          # The terminal's ANSI colors, so it follows Ghostty's palette.
+          programs.bat.config.theme = "ansi";
 
-            # Only the 16 ANSI colors; fzf's default scheme also uses fixed
-            # xterm-256 greys that no theme controls.
-            programs.fzf.defaultOptions = [ "--color=16" ];
-
-            # This mode's file (mode.nix).
-            xdg.configFile."eza/theme.yml".source =
-              config.lib.file.mkOutOfStoreSymlink "${config.xdg.stateHome}/weinig/theme/eza-theme.yml";
-          }
-        )
+          # Only the 16 ANSI colors; fzf's default scheme also uses fixed
+          # xterm-256 greys that no theme controls.
+          programs.fzf.defaultOptions = [ "--color=16" ];
+        }
       ];
+
+      # This mode's file (mode.nix), in place of the wrapper's own, empty
+      # theme (cli-tools.nix). Expanded as eza starts.
+      wrappers.eza.env.EZA_CONFIG_DIR = lib.mkForce {
+        data = "\${XDG_STATE_HOME:-$HOME/.local/state}/weinig/theme/eza";
+        esc-fn = dir: ''"${dir}"'';
+      };
 
       # Both themes by path, from the wrapper (terminal.nix); Ghostty picks
       # one by the desktop's color scheme.

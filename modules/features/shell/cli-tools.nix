@@ -10,6 +10,8 @@
       ...
     }:
     {
+      imports = [ inputs.nix-wrapper-modules.nixosModules.eza ];
+
       config = {
         environment.systemPackages = with pkgs; [
           bat
@@ -30,10 +32,12 @@
               bat.enable = true;
               nh.enable = true;
 
-              eza = {
-                enable = true;
-                enableFishIntegration = true;
-                icons = "auto";
+              fish.shellAliases = {
+                la = "eza -a";
+                ll = "eza -l";
+                lla = "eza -la";
+                ls = "eza";
+                lt = "eza --tree";
               };
 
               tmux = {
@@ -59,6 +63,11 @@
         my.preservation.homeDirectories = [
           ".local/share/zoxide"
         ];
+
+        wrappers.eza = {
+          enable = true;
+          flags."--icons" = "auto";
+        };
       };
     };
 }

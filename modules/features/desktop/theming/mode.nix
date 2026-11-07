@@ -19,7 +19,7 @@
       files =
         mode:
         pkgs.linkFarm "weinig-theme-${mode}" {
-          "eza-theme.yml" = renderIn mode "eza-theme.yml" ./templates/eza-theme.yml;
+          "eza/theme.yml" = renderIn mode "eza-theme.yml" ./templates/eza-theme.yml;
           "gtk3.css" = css mode "3";
           "gtk4.css" = css mode "4";
           "niri.kdl" = renderIn mode "niri.kdl" ./templates/niri.kdl;
