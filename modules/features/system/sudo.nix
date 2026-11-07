@@ -9,8 +9,8 @@
       ...
     }:
     {
-      # Enrolled fingerprints, where fprintd is on (nixos-hardware turns it
-      # on for the Framework; sudo then takes a finger too).
+      # Enrolled fingerprints, where fprintd is on (nixos-facter turns it
+      # on when it finds a reader; sudo then takes a finger too).
       my.preservation.systemDirectories = lib.mkIf config.services.fprintd.enable [
         {
           directory = "/var/lib/fprint";

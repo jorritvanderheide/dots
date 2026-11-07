@@ -56,10 +56,9 @@
       url = "git+https://codeberg.org/BW20/new-leaf";
     };
 
-    # niri-flake's and nixos-hardware's own nixpkgs, and niri-flake's niri
-    # and xwayland-satellite sources, only build their packages and
-    # checks, which we don't use: niri comes from nixpkgs
-    # (compositor/default.nix).
+    # niri-flake's own nixpkgs, and its niri and xwayland-satellite
+    # sources, only build their packages and checks, which we don't use:
+    # niri comes from nixpkgs (compositor/default.nix).
     niri-flake = {
       url = "github:sodiboo/niri-flake";
 
@@ -78,11 +77,6 @@
     nix-wrapper-modules = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/nix-wrapper-modules";
-    };
-
-    nixos-hardware = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:nixos/nixos-hardware";
     };
 
     # Only its module: dapple builds each site itself, from the site's

@@ -47,7 +47,7 @@
         # to rsync, and --executability because the narHash covers that bit.
         # One rsync per input, through the trailing slash of its
         # link: one over the whole farm would need --copy-dirlinks, which
-        # also follows the links inside an input (nixos-hardware has one),
+        # also follows the links inside an input,
         # and the copy would no longer match its narHash.
         systemd.services.flake-archive = {
           description = "Copy the flake inputs' sources to /persist";

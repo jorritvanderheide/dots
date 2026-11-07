@@ -45,10 +45,10 @@
 
         # Users
         jorrit
+
+        rocinante-hardware
       ])
       ++ [
-        inputs.nixos-hardware.nixosModules.framework-13th-gen-intel
-
         (
           { config, ... }:
           {
