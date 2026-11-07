@@ -5,6 +5,7 @@
 {
   flake.nixosModules.music-player =
     {
+      config,
       pkgs,
       ...
     }:
@@ -25,7 +26,7 @@
 
             xdg.desktopEntries.music = {
               comment = "Jellyfin music player";
-              exec = "${lib.getExe pkgs.ghostty} -e ${lib.getExe pkgs.jellyfin-tui}";
+              exec = "${lib.getExe config.wrappers.ghostty.wrapper} -e ${lib.getExe pkgs.jellyfin-tui}";
               genericName = "Music player";
               icon = "music-app";
               name = "Music";

@@ -73,6 +73,13 @@
       };
     };
 
+    # Programs built with their config, instead of a file in $HOME through
+    # home-manager (terminal.nix).
+    nix-wrapper-modules = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/nix-wrapper-modules";
+    };
+
     nixos-hardware = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nixos/nixos-hardware";

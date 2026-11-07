@@ -5,14 +5,12 @@
     { config, ... }:
     let
       inherit (config.my.theming) fonts;
+      inherit (config.programs.weinig.theme) renderIn;
     in
     {
       home-manager.sharedModules = [
         (
-          { config, osConfig, ... }:
-          let
-            inherit (osConfig.programs.weinig.theme) renderIn;
-          in
+          { config, ... }:
           {
             # The terminal's ANSI colors, so it follows Ghostty's palette.
             programs.bat.config.theme = "ansi";
@@ -21,26 +19,25 @@
             # xterm-256 greys that no theme controls.
             programs.fzf.defaultOptions = [ "--color=16" ];
 
-            programs.ghostty.settings = {
-              font-size = fonts.size;
-              theme = "light:weinig-light,dark:weinig-dark";
-
-              font-family = [
-                fonts.monospace.name
-                fonts.emoji.name
-              ];
-            };
-
-            xdg.configFile = {
-              "ghostty/themes/weinig-dark".source = renderIn "dark" "ghostty-dark" ./templates/ghostty;
-              "ghostty/themes/weinig-light".source = renderIn "light" "ghostty-light" ./templates/ghostty;
-
-              # This mode's file (mode.nix).
-              "eza/theme.yml".source =
-                config.lib.file.mkOutOfStoreSymlink "${config.xdg.stateHome}/weinig/theme/eza-theme.yml";
-            };
+            # This mode's file (mode.nix).
+            xdg.configFile."eza/theme.yml".source =
+              config.lib.file.mkOutOfStoreSymlink "${config.xdg.stateHome}/weinig/theme/eza-theme.yml";
           }
         )
       ];
+
+      # Both themes by path, from the wrapper (terminal.nix); Ghostty picks
+      # one by the desktop's color scheme.
+      wrappers.ghostty.settings = {
+        font-size = fonts.size;
+        theme = "light:${renderIn "light" "ghostty-light" ./templates/ghostty},dark:${
+          renderIn "dark" "ghostty-dark" ./templates/ghostty
+        }";
+
+        font-family = [
+          fonts.monospace.name
+          fonts.emoji.name
+        ];
+      };
     };
 }
