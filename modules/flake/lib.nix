@@ -42,7 +42,6 @@
       {
         extraGroups ? [ ],
         username,
-        withModules ? [ ],
       }:
       {
         config,
@@ -54,7 +53,6 @@
 
         home-manager.users.${username} = {
           home.stateVersion = "26.05";
-          imports = withModules;
         };
 
         # A password hash (docs/secrets.md).
