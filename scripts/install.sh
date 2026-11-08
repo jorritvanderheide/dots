@@ -70,7 +70,7 @@ main() {
   rm -rf "$repo"
   log_info "Cloning ${REPO_URL}..."
   jj git clone --colocate --remote codeberg "$REPO_URL" "$repo"
-  jj -R "$repo" git remote set-url codeberg "$REPO_PUSH_URL"
+  jj -R "$repo" git remote set-url codeberg --push "$REPO_PUSH_URL"
 
   # Installed from the clone, as pushed to Codeberg: the host's new age key
   # re-encrypts its secrets there, and with --new-hardware this
@@ -90,8 +90,8 @@ main() {
     die "${hostname} has no facter.json yet: commit one first, or add --new-hardware to gather it here (docs/install.md, \"A new host\")."
 
   local nixos_gid
-  nixos_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid" 2>/dev/null) ||
-    die "No nixosConfigurations.${hostname} found in flake"
+  nixos_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid") ||
+    die "Can't evaluate nixosConfigurations.${hostname} (the error above)"
 
   # The disk disko will wipe, by its model and serial (see lib.mainDisk).
   # Not there means the facter report is from other hardware.
@@ -162,6 +162,8 @@ main() {
   # locked. Its public half replaces the old one in secrets/.sops.yaml, and the
   # host's file is re-encrypted for it, with the same YubiKey.
   log_info "Making ${hostname}'s own age key..."
+  # age-keygen refuses to overwrite one a killed run left behind.
+  rm -f /tmp/host-age.key
   (umask 077 && age-keygen -o /tmp/host-age.key 2>/dev/null)
   local host_key
   host_key=$(age-keygen -y /tmp/host-age.key)
