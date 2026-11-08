@@ -119,7 +119,8 @@ a debug shell at boot, though not against someone who swaps a disk's volume
 ([Accepted on purpose](#accepted-on-purpose)). The hosts boot with secure
 boot, with our own keys, and the TPM only unlocks a disk for that
 ([Secure boot](install.md#secure-boot)). rocinante's disk also opens with
-either YubiKey's FIDO2 slot, which needs the key's PIN and a touch, so the
+either YubiKey's FIDO2 slot (enrolled again after each install), which
+needs the key's PIN and a touch, so the
 laptop and a key together still aren't enough.
 
 ## Checked by hand

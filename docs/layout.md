@@ -12,6 +12,7 @@ modules/
   features/<area>/<feature>/      a feature too big for one file, and the files it reads
   bundles/<bundle>.nix            features that come as one: flake.nixosModules.base, .desktop
   hosts/<host>/configuration.nix  flake.nixosConfigurations.<host>, and its facter.json
+  hosts/<host>/hardware.nix       what the host needs beyond facter: flake.nixosModules.<host>-hardware
   users/<user>/configuration.nix  flake.nixosModules.<user>, made with lib.mkUser
   users/<user>/<part>.nix         more of the same module: mail, calendars, SSH hosts
   flake/                          checks, formatter, dev shell, apps, lib, site, installer ISO
@@ -34,8 +35,8 @@ jellyfin's `config.my ? media-library`.
 Settings for a host are NixOS options, set in the host. A home-manager
 module reads them through the enclosing NixOS module, bound in a `let`
 (the home-manager module rebinds `config`). Settings for a person, like
-their git identity or SSH keys, are set in `users/<user>`, as home-manager
-options where the feature declares some (`my.git`).
+their git identity or SSH keys, are set in `users/<user>`: NixOS options
+where the feature declares some (`my.git`), home-manager ones otherwise.
 
 A feature too big for one file becomes a folder. Each `.nix` file in it
 defines the same `flake.nixosModules.<feature>`, and flake-parts merges

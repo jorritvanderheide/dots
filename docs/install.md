@@ -72,10 +72,12 @@ boot on binds the TPM, after which boots unlock by themselves.
 The host decrypts its secrets with its own age key from the first boot, so
 it needs no YubiKey. The new key's `secrets/.sops.yaml` and re-encrypted
 secrets file are uncommitted changes in its `/etc/nixos`: commit and push
-them after the first boot, or the next deploy from elsewhere puts the old
-file back. rocinante commits them where they are; for dapple, copy them
-into rocinante's clone and commit there. Its SSH host key is one of its
-secrets, so `ssh dapple` trusts it from the first boot:
+them after the first boot. Until then every deploy fails, as `main` still
+has the old file, which the new key can't open; comin on the new host has
+no record of a deploy, so it tries `main` on its first fetch. rocinante
+commits them where they are; for dapple, copy them into rocinante's clone
+and commit there. Its SSH host key is one of its secrets, so `ssh dapple`
+trusts it from the first boot:
 
 ```sh
 ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml
@@ -84,6 +86,10 @@ ssh dapple cat /etc/nixos/secrets/dapple.yaml > secrets/dapple.yaml.new && mv se
 
 Through a `.new` file, so a failed `ssh` leaves yours as they were. They
 are the new public key and an encrypted file: nothing secret travels.
+
+On rocinante, enroll each YubiKey's FIDO2 slot again: the install made a
+new LUKS header, without them. [Enrolling an additional
+YubiKey](secrets.md#enrolling-an-additional-yubikey) has the command.
 
 ## Secure boot
 
@@ -231,8 +237,9 @@ YubiKey.
 - **rocinante.** On its replacement, with a YubiKey: boot the ISO
   (a stock NixOS ISO with the `nix run` command above works too), and run
   `install-host --new-hardware rocinante` on its console. After the first
-  boot, commit and push `facter.json` with the new key's files, and run
-  `sudo offsite-restore`. Only what rocinante's backup holds comes back:
+  boot, commit and push `facter.json` with the new key's files, enroll the
+  YubiKeys' FIDO2 slots again, and run `sudo offsite-restore`. Only what
+  rocinante's backup holds comes back:
   Zotero, the Obsidian vault, and its place on the tailnet.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count what is on it as known: its secrets,
