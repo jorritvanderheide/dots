@@ -106,8 +106,8 @@ boot, sops secrets, home-manager, and fish.
   is done or has failed. If comin
   can't deploy, `sudo nixos-rebuild switch --flake
   git+https://codeberg.org/BW20/dots#<host>` on the host does it by hand.
-  dapple's Nix trusts no user but root, so the sudo password can't be
-  skipped through Nix.
+  Neither host's Nix trusts a user but root, so the sudo password can't
+  be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
 

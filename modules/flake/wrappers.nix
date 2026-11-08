@@ -5,10 +5,12 @@
 }:
 {
   # rocinante's wrapped programs (wrappers.*), with their config, so
-  # `nix run .#ghostty` works on any machine (README.md).
+  # `nix run .#ghostty` works on any machine (README.md). Not jujutsu: its
+  # config signs every commit with a YubiKey's PIV key, which is only
+  # of use on rocinante.
   perSystem.packages = lib.mapAttrs (_: wrapper: wrapper.wrapper) (
     lib.filterAttrs (
-      _: wrapper: wrapper.enable
+      name: wrapper: wrapper.enable && name != "jujutsu"
     ) inputs.self.nixosConfigurations.rocinante.config.wrappers
   );
 }

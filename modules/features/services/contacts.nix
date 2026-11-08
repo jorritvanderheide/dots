@@ -9,6 +9,8 @@
       ...
     }:
     let
+      # Radicale's default, on localhost, which it binds when server.hosts
+      # isn't set; nixpkgs only fences it in with IPAddressDeny then.
       port = 5232;
     in
     {
@@ -42,9 +44,6 @@
           enable = true;
 
           settings = {
-            server.hosts = [ "127.0.0.1:${toString port}" ];
-            storage.filesystem_folder = "/var/lib/radicale/collections";
-
             auth = {
               htpasswd_encryption = "bcrypt";
               htpasswd_filename = config.sops.secrets.radicale_htpasswd.path;

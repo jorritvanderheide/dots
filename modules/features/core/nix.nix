@@ -24,13 +24,16 @@
         };
 
         settings = {
+          # trusted-users stays Nix's default, root alone: a trusted user can
+          # add unsigned store paths and set root-run build hooks, which makes
+          # it root without sudo's password.
+
           allowed-users = [ "@wheel" ];
           auto-optimise-store = true;
           keep-derivations = true;
           keep-outputs = true;
           min-free = 5 * 1024 * 1024 * 1024;
           nix-path = [ "nixpkgs=${inputs.nixpkgs}" ];
-          trusted-users = [ "@wheel" ];
           warn-dirty = false;
 
           experimental-features = [

@@ -35,11 +35,6 @@
           iifname "${config.my.lan.interface}" ip saddr ${config.my.lan.subnet} tcp dport 22 accept
         '';
 
-        # A trusted nix user can add unsigned store paths and set root-run
-        # build hooks, which makes it root without sudo's password. So only
-        # root.
-        nix.settings.trusted-users = lib.mkForce [ "root" ];
-
         services.openssh = {
           enable = true;
           allowSFTP = false;
