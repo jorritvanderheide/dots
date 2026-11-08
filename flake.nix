@@ -79,6 +79,13 @@
       url = "github:nix-community/nix-wrapper-modules";
     };
 
+    # Temporary: today's zotero builds on a prebuilt Firefox ESR 140 that
+    # nixpkgs marks insecure, and this rev's on an older one from source that
+    # isn't marked. permittedInsecurePackages would work too, but Hydra
+    # doesn't build insecure packages, so Zotero would build from source
+    # here on most nixpkgs updates. Drop when Zotero moves to a newer ESR.
+    nixpkgs-zotero.url = "github:nixos/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
+
     # Only its module: dapple builds each site itself, from the site's
     # repository and with the nixpkgs that repository's lock pins
     # (blog.nix, blog-jeltje.nix).
