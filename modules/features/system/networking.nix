@@ -20,7 +20,7 @@
     };
 
     config = {
-      # Connections added by hand (nmcli, the applet). Those from Nix live
+      # Connections added by hand (nmcli, nm-connection-editor). Those from Nix live
       # in /run (wifi/default.nix).
       my.preservation.systemDirectories = [
         {

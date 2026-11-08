@@ -21,8 +21,8 @@
 
       # On a desktop, also a notification in the person's session, through
       # their systemd user manager: comin's own desktop client would need
-      # its control socket, which is root's alone (below). Skipped when
-      # nobody is logged in.
+      # its control socket, which is root's alone (grpc.unix_socket_mode).
+      # Skipped when nobody is logged in.
       notify = lib.optionalString config.services.graphical-desktop.enable ''
         commit="''${COMIN_GIT_SHA:0:12}: ''${COMIN_GIT_MSG%%$'\n'*}"
         if [[ -n "$COMIN_ERROR_MSG" || "$COMIN_STATUS" == failed ]]; then

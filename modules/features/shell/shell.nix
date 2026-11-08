@@ -90,6 +90,9 @@
               ];
 
               shellAliases = {
+                "c" = "clear";
+                "nboot" =
+                  "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
                 "ncheck" = "nix flake check /etc/nixos";
                 "nformat" = "pushd /etc/nixos && sudo nix fmt . && popd";
                 "nlist" = "sudo nixos-rebuild list-generations";
@@ -97,13 +100,6 @@
                 "nsearch" = "nh search";
                 "ntest" = "check-yubikey; and nh os test /etc/nixos --hostname (hostname) --no-nom";
                 "nupdate" = "pushd /etc/nixos && nix flake update && popd";
-
-                # General
-                "c" = "clear";
-
-                # Nix
-                "nboot" =
-                  "check-yubikey; and check-clean; and nh os boot /etc/nixos --hostname (hostname) --no-nom";
 
                 # comin restarts itself only after its own deploys, so after
                 # this one it would keep its old config, signers included.

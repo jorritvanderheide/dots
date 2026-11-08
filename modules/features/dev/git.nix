@@ -9,7 +9,7 @@
     let
       cfg = config.my.git;
 
-      # Where yubikey-agent listens (below).
+      # Where yubikey-agent listens (its user service).
       agentSocket = "yubikey-agent/socket";
 
       # ssh-keygen, but signing through yubikey-agent with the PIV
@@ -107,9 +107,9 @@
                 ];
 
                 # Not in this flake, where jj signs on push with a
-                # YubiKey (below). A commit git signed with the
-                # Bitwarden key would be skipped by sign-on-push, and
-                # then not deployed.
+                # YubiKey (wrappers.jujutsu's sign-on-push). A commit
+                # git signed with the Bitwarden key would be skipped by
+                # sign-on-push, and then not deployed.
                 includes = [
                   {
                     condition = "gitdir:/etc/nixos/";

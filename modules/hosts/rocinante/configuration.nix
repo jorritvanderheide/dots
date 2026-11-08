@@ -9,8 +9,10 @@
         base
         desktop
 
-        # System
+        # Desktop
         alerts
+
+        # System
         auto-brightness
         bluetooth
         firmware
@@ -44,10 +46,11 @@
         photo-editor
         terminal
 
+        # Hardware
+        rocinante-hardware
+
         # Users
         jorrit
-
-        rocinante-hardware
       ])
       ++ [
         (

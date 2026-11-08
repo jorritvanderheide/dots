@@ -62,6 +62,11 @@
             }
           ];
 
+          # The kobo extras, as nixpkgs' module has no way to turn on Kobo sync:
+          # drop them once NixOS/nixpkgs#579591 (enableKoboSync) is in our
+          # lock. And our own patch: a book uploaded through the web UI gets
+          # its uploader's name as a tag, which calibre-web's per-user tag
+          # restrictions can filter on.
           nixpkgs.overlays = [
             (_final: prev: {
               calibre-web = prev.calibre-web.overridePythonAttrs (old: {
@@ -123,6 +128,8 @@
               # pages: the router's port forward lands on this socket too.
               locations."/".return = "404";
 
+              # By source: the router passes internet visitors' own addresses on,
+              # so a LAN address is the LAN (security.md, "Checked by hand").
               locations."/kobo/" = {
                 proxyPass = "http://127.0.0.1:${toString port}";
                 recommendedProxySettings = true;

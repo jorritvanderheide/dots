@@ -42,7 +42,7 @@
       programs.weinig = {
         enable = true;
 
-        # Ghostty, below.
+        # Ghostty, through launcher.terminal.
         desktop.terminal = false;
 
         # Suspend, but not while a Claude Code turn is in progress (busy markers written by

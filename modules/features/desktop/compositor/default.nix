@@ -255,7 +255,8 @@ in
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
           # empty. And at a fractional scale it shows the last row and column of a window that
-          # only half fills them, which are black in some apps. And it puts a lost screen's
+          # only half fills them, which are black in some apps (niri-wm/niri#4646 was closed as
+          # the apps' doing, so niri won't change it). And it puts a lost screen's
           # workspaces at the bottom: here those of a desk come first, focused, and those of any
           # other right above where I am. And without a scale in the config it guesses one for a
           # distance of a desk, which on a screen in a meeting room is too small to read: from 50
