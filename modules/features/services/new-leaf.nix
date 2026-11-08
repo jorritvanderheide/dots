@@ -40,6 +40,15 @@
       # domain: the internet gets the share links, the tailnet the editor
       # with the share links next to it.
       config = {
+        # Without Headscale the editor's MagicDNS record (extra_records)
+        # silently goes, and the tailnet gets the public vhost.
+        assertions = [
+          {
+            assertion = config.services.headscale.enable;
+            message = "new-leaf needs the headscale feature";
+          }
+        ];
+
         # /healthz needs no tailnet identity, and answers 503 when New Leaf
         # can't write CVs or share links, or run Typst.
         my.gatus.endpoints.cv-editor = {
