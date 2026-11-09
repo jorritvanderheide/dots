@@ -52,7 +52,7 @@
 
                   # Written by install.sh, decrypted from the host's secrets,
                   # right before disko runs; nothing else creates this file.
-                  passwordFile = config.my.installer.secrets.luksKeyFile;
+                  passwordFile = config.yubinstall.secrets.luksKeyFile;
 
                   settings = {
                     allowDiscards = true;

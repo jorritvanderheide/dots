@@ -51,7 +51,7 @@
 
           content = {
             name = "zmedia-crypt";
-            passwordFile = config.my.installer.secrets.luksKeyFile;
+            passwordFile = config.yubinstall.secrets.luksKeyFile;
             type = "luks";
 
             content = {

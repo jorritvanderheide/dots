@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install a NixOS host locally. Run while booted on the target machine
 # itself (e.g. from a live ISO), with a YubiKey in. What's particular to a
-# setup, it reads from the host's my.installer options (installer.nix). The
+# setup, it reads from the host's yubinstall options (yubinstall.nix). The
 # README's "Installation" has the walkthrough.
 #
 # Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
@@ -25,7 +25,7 @@ die() {
 readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}"
 readonly NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 
-# One of the host's my.installer settings, by its jq path.
+# One of the host's yubinstall settings, by its jq path.
 setting() { jq -r "$1" <<<"$settings"; }
 
 # Every disk disko sets up, a line each: its device, whether disko wipes it
@@ -112,8 +112,8 @@ main() {
   # clone below gets. They don't need its hardware report, which a new host
   # doesn't have yet.
   local settings
-  settings=$($NIX eval --json "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.my.installer") ||
-    die "Can't evaluate ${hostname}'s my.installer settings (the error above). Is its configuration pushed? (README, \"A new host\")"
+  settings=$($NIX eval --json "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.yubinstall") ||
+    die "Can't evaluate ${hostname}'s yubinstall settings (the error above). Is its configuration pushed? (README, \"A new host\")"
 
   # age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
   # pcscd by default, so start it ourselves if nothing already has.

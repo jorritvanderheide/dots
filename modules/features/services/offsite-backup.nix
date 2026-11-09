@@ -36,21 +36,6 @@
       config = lib.mkIf cfg.enable {
         systemd.services."offsite-backup-report@".path = [ pkgs.curl ];
 
-        # For a restore in the rehearsal VM (install-vm.sh): the gateway it may
-        # reach, and the timers that would back up over this host's backup.
-        my.installer.vm.restore = {
-          endpoint = lib.head (
-            lib.splitString "/" (
-              lib.removePrefix "s3:https://" config.services.restic.backups.offsite.repository
-            )
-          );
-
-          stopUnits = [
-            "offsite-backup-retry.timer"
-            "restic-backups-offsite.timer"
-          ];
-        };
-
         services.restic.backups.offsite = {
           # No forget --prune and no check here: the host's Storj credentials
           # can't delete, so ransomware on the host can't wipe or overwrite
@@ -146,6 +131,21 @@
           AWS_ACCESS_KEY_ID=${config.sops.placeholder.storj_access_key}
           AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.storj_secret_key}
         '';
+
+        # For a restore in the rehearsal VM (install-vm.sh): the gateway it may
+        # reach, and the timers that would back up over this host's backup.
+        yubinstall.vm.restore = {
+          endpoint = lib.head (
+            lib.splitString "/" (
+              lib.removePrefix "s3:https://" config.services.restic.backups.offsite.repository
+            )
+          );
+
+          stopUnits = [
+            "offsite-backup-retry.timer"
+            "restic-backups-offsite.timer"
+          ];
+        };
       };
     };
 }

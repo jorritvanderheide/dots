@@ -19,7 +19,7 @@
         disk
         facter
         home-manager
-        installer
+        yubinstall
         kernel
         nix
         preservation
@@ -45,7 +45,7 @@
       ];
 
       # This repository's layout and remote, for the installer.
-      my.installer = {
+      yubinstall = {
         hardwareReport = "modules/hosts/${config.networking.hostName}/facter.json";
         secrets.deployKey = "codeberg_deploy_key";
 

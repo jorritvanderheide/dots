@@ -14,7 +14,7 @@
       luksDevice = "/dev/disk/by-partlabel/disk-main-luks";
       cfg = config.my.boot;
       allLuksDevices = [ luksDevice ] ++ cfg.extraLuksDevices;
-      luksPassword = config.my.installer.secrets.luksPassword;
+      luksPassword = config.yubinstall.secrets.luksPassword;
     in
     {
       imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
@@ -25,7 +25,7 @@
         description = ''
           LUKS device paths beyond the root disk to bind to the TPM (e.g. a
           dedicated data disk). Each must unlock with the LUKS password in the
-          host's secrets (my.installer.secrets.luksPassword).
+          host's secrets (yubinstall.secrets.luksPassword).
         '';
       };
 

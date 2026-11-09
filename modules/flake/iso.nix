@@ -24,7 +24,7 @@
                 let
                   # Any host's: the base bundle gives every host the same.
                   repository =
-                    (lib.head (lib.attrValues inputs.self.nixosConfigurations)).config.my.installer.repository.url;
+                    (lib.head (lib.attrValues inputs.self.nixosConfigurations)).config.yubinstall.repository.url;
 
                   installHost = pkgs.writeShellApplication {
                     name = "install-host";

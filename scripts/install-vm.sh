@@ -14,7 +14,7 @@
 #          Boot the installed disks, offline: the host would otherwise run
 #          its CI runner, report to the real status page and back up over
 #          its real backup. --restore lets through the backup's endpoint
-#          only, from the host's my.installer.vm.restore.
+#          only, from the host's yubinstall.vm.restore.
 #        install-vm type
 #          Type the clipboard into the running VM, for the LUKS password
 #          and logins; press Enter yourself.
@@ -181,10 +181,10 @@ else
   if $restore; then
     # The guest reaches 10.0.2.100:443, and QEMU passes that to the
     # backup's endpoint; everything else stays cut off.
-    settings=$(nix eval --json "${INSTALL_VM_FLAKE}#nixosConfigurations.${host}.config.my.installer.vm.restore")
+    settings=$(nix eval --json "${INSTALL_VM_FLAKE}#nixosConfigurations.${host}.config.yubinstall.vm.restore")
     endpoint=$(jq -r '.endpoint // empty' <<<"$settings")
     [[ -n $endpoint ]] || {
-      echo "${host} sets no my.installer.vm.restore.endpoint." >&2
+      echo "${host} sets no yubinstall.vm.restore.endpoint." >&2
       exit 1
     }
     net+=",guestfwd=tcp:10.0.2.100:443-cmd:nc ${endpoint} 443"

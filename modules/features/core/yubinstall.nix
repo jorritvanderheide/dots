@@ -8,7 +8,7 @@
   # knowing themselves: the repository, where the host's files and secrets
   # are in it, and where things go on the new disk. The defaults are
   # generic; the base bundle sets this repository's values.
-  flake.nixosModules.installer =
+  flake.nixosModules.yubinstall =
     {
       config,
       ...
@@ -18,7 +18,7 @@
       str = lib.types.str;
     in
     {
-      options.my.installer = {
+      options.yubinstall = {
         checkout = {
           group = lib.mkOption {
             type = str;

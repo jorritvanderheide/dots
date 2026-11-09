@@ -663,7 +663,7 @@ one, with the steps for a new one. Shared helpers and facts are in
 
 The installer, its rehearsal VM (`nix run .#install-vm`, whose header has
 the steps) and the ISO read the repository, the paths in it and the
-secrets' names from each host's `my.installer` options (`installer.nix`),
+secrets' names from each host's `yubinstall` options (`yubinstall.nix`),
 which the base bundle sets, so they can move to a repository of their own.
 
 `nix fmt` orders attributes before nixfmt lays them out (the rules are in
