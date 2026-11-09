@@ -42,10 +42,12 @@ host=${1:-dapple}
 
 # The disks as the host's config names them, /dev/disk/by-id/<bus>-<model>_<serial>:
 # NVMe and SATA disks get the same name from QEMU's model and serial.
+# Real-sized and sparse: the pools reserve space by the disk's size (zfs.nix,
+# media-library.nix), and an image only takes what the install writes.
 mkdir -p "$state"
 # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
 disks=$(nix eval --raw "${INSTALL_VM_FLAKE}#nixosConfigurations.${host}.config.disko.devices.disk" \
-  --apply 'disks: builtins.concatStringsSep "\n" (map (name: "${name} ${disks.${name}.device} ${if name == "main" then "64G" else "8G"}") (builtins.attrNames disks))')
+  --apply 'disks: builtins.concatStringsSep "\n" (map (name: "${name} ${disks.${name}.device} ${if name == "main" then "1T" else "512G"}") (builtins.attrNames disks))')
 disk_args=()
 ata_bus=0
 while read -r name device size; do
