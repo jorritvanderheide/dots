@@ -15,7 +15,7 @@
 
       config = {
         disko.devices.disk.main = {
-          inherit (inputs.self.lib.mainDisk config.hardware.facter.report) device;
+          inherit (config.yubinstall.mainDisk) device;
           type = "disk";
 
           content = {

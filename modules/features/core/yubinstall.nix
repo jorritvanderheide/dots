@@ -41,6 +41,36 @@
           description = "The host's nixos-facter report, as a path in the repository: the installer checks its disks are there, and writes a new report there on new hardware.";
         };
 
+        # The disk the installer wipes, from the facter report: the first one
+        # that isn't on USB (a report gathered from a live ISO lists the
+        # installer stick too). `device` is its /dev/disk/by-id/<model>_<serial>
+        # name: by-diskseq and /dev/sdX are handed out in boot order, so on the
+        # live ISO they can point at another disk.
+        mainDisk = lib.mkOption {
+          type = lib.types.attrs;
+          readOnly = true;
+          description = "The main disk from hardware.facter.report: `device`, its stable /dev/disk/by-id name, for disko, and `info`, its entry in the report.";
+
+          default =
+            let
+              onUsb = disk: lib.any (d: d == "usb-storage" || d == "uas") (disk.drivers or [ ]);
+              info = lib.findFirst (
+                disk: !onUsb disk
+              ) (throw "facter report has no non-USB disk") config.hardware.facter.report.hardware.disk;
+              stable =
+                name:
+                lib.hasPrefix "/dev/disk/by-id/" name && !lib.hasInfix "-eui." name && !lib.hasInfix "/wwn-" name;
+            in
+            {
+              inherit info;
+              device =
+                lib.findFirst stable (throw "disk ${info.model or "?"} has no stable by-id name")
+                  info.unix_device_names;
+            };
+
+          defaultText = lib.literalMD "the first disk in the facter report that isn't on USB";
+        };
+
         nextSteps = lib.mkOption {
           type = str;
           default = "";

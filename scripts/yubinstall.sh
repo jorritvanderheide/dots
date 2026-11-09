@@ -133,7 +133,7 @@ main() {
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
 
   # The committed hardware report is this machine's if the disks disko
-  # wipes are here, by their model and serial (lib.mainDisk). If they
+  # wipes are here, by their model and serial (yubinstall.mainDisk). If they
   # aren't, or there is no report, this machine is new hardware for the
   # host, or the wrong machine: asked, as the report also picks the disk
   # to wipe.

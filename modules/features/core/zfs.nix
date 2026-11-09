@@ -1,8 +1,4 @@
-{
-  inputs,
-  ...
-}:
-{
+_: {
   flake.nixosModules.zfs =
     {
       config,
@@ -80,7 +76,7 @@
 
       disko.devices.zpool.zroot =
         let
-          diskInfo = (inputs.self.lib.mainDisk config.hardware.facter.report).info;
+          diskInfo = config.yubinstall.mainDisk.info;
           diskSizeResource = builtins.head (builtins.filter (r: r.type == "size") diskInfo.resources);
           diskSize = builtins.floor (
             (diskSizeResource.value_1 * diskSizeResource.value_2) / (1024 * 1024 * 1024)
