@@ -74,7 +74,8 @@ sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#yubinstall" -- <hostname>
 ```
 
-The installer (`scripts/yubinstall.sh`) checks that the disk the host's
+The installer ([nixos-yubinstall](https://codeberg.org/BW20/nixos-yubinstall),
+whose README has the details) checks that the disk the host's
 hardware report names is there, by its model and serial. If it isn't, or
 there is no report, it asks, then gathers this machine's report (also with
 `--new-hardware`). It decrypts the LUKS password and the host's own age key
@@ -647,8 +648,8 @@ modules/
   bundles/                        base (every host) and desktop (a host with a screen)
   hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
   users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser
-  flake/                          checks, formatter, dev shell, wrappers, lib, site, installer ISO
-scripts/                          yubinstall, yubinstall-vm, enroll-tpm, offsite-prune, nix-order
+  flake/                          checks, formatter, dev shell, wrappers, lib, site, yubinstall
+scripts/                          enroll-tpm, offsite-prune, nix-order
 secrets/                          <host>.yaml, and .sops.yaml with the recipients
 ```
 
@@ -661,10 +662,10 @@ nixpkgs gives none, `lib.sandbox`: `contacts.nix` is the smallest complete
 one, with the steps for a new one. Shared helpers and facts are in
 `modules/flake/lib.nix` and `site.nix`.
 
-The installer, its rehearsal VM (`nix run .#yubinstall-vm`, whose header has
-the steps) and the ISO read the repository, the paths in it and the
-secrets' names from each host's `yubinstall` options (`yubinstall.nix`),
-which the base bundle sets, so they can move to a repository of their own.
+The installer, its rehearsal VM (`nix run .#yubinstall-vm`) and the ISO
+come from [nixos-yubinstall](https://codeberg.org/BW20/nixos-yubinstall),
+a flake input: `modules/flake/yubinstall.nix` builds them for these hosts,
+and the base bundle sets the hosts' `yubinstall` options, which they read.
 
 `nix fmt` orders attributes before nixfmt lays them out (the rules are in
 `scripts/nix-order.py`), and the comment rules are in `checks.nix`.

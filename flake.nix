@@ -117,6 +117,14 @@
       url = "git+https://codeberg.org/BW20/weinig-shell";
     };
 
+    # The installer, its rehearsal VM and ISO, and the hosts' yubinstall options
+    # (modules/flake/yubinstall.nix). A commit, upgraded by hand: it runs as
+    # root and wipes disks.
+    yubinstall = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BW20/nixos-yubinstall?rev=3b05e667a3f7a36a06adbc0fe1e2ba7162a9ad5f";
+    };
+
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
 

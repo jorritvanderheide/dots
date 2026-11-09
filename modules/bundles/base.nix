@@ -19,7 +19,7 @@
         disk
         facter
         home-manager
-        yubinstall
+        inputs.yubinstall.nixosModules.default
         kernel
         nix
         preservation

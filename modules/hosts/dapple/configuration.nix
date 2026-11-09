@@ -93,9 +93,9 @@
             # whatever tailscaled's table accepts.
             networking.nftables.enable = true;
 
-            # preservation.nix pins this to 3000 for yubinstall.sh's benefit on a
-            # fresh install (chowning /etc/nixos before the name resolves on
-            # the live ISO). dapple already exists with this group at 997;
+            # preservation.nix pins this to 3000 for the installer's benefit
+            # on a fresh install (chowning /etc/nixos before the name resolves
+            # on the live ISO). dapple already exists with this group at 997;
             # keep that, or every already-persisted file/dir owned by group
             # nixos silently orphans from the name on switch.
             users.groups.nixos.gid = lib.mkForce 997;

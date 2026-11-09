@@ -50,8 +50,9 @@
                     type = "zfs";
                   };
 
-                  # Written by yubinstall.sh, decrypted from the host's secrets,
-                  # right before disko runs; nothing else creates this file.
+                  # Written by the installer (yubinstall), decrypted from the
+                  # host's secrets, right before disko runs; nothing else
+                  # creates this file.
                   passwordFile = config.yubinstall.secrets.luksKeyFile;
 
                   settings = {
