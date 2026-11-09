@@ -96,11 +96,9 @@ secure boot keys, the next enrolls them, and the first with secure boot on
 binds the TPM, after which boots unlock by themselves.
 
 The host decrypts its secrets with its own age key from the start, so it
-needs no YubiKey. On rocinante, enroll each YubiKey's FIDO2 slot again
-([Enrolling a YubiKey](#enrolling-a-yubikey)): the install made a new LUKS
-header, without them. On a reinstalled host, `sudo offsite-restore` brings
-the data back ([Restoring data](#restoring-data)), and with it the host's
-place on the tailnet.
+needs no YubiKey. On a reinstalled host, `sudo offsite-restore` brings the
+data back ([Restoring data](#restoring-data)), and with it the host's place
+on the tailnet.
 
 ### Secure boot
 
@@ -427,9 +425,7 @@ Who is kept out of what, beyond the ports in
 - **Ransomware on a host** can't take the offsite backups along: its Storj
   credentials reach only its own folder and can't delete, which on Storj
   also means they can't overwrite (tested on the real bucket).
-- **A thief** gets encrypted disks, and no boot menu editor. rocinante's
-  disk also opens with either YubiKey's FIDO2 slot, which needs the key's
-  PIN and a touch, so the laptop and a key together still aren't enough.
+- **A thief** gets encrypted disks, and no boot menu editor.
 
 **Checked by hand** on 2026-10-10, and the router, the deSEC token and the
 403s from outside again on 2026-10-16. Check again after changing the
@@ -538,18 +534,12 @@ like is on the code that reads it (`lib.mkUser` for the password hashes,
 
 A new key, or one replacing a lost one, gets what the others have. First
 its PIV PIN, PUK and management key, none the factory default (`ykman piv
-info` warns about any that is). Then its two age identities, its FIDO2 PIN
-and slot on rocinante's disk (with only this key plugged in; it shows up
-twice, so name its `/dev/hidraw*` path from the list), and its commit
+info` warns about any that is). Then its two age identities and its commit
 signing key:
 
 ```sh
 age-plugin-yubikey --generate --pin-policy never --touch-policy never
 age-plugin-yubikey --generate --pin-policy once --touch-policy cached
-
-systemd-cryptenroll --fido2-device=list
-sudo systemd-cryptenroll --fido2-device=/dev/hidrawN --fido2-with-client-pin=yes \
-  --fido2-with-user-presence=yes /dev/disk/by-partlabel/disk-main-luks
 
 pkill -HUP yubikey-agent   # it keeps the PIV applet to itself
 ykman piv keys generate --algorithm ECCP256 --pin-policy NEVER --touch-policy CACHED \
