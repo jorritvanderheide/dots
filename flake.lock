@@ -421,21 +421,24 @@
     },
     "yubinstall": {
       "inputs": {
+        "disko": [
+          "disko"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1794240990,
-        "narHash": "sha256-nNmj6JNqlRo7Ky/fd/OYErfKWpL0JAXudW4fOrMeLxU=",
-        "ref": "refs/heads/main",
-        "rev": "3b05e667a3f7a36a06adbc0fe1e2ba7162a9ad5f",
-        "revCount": 1,
+        "lastModified": 1794246513,
+        "narHash": "sha256-NyjIe0asYqt8g5m4hYusRpkCL3yGeXfkfEbitqRexYE=",
+        "ref": "refs/tags/0.1.0",
+        "rev": "3aeda75efe404a9f0e1b9552cffea86b4707b88a",
+        "revCount": 4,
         "type": "git",
         "url": "https://codeberg.org/BW20/nixos-yubinstall"
       },
       "original": {
-        "rev": "3b05e667a3f7a36a06adbc0fe1e2ba7162a9ad5f",
+        "ref": "refs/tags/0.1.0",
         "type": "git",
         "url": "https://codeberg.org/BW20/nixos-yubinstall"
       }
