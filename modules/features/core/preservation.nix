@@ -163,7 +163,7 @@
           "z /persist/system/var/lib/private 0700 root root -"
         ];
 
-        # Pinned so `install.sh` can chown /etc/nixos to this GID from the
+        # Pinned so `yubinstall.sh` can chown /etc/nixos to this GID from the
         # live ISO, where the name "nixos" doesn't resolve.
         users.groups.nixos.gid = 3000;
       };

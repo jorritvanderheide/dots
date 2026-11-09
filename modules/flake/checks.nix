@@ -23,7 +23,7 @@
         # Building them runs shellcheck (writeShellApplication). The hosts'
         # builds cover the scripts they install; these only run from the
         # flake, mid-install, in a rehearsal or mid-prune.
-        inherit (config.packages) install install-vm offsite-prune;
+        inherit (config.packages) offsite-prune yubinstall yubinstall-vm;
 
         # Comments say why: a constraint, a failure mode, an upstream quirk.
         # What an option does goes in its description, what changed in the

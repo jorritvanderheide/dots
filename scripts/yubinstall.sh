@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Install a NixOS host locally. Run while booted on the target machine
 # itself (e.g. from a live ISO), with a YubiKey in. What's particular to a
-# setup, it reads from the host's yubinstall options (yubinstall.nix). The
-# README's "Installation" has the walkthrough.
+# setup, it reads from the host's yubinstall options (yubinstall.nix).
+# The README has the walkthrough.
 #
-# Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
+# Usage: sudo ./scripts/yubinstall.sh [--new-hardware] [hostname]
 #   --new-hardware  gather this machine's hardware report even though the
 #                   committed one's disk is here (other hardware around it)
 set -euo pipefail
@@ -29,7 +29,7 @@ readonly NIX="nix --extra-experimental-features nix-command --extra-experimental
 setting() { jq -r "$1" <<<"$settings"; }
 
 # Every disk disko sets up, a line each: its device, whether disko wipes it
-# (destroy, the main disk) or keeps it (like dapple's media disk), and its
+# (destroy, the main disk) or keeps it (like a data disk), and its
 # LUKS and pool names.
 disko_disks() {
   # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
@@ -113,7 +113,7 @@ main() {
   # doesn't have yet.
   local settings
   settings=$($NIX eval --json "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.yubinstall") ||
-    die "Can't evaluate ${hostname}'s yubinstall settings (the error above). Is its configuration pushed? (README, \"A new host\")"
+    die "Can't evaluate ${hostname}'s yubinstall settings (the error above). Is its configuration pushed?"
 
   # age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
   # pcscd by default, so start it ourselves if nothing already has.
@@ -190,8 +190,7 @@ main() {
   done
 
   # Decrypt with whichever YubiKey is plugged in. SOPS_AGE_KEY_FILE
-  # overrides it, e.g. with the passphrase identity (README, "Secrets and
-  # keys").
+  # overrides it, e.g. with a passphrase identity.
   local attempt
   if [[ -z ${SOPS_AGE_KEY_FILE:-} ]]; then
     export SOPS_AGE_KEY_FILE=/tmp/yubikey-identity.txt
@@ -230,7 +229,7 @@ main() {
   jq -r --arg key "$age_key_name" '.[$key] // empty' <<<"$installer_secrets" >/tmp/host-age.key
   jq -r --arg key "$(setting .secrets.deployKey)" '.[$key] // empty' <<<"$installer_secrets" >/tmp/deploy-key
   unset installer_secrets
-  [[ -s /tmp/host-age.key ]] || die "${installer_file} has no ${age_key_name} (README, \"A new host\")."
+  [[ -s /tmp/host-age.key ]] || die "${installer_file} has no ${age_key_name}."
   # The key the host's file is encrypted for, or its secrets won't open.
   local host_public
   host_public=$(age-keygen -y /tmp/host-age.key)
@@ -312,7 +311,9 @@ main() {
   zpool export -a
 
   log_success "Installation complete! Reboot when ready."
-  log_info 'Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (README, "Restoring data").'
+  local next_steps
+  next_steps=$(setting .nextSteps)
+  [[ -z $next_steps ]] || log_info "$next_steps"
   if $gathered && ! $pushed; then
     log_warn "The hardware report isn't pushed: commit and push it from $(setting .checkout.path) after the first boot, or deploys will build ${hostname} for the old report."
   fi

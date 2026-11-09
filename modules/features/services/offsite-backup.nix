@@ -132,7 +132,7 @@
           AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.storj_secret_key}
         '';
 
-        # For a restore in the rehearsal VM (install-vm.sh): the gateway it may
+        # For a restore in the rehearsal VM (yubinstall-vm.sh): the gateway it may
         # reach, and the timers that would back up over this host's backup.
         yubinstall.vm.restore = {
           endpoint = lib.head (

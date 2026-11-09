@@ -73,7 +73,7 @@
           # another host ID, such as the installer ISO's, would then stop the
           # boot. Set it to false (leaving it out keeps it on, at stateVersion
           # 26.05) once a rehearsed install shows the first boot imports without
-          # it: install.sh exports the pools after installing.
+          # it: yubinstall.sh exports the pools after installing.
           forceImportRoot = true;
         };
       };

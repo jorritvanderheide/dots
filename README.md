@@ -48,19 +48,19 @@ Build the installer ISO and write it to a USB stick (on a
 [Ventoy](https://www.ventoy.net) stick, copy the file onto it instead):
 
 ```sh
-nix build .#iso
-sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
+nix build .#yubinstall-iso
+sudo dd if=result/iso/yubinstall.iso of=/dev/sdX bs=4M status=progress
 ```
 
 Put the machine's firmware in secure boot setup mode first
 ([Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
 makes new keys. Boot it from the stick with network (a cable, or `nmtui` on
 its console) and either YubiKey plugged in, with its PIN at hand. Then,
-from any computer with Bitwarden's SSH agent, or with `install-host
+from any computer with Bitwarden's SSH agent, or with `yubinstall
 <hostname>` on the ISO's own console:
 
 ```sh
-ssh -t root@dots-installer.local install-host <hostname>
+ssh -t root@yubinstall.local yubinstall <hostname>
 ```
 
 It runs in tmux, so after a dropped connection the same command takes you
@@ -71,10 +71,10 @@ own console:
 
 ```sh
 sudo nix --extra-experimental-features 'nix-command flakes' \
-  run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
+  run "git+https://codeberg.org/BW20/dots#yubinstall" -- <hostname>
 ```
 
-The installer (`scripts/install.sh`) checks that the disk the host's
+The installer (`scripts/yubinstall.sh`) checks that the disk the host's
 hardware report names is there, by its model and serial. If it isn't, or
 there is no report, it asks, then gathers this machine's report (also with
 `--new-hardware`). It decrypts the LUKS password and the host's own age key
@@ -258,8 +258,8 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix fmt` | Format everything (nix-order, nixfmt, deadnix, statix, shfmt, ruff) |
 | `nix flake check` | Build every host and run the formatting and lint checks |
 | `nix develop` | A shell with sops, age and the YubiKey plugin, set to the plugged-in YubiKey's identity unless `SOPS_AGE_KEY_FILE` already is |
-| `nix build .#iso` | The installer ISO, with SSH and `install-host` |
-| `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
+| `nix build .#yubinstall-iso` | The installer ISO, with SSH and `yubinstall` |
+| `nix run .#yubinstall -- <host>` | Install a host, from any NixOS live ISO |
 | `sudo enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, bound to secure boot (PCR 7), after a firmware update or TPM reset |
 | `sudo offsite-restore [--snapshot ID] [entry]` | Restore services' data from the offsite backup ([Restoring data](#restoring-data)) |
 | `nix run .#offsite-prune -- <host>` | Prune and check a host's offsite backup, with the Storj owner key from Bitwarden (every few months) |
@@ -595,7 +595,7 @@ Nothing needed to recover lives only on rocinante: the SSH keys and the
 passphrase identity are in Bitwarden, the configuration is on Codeberg,
 the data on Storj, and the YubiKeys are separate devices.
 
-- **rocinante.** Boot the ISO on its replacement and run `install-host
+- **rocinante.** Boot the ISO on its replacement and run `yubinstall
   rocinante` on its console, which gathers and pushes its hardware report,
   then follow [First boot](#first-boot). Only what rocinante's backup holds
   comes back: Zotero, the Obsidian vault, and its place on the tailnet.
@@ -648,7 +648,7 @@ modules/
   hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
   users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, wrappers, lib, site, installer ISO
-scripts/                          install, install-vm, enroll-tpm, offsite-prune, nix-order
+scripts/                          yubinstall, yubinstall-vm, enroll-tpm, offsite-prune, nix-order
 secrets/                          <host>.yaml, and .sops.yaml with the recipients
 ```
 
@@ -661,7 +661,7 @@ nixpkgs gives none, `lib.sandbox`: `contacts.nix` is the smallest complete
 one, with the steps for a new one. Shared helpers and facts are in
 `modules/flake/lib.nix` and `site.nix`.
 
-The installer, its rehearsal VM (`nix run .#install-vm`, whose header has
+The installer, its rehearsal VM (`nix run .#yubinstall-vm`, whose header has
 the steps) and the ISO read the repository, the paths in it and the
 secrets' names from each host's `yubinstall` options (`yubinstall.nix`),
 which the base bundle sets, so they can move to a repository of their own.

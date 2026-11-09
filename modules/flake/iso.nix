@@ -10,12 +10,12 @@
       ...
     }:
     {
-      # `nix build .#iso`: NixOS's minimal installer, reachable over SSH as
-      # root@dots-installer.local, with `install-host` (README, "Installation"). A
+      # `nix build .#yubinstall-iso`: NixOS's minimal installer, reachable over SSH as
+      # root@yubinstall.local, with `yubinstall` (README, "Installation"). A
       # package rather than a host, so it stays out of the checks and the
       # installer's host menu.
       packages = lib.optionalAttrs (system == "x86_64-linux") {
-        iso =
+        yubinstall-iso =
           (inputs.nixpkgs.lib.nixosSystem {
             modules = [
               "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
@@ -27,27 +27,27 @@
                     (lib.head (lib.attrValues inputs.self.nixosConfigurations)).config.yubinstall.repository.url;
 
                   installHost = pkgs.writeShellApplication {
-                    name = "install-host";
+                    name = "yubinstall";
                     runtimeInputs = [ pkgs.tmux ];
 
                     text = ''
-                      [[ $EUID -eq 0 ]] || exec sudo --preserve-env=SOPS_AGE_KEY_FILE install-host "$@"
+                      [[ $EUID -eq 0 ]] || exec sudo --preserve-env=SOPS_AGE_KEY_FILE yubinstall "$@"
                       # In tmux, so a dropped SSH connection doesn't stop an
                       # install: running this again returns to it.
-                      [[ -n ''${TMUX:-} ]] || exec tmux new-session -A -s install install-host "$@"
+                      [[ -n ''${TMUX:-} ]] || exec tmux new-session -A -s install yubinstall "$@"
                       # The installer from the repository, so this ISO doesn't go stale.
                       # Not exec'd: tmux closes the pane when it ends, and with it
                       # the installer's last lines, an error or what to commit.
                       status=0
-                      nix run "git+${repository}#install" -- "$@" || status=$?
+                      nix run "git+${repository}#yubinstall" -- "$@" || status=$?
                       read -rp "The installer ended (exit status $status). Press Enter to close this window."
                       exit "$status"
                     '';
                   };
                 in
                 {
-                  image.baseName = lib.mkForce "dots-installer";
-                  networking.hostName = "dots-installer";
+                  image.baseName = lib.mkForce "yubinstall";
+                  networking.hostName = "yubinstall";
                   nixpkgs.hostPlatform = system;
 
                   # No services.pcscd: with the installer's polkit, NixOS's
@@ -63,7 +63,7 @@
                     "flakes"
                   ];
 
-                  # Found as dots-installer.local, without looking up its IP.
+                  # Found as yubinstall.local, without looking up its IP.
                   services.avahi = {
                     enable = true;
                     nssmdns4 = true;

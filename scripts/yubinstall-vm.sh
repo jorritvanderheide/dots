@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 # A VM to rehearse an install in: secure boot firmware in setup mode, a
 # TPM, and the host's disks under their own by-id names, so the installer
-# finds the disks its hardware report names. Run on rocinante, as yourself,
-# through `nix run .#install-vm`.
+# finds the disks its hardware report names. Run on your own computer, as
+# yourself,
+# through `nix run .#yubinstall-vm`.
 #
-# Usage: install-vm install [--blank] <host>
+# Usage: yubinstall-vm install [--blank] <host>
 #          Boot the installer ISO, with the plugged-in YubiKey and the
-#          network; then `ssh -p 2222 root@localhost install-host <host>`.
+#          network; then `ssh -p 2222 root@localhost yubinstall <host>`.
 #          --blank gives the main disk another serial, so the hardware
 #          report's disk isn't there: the new-hardware path. QEMU exits
 #          instead of rebooting, so the installed host never boots online.
-#        install-vm boot [--restore] <host>
+#        yubinstall-vm boot [--restore] <host>
 #          Boot the installed disks, offline: the host would otherwise run
 #          its CI runner, report to the real status page and back up over
 #          its real backup. --restore lets through the backup's endpoint
 #          only, from the host's yubinstall.vm.restore.
-#        install-vm type
+#        yubinstall-vm type
 #          Type the clipboard into the running VM, for the LUKS password
 #          and logins; press Enter yourself.
-#        install-vm reset
-#          Delete the VM: its disks hold the host's secrets. They live on
-#          rocinante's root, so a reboot deletes them too.
+#        yubinstall-vm reset
+#          Delete the VM: its disks hold the host's secrets.
 set -euo pipefail
 
-state="${XDG_CACHE_HOME:-$HOME/.cache}/dots-install-vm"
-phase=${1:?usage: install-vm install [--blank] <host> | boot [--restore] <host> | type | reset}
+state="${XDG_CACHE_HOME:-$HOME/.cache}/yubinstall-vm"
+phase=${1:?usage: yubinstall-vm install [--blank] <host> | boot [--restore] <host> | type | reset}
 shift
 
 if [[ $phase == reset ]]; then
@@ -151,16 +151,17 @@ args=(
   "${disk_args[@]}"
 )
 
-# rocinante doesn't sleep while the VM runs: a suspend freezes it, and a
+# The computer doesn't sleep while the VM runs: a suspend freezes it, and a
 # long download, as in an install or a restore, times out.
 qemu=(
-  systemd-inhibit --what=sleep:idle:handle-lid-switch --who=install-vm --why="An install VM is running"
+  systemd-inhibit --what=sleep:idle:handle-lid-switch --who=yubinstall-vm --why="An install VM is running"
   qemu-system-x86_64
 )
 
 if [[ $phase == install ]]; then
-  iso=$(find "$(nix build --no-link --print-out-paths "${INSTALL_VM_FLAKE}#iso")/iso" -name '*.iso' | head -n 1)
+  iso=$(find "$(nix build --no-link --print-out-paths "${INSTALL_VM_FLAKE}#yubinstall-iso")/iso" -name '*.iso' | head -n 1)
   yubikey=""
+  # 1050: Yubico's USB vendor ID.
   for device in /sys/bus/usb/devices/*; do
     [[ $(cat "$device/idVendor" 2>/dev/null) == 1050 ]] && yubikey=$(<"$device/idProduct")
   done
@@ -171,7 +172,7 @@ if [[ $phase == install ]]; then
   # The agent holds the YubiKey, which the VM needs to itself.
   systemctl --user stop yubikey-agent || true
   trap 'systemctl --user start yubikey-agent || true' EXIT
-  echo "Once the ISO is up: ssh -p 2222 -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost install-host ${host}"
+  echo "Once the ISO is up: ssh -p 2222 -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost yubinstall ${host}"
   "${qemu[@]}" "${args[@]}" -no-reboot \
     -drive "if=none,id=iso,media=cdrom,readonly=on,file=$iso" -device ide-cd,drive=iso,bus=ide.5,bootindex=0 \
     -device qemu-xhci -device "usb-host,vendorid=0x1050,productid=0x$yubikey" \

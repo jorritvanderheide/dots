@@ -10,11 +10,11 @@
       ...
     }:
     let
-      install = pkgs.writeShellApplication {
-        name = "install";
-        text = builtins.readFile (inputs.self + "/scripts/install.sh");
+      yubinstall = pkgs.writeShellApplication {
+        name = "yubinstall";
+        text = builtins.readFile (inputs.self + "/scripts/yubinstall.sh");
 
-        # The flake it was run from, read-only, so install runs with no
+        # The flake it was run from, read-only, so yubinstall runs with no
         # local checkout.
         runtimeEnv.INSTALL_HOST_FLAKE_DEFAULT = "${inputs.self}";
 
@@ -41,9 +41,9 @@
         ];
       };
 
-      install-vm = pkgs.writeShellApplication {
-        name = "install-vm";
-        text = builtins.readFile (inputs.self + "/scripts/install-vm.sh");
+      yubinstall-vm = pkgs.writeShellApplication {
+        name = "yubinstall-vm";
+        text = builtins.readFile (inputs.self + "/scripts/yubinstall-vm.sh");
 
         runtimeEnv = {
           INSTALL_VM_FLAKE = "${inputs.self}";
@@ -85,25 +85,25 @@
       };
     in
     {
-      packages.install = install;
-      packages.install-vm = install-vm;
       packages.offsite-prune = offsite-prune;
-
-      apps.install = {
-        meta.description = "Install a NixOS host locally, run while booted on the target machine itself.";
-        program = lib.getExe install;
-        type = "app";
-      };
-
-      apps.install-vm = {
-        meta.description = "Rehearse an install in a VM with secure boot, a TPM and the host's disk names.";
-        program = lib.getExe install-vm;
-        type = "app";
-      };
+      packages.yubinstall = yubinstall;
+      packages.yubinstall-vm = yubinstall-vm;
 
       apps.offsite-prune = {
         meta.description = "Prune and check a host's offsite backup, with the Storj owner key (the hosts can't delete).";
         program = lib.getExe offsite-prune;
+        type = "app";
+      };
+
+      apps.yubinstall = {
+        meta.description = "Install a NixOS host locally, run while booted on the target machine itself.";
+        program = lib.getExe yubinstall;
+        type = "app";
+      };
+
+      apps.yubinstall-vm = {
+        meta.description = "Rehearse an install in a VM with secure boot, a TPM and the host's disk names.";
+        program = lib.getExe yubinstall-vm;
         type = "app";
       };
     };

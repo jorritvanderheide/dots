@@ -47,6 +47,7 @@
       # This repository's layout and remote, for the installer.
       yubinstall = {
         hardwareReport = "modules/hosts/${config.networking.hostName}/facter.json";
+        nextSteps = "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (README, \"Restoring data\").";
         secrets.deployKey = "codeberg_deploy_key";
 
         # The persisted /etc/nixos (preservation.nix), which the nixos group
@@ -58,7 +59,7 @@
         };
 
         reportCommit = {
-          email = "root@dots-installer";
+          email = "root@yubinstall";
           name = "dots installer";
         };
 

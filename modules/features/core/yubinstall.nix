@@ -3,8 +3,8 @@
   ...
 }:
 {
-  # What the installer (scripts/install.sh) and its rehearsal VM
-  # (scripts/install-vm.sh) read from the host they install, rather than
+  # What the installer (scripts/yubinstall.sh) and its rehearsal VM
+  # (scripts/yubinstall-vm.sh) read from the host they install, rather than
   # knowing themselves: the repository, where the host's files and secrets
   # are in it, and where things go on the new disk. The defaults are
   # generic; the base bundle sets this repository's values.
@@ -39,6 +39,13 @@
           type = str;
           example = "hosts/${host}/facter.json";
           description = "The host's nixos-facter report, as a path in the repository: the installer checks its disks are there, and writes a new report there on new hardware.";
+        };
+
+        nextSteps = lib.mkOption {
+          type = str;
+          default = "";
+          example = "Restore its data with sudo restore-backup.";
+          description = "What the installer tells you to do after it, such as the first boots and restoring data.";
         };
 
         reportCommit = {

@@ -47,7 +47,7 @@
           age.sshKeyPaths = [ ];
           gnupg.sshKeyPaths = [ ];
 
-          # The host's own age key, straight on /persist (install.sh puts it
+          # The host's own age key, straight on /persist (yubinstall.sh puts it
           # there). On LUKS, so it's as safe as the disk (the TPM only
           # unlocks under our secure boot); the alternative is a YubiKey
           # needed at every boot, or left plugged in for a thief. Only this
