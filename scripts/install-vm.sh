@@ -130,8 +130,12 @@ while read -r name device size; do
 done <<<"$disks"
 
 # Firmware variables without keys: secure boot's setup mode, where the
-# host's first boots enroll their own.
-[[ -e "$state/OVMF_VARS.fd" ]] || install -m 0644 "${OVMF_FD}/FV/OVMF_VARS.fd" "$state/OVMF_VARS.fd"
+# host's first boots enroll their own. Fresh for every install, as for a
+# real reinstall: with the host's keys enrolled, the firmware refuses the
+# unsigned ISO and boots the installed host, online.
+if [[ $phase == install || ! -e "$state/OVMF_VARS.fd" ]]; then
+  install -m 0644 "${OVMF_FD}/FV/OVMF_VARS.fd" "$state/OVMF_VARS.fd"
+fi
 mkdir -p "$state/tpm"
 swtpm socket --tpm2 --tpmstate "dir=$state/tpm" --ctrl "type=unixio,path=$state/tpm.sock" --daemon --terminate
 
