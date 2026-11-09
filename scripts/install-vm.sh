@@ -15,18 +15,73 @@
 #          its CI runner, report to the real status page and back up over
 #          its real backup. --storj lets through the Storj gateway only,
 #          for offsite-restore.
+#        install-vm type
+#          Type the clipboard into the running VM, for the LUKS password
+#          and logins; press Enter yourself.
 #        install-vm reset
 #          Delete the VM: its disks hold the host's secrets. They live on
 #          rocinante's root, so a reboot deletes them too.
 set -euo pipefail
 
 state="${XDG_CACHE_HOME:-$HOME/.cache}/dots-install-vm"
-phase=${1:?usage: install-vm install [--blank] [host] | boot [--storj] [host] | reset}
+phase=${1:?usage: install-vm install [--blank] [host] | boot [--storj] [host] | type | reset}
 shift
 
 if [[ $phase == reset ]]; then
   rm -rf "$state"
   echo "Deleted ${state}."
+  exit 0
+fi
+
+# Types the clipboard into the VM as key presses, through QEMU's control
+# socket: the VM's console has no clipboard, nor has the LUKS prompt. On a
+# US layout, as the hosts' console. Enter is left to you.
+if [[ $phase == type ]]; then
+  export LC_ALL=C
+  declare -A plain=(
+    [' ']=spc ['-']=minus ['=']=equal ['[']=bracket_left [']']=bracket_right [$'\x5c']=backslash
+    [';']=semicolon ["'"]=apostrophe ['`']=grave_accent [',']=comma ['.']=dot ['/']=slash
+  )
+  declare -A shifted=(
+    ['!']=1 ['@']=2 ['#']=3 ['$']=4 ['%']=5 ['^']=6 ['&']=7 ['*']=8 ['(']=9 [')']=0
+    ['_']=minus ['+']=equal ['{']=bracket_left ['}']=bracket_right ['|']=backslash
+    [':']=semicolon ['"']=apostrophe ['~']=grave_accent ['<']=comma ['>']=dot ['?']=slash
+  )
+  [[ -S "$state/qmp.sock" ]] || {
+    echo "No VM running: start one with install or boot." >&2
+    exit 1
+  }
+  text=$(wl-paste --no-newline)
+  # Every character first, so one that can't be typed types nothing.
+  qcode() { printf '{"type":"qcode","data":"%s"}' "$1"; }
+  commands=()
+  for ((i = 0; i < ${#text}; i++)); do
+    c=${text:i:1}
+    if [[ $c == [a-z0-9] ]]; then
+      keys=$(qcode "$c")
+    elif [[ $c == [A-Z] ]]; then
+      keys="$(qcode shift),$(qcode "${c,,}")"
+    elif [[ -n ${plain[$c]:-} ]]; then
+      keys=$(qcode "${plain[$c]}")
+    elif [[ -n ${shifted[$c]:-} ]]; then
+      keys="$(qcode shift),$(qcode "${shifted[$c]}")"
+    else
+      echo "The clipboard's character $((i + 1)) isn't on a US keyboard: nothing typed." >&2
+      exit 1
+    fi
+    commands+=("{\"execute\":\"send-key\",\"arguments\":{\"keys\":[$keys]}}")
+  done
+  # Paced: QEMU lets each key up 100 ms later, so a doubled letter typed
+  # faster would come through once.
+  {
+    echo '{"execute":"qmp_capabilities"}'
+    for command in "${commands[@]}"; do
+      echo "$command"
+      sleep 0.15
+    done
+    sleep 0.3
+  } | socat - "UNIX-CONNECT:$state/qmp.sock" >/dev/null
+  echo "Typed ${#text} characters: press Enter in the VM."
   exit 0
 fi
 
@@ -88,6 +143,7 @@ args=(
   -drive "if=pflash,format=raw,unit=1,file=$state/OVMF_VARS.fd"
   -chardev "socket,id=tpm,path=$state/tpm.sock" -tpmdev emulator,id=tpm0,chardev=tpm -device tpm-tis,tpmdev=tpm0
   -device virtio-vga -display gtk
+  -qmp "unix:$state/qmp.sock,server=on,wait=off"
   "${disk_args[@]}"
 )
 

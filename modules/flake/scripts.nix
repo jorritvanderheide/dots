@@ -62,7 +62,9 @@
           netcat-openbsd
           nix
           qemu_kvm
+          socat
           swtpm
+          wl-clipboard
         ];
       };
 
