@@ -14,11 +14,6 @@
         name = "install";
         text = builtins.readFile (inputs.self + "/scripts/install.sh");
 
-        # Codeberg's host key, for pushing a new hardware report: the live
-        # ISO has no known_hosts. Its published fingerprint is
-        # SHA256:mIlxA9k46MmM6qdJOdMnAQpzGxF4WIVVL+fj+wZbw0g.
-        runtimeEnv.CODEBERG_HOST_KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB";
-
         # The flake it was run from, read-only, so install runs with no
         # local checkout.
         runtimeEnv.INSTALL_HOST_FLAKE_DEFAULT = "${inputs.self}";
@@ -59,6 +54,7 @@
         };
 
         runtimeInputs = with pkgs; [
+          jq
           netcat-openbsd
           nix
           qemu_kvm

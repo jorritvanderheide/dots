@@ -4,17 +4,17 @@
 # finds the disks its hardware report names. Run on rocinante, as yourself,
 # through `nix run .#install-vm`.
 #
-# Usage: install-vm install [--blank] [host]
+# Usage: install-vm install [--blank] <host>
 #          Boot the installer ISO, with the plugged-in YubiKey and the
 #          network; then `ssh -p 2222 root@localhost install-host <host>`.
 #          --blank gives the main disk another serial, so the hardware
 #          report's disk isn't there: the new-hardware path. QEMU exits
 #          instead of rebooting, so the installed host never boots online.
-#        install-vm boot [--storj] [host]
+#        install-vm boot [--restore] <host>
 #          Boot the installed disks, offline: the host would otherwise run
 #          its CI runner, report to the real status page and back up over
-#          its real backup. --storj lets through the Storj gateway only,
-#          for offsite-restore.
+#          its real backup. --restore lets through the backup's endpoint
+#          only, from the host's my.installer.vm.restore.
 #        install-vm type
 #          Type the clipboard into the running VM, for the LUKS password
 #          and logins; press Enter yourself.
@@ -24,7 +24,7 @@
 set -euo pipefail
 
 state="${XDG_CACHE_HOME:-$HOME/.cache}/dots-install-vm"
-phase=${1:?usage: install-vm install [--blank] [host] | boot [--storj] [host] | type | reset}
+phase=${1:?usage: install-vm install [--blank] <host> | boot [--restore] <host> | type | reset}
 shift
 
 if [[ $phase == reset ]]; then
@@ -85,15 +85,15 @@ if [[ $phase == type ]]; then
   exit 0
 fi
 
-blank=false storj=false
+blank=false restore=false
 if [[ $phase == install && ${1:-} == --blank ]]; then
   blank=true
   shift
-elif [[ $phase == boot && ${1:-} == --storj ]]; then
-  storj=true
+elif [[ $phase == boot && ${1:-} == --restore ]]; then
+  restore=true
   shift
 fi
-host=${1:-dapple}
+host=${1:?the host to imitate, by its name in nixosConfigurations}
 
 # The disks as the host's config names them, /dev/disk/by-id/<bus>-<model>_<serial>:
 # NVMe and SATA disks get the same name from QEMU's model and serial.
@@ -159,7 +159,7 @@ qemu=(
 )
 
 if [[ $phase == install ]]; then
-  iso=$(nix build --no-link --print-out-paths "${INSTALL_VM_FLAKE}#iso")/iso/dots-installer.iso
+  iso=$(find "$(nix build --no-link --print-out-paths "${INSTALL_VM_FLAKE}#iso")/iso" -name '*.iso' | head -n 1)
   yubikey=""
   for device in /sys/bus/usb/devices/*; do
     [[ $(cat "$device/idVendor" 2>/dev/null) == 1050 ]] && yubikey=$(<"$device/idProduct")
@@ -178,13 +178,20 @@ if [[ $phase == install ]]; then
     -nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22
 else
   net=user,model=virtio-net-pci,restrict=on
-  if $storj; then
+  if $restore; then
     # The guest reaches 10.0.2.100:443, and QEMU passes that to the
-    # gateway; everything else stays cut off.
-    net+=",guestfwd=tcp:10.0.2.100:443-cmd:nc gateway.eu1.storjshare.io 443"
-    echo "In the VM, as root, before offsite-restore (and don't leave it running at night, when the backup would run):"
-    echo "  systemctl stop restic-backups-offsite.timer offsite-backup-retry.timer"
-    echo "  { echo '10.0.2.100 gateway.eu1.storjshare.io'; cat /etc/hosts; } > /run/hosts && mount --bind /run/hosts /etc/hosts && systemctl restart nscd"
+    # backup's endpoint; everything else stays cut off.
+    settings=$(nix eval --json "${INSTALL_VM_FLAKE}#nixosConfigurations.${host}.config.my.installer.vm.restore")
+    endpoint=$(jq -r '.endpoint // empty' <<<"$settings")
+    [[ -n $endpoint ]] || {
+      echo "${host} sets no my.installer.vm.restore.endpoint." >&2
+      exit 1
+    }
+    net+=",guestfwd=tcp:10.0.2.100:443-cmd:nc ${endpoint} 443"
+    echo "In the VM, as root, before restoring; the units would back up over the real backup:"
+    stop_units=$(jq -r '.stopUnits | join(" ")' <<<"$settings")
+    [[ -z $stop_units ]] || echo "  systemctl stop ${stop_units}"
+    echo "  { echo '10.0.2.100 ${endpoint}'; cat /etc/hosts; } > /run/hosts && mount --bind /run/hosts /etc/hosts && systemctl restart nscd"
   fi
   "${qemu[@]}" "${args[@]}" -nic "$net"
 fi

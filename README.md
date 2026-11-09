@@ -648,7 +648,7 @@ modules/
   hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
   users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser
   flake/                          checks, formatter, dev shell, wrappers, lib, site, installer ISO
-scripts/                          install, enroll-tpm, offsite-prune, nix-order
+scripts/                          install, install-vm, enroll-tpm, offsite-prune, nix-order
 secrets/                          <host>.yaml, and .sops.yaml with the recipients
 ```
 
@@ -660,6 +660,11 @@ page in `my.ingress`, and its unit gets `lib.restartAlways` and, where
 nixpkgs gives none, `lib.sandbox`: `contacts.nix` is the smallest complete
 one, with the steps for a new one. Shared helpers and facts are in
 `modules/flake/lib.nix` and `site.nix`.
+
+The installer, its rehearsal VM (`nix run .#install-vm`, whose header has
+the steps) and the ISO read the repository, the paths in it and the
+secrets' names from each host's `my.installer` options (`installer.nix`),
+which the base bundle sets, so they can move to a repository of their own.
 
 `nix fmt` orders attributes before nixfmt lays them out (the rules are in
 `scripts/nix-order.py`), and the comment rules are in `checks.nix`.

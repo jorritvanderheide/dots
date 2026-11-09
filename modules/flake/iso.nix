@@ -22,6 +22,10 @@
               (
                 { pkgs, ... }:
                 let
+                  # Any host's: the base bundle gives every host the same.
+                  repository =
+                    (lib.head (lib.attrValues inputs.self.nixosConfigurations)).config.my.installer.repository.url;
+
                   installHost = pkgs.writeShellApplication {
                     name = "install-host";
                     runtimeInputs = [ pkgs.tmux ];
@@ -31,11 +35,11 @@
                       # In tmux, so a dropped SSH connection doesn't stop an
                       # install: running this again returns to it.
                       [[ -n ''${TMUX:-} ]] || exec tmux new-session -A -s install install-host "$@"
-                      # The installer from Codeberg, so this ISO doesn't go stale.
+                      # The installer from the repository, so this ISO doesn't go stale.
                       # Not exec'd: tmux closes the pane when it ends, and with it
                       # the installer's last lines, an error or what to commit.
                       status=0
-                      nix run "git+https://codeberg.org/BW20/dots#install" -- "$@" || status=$?
+                      nix run "git+${repository}#install" -- "$@" || status=$?
                       read -rp "The installer ended (exit status $status). Press Enter to close this window."
                       exit "$status"
                     '';

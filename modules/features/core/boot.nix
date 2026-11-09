@@ -14,6 +14,7 @@
       luksDevice = "/dev/disk/by-partlabel/disk-main-luks";
       cfg = config.my.boot;
       allLuksDevices = [ luksDevice ] ++ cfg.extraLuksDevices;
+      luksPassword = config.my.installer.secrets.luksPassword;
     in
     {
       imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
@@ -23,7 +24,8 @@
         default = [ ];
         description = ''
           LUKS device paths beyond the root disk to bind to the TPM (e.g. a
-          dedicated data disk). Each must unlock with the sops `luks_password`.
+          dedicated data disk). Each must unlock with the LUKS password in the
+          host's secrets (my.installer.secrets.luksPassword).
         '';
       };
 
@@ -106,7 +108,7 @@
         };
 
         # For tpm2-luks-enroll.
-        sops.secrets.luks_password = { };
+        sops.secrets.${luksPassword} = { };
 
         # Names each generation after the flake revision it was built from.
         system = {
@@ -141,7 +143,7 @@
           # wipe-slot is a separate call so systemd-cryptenroll can't
           # short-circuit ("already enrolled") and leave a stale token.
           script = ''
-            PW="$(<${config.sops.secrets.luks_password.path})"
+            PW="$(<${config.sops.secrets.${luksPassword}.path})"
             for dev in ${lib.concatStringsSep " " allLuksDevices}; do
               PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
                 --wipe-slot=tpm2 "$dev" 2>/dev/null || true

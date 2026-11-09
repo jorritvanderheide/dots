@@ -50,9 +50,9 @@
                     type = "zfs";
                   };
 
-                  # Written by install.sh (sops -d'd from luks_password) right
-                  # before disko runs; nothing else creates this file.
-                  passwordFile = "/tmp/secret.key";
+                  # Written by install.sh, decrypted from the host's secrets,
+                  # right before disko runs; nothing else creates this file.
+                  passwordFile = config.my.installer.secrets.luksKeyFile;
 
                   settings = {
                     allowDiscards = true;

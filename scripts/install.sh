@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Install a NixOS host locally. Run while booted on the target machine
-# itself (e.g. from a live ISO), with a YubiKey in. The README's
-# "Installation" has the walkthrough.
+# itself (e.g. from a live ISO), with a YubiKey in. What's particular to a
+# setup, it reads from the host's my.installer options (installer.nix). The
+# README's "Installation" has the walkthrough.
 #
 # Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
 #   --new-hardware  gather this machine's hardware report even though the
@@ -23,19 +24,29 @@ die() {
 
 readonly FLAKE_DIR="${INSTALL_HOST_FLAKE_DEFAULT:-$(pwd)}"
 readonly NIX="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
-readonly REPO_URL="https://codeberg.org/BW20/dots.git"
-readonly REPO_PUSH_URL="ssh://git@codeberg.org/BW20/dots.git"
+
+# One of the host's my.installer settings, by its jq path.
+setting() { jq -r "$1" <<<"$settings"; }
+
+# Every disk disko sets up, a line each: its device, whether disko wipes it
+# (destroy, the main disk) or keeps it (like dapple's media disk), and its
+# LUKS and pool names.
+disko_disks() {
+  # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
+  $NIX eval --raw "$1#nixosConfigurations.$2.config.disko.devices.disk" \
+    --apply 'disks: builtins.concatStringsSep "\n" (map (name: let d = disks.${name}; in "${d.device} ${if d.destroy then "wipe" else "keep"} ${d.content.name or "-"} ${d.content.content.pool or "-"}") (builtins.attrNames disks))'
+}
 
 # A pool on a disk the installer keeps has to import before disko runs: when
 # its import fails, for a damaged pool or features this ISO's ZFS doesn't know,
 # disko creates the pool anew over the data. A disk that isn't LUKS yet is a
 # new one, for disko to format.
 check_kept_pool() {
-  local dev=$1 crypt=$2 pool=$3
+  local dev=$1 crypt=$2 pool=$3 key_file=$4
   cryptsetup isLuks "$dev" || return 0
   # Without a trailing newline, as disko reads it.
-  [[ -e /dev/mapper/$crypt ]] || cryptsetup open --key-file <(printf %s "$(</tmp/secret.key)") "$dev" "$crypt" ||
-    die "luks_password doesn't open ${dev}. No disk was changed."
+  [[ -e /dev/mapper/$crypt ]] || cryptsetup open --key-file <(printf %s "$(<"$key_file")") "$dev" "$crypt" ||
+    die "The LUKS password doesn't open ${dev}. No disk was changed."
   zpool list "$pool" >/dev/null 2>&1 || zpool import -N -f "$pool" ||
     die "Pool ${pool} on ${dev}, which this keeps, won't import, and disko would create it anew. No disk was changed. Fix the import, or wipe ${dev} by hand if it should start over."
   zpool export "$pool"
@@ -55,18 +66,20 @@ decrypt() {
   done
 }
 
-# The new hardware report goes to Codeberg's main with the deploy key, so
+# The new hardware report goes to the repository with the deploy key, so
 # no other computer has to carry it there. Unsigned: comin deploys only a
 # signed tip, so it deploys with the next signed commit, which has to sit
 # on top of it. The installed host already runs it.
 push_hardware_report() {
   local repo=$1 hostname=$2
-  local -x JJ_USER="dots installer" JJ_EMAIL="root@dots-installer"
-  jj -R "$repo" commit -m "chore: ${hostname}'s hardware report, from its installer" "root:modules/hosts/${hostname}/facter.json"
-  jj -R "$repo" bookmark set main -r @-
-  printf 'codeberg.org %s\n' "${CODEBERG_HOST_KEY:?}" >/tmp/codeberg-known-hosts
-  GIT_SSH_COMMAND="ssh -i /tmp/deploy-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/codeberg-known-hosts" \
-    jj -R "$repo" git push --remote codeberg --bookmark main
+  local -x JJ_USER JJ_EMAIL
+  JJ_USER=$(setting .reportCommit.name)
+  JJ_EMAIL=$(setting .reportCommit.email)
+  jj -R "$repo" commit -m "chore: ${hostname}'s hardware report, from its installer" "root:$(setting .hardwareReport)"
+  jj -R "$repo" bookmark set "$(setting .repository.branch)" -r @-
+  setting .repository.knownHosts >/tmp/push-known-hosts
+  GIT_SSH_COMMAND="ssh -i /tmp/deploy-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/push-known-hosts" \
+    jj -R "$repo" git push --remote "$(setting .repository.remote)" --bookmark "$(setting .repository.branch)"
 }
 
 # jj, without the warning that root has no name and email: meant, as the
@@ -95,64 +108,68 @@ main() {
   fi
   [[ $EUID -eq 0 ]] || die "Run as root (disko and nixos-install both need it)"
 
+  # The host's settings, from the flake this runs from, which is what the
+  # clone below gets. They don't need its hardware report, which a new host
+  # doesn't have yet.
+  local settings
+  settings=$($NIX eval --json "${FLAKE_DIR}#nixosConfigurations.${hostname}.config.my.installer") ||
+    die "Can't evaluate ${hostname}'s my.installer settings (the error above). Is its configuration pushed? (README, \"A new host\")"
+
   # age-plugin-yubikey talks to the key over PC/SC; the live ISO doesn't run
   # pcscd by default, so start it ourselves if nothing already has.
   pgrep -x pcscd >/dev/null 2>&1 || pcscd
 
-  # The repository that ends up in /etc/nixos, and that a new hardware
-  # report is committed in. The flake fetched from Codeberg has no
-  # repository to commit from.
-  local repo=/tmp/dots
+  # The repository that ends up in checkout.path, and that a new hardware
+  # report is committed in. The flake this runs from has no repository to
+  # commit from.
+  local repo=/tmp/repo
   rm -rf "$repo"
-  log_info "Cloning ${REPO_URL}..."
-  jj_quiet git clone --colocate --remote codeberg "$REPO_URL" "$repo"
-  jj_quiet -R "$repo" git remote set-url codeberg --push "$REPO_PUSH_URL"
+  log_info "Cloning $(setting .repository.url)..."
+  jj_quiet git clone --colocate --remote "$(setting .repository.remote)" "$(setting .repository.url)" "$repo"
+  jj_quiet -R "$repo" git remote set-url "$(setting .repository.remote)" --push "$(setting .repository.pushUrl)"
   local flake="path:${repo}"
-  local host_dir="${repo}/modules/hosts/${hostname}"
-  local secrets_file="${repo}/secrets/${hostname}.yaml"
-  [[ -f "${host_dir}/configuration.nix" ]] ||
-    die "${hostname} has no configuration.nix on Codeberg: write and push it first (README, \"A new host\")."
+  local secrets_file
+  secrets_file="${repo}/$(setting .secrets.file)"
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
 
-  # The committed hardware report is this machine's if the disk it names
-  # is here, by its model and serial (lib.mainDisk). If it isn't, or there
-  # is no report, this machine is new hardware for the host, or the wrong
-  # machine: asked, as the report also picks the disk to wipe.
-  local report="${host_dir}/facter.json" reason=""
+  # The committed hardware report is this machine's if the disks disko
+  # wipes are here, by their model and serial (lib.mainDisk). If they
+  # aren't, or there is no report, this machine is new hardware for the
+  # host, or the wrong machine: asked, as the report also picks the disk
+  # to wipe.
+  local report reason="" dev action rest
+  report="${repo}/$(setting .hardwareReport)"
   if $new_hardware; then
     reason="--new-hardware was given."
   elif [[ ! -s $report ]]; then
     reason="${hostname} has no hardware report yet."
   else
-    local committed_disk
-    committed_disk=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device") ||
-      die "Can't evaluate nixosConfigurations.${hostname} (the error above)"
-    [[ -e $committed_disk ]] || reason="${hostname}'s hardware report names ${committed_disk}, which this machine doesn't have."
+    local committed
+    committed=$(disko_disks "$flake" "$hostname") || die "Can't evaluate nixosConfigurations.${hostname} (the error above)"
+    while read -r dev action rest; do
+      if [[ $action == wipe && ! -e $dev ]]; then
+        reason="${hostname}'s hardware report names ${dev}, which this machine doesn't have."
+      fi
+    done <<<"$committed"
   fi
   local gathered=false
   if [[ -n $reason ]]; then
     log_info "$reason"
     read -rp "Install ${hostname} on this machine, with a new hardware report? Type 'yes': " confirm
     [[ $confirm == "yes" ]] || die "Aborted."
+    mkdir -p "$(dirname "$report")"
     nixos-facter >"$report"
     gathered=true
   fi
 
-  local nixos_gid
-  nixos_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid") ||
+  local checkout_gid
+  checkout_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.$(setting .checkout.group).gid") ||
     die "Can't evaluate nixosConfigurations.${hostname} (the error above)"
-  local disk
-  disk=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk.main.device")
-  [[ -e $disk ]] || die "Disk ${disk} not found."
 
-  # Every disk disko sets up: it wipes those with destroy (the main disk),
-  # and keeps the others, like dapple's media disk.
   local disks
-  # shellcheck disable=SC2016 # a Nix expression, interpolated by Nix
-  disks=$($NIX eval --raw "${flake}#nixosConfigurations.${hostname}.config.disko.devices.disk" \
-    --apply 'disks: builtins.concatStringsSep "\n" (map (name: let d = disks.${name}; in "${d.device} ${if d.destroy then "wipe" else "keep"} ${d.content.name or "-"} ${d.content.content.pool or "-"}") (builtins.attrNames disks))')
+  disks=$(disko_disks "$flake" "$hostname")
   local -a wipe_disks=() keep_disks=() keep_luks=()
-  local dev action crypt pool
+  local crypt pool
   while read -r dev action crypt pool; do
     [[ -e $dev ]] || die "Disk ${dev} not found."
     if [[ $action == wipe ]]; then
@@ -188,31 +205,37 @@ main() {
   fi
 
   # Created owner-only, so none is ever world-readable.
-  trap 'rm -f /tmp/secret.key /tmp/host-age.key /tmp/deploy-key' EXIT
+  local luks_key_file
+  luks_key_file=$(setting .secrets.luksKeyFile)
+  # shellcheck disable=SC2064 # the path, as it is now
+  trap "rm -f '${luks_key_file}' /tmp/host-age.key /tmp/deploy-key" EXIT
   umask 077
 
   # disko needs the LUKS password as a plaintext file before the OS (and
   # sops-nix) exist. Every other secret is decrypted by sops-nix, with the
   # host's own age key.
   log_info "Decrypting the LUKS password..."
-  decrypt luks_password --extract '["luks_password"]' "$secrets_file" >/tmp/secret.key
+  decrypt "the LUKS password" --extract "[\"$(setting .secrets.luksPassword)\"]" "$secrets_file" >"$luks_key_file"
 
   # The host's own age key, so its services decrypt from the first boot on,
-  # and the deploy key for the report: secrets/installer.yaml, which only
-  # a YubiKey's PIN identity or the passphrase opens. One sops run, for
+  # and the deploy key for the report, from the installer's own file, which
+  # only a YubiKey's PIN identity or the passphrase opens. One sops run, for
   # one PIN.
+  local installer_file age_key_name
+  installer_file=$(setting .secrets.installerFile)
+  age_key_name=$(setting .secrets.ageKey)
   log_info "Decrypting ${hostname}'s age key (the YubiKey's PIN)..."
   local installer_secrets
-  installer_secrets=$(decrypt secrets/installer.yaml --output-type json "${repo}/secrets/installer.yaml")
-  jq -r --arg key "${hostname}_age_key" '.[$key] // empty' <<<"$installer_secrets" >/tmp/host-age.key
-  jq -r '.codeberg_deploy_key // empty' <<<"$installer_secrets" >/tmp/deploy-key
+  installer_secrets=$(decrypt "$installer_file" --output-type json "${repo}/${installer_file}")
+  jq -r --arg key "$age_key_name" '.[$key] // empty' <<<"$installer_secrets" >/tmp/host-age.key
+  jq -r --arg key "$(setting .secrets.deployKey)" '.[$key] // empty' <<<"$installer_secrets" >/tmp/deploy-key
   unset installer_secrets
-  [[ -s /tmp/host-age.key ]] || die "secrets/installer.yaml has no ${hostname}_age_key (README, \"A new host\")."
+  [[ -s /tmp/host-age.key ]] || die "${installer_file} has no ${age_key_name} (README, \"A new host\")."
   # The key the host's file is encrypted for, or its secrets won't open.
   local host_public
   host_public=$(age-keygen -y /tmp/host-age.key)
-  grep -q "&${hostname}_host ${host_public}\$" "${repo}/secrets/.sops.yaml" ||
-    die "${hostname}_age_key in secrets/installer.yaml isn't the &${hostname}_host recipient in secrets/.sops.yaml."
+  grep -q "recipient: ${host_public}\$" "$secrets_file" ||
+    die "${age_key_name} in ${installer_file} isn't a recipient of $(setting .secrets.file)."
   umask 022
 
   log_info "Partitioning + formatting (disko). This wipes:"
@@ -228,7 +251,7 @@ main() {
   local kept_disk
   for kept_disk in "${keep_luks[@]}"; do
     read -r dev crypt pool <<<"$kept_disk"
-    check_kept_pool "$dev" "$crypt" "$pool"
+    check_kept_pool "$dev" "$crypt" "$pool" "$luks_key_file"
   done
   local disko_script
   disko_script=$($NIX build --no-link --print-out-paths \
@@ -242,37 +265,38 @@ main() {
   install -d -m 0700 "/mnt$(dirname "$age_key_file")"
   install -m 0400 /tmp/host-age.key "/mnt${age_key_file}"
 
-  # --no-root-password: root's and jorrit's passwords come from sops
-  # (secrets.nix, lib.mkUser), set again at every boot's activation.
+  # --no-root-password: the users' passwords come from sops (secrets.nix,
+  # lib.mkUser), set again at every boot's activation.
   log_info "Installing NixOS..."
   nixos-install --no-root-password --flake "${flake}#${hostname}"
 
   # After the install, so a failed one pushes nothing. Asked, as the next
   # signed push deploys it: a test install, as in a VM, mustn't give the
-  # real host its hardware. Not pushed, it stays in /etc/nixos, uncommitted.
+  # real host its hardware. Not pushed, it stays in the checkout, uncommitted.
   local pushed=false
   if $gathered; then
-    read -rp "Push ${hostname}'s new hardware report to Codeberg's main, for the next deploy? Type 'yes': " confirm
+    read -rp "Push ${hostname}'s new hardware report to $(setting .repository.pushUrl), for the next deploy? Type 'yes': " confirm
     if [[ $confirm != "yes" ]]; then
       log_info "Not pushed."
     elif [[ ! -s /tmp/deploy-key ]]; then
-      log_warn "secrets/installer.yaml has no codeberg_deploy_key."
+      log_warn "${installer_file} has no $(setting .secrets.deployKey)."
     elif push_hardware_report "$repo" "$hostname"; then
       pushed=true
     fi
   fi
 
-  local etc_nixos=/mnt/persist/system/etc/nixos
-  mkdir -p "$(dirname "$etc_nixos")"
-  log_info "Copying the repository to /etc/nixos..."
-  cp -a "$repo" "$etc_nixos"
-  chown -R "0:${nixos_gid}" "$etc_nixos"
+  local checkout
+  checkout="/mnt$(setting .checkout.path)"
+  mkdir -p "$(dirname "$checkout")"
+  log_info "Copying the repository to $(setting .checkout.path)..."
+  cp -a "$repo" "$checkout"
+  chown -R "0:${checkout_gid}" "$checkout"
   # Symmetric owner/group perms: g+rwX alone leaves files owner-only-read
-  # (444 base), which self-locks the first time a nixos-group member's own
-  # edit reassigns owner to themselves (owner bits then apply instead of
-  # group bits, and owner never had write). X keeps executables executable.
-  chmod -R u+rwX,g+rwX "$etc_nixos"
-  find "$etc_nixos" -type d -exec chmod g+s {} +
+  # (444 base), which self-locks the first time a group member's own edit
+  # reassigns owner to themselves (owner bits then apply instead of group
+  # bits, and owner never had write). X keeps executables executable.
+  chmod -R u+rwX,g+rwX "$checkout"
+  find "$checkout" -type d -exec chmod g+s {} +
 
   # The ISO imported the pools with its own host ID. The first boot only
   # imports a pool another host left imported when forced, as zroot is and
@@ -283,7 +307,7 @@ main() {
   log_success "Installation complete! Reboot when ready."
   log_info 'Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (README, "Restoring data").'
   if $gathered && ! $pushed; then
-    log_warn "The hardware report isn't on Codeberg: commit and push it from /etc/nixos after the first boot, or deploys will build ${hostname} for the old report."
+    log_warn "The hardware report isn't pushed: commit and push it from $(setting .checkout.path) after the first boot, or deploys will build ${hostname} for the old report."
   fi
 }
 
