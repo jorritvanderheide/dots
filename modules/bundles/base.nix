@@ -53,6 +53,7 @@
         # may write to.
         checkout = {
           group = "nixos";
+          jj = true;
           path = "/persist/system/etc/nixos";
         };
 

@@ -72,18 +72,18 @@ decrypt() {
 # on top of it. The installed host already runs it.
 push_hardware_report() {
   local repo=$1 hostname=$2
-  local -x JJ_USER JJ_EMAIL
-  JJ_USER=$(setting .reportCommit.name)
-  JJ_EMAIL=$(setting .reportCommit.email)
-  jj -R "$repo" commit -m "chore: ${hostname}'s hardware report, from its installer" "root:$(setting .hardwareReport)"
-  jj -R "$repo" bookmark set "$(setting .repository.branch)" -r @-
+  local report
+  report=$(setting .hardwareReport)
+  git -C "$repo" add -- "$report"
+  git -C "$repo" -c user.name="$(setting .reportCommit.name)" -c user.email="$(setting .reportCommit.email)" \
+    commit --quiet -m "chore: ${hostname}'s hardware report, from its installer" -- "$report"
   setting .repository.knownHosts >/tmp/push-known-hosts
   GIT_SSH_COMMAND="ssh -i /tmp/deploy-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/tmp/push-known-hosts" \
-    jj -R "$repo" git push --remote "$(setting .repository.remote)" --bookmark "$(setting .repository.branch)"
+    git -C "$repo" push "$(setting .repository.remote)" "HEAD:$(setting .repository.branch)"
 }
 
 # jj, without the warning that root has no name and email: meant, as the
-# clone becomes rocinante's /etc/nixos, where jj fills in yours on the first
+# clone becomes a person's checkout, where jj fills in theirs on the first
 # commit. Errors still show.
 jj_quiet() {
   jj --quiet "$@" 2> >(grep -v '^Warning: Name and email not configured' >&2)
@@ -125,8 +125,8 @@ main() {
   local repo=/tmp/repo
   rm -rf "$repo"
   log_info "Cloning $(setting .repository.url)..."
-  jj_quiet git clone --colocate --remote "$(setting .repository.remote)" "$(setting .repository.url)" "$repo"
-  jj_quiet -R "$repo" git remote set-url "$(setting .repository.remote)" --push "$(setting .repository.pushUrl)"
+  git clone --quiet --origin "$(setting .repository.remote)" "$(setting .repository.url)" "$repo"
+  git -C "$repo" remote set-url --push "$(setting .repository.remote)" "$(setting .repository.pushUrl)"
   local flake="path:${repo}"
   local secrets_file
   secrets_file="${repo}/$(setting .secrets.file)"
@@ -283,6 +283,13 @@ main() {
     elif push_hardware_report "$repo" "$hostname"; then
       pushed=true
     fi
+  fi
+
+  # A jj repository on top of git's, for whoever works in the checkout with
+  # jj, with the branch tracked as on a clone jj made itself.
+  if [[ $(setting .checkout.jj) == true ]]; then
+    jj_quiet git init --colocate "$repo"
+    jj_quiet -R "$repo" bookmark track "$(setting .repository.branch)@$(setting .repository.remote)"
   fi
 
   local checkout

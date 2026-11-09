@@ -20,6 +20,8 @@
     {
       options.yubinstall = {
         checkout = {
+          jj = lib.mkEnableOption "a colocated jj repository in the checkout, with the branch tracked";
+
           group = lib.mkOption {
             type = str;
             default = "root";
