@@ -46,6 +46,26 @@
         ];
       };
 
+      install-vm = pkgs.writeShellApplication {
+        name = "install-vm";
+        text = builtins.readFile (inputs.self + "/scripts/install-vm.sh");
+
+        runtimeEnv = {
+          INSTALL_VM_FLAKE = "${inputs.self}";
+
+          # Firmware with secure boot, which needs QEMU's SMM and secure
+          # flash.
+          OVMF_FD = "${pkgs.OVMFFull.fd}";
+        };
+
+        runtimeInputs = with pkgs; [
+          netcat-openbsd
+          nix
+          qemu_kvm
+          swtpm
+        ];
+      };
+
       offsite-prune = pkgs.writeShellApplication {
         name = "offsite-prune";
         text = builtins.readFile (inputs.self + "/scripts/offsite-prune.sh");
@@ -68,11 +88,18 @@
     in
     {
       packages.install = install;
+      packages.install-vm = install-vm;
       packages.offsite-prune = offsite-prune;
 
       apps.install = {
         meta.description = "Install a NixOS host locally, run while booted on the target machine itself.";
         program = lib.getExe install;
+        type = "app";
+      };
+
+      apps.install-vm = {
+        meta.description = "Rehearse an install in a VM with secure boot, a TPM and the host's disk names.";
+        program = lib.getExe install-vm;
         type = "app";
       };
 
