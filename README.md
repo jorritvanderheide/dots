@@ -457,7 +457,11 @@ router, the DNS or an app's own settings:
   their committers, and a fork's pull request unless Codeberg holds those
   for approval) runs it as the runner's user, with the internet. Enough to
   send spam or fill the disk with Nix builds; not enough to reach the
-  services, the LAN or the tailnet, or to become root.
+  services, the LAN or the tailnet, or to become root. Through the router's
+  hairpin NAT it does reach the home's public address, so it sees what the
+  internet sees (Headscale, the share links, meetinn, the blogs), as any
+  stranger does, and not the tailnet's vhosts, as its source isn't a
+  tailnet one.
 - **A signed push is a deploy, as root, on every host, and a touch covers
   15 seconds of signing**, so code running as `jorrit` that signs right
   after one of your pushes deploys with it. Someone with the Codeberg login
