@@ -55,7 +55,7 @@ sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
 Put the machine's firmware in secure boot setup mode first
 ([Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
 makes new keys. Boot it from the stick with network (a cable, or `nmtui` on
-its console) and either YubiKey plugged in, dapple's with its PIN. Then,
+its console) and either YubiKey plugged in, with its PIN at hand. Then,
 from any computer with Bitwarden's SSH agent, or with `install-host
 <hostname>` on the ISO's own console:
 
@@ -74,12 +74,19 @@ sudo nix --extra-experimental-features 'nix-command flakes' \
   run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
 ```
 
-The installer (`scripts/install.sh`) checks that the host's disk is there,
-by its model and serial; decrypts the LUKS password with the YubiKey;
-makes the host a new age key and re-encrypts its secrets file for it;
+The installer (`scripts/install.sh`) checks that the disk the host's
+hardware report names is there, by its model and serial. If it isn't, or
+there is no report, it asks, then gathers this machine's report (also with
+`--new-hardware`). It decrypts the LUKS password and the host's own age key
+with the YubiKey, the second from `secrets/installer.yaml` with its PIN;
 shows the disk it will wipe, and any it keeps (dapple's media disk, which
 has no offsite copy), and waits for a `yes`; installs with disko and
-`nixos-install`; and clones this repository to `/etc/nixos`.
+`nixos-install`; pushes a new hardware report to Codeberg's `main` with the
+deploy key in `secrets/installer.yaml`; and clones this repository to
+`/etc/nixos`. Nothing is left to commit. The report's commit isn't
+signed, so the hosts deploy it with your next signed push, which has to
+build on it; the installed host already runs it. It asks before the push:
+a test install, as in a VM, answers no.
 
 ### First boot
 
@@ -87,22 +94,8 @@ Type the LUKS password until secure boot is on: the first boot makes the
 secure boot keys, the next enrolls them, and the first with secure boot on
 binds the TPM, after which boots unlock by themselves.
 
-The host decrypts its secrets with its new age key from the start. That
-key's `secrets/.sops.yaml` and re-encrypted `secrets/<host>.yaml` are
-uncommitted changes in its `/etc/nixos`: commit and push them. Until then
-every deploy fails, as `main` still has the old file, which the new key
-can't open; comin on the new host has no record of a deploy, so it tries
-`main` on its first fetch. rocinante commits them where they are. dapple
-has no git, so copy them into rocinante's clone, through a `.new` file so
-a failed `ssh` leaves yours alone (dapple's SSH host key is one of its
-secrets, so `ssh dapple` trusts it from the first boot):
-
-```sh
-ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml
-ssh dapple cat /etc/nixos/secrets/dapple.yaml > secrets/dapple.yaml.new && mv secrets/dapple.yaml.new secrets/dapple.yaml
-```
-
-On rocinante, enroll each YubiKey's FIDO2 slot again
+The host decrypts its secrets with its own age key from the start, so it
+needs no YubiKey. On rocinante, enroll each YubiKey's FIDO2 slot again
 ([Enrolling a YubiKey](#enrolling-a-yubikey)): the install made a new LUKS
 header, without them. On a reinstalled host, `sudo offsite-restore` brings
 the data back ([Restoring data](#restoring-data)), and with it the host's
@@ -140,17 +133,18 @@ and `sudo enroll-tpm` binds the TPM again.
 ### A new host
 
 Write `modules/hosts/<hostname>/configuration.nix`, starting from an
-existing host's. Boot the machine from the ISO, get its hardware report,
-commit and push both, and install it as above:
+existing host's, and give the host an age key, in the dev shell:
 
-```sh
-ssh root@dots-installer.local nixos-facter > modules/hosts/<hostname>/facter.json
-```
+1. `age-keygen` prints the public key and the secret one.
+2. In `secrets/.sops.yaml`, add the public key as `&<hostname>_host`, and a
+   creation rule for `<hostname>.yaml` like the others.
+3. `sops secrets/<hostname>.yaml` makes its secrets file, with at least
+   `luks_password` and the password hashes.
+4. `sops secrets/installer.yaml` (with a YubiKey's PIN) takes the secret key
+   as `<hostname>_age_key`.
 
-Without a second computer, push the configuration and run `install-host
---new-hardware <hostname>` on the ISO's console: it gathers the report on
-the machine itself. Commit `facter.json` with the new key's files after
-the first boot.
+Push, and install it as above: the installer gathers its hardware report
+and pushes it.
 
 A new host joins the tailnet once, as Headscale has to approve it (a
 reinstalled one gets its place back from the restore):
@@ -468,6 +462,12 @@ router, the DNS or an app's own settings:
   after one of your pushes deploys with it. Someone with the Codeberg login
   alone can point `main` at any other signed commit of yours on top of
   what's deployed.
+- **The installer can push to `main`**, with the deploy key in
+  `secrets/installer.yaml`, so a YubiKey with its PIN, or the passphrase,
+  is a way to push, unsigned, though only to this repository. That deploys
+  nothing until a signed commit lands on top. For it, `main` takes unsigned
+  pushes, so your Codeberg login can make them too, which at most holds
+  deploys back.
 - **comin fetches from Codeberg as root** every minute, and parses what it
   gets before checking any signature.
 - **Headscale listens on 127.0.0.1:8085**, and Vaultwarden on 8222, ports a
@@ -507,6 +507,9 @@ one, at activation, with its own age key in
 YubiKey to boot. Two YubiKeys open the same, so losing one loses nothing,
 and a passphrase identity in Bitwarden is the fallback. `secrets/.sops.yaml`
 has the recipients, and why each.
+`secrets/installer.yaml` holds what the installer needs besides: each host's
+age key and the Codeberg deploy key. Only the YubiKeys' PIN identities and
+the passphrase open it, no host.
 
 Edit a secret in the dev shell (`nix develop`), with a YubiKey in:
 
@@ -546,11 +549,11 @@ ykman piv certificates generate --valid-days 36500 \
 ```
 
 Then add the no-PIN `age1yubikey1...` recipient to rocinante's list in
-`secrets/.sops.yaml` and the PIN one to dapple's, `sops updatekeys` both
-files, and add the signing key's SSH form (`ssh-keygen -i -m PKCS8 -f
-<pem>`) to `lib.commitSigners` as `jorrit+git@bw20.nl <key>`. The hosts
-check against the list they run, so sign that commit with a key already
-on it. Push, then check with only the new key plugged in:
+`secrets/.sops.yaml` and the PIN one to dapple's and the installer's,
+`sops updatekeys` the three files, and add the signing key's SSH form
+(`ssh-keygen -i -m PKCS8 -f <pem>`) to `lib.commitSigners` as
+`jorrit+git@bw20.nl <key>`. The hosts check against the list they run, so
+sign that commit with a key already on it. Push, then check with only the new key plugged in:
 `sops -d --extract '["restic_password"]' secrets/rocinante.yaml >/dev/null`.
 
 ### Revoking a key
@@ -566,15 +569,23 @@ on it. Push, then check with only the new key plugged in:
    enroll-tpm`), the restic password (`restic key add`, then `restic key
    remove` the old one, with the owner's S3 key), the Storj credentials
    (`offsite-backup.nix`), the password hashes, dapple's SSH host key, and
-   the tokens and API keys.
+   the tokens and API keys. For a YubiKey or the passphrase, also every
+   host's age key ([A host's age key](#a-hosts-age-key)) and the Codeberg
+   deploy key, which `secrets/installer.yaml` holds.
 4. Push, and deploy every host.
 
-A host's own age key is replaced by every install. To replace a running
-host's by hand, add a new one next to the old, so a reboot before the
-deploy still decrypts: `sudo nix shell nixpkgs#age -c sh -c 'age-keygen
->>/persist/system/var/lib/sops/age.key'` prints its public key. Put that in
-place of `<host>_host` in `secrets/.sops.yaml`, `sops updatekeys` the file,
-push, and remove the old key's lines once deployed.
+### A host's age key
+
+A host keeps its age key across installs: the installer takes it from
+`secrets/installer.yaml`. To replace it, after a theft or a revoked
+YubiKey, make one with `age-keygen`, put its public key in place of
+`<host>_host` in `secrets/.sops.yaml`, `sops updatekeys` and `sops rotate
+-i` the host's file, and put the secret key in place of `<host>_age_key`
+with `sops secrets/installer.yaml`. A host about to be installed gets it
+from the installer. On a running one, add it to
+`/persist/system/var/lib/sops/age.key` next to the old one before you push,
+so a reboot before the deploy still decrypts, and remove the old one's
+lines once deployed.
 
 <br/>
 
@@ -585,17 +596,18 @@ passphrase identity are in Bitwarden, the configuration is on Codeberg,
 the data on Storj, and the YubiKeys are separate devices.
 
 - **rocinante.** Boot the ISO on its replacement and run `install-host
-  --new-hardware rocinante` on its console, then follow
-  [First boot](#first-boot), committing `facter.json` too. Only what
-  rocinante's backup holds comes back: Zotero, the Obsidian vault, and its
-  place on the tailnet.
+  rocinante` on its console, which gathers and pushes its hardware report,
+  then follow [First boot](#first-boot). Only what rocinante's backup holds
+  comes back: Zotero, the Obsidian vault, and its place on the tailnet.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count its secrets, tailnet node and Storj
   credentials as known. Install its replacement as above, but:
-  1. Before installing, delete its node on dapple (`sudo headscale nodes
-     list`, then `sudo headscale nodes delete -i <id>`). Restore with `sudo
-     offsite-restore other`, not `tailscale`, which would bring back the
-     stolen node's key, and join as a new host. Put its new address in
+  1. Before installing, give it a new age key
+     ([A host's age key](#a-hosts-age-key)) and push, and delete its node
+     on dapple (`sudo headscale nodes list`, then `sudo headscale nodes
+     delete -i <id>`). Restore with `sudo offsite-restore other`, not
+     `tailscale`, which would bring back the stolen node's key, and join as
+     a new host. Put its new address in
      place of `100.64.0.2` in the access policy, `lib.site` and the
      browser's `policies.nix`.
   2. Rotate its secrets, as in [Revoking a key](#revoking-a-key) from step
@@ -608,7 +620,7 @@ the data on Storj, and the YubiKeys are separate devices.
   passphrase identity.
 - **Both machines.** Bitwarden then only has the offline copy on your
   phone, as Vaultwarden runs on dapple. With a YubiKey left, install dapple
-  with `--new-hardware` and `sudo offsite-restore`, which brings
+  and run `sudo offsite-restore`, which brings
   Vaultwarden back, and rocinante can follow. With none left, enroll a new
   one first, with the passphrase identity: on the ISO, `nix shell
   nixpkgs#sops nixpkgs#age-plugin-yubikey` has the tools.
