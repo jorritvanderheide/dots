@@ -11,7 +11,7 @@
     }:
     {
       # `nix build .#iso`: NixOS's minimal installer, reachable over SSH as
-      # root@dots-installer.local, with `install-host` (docs/install.md). A
+      # root@dots-installer.local, with `install-host` (README, "Installation"). A
       # package rather than a host, so it stays out of the checks and the
       # installer's host menu.
       packages = lib.optionalAttrs (system == "x86_64-linux") {

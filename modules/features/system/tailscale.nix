@@ -32,7 +32,7 @@
             This does not perform the enrolment. Upstream only passes
             `--login-server` (services.tailscale.extraUpFlags) when an
             authKeyFile is set, and none is: joining is a one-time manual
-            `tailscale up --login-server=<url>` (docs/install.md), and the
+            `tailscale up --login-server=<url>` (README, "A new host"), and the
             choice then persists in /var/lib/tailscale. A self-hosted server
             needs a preauth key made by hand anyway, so automating it buys
             nothing. What this does on its own is leave out permitCertUid:

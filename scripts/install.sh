@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install a NixOS host locally. Run while booted on the target machine
-# itself (e.g. from a live ISO). See docs/install.md for the full walkthrough.
+# itself (e.g. from a live ISO). The README's "Installation" has the
+# walkthrough.
 #
 # Usage: sudo ./scripts/install.sh [--new-hardware] [hostname]
 #   --new-hardware  gather this machine's hardware report and install with
@@ -87,7 +88,7 @@ main() {
   [[ -f $secrets_file ]] || die "Missing ${secrets_file}"
 
   [[ -s "${repo}/modules/hosts/${hostname}/facter.json" ]] ||
-    die "${hostname} has no facter.json yet: commit one first, or add --new-hardware to gather it here (docs/install.md, \"A new host\")."
+    die "${hostname} has no facter.json yet: commit one first, or add --new-hardware to gather it here (README, \"A new host\")."
 
   local nixos_gid
   nixos_gid=$($NIX eval "${flake}#nixosConfigurations.${hostname}.config.users.groups.nixos.gid") ||
@@ -128,7 +129,7 @@ main() {
 
   # Decrypt with whichever YubiKey is plugged in: each host has its own,
   # and all of them are recipients. SOPS_AGE_KEY_FILE overrides it, e.g.
-  # with the passphrase identity (see docs/secrets.md).
+  # with the passphrase identity (README, "Secrets and keys").
   local attempt
   if [[ -z ${SOPS_AGE_KEY_FILE:-} ]]; then
     export SOPS_AGE_KEY_FILE=/tmp/yubikey-identity.txt
@@ -222,8 +223,8 @@ main() {
   zpool export -a
 
   log_success "Installation complete! Reboot when ready."
-  log_info "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (docs/install.md)."
-  log_info "After the first boot, commit and push secrets/.sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos, or from rocinante for a host without git (docs/install.md)."
+  log_info 'Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (README, "Restoring data").'
+  log_info "After the first boot, commit and push secrets/.sops.yaml and secrets/${hostname}.yaml (its new age key) from /etc/nixos, or from rocinante for a host without git (README, \"First boot\")."
   if $new_hardware; then
     log_info "Commit modules/hosts/${hostname}/facter.json with them."
   fi

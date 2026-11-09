@@ -138,11 +138,12 @@
 
             # An agent for this flake's commit signing key only: the PIV
             # key in slot 9a, made with a touch remembered for 15
-            # seconds and no PIN (docs/secrets.md). Not ssh-agent, whose
-            # PKCS#11 support wants the PIN to load a PIV key. It keeps
-            # the YubiKey's PIV applet to itself until it gets a SIGHUP,
-            # which age-plugin-yubikey sends it; for ykman piv, send one
-            # first. It reconnects by itself on the next signature.
+            # seconds and no PIN (README, "Enrolling a YubiKey"). Not
+            # ssh-agent, whose PKCS#11 support wants the PIN to load a PIV
+            # key. It keeps the YubiKey's PIV applet to itself until it
+            # gets a SIGHUP, which age-plugin-yubikey sends it; for ykman
+            # piv, send one first. It reconnects by itself on the next
+            # signature.
             systemd.user.services.yubikey-agent = {
               Install.WantedBy = [ "default.target" ];
               Unit.Description = "SSH agent with the YubiKey's PIV commit signing key";

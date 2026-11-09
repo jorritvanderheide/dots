@@ -269,7 +269,7 @@
 
         # The certificate's order and renewal read it, as their
         # EnvironmentFile. Its token may only write the _acme-challenge TXT
-        # record (docs/security.md).
+        # record (README, "Security").
         sops.secrets.desec_dns_env = { };
 
         # deSEC's second nameserver, ns2.desec.org, can take minutes to serve

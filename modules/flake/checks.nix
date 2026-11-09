@@ -25,14 +25,21 @@
         # the flake, mid-install or mid-prune.
         inherit (config.packages) install offsite-prune;
 
-        # The comment rules from docs/layout.md that a grep can tell: no em
-        # dash or ` -- ` between words. The rest need a reader; "above" and
-        # "below" also compare values.
+        # Comments say why: a constraint, a failure mode, an upstream quirk.
+        # What an option does goes in its description, what changed in the
+        # commit message. A workaround says what lets it go (an issue, a
+        # version, a test to rerun). Comments sit on their own line above
+        # the code; a trailing one is a label of a few words. A short header
+        # may group a long list, like a host's imports. Other settings are
+        # named, not pointed at with "above" or "below", since sorting moves
+        # them. Notes about a folder of non-Nix files go in a README there.
+        # Of these, a grep can tell one: sentences split with periods,
+        # semicolons, colons or parentheses, not an em dash or ` -- `.
         comments = pkgs.runCommand "comments-check" { nativeBuildInputs = [ pkgs.ripgrep ]; } ''
           status=0
           rg -n -g '*.{kbd,nix,py,sh}' '^\s*(#|;;).*(\x{2014}|\w -- \w)' ${inputs.self} || status=$?
           if [ $status -eq 0 ]; then
-            echo "Split these comments with punctuation, not a dash (docs/layout.md)." >&2
+            echo "Split these comments with punctuation, not a dash (checks.nix)." >&2
             exit 1
           elif [ $status -ne 1 ]; then
             exit $status

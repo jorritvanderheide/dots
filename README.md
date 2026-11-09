@@ -32,33 +32,170 @@ secrets are in this repository, encrypted per host. See
 - [1 Installation](#1-installation)
 - [2 Hosts](#2-hosts)
 - [3 Safety](#3-safety)
-- [4 Documentation](#4-documentation)
-- [5 Commands](#5-commands)
-- [6 Services on dapple](#6-services-on-dapple)
-- [7 Network exposure](#7-network-exposure)
+- [4 Commands](#4-commands)
+- [5 Services on dapple](#5-services-on-dapple)
+- [6 Network exposure](#6-network-exposure)
+- [7 Security](#7-security)
+- [8 Secrets and keys](#8-secrets-and-keys)
+- [9 Recovery](#9-recovery)
+- [10 Layout](#10-layout)
 
 <br/>
 
 ## 1 Installation
 
-Write the installer ISO (`nix build .#iso`) to a USB stick and boot the
-target machine from it, with network and a YubiKey plugged in. Then, from
-any computer with your SSH key (it's in Bitwarden), or on its own console:
+Build the installer ISO and write it to a USB stick (on a
+[Ventoy](https://www.ventoy.net) stick, copy the file onto it instead):
+
+```sh
+nix build .#iso
+sudo dd if=result/iso/dots-installer.iso of=/dev/sdX bs=4M status=progress
+```
+
+Put the machine's firmware in secure boot setup mode first
+([Secure boot](#secure-boot)): the ISO isn't signed, and a reinstalled host
+makes new keys. Boot it from the stick with network (a cable, or `nmtui` on
+its console) and either YubiKey plugged in, dapple's with its PIN. Then,
+from any computer with Bitwarden's SSH agent, or with `install-host
+<hostname>` on the ISO's own console:
 
 ```sh
 ssh -t root@dots-installer.local install-host <hostname>
 ```
 
-It shows the disk it is about to wipe and waits for a `yes`, installs the
-host, and clones this repository to `/etc/nixos`. Reboot and type the LUKS
-password until
-[secure boot](docs/install.md#secure-boot) is on: its first boot binds the
-TPM, so later boots unlock by themselves. Then `sudo offsite-restore` brings
-back its data, and with it its place on the tailnet. A new host
-[joins the tailnet](docs/install.md#joining-the-tailnet) once instead.
+It runs in tmux, so after a dropped connection the same command takes you
+back to it. It runs the installer from Codeberg's `main`, so push first;
+the ISO only needs rebuilding for a change to `iso.nix` or the SSH keys in
+`site.nix`, or a newer NixOS. Any other NixOS live ISO works too, from its
+own console:
 
-[Installing a host](docs/install.md) has the details, the steps for a new
-host, and what to do after losing a machine.
+```sh
+sudo nix --extra-experimental-features 'nix-command flakes' \
+  run "git+https://codeberg.org/BW20/dots#install" -- <hostname>
+```
+
+The installer (`scripts/install.sh`) checks that the host's disk is there,
+by its model and serial; decrypts the LUKS password with the YubiKey;
+makes the host a new age key and re-encrypts its secrets file for it;
+shows the disk it will wipe, and any it keeps (dapple's media disk, which
+has no offsite copy), and waits for a `yes`; installs with disko and
+`nixos-install`; and clones this repository to `/etc/nixos`.
+
+### First boot
+
+Type the LUKS password until secure boot is on: the first boot makes the
+secure boot keys, the next enrolls them, and the first with secure boot on
+binds the TPM, after which boots unlock by themselves.
+
+The host decrypts its secrets with its new age key from the start. That
+key's `secrets/.sops.yaml` and re-encrypted `secrets/<host>.yaml` are
+uncommitted changes in its `/etc/nixos`: commit and push them. Until then
+every deploy fails, as `main` still has the old file, which the new key
+can't open; comin on the new host has no record of a deploy, so it tries
+`main` on its first fetch. rocinante commits them where they are. dapple
+has no git, so copy them into rocinante's clone, through a `.new` file so
+a failed `ssh` leaves yours alone (dapple's SSH host key is one of its
+secrets, so `ssh dapple` trusts it from the first boot):
+
+```sh
+ssh dapple cat /etc/nixos/secrets/.sops.yaml > secrets/.sops.yaml.new && mv secrets/.sops.yaml.new secrets/.sops.yaml
+ssh dapple cat /etc/nixos/secrets/dapple.yaml > secrets/dapple.yaml.new && mv secrets/dapple.yaml.new secrets/dapple.yaml
+```
+
+On rocinante, enroll each YubiKey's FIDO2 slot again
+([Enrolling a YubiKey](#enrolling-a-yubikey)): the install made a new LUKS
+header, without them. On a reinstalled host, `sudo offsite-restore` brings
+the data back ([Restoring data](#restoring-data)), and with it the host's
+place on the tailnet.
+
+### Secure boot
+
+Both hosts boot with secure boot, with keys of their own
+([lanzaboote](https://github.com/nix-community/lanzaboote)), and the TPM
+only unlocks the disk for a boot with those keys (PCR 7). The firmware
+takes the keys once, in setup mode:
+
+1. A configuration with lanzaboote makes the keys on its first boot or
+   switch, in `/persist/system/var/lib/sbctl`.
+2. In the firmware's setup, put secure boot in setup mode ("reset to setup
+   mode" or "clear secure boot keys").
+3. Reboot. systemd-boot enrolls the keys, with Microsoft's for the
+   hardware's option ROMs, and reboots.
+4. In the firmware's setup, turn secure boot on if it isn't, and set an
+   administrator password, so the keys can't be cleared without it.
+5. Boot. `bootctl status` shows `Secure Boot: enabled (user)`. A fresh
+   install binds the TPM on this boot; on a host that had a TPM slot
+   already, run `sudo enroll-tpm`.
+6. Check that the TPM slot is bound to PCR 7 (`luksDump` doesn't show
+   PCRs), and that a reboot unlocks by itself. This should print
+   `"tpm2-pcrs":[7]`:
+   ```sh
+   sudo sh -c 'for i in 0 1 2; do cryptsetup token export --token-id $i /dev/disk/by-partlabel/disk-main-luks; echo; done 2>/dev/null' | grep -o '"tpm2-pcrs":\[[^]]*\]'
+   ```
+
+A firmware update (fwupd, on rocinante) or a new revocation list can change
+PCR 7, and so can a TPM reset: the next boot asks for the LUKS password,
+and `sudo enroll-tpm` binds the TPM again.
+
+### A new host
+
+Write `modules/hosts/<hostname>/configuration.nix`, starting from an
+existing host's. Boot the machine from the ISO, get its hardware report,
+commit and push both, and install it as above:
+
+```sh
+ssh root@dots-installer.local nixos-facter > modules/hosts/<hostname>/facter.json
+```
+
+Without a second computer, push the configuration and run `install-host
+--new-hardware <hostname>` on the ISO's console: it gathers the report on
+the machine itself. Commit `facter.json` with the new key's files after
+the first boot.
+
+A new host joins the tailnet once, as Headscale has to approve it (a
+reinstalled one gets its place back from the restore):
+
+```sh
+sudo tailscale up --login-server=https://vpn.bw20.nl   # any host but dapple
+sudo tailscale up --login-server=http://127.0.0.1:8085 # dapple, which runs Headscale
+```
+
+It prints a link to a page with a `headscale nodes register` command: run
+that on dapple, with the user the device belongs to. dapple itself is then
+tagged as a server, which the access policy counts on (`sudo headscale
+nodes list` for its ID, then `sudo headscale nodes tag -i <id> -t
+tag:server`). A device that needs SSH or the LAN also needs its address in
+the policy's `hosts` and grants. dapple has to be at 100.64.0.1, where its
+services and DNS records point: Headscale hands out addresses in order, so
+if it ever joins as a new device, delete its old one first (`headscale
+nodes delete`).
+
+### Restoring data
+
+```sh
+sudo offsite-restore              # everything
+sudo offsite-restore immich       # or only what's named; --help lists them
+```
+
+It downloads first, so a failed download changes nothing. Then it stops the
+services, swaps their data in, loads what is backed up as a dump (Immich's
+database), and starts them again. If something else still has their data
+open, such as Zotero on rocinante, it starts them again and changes
+nothing: close it and run it again. What it replaced is kept in
+`/persist/.offsite-restore-old-<time>`; to undo, stop the service and move
+its folder back. The same command repairs a single service on a running
+host, and `--target /tmp/restore-test <entry>` only downloads.
+
+It restores the newest snapshot. Restore before a reinstalled host's first
+night, whose backup saves the new, empty folders as the newest; after
+that, pick the one from before with `--snapshot <id>`.
+
+Restoring `tailscale` or `headscale` over the tailnet can cut your SSH
+session. The restore carries on; reconnect and read
+`/var/log/offsite-restore.log`, or watch it over the LAN (`ssh
+nixos@192.168.1.162`). A reinstalled dapple needs both restored before the
+tailnet works, and a Headscale backup older than a device's registration
+logs that device out.
 
 <br/>
 
@@ -67,7 +204,7 @@ host, and what to do after losing a machine.
 | Host | What it is | Runs |
 | --- | --- | --- |
 | **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Weinig shell |
-| **dapple** | Home server | Headscale and the services in [section 6](#6-services-on-dapple), backed up to Storj |
+| **dapple** | Home server | Headscale and the services in [section 5](#5-services-on-dapple), backed up to Storj |
 
 Both get the same core: ZFS on LUKS, secure boot, a root that rolls back on
 boot, sops secrets, home-manager, and fish.
@@ -77,9 +214,8 @@ boot, sops secrets, home-manager, and fish.
 ## 3 Safety
 
 - **Disks** are ZFS on LUKS. They unlock with the TPM2, only for a boot
-  with secure boot on and our own keys
-  ([lanzaboote](docs/install.md#secure-boot)), with the LUKS password as
-  the fallback.
+  with secure boot on and our own keys ([Secure boot](#secure-boot)), with
+  the LUKS password as the fallback.
 - **The root is wiped on every boot**: `zroot/root` rolls back to an empty
   snapshot, and [preservation](https://github.com/nix-community/preservation)
   brings back only the files and folders that are declared, from `/persist`.
@@ -88,47 +224,31 @@ boot, sops secrets, home-manager, and fish.
   with sops for that host's own age key, a YubiKey (PIN-protected for the
   server's) and a passphrase fallback. sops-nix decrypts them at
   activation, with the host's own key, into `/run`, never into the Nix
-  store. See [Secrets and keys](docs/secrets.md).
+  store. See [Secrets and keys](#8-secrets-and-keys).
 - **The server** answers on its tailnet address, with a few things open to
   the internet. A Headscale policy limits what each tailnet device reaches.
-  [Section 7](#7-network-exposure) lists exactly what is reachable from
-  where, and [Security](docs/security.md) who is kept out of what.
+  [Network exposure](#6-network-exposure) lists exactly what is reachable
+  from where, and [Security](#7-security) who is kept out of what.
 - **Deploys** come from Codeberg:
   [comin](https://github.com/nlewo/comin) on each host switches it to the
   tip of `main` if a YubiKey's commit signing key signed it, a minute or
   two after a push plus the build; an unsigned tip deploys nothing, and
-  says so only in `sudo comin status`. In this repository jj signs commits as they
-  are pushed, with the PIV key on whichever YubiKey is plugged in: a touch
-  covers 15 seconds of signing, so a deploy takes a key and a touch. A
-  `testing-<host>` branch on top of `main` is switched to with `test`
-  instead, which a reboot undoes. Failed builds and deploys show on the
-  status page under deploys, and rocinante's desktop says when each deploy
-  is done or has failed. If comin
-  can't deploy, `sudo nixos-rebuild switch --flake
-  git+https://codeberg.org/BW20/dots#<host>` on the host does it by hand.
-  Neither host's Nix trusts a user but root, so the sudo password can't
-  be skipped through Nix.
+  says so only in `sudo comin status`. In this repository jj signs commits
+  as they are pushed, with the PIV key on whichever YubiKey is plugged in:
+  a touch covers 15 seconds of signing, so a deploy takes a key and a
+  touch. A `testing-<host>` branch on top of `main` is switched to with
+  `test` instead, which a reboot undoes. Failed builds and deploys show on
+  the status page under deploys, and rocinante's desktop says when each
+  deploy is done or has failed. If comin can't deploy, `sudo nixos-rebuild
+  switch --flake git+https://codeberg.org/BW20/dots#<host>` on the host
+  does it by hand. Neither host's Nix trusts a user but root, so the sudo
+  password can't be skipped through Nix.
 - **Checks**: `nix flake check` builds both hosts and checks formatting and
   lints. `nswitch` refuses to activate uncommitted changes.
 
 <br/>
 
-## 4 Documentation
-
-- [**Installing a host**](docs/install.md) - The ISO and the installer,
-  joining the tailnet, restoring data, new hosts, and losing a machine or
-  an upstream.
-- [**Secrets and keys**](docs/secrets.md) - The per-host files and their
-  keys, changing a secret, adding or revoking a key, and the passphrase
-  fallback.
-- [**Security**](docs/security.md) - Who is kept out of what, what was
-  checked by hand, what is accepted on purpose, and how to check it.
-- [**Layout**](docs/layout.md) - How the modules are found, what a feature is,
-  the shared helpers, and the rules for ordering, comments and checks.
-
-<br/>
-
-## 5 Commands
+## 4 Commands
 
 The shell aliases are defined in `modules/features/shell/shell.nix`.
 
@@ -147,7 +267,7 @@ The shell aliases are defined in `modules/features/shell/shell.nix`.
 | `nix build .#iso` | The installer ISO, with SSH and `install-host` |
 | `nix run .#install -- <host>` | Install a host, from any NixOS live ISO |
 | `sudo enroll-tpm` | Re-enroll the TPM2 LUKS keyslot, bound to secure boot (PCR 7), after a firmware update or TPM reset |
-| `sudo offsite-restore [--snapshot ID] [entry]` | Restore services' data from the offsite backup ([details](docs/install.md#restoring-data)) |
+| `sudo offsite-restore [--snapshot ID] [entry]` | Restore services' data from the offsite backup ([Restoring data](#restoring-data)) |
 | `nix run .#offsite-prune -- <host>` | Prune and check a host's offsite backup, with the Storj owner key from Bitwarden (every few months) |
 
 The programs that rocinante builds with their config in a wrapper
@@ -163,7 +283,7 @@ replace `.` with `git+https://codeberg.org/BW20/dots`.
 
 <br/>
 
-## 6 Services on dapple
+## 5 Services on dapple
 
 Each service is at `<subdomain>.bw20.nl`, with one wildcard certificate for
 all of them.
@@ -194,29 +314,27 @@ tailnet only, without a web page of its own.
 
 A Forgejo runner takes CI jobs from Codeberg for my own repositories (it is
 registered with my account), with KVM for NixOS VM tests, also without a
-web page; it reaches the internet only
-([Security](docs/security.md#who-is-kept-out-of-what)).
+web page; it reaches the internet only ([Security](#7-security)).
 
 Backups: the services' data to Storj with restic, daily, with credentials
 that can't delete or overwrite (pruning is by hand, from rocinante). Each
 run reports to Gatus; a failed one alerts at once and is tried again 5
 minutes later, on a fresh snapshot, up to 12 times a night. With them goes
 a copy of every flake input, so the hosts can be built without the forges
-they come from ([Losing an upstream](docs/install.md#losing-an-upstream)).
-Locally, sanoid keeps hourly to yearly ZFS snapshots of `/persist`. Every
-host reports its disks' and pools' health to Gatus too
-(smartd and `zpool status`, hourly), and its failed units, and the blogs their
-deploys. Whatever
-Gatus sees go down, or come back, goes to the phone through ntfy, and to
-rocinante's desktop as a notification.
+they come from (`flake-archive.nix` has how). Locally, sanoid keeps hourly
+to yearly ZFS snapshots of `/persist`. Every host reports its disks' and
+pools' health to Gatus too (smartd and `zpool status`, hourly), and its
+failed units, and the blogs their deploys. Whatever Gatus sees go down, or
+come back, goes to the phone through ntfy, and to rocinante's desktop as a
+notification.
 
 <br/>
 
-## 7 Network exposure
+## 6 Network exposure
 
 **From the internet**, the router forwards 443/tcp and 3478/udp to dapple.
 There, six things are served, at names that point straight at the home
-address (DNS at deSEC, no proxy):
+address (DNS at deSEC, no proxy, so TLS ends on dapple):
 
 - **Headscale** at `vpn`: the control protocol, the DERP relay and its STUN,
   which a device away from home needs to join the tailnet. Its admin API
@@ -236,16 +354,15 @@ address (DNS at deSEC, no proxy):
 LAN subnet only, and a 404 on anything else. A name no vhost claims gets no
 certificate and no answer.
 
-**From the tailnet**, every service in [section 6](#6-services-on-dapple)
-but Headscale, meetinn, the blogs and the PubHubs preview, over HTTPS on dapple's tailnet
-address. Those five answer only at the public address, like any visitor's. SSH, Syncthing
-(22000/tcp) and the home LAN (through dapple's subnet route) only from the
-devices the
-[access policy](modules/features/services/headscale/headscale-policy.hujson) names:
-rocinante, and two phones for the LAN. The services' vhosts are bound to
-that address and refuse any source outside the tailnet; the firewall
-(nftables) opens only 443, 22 and 22000 on it. [Security](docs/security.md)
-says why.
+**From the tailnet**, every service in [section 5](#5-services-on-dapple)
+but Headscale, meetinn, the blogs and the PubHubs preview, over HTTPS on
+dapple's tailnet address. Those five answer only at the public address,
+like any visitor's. SSH, Syncthing (22000/tcp) and the home LAN (through
+dapple's subnet route) only from the devices the
+[access policy](modules/features/services/headscale/headscale-policy.hujson)
+names: rocinante, and two phones for the LAN. The services' vhosts are
+bound to that address and refuse any source outside the tailnet; the
+firewall (nftables) opens only 443, 22 and 22000 on it.
 
 **From the LAN** (`enp2s0`), besides the internet's ports:
 
@@ -253,23 +370,287 @@ says why.
 - `kobo.bw20.nl` on 443, the Kobo sync API only (`/kobo/`), allowed for the
   LAN subnet only.
 
-SSH is public key only, for the `nixos` user, with keys from this repository
-only (not `~/.ssh`). Tailscale's WireGuard is on 41641/udp on every
-interface.
+Not Jellyfin's or Home Assistant's plain-HTTP ports: clients use HTTPS over
+the tailnet. SSH is public key only, for the `nixos` user, with keys from
+this repository only (not `~/.ssh`). Tailscale's WireGuard is on 41641/udp
+on every interface.
 
 **rocinante** opens no ports but Tailscale's 41641/udp, and 5353/udp for
 mDNS, to find the installer ISO.
 
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
-the status page's checks of the public sites, at the public
-address through the router's hairpin NAT, the blogs' polling of Codeberg and
-their receivers' pushes to it, and meetinn's hourly
-update of its Yivi schemes and its mail, through Proton's SMTP. The
-Forgejo runner polls Codeberg for jobs, which fetch what they build from
-the internet (and nothing on the LAN or the tailnet). Besides
-those, the apps fetch what they're for, from the home address: qBittorrent's
-torrents and slskd's Soulseek downloads (no VPN), Prowlarr's indexers
-(through FlareSolverr where Cloudflare guards one), metadata and subtitles
-for the *arr apps, Bazarr and Jellyfin, Recyclarr's quality profiles from
-GitHub, Vaultwarden's site icons, and Immich's machine-learning models on
-first use.
+the status page's checks of the public sites, at the public address
+through the router's hairpin NAT, the blogs' polling of Codeberg and their
+receivers' pushes to it, and meetinn's hourly update of its Yivi schemes
+and its mail, through Proton's SMTP. The Forgejo runner polls Codeberg for
+jobs, which fetch what they build from the internet (and nothing on the
+LAN or the tailnet). Besides those, the apps fetch what they're for, from
+the home address: qBittorrent's torrents and slskd's Soulseek downloads (no
+VPN), Prowlarr's indexers (through FlareSolverr where Cloudflare guards
+one), metadata and subtitles for the *arr apps, Bazarr and Jellyfin,
+Recyclarr's quality profiles from GitHub, Vaultwarden's site icons, and
+Immich's machine-learning models on first use.
+
+<br/>
+
+## 7 Security
+
+Who is kept out of what, beyond the ports in
+[Network exposure](#6-network-exposure):
+
+- **A tailnet device** gets what the policy grants: every device the
+  services on dapple; a person's own devices each other; rocinante SSH
+  and Syncthing on dapple; two phones the home LAN, for the camera.
+  dapple is `tag:server`, so it isn't anyone's own device, and the build
+  checks the policy's addresses against `lib.site`. The apps ask for
+  their own login, except Gatus's read-only status page and New Leaf's
+  editor, which goes by your tailnet user.
+- **A process on dapple**, such as a compromised service, can't decrypt
+  (the age key is root's alone), can't read other services' secrets or
+  state (each readable by its own service only, and kept off command
+  lines), can't become root through Nix, and can't plant a lasting
+  SSH key.
+- **A CI job** runs on dapple as the runner's dynamic user, cut off from
+  localhost, the LAN and the tailnet (`IPAddressDeny`), with no `/home`,
+  building through the Nix daemon as an allowed, not a trusted, user.
+- **Someone with the Codeberg login** can't deploy: comin only switches to
+  a commit signed by a key in `lib.commitSigners`, a PIV key on a YubiKey.
+  Nor can code running as `jorrit` on rocinante without a YubiKey in and a
+  touch. They can hold updates back, but not roll a host back: comin
+  refuses a `main` that isn't on top of the one it saw last.
+- **A machine posing as dapple** is refused: rocinante pins dapple's host
+  key.
+- **One host taken over** doesn't give up the other's secrets, LUKS, root
+  or restic passwords, and rocinante takes no packages from dapple.
+  Editing dapple's secrets needs a YubiKey's PIN and a touch, so a stolen
+  laptop with a key in doesn't open the server.
+- **Ransomware on a host** can't take the offsite backups along: its Storj
+  credentials reach only its own folder and can't delete, which on Storj
+  also means they can't overwrite (tested on the real bucket).
+- **A thief** gets encrypted disks, and no boot menu editor. rocinante's
+  disk also opens with either YubiKey's FIDO2 slot, which needs the key's
+  PIN and a touch, so the laptop and a key together still aren't enough.
+
+**Checked by hand** on 2026-10-10, and the router, the deSEC token and the
+403s from outside again on 2026-10-16. Check again after changing the
+router, the DNS or an app's own settings:
+
+- The router forwards only 443/tcp and 3478/udp to dapple, and passes
+  internet visitors' own addresses on: from mobile data,
+  `curl --resolve kobo.bw20.nl:443:<home-ip> https://kobo.bw20.nl/kobo/x`
+  answers 403, and so does `https://vpn.bw20.nl/api/v1/node`.
+- Vaultwarden's `ADMIN_TOKEN` is an argon2 hash, Calibre-Web's admin
+  password isn't the default, and qBittorrent's password is long and
+  random.
+- The deSEC token can only write the `_acme-challenge` TXT record, and only
+  from the home address. It can still read the whole zone, as every deSEC
+  token can.
+- Jellyfin's Known Proxies has 127.0.0.1, so it sees the real client
+  address.
+- Neither YubiKey's PUK is the factory default, or anyone holding it could
+  set a new PIN.
+
+**Accepted on purpose:**
+
+- **The TPM doesn't check which disk it unlocks.** Its slot is bound to PCR
+  7 alone, so someone with the machine could put in a volume of their own
+  under the same name, type its password, and boot their own `init`, which
+  the TPM then unseals the real disk's key for. Not tested; it takes time
+  alone with the machine. The fix is a check of PCR 15 in the initrd.
+- **A CI workflow runs code on dapple**: whoever can start one in a
+  repository of an owner the runner serves (`my.forgejo-runner.connections`:
+  their committers, and a fork's pull request unless Codeberg holds those
+  for approval) runs it as the runner's user, with the internet. Enough to
+  send spam or fill the disk with Nix builds; not enough to reach the
+  services, the LAN or the tailnet, or to become root.
+- **A signed push is a deploy, as root, on every host, and a touch covers
+  15 seconds of signing**, so code running as `jorrit` that signs right
+  after one of your pushes deploys with it. Someone with the Codeberg login
+  alone can point `main` at any other signed commit of yours on top of
+  what's deployed.
+- **comin fetches from Codeberg as root** every minute, and parses what it
+  gets before checking any signature.
+- **Headscale listens on 127.0.0.1:8085**, and Vaultwarden on 8222, ports a
+  local process could take while they restart.
+- **The installer ISO runs the installer from Codeberg's `main`**, so it
+  installs whatever was pushed last.
+- **Certificate Transparency logs list the services' names**, from before
+  the wildcard certificate, and **Headscale's `/version` is public**.
+- **qBittorrent's password hash is in the repository**, which is fine with
+  a long, random password.
+- **ntfy's state directory is 0777**, inside `/var/lib/private`, which
+  systemd keeps at 0700.
+- **rocinante's keyring has an empty password**, as the session logs in
+  automatically; LUKS protects it on disk.
+
+**Checking it**, from rocinante and on dapple:
+
+```sh
+curl -m5 http://100.64.0.1:6767/                 # times out: only 443, 22 and 22000 on the tailnet
+curl -sk -m5 https://100.64.0.1/ -H 'Host: x'    # refused: unknown name
+ssh nixos@dapple nix store info                  # Trusted: 0
+sudo headscale nodes list                        # on dapple: dapple has tag:server
+systemctl --failed                               # on dapple: nothing
+```
+
+`nix flake check` scores every long-running service that runs as its own
+user with `systemd-analyze security`: at most 2.0 of 10, or the ceiling
+`checks.nix` names with its reason.
+
+<br/>
+
+## 8 Secrets and keys
+
+Each host has its own file, `secrets/<host>.yaml`, and decrypts only that
+one, at activation, with its own age key in
+`/persist/system/var/lib/sops/age.key`, root's alone. No host needs a
+YubiKey to boot. Two YubiKeys open the same, so losing one loses nothing,
+and a passphrase identity in Bitwarden is the fallback. `secrets/.sops.yaml`
+has the recipients, and why each.
+
+Edit a secret in the dev shell (`nix develop`), with a YubiKey in:
+
+```sh
+sops secrets/rocinante.yaml
+sops secrets/dapple.yaml        # asks for the YubiKey's PIN, then a touch
+```
+
+Without a YubiKey, point `SOPS_AGE_KEY_FILE` at the passphrase identity,
+saved to a file from Bitwarden, before `nix develop`, `install` or
+`offsite-prune`; they keep it when it is set. What a secret has to look
+like is on the code that reads it (`lib.mkUser` for the password hashes,
+`ssh-server.nix` for the SSH host key, `bazarr.nix`).
+
+### Enrolling a YubiKey
+
+A new key, or one replacing a lost one, gets what the others have. First
+its PIV PIN, PUK and management key, none the factory default (`ykman piv
+info` warns about any that is). Then its two age identities, its FIDO2 PIN
+and slot on rocinante's disk (with only this key plugged in; it shows up
+twice, so name its `/dev/hidraw*` path from the list), and its commit
+signing key:
+
+```sh
+age-plugin-yubikey --generate --pin-policy never --touch-policy never
+age-plugin-yubikey --generate --pin-policy once --touch-policy cached
+
+systemd-cryptenroll --fido2-device=list
+sudo systemd-cryptenroll --fido2-device=/dev/hidrawN --fido2-with-client-pin=yes \
+  --fido2-with-user-presence=yes /dev/disk/by-partlabel/disk-main-luks
+
+pkill -HUP yubikey-agent   # it keeps the PIV applet to itself
+ykman piv keys generate --algorithm ECCP256 --pin-policy NEVER --touch-policy CACHED \
+  9a ~/.ssh/commit-signing-piv-<serial>.pem
+ykman piv certificates generate --valid-days 36500 \
+  --subject "CN=commit signing YubiKey <serial>" 9a ~/.ssh/commit-signing-piv-<serial>.pem
+```
+
+Then add the no-PIN `age1yubikey1...` recipient to rocinante's list in
+`secrets/.sops.yaml` and the PIN one to dapple's, `sops updatekeys` both
+files, and add the signing key's SSH form (`ssh-keygen -i -m PKCS8 -f
+<pem>`) to `lib.commitSigners` as `jorrit+git@bw20.nl <key>`. The hosts
+check against the list they run, so sign that commit with a key already
+on it. Push, then check with only the new key plugged in:
+`sops -d --extract '["restic_password"]' secrets/rocinante.yaml >/dev/null`.
+
+### Revoking a key
+
+1. Remove its recipient from `secrets/.sops.yaml`, and a YubiKey's signing
+   key from `lib.commitSigners`. Sign with the other YubiKey: until the
+   hosts run that commit, they still deploy what the lost one signs.
+2. `sops updatekeys`, then `sops rotate -i`, every file it was a recipient
+   of: `updatekeys` alone keeps the data key, which the lost key still
+   unwraps from old copies, such as the repository's history.
+3. Change the secrets themselves, as the old copies still open: the LUKS
+   password (`cryptsetup luksChangeKey` on every disk, then `sudo
+   enroll-tpm`), the restic password (`restic key add`, then `restic key
+   remove` the old one, with the owner's S3 key), the Storj credentials
+   (`offsite-backup.nix`), the password hashes, dapple's SSH host key, and
+   the tokens and API keys.
+4. Push, and deploy every host.
+
+A host's own age key is replaced by every install. To replace a running
+host's by hand, add a new one next to the old, so a reboot before the
+deploy still decrypts: `sudo nix shell nixpkgs#age -c sh -c 'age-keygen
+>>/persist/system/var/lib/sops/age.key'` prints its public key. Put that in
+place of `<host>_host` in `secrets/.sops.yaml`, `sops updatekeys` the file,
+push, and remove the old key's lines once deployed.
+
+<br/>
+
+## 9 Recovery
+
+Nothing needed to recover lives only on rocinante: the SSH keys and the
+passphrase identity are in Bitwarden, the configuration is on Codeberg,
+the data on Storj, and the YubiKeys are separate devices.
+
+- **rocinante.** Boot the ISO on its replacement and run `install-host
+  --new-hardware rocinante` on its console, then follow
+  [First boot](#first-boot), committing `facter.json` too. Only what
+  rocinante's backup holds comes back: Zotero, the Obsidian vault, and its
+  place on the tailnet.
+- **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
+  it, into a locked session, so count its secrets, tailnet node and Storj
+  credentials as known. Install its replacement as above, but:
+  1. Before installing, delete its node on dapple (`sudo headscale nodes
+     list`, then `sudo headscale nodes delete -i <id>`). Restore with `sudo
+     offsite-restore other`, not `tailscale`, which would bring back the
+     stolen node's key, and join as a new host. Put its new address in
+     place of `100.64.0.2` in the access policy, `lib.site` and the
+     browser's `policies.nix`.
+  2. Rotate its secrets, as in [Revoking a key](#revoking-a-key) from step
+     2. Its `gatus_push_token` and `ntfy_token` are also in
+     `secrets/dapple.yaml`, as `gatus_push_token_rocinante` and
+     `ntfy_token_rocinante`: change both copies.
+  3. Revoke its Storj credentials and make new ones (`offsite-backup.nix`).
+- **A YubiKey.** [Revoke it](#revoking-a-key) and
+  [enroll a new one](#enrolling-a-yubikey), with the other key or the
+  passphrase identity.
+- **Both machines.** Bitwarden then only has the offline copy on your
+  phone, as Vaultwarden runs on dapple. With a YubiKey left, install dapple
+  with `--new-hardware` and `sudo offsite-restore`, which brings
+  Vaultwarden back, and rocinante can follow. With none left, enroll a new
+  one first, with the passphrase identity: on the ISO, `nix shell
+  nixpkgs#sops nixpkgs#age-plugin-yubikey` has the tools.
+
+That last case depends on your phone. An offline copy of the passphrase
+identity and your Bitwarden recovery details, kept somewhere safe, removes
+that dependency.
+
+A forge or repository that's gone: dapple keeps a copy of every flake
+input, and `flake-archive.nix` has the steps to build from it.
+
+<br/>
+
+## 10 Layout
+
+[import-tree](https://github.com/vic/import-tree) imports every `.nix` file
+under `modules/` as a [flake-parts](https://flake.parts) module, so a new
+file needs no listing, only `jj` to have seen it.
+
+```
+modules/
+  features/<area>/<feature>.nix   one NixOS module each: flake.nixosModules.<feature>
+  features/<area>/<feature>/      a feature too big for one file, and the files it reads
+  bundles/                        base (every host) and desktop (a host with a screen)
+  hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
+  users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser
+  flake/                          checks, formatter, dev shell, wrappers, lib, site, installer ISO
+scripts/                          install, enroll-tpm, offsite-prune, nix-order
+secrets/                          <host>.yaml, and .sops.yaml with the recipients
+```
+
+A feature is on when the host imports it, and keeps its settings under
+`my.<feature>`. One that needs another asserts it is imported. Desktop and
+app features configure the user through `home-manager.sharedModules`. A
+service declares its state in `my.preservation` and `my.offsite-backup`, its
+page in `my.ingress`, and its unit gets `lib.restartAlways` and, where
+nixpkgs gives none, `lib.sandbox`: `contacts.nix` is the smallest complete
+one, with the steps for a new one. Shared helpers and facts are in
+`modules/flake/lib.nix` and `site.nix`.
+
+`nix fmt` orders attributes before nixfmt lays them out (the rules are in
+`scripts/nix-order.py`), and the comment rules are in `checks.nix`.
+`nix flake check` builds every host and the install scripts (with
+shellcheck), runs the formatters and linters, statix's lints, the comment
+grep, and the hardening scores.

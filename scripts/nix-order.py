@@ -1,4 +1,23 @@
-"""Orders the attributes in Nix files by docs/layout.md's "Ordering" rule.
+"""Orders the attributes in Nix files.
+
+An attribute set has two tiers, each alphabetical by the attribute path as
+written, ignoring case and quotes:
+
+1. Bare lines: attributes without a comment whose value is a line (a plain
+   value nixfmt wrapped still counts), packed together.
+2. Paragraphs: attributes with a comment above them or a block value (a
+   set, list, function, `let`, `if`, `with` or indented string), a blank
+   line between each.
+
+A comment belongs to the one attribute under it. A comment about the whole
+set sits at its top, followed by a blank line. Three things keep their own
+order: `inherit` lines, then `enable`, lead their set; a module's
+`imports`, `options` and `config` come in that order, as paragraphs ahead
+of the others; and `mkOption` arguments keep nixpkgs' order (`type`,
+`default`, `example`, `description`). `let` bindings and lists keep the
+order they're written in. Function arguments are alphabetical, with `...`
+last. The fixtures in nix-order-tests/ show each rule; the flake check
+runs them.
 
 Run by `nix fmt` before nixfmt, so the flake's treefmt check fails on a file
 that is out of order. Rewrites the files it is given in place. A set with a

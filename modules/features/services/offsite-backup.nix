@@ -92,7 +92,34 @@
         };
 
         # restic reads its S3 credentials from the environment (the
-        # template) and its repo password from a file.
+        # template) and its repo password from a file. storj_access_key and
+        # storj_secret_key reach only this host's folder and can't delete.
+        # New ones come from the owner's grant (offsite-owner, in Bitwarden
+        # only), not one made in the console; copy the two values from
+        # storj.env into secrets/<host>.yaml, then delete it:
+        #
+        #   nix shell nixpkgs#storj-uplink
+        #   uplink access import owner -f
+        #   uplink access restrict --access owner --readonly=false --disallow-deletes \
+        #     --prefix sj://offsite/restic/<host>/ --import-as <host>-backup -f >/dev/null
+        #   uplink access register <host>-backup --format env > $XDG_RUNTIME_DIR/storj.env
+        #
+        # `uplink access revoke --access owner <name>` revokes old ones.
+        #
+        # Without deletes restic can't refresh its lock, and gives up after
+        # 22.5 minutes; a retry goes on from the index the last run saved.
+        # A run that can't get through in that time at all, like the first
+        # into a new repository or an import of tens of GB, needs the
+        # owner's key once, through the usual unit so it still reads a
+        # snapshot. Stopping the backup starts the retry timer, so stop that
+        # too, and don't push meanwhile, as a deploy puts the host's key back:
+        #
+        #   sudo systemctl stop restic-backups-offsite
+        #   sudo systemctl stop offsite-backup-retry.timer
+        #   sudo bash -c 'umask 077; read -p "owner access key: " a; read -sp "owner secret key: " s; echo; printf "AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n" "$a" "$s" > /run/secrets/rendered/restic-s3-env'
+        #   sudo systemctl start --no-block restic-backups-offsite
+        #   journalctl -fu restic-backups-offsite   # until: snapshot ... saved
+        #   sudo /run/current-system/activate         # the host's own key again
         sops.secrets = {
           gatus_push_token = { };
           restic_password = { };

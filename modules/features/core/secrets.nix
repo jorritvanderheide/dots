@@ -18,7 +18,7 @@
         services.pcscd.enable = true;
         users.users.root.hashedPasswordFile = config.sops.secrets.user_password_root.path;
 
-        # For editing secrets with a YubiKey (docs/secrets.md):
+        # For editing secrets with a YubiKey (README, "Secrets and keys"):
         # age-plugin-yubikey needs pcscd running and itself on PATH to reach
         # the hardware. No service uses it; the host decrypts with its own
         # age key.
@@ -63,7 +63,7 @@
             path = inputs.self + "/secrets/${config.networking.hostName}.yaml";
           };
 
-          # A password hash (docs/secrets.md).
+          # A password hash, like the users' (lib.mkUser).
           secrets.user_password_root.neededForUsers = true;
         };
 

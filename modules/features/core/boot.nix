@@ -133,7 +133,7 @@
         # slot would stop unlocking the moment it comes on. Unbound, it
         # would unlock for any system booted on the machine.
         # `sudo enroll-tpm` re-enrolls, e.g. after a firmware update or TPM
-        # reset (see docs/install.md).
+        # reset (README, "Secure boot").
         systemd.services.tpm2-luks-enroll = {
           description = "Bind a LUKS TPM2 keyslot for unlock";
           wantedBy = [ "multi-user.target" ];

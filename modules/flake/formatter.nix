@@ -42,8 +42,8 @@
         settings = {
           on-unmatched = lib.mkDefault "warn";
 
-          # Attribute order (docs/layout.md), before nixfmt lays it out:
-          # treefmt runs lower priorities first.
+          # Attribute order (nix-order.py has the rules), before nixfmt lays
+          # it out: treefmt runs lower priorities first.
           formatter.nix-order = {
             includes = [ "*.nix" ];
             priority = -1;
@@ -68,7 +68,6 @@
             "**/assets/**"
             "**/facter.json"
             "**/theming/templates/**"
-            "docs/**"
             "README.md"
             "scripts/nix-order-tests/**"
             "secrets/**"

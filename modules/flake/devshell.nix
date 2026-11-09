@@ -27,7 +27,7 @@
           export SOPS_CONFIG="$PWD/secrets/.sops.yaml"
           # The identity of whichever YubiKey is plugged in, unless one was
           # set before the shell, such as the passphrase identity
-          # (docs/secrets.md).
+          # (README, "Secrets and keys").
           if [ -z "''${SOPS_AGE_KEY_FILE:-}" ]; then
             export SOPS_AGE_KEY_FILE="''${XDG_RUNTIME_DIR:-/tmp}/sops-yubikey-identity.txt"
             age-plugin-yubikey --identity 2>/dev/null >"$SOPS_AGE_KEY_FILE" || true

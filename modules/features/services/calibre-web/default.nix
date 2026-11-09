@@ -129,7 +129,7 @@
               locations."/".return = "404";
 
               # By source: the router passes internet visitors' own addresses on,
-              # so a LAN address is the LAN (security.md, "Checked by hand").
+              # so a LAN address is the LAN (README, "Security").
               locations."/kobo/" = {
                 proxyPass = "http://127.0.0.1:${toString port}";
                 recommendedProxySettings = true;

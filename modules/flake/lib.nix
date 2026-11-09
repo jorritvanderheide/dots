@@ -55,7 +55,9 @@
           home.stateVersion = "26.05";
         };
 
-        # A password hash (docs/secrets.md).
+        # A password hash, from `mkpasswd -m yescrypt`. Every activation sets
+        # it, so a new one applies on the next switch, and `passwd` on a host
+        # lasts only until then, or the next boot.
         sops.secrets."user_password_${username}".neededForUsers = true;
 
         systemd.tmpfiles.rules = [

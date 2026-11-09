@@ -12,7 +12,7 @@ flake=$OFFSITE_PRUNE_FLAKE
 repository=$(nix eval --raw "$flake#nixosConfigurations.$host.config.services.restic.backups.offsite.repository")
 
 # Whichever YubiKey is plugged in, unless SOPS_AGE_KEY_FILE already
-# points at an identity, like the passphrase one (docs/secrets.md).
+# points at an identity, like the passphrase one (README, "Secrets and keys").
 if [[ -z ${SOPS_AGE_KEY_FILE:-} ]]; then
   SOPS_AGE_KEY_FILE=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}")
   export SOPS_AGE_KEY_FILE

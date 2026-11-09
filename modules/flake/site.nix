@@ -24,7 +24,7 @@ _: {
 
       # Every host, by name: what the others need to reach it. Headscale
       # hands out tailnet addresses in order, and dapple joined first
-      # (docs/install.md).
+      # (README, "A new host").
       hosts = {
         rocinante.tailnetIp = "100.64.0.2";
 

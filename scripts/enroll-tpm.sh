@@ -12,7 +12,7 @@ set -euo pipefail
 # The slot is bound to PCR 7, secure boot's state: enrolled with it off, it
 # would stop unlocking once it's on. tpm2-luks-enroll skips itself then.
 [[ $(bootctl status 2>/dev/null) == *"Secure Boot: enabled"* ]] || {
-  echo 'Secure boot is off: turn it on first (docs/install.md, "Secure boot")' >&2
+  echo 'Secure boot is off: turn it on first (README, "Secure boot")' >&2
   exit 1
 }
 

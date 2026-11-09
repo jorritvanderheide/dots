@@ -71,7 +71,13 @@
         };
 
         # The host key is a secret, not a file on /persist, so a reinstalled
-        # host has the key the others pin (lib.site) from its first boot.
+        # host has the key the others pin (lib.site) from its first boot. Its
+        # public half is site.hosts.<host>.hostKey, and a mismatch makes
+        # rocinante refuse the next SSH. A new one, from `ssh-keygen -t
+        # ed25519 -N "" -C root@<host> -f key`: key in the secret, key.pub in
+        # site.nix, in one commit, then delete both files. Check before a push:
+        # `ssh-keygen -y -f (sops -d --extract '["ssh_host_key"]'
+        # secrets/<host>.yaml | psub)`.
         sops.secrets.ssh_host_key.restartUnits = [ "sshd.service" ];
       };
     };
