@@ -151,6 +151,13 @@ args=(
   "${disk_args[@]}"
 )
 
+# rocinante doesn't sleep while the VM runs: a suspend freezes it, and a
+# long download, as in an install or a restore, times out.
+qemu=(
+  systemd-inhibit --what=sleep:idle:handle-lid-switch --who=install-vm --why="An install VM is running"
+  qemu-system-x86_64
+)
+
 if [[ $phase == install ]]; then
   iso=$(nix build --no-link --print-out-paths "${INSTALL_VM_FLAKE}#iso")/iso/dots-installer.iso
   yubikey=""
@@ -165,7 +172,7 @@ if [[ $phase == install ]]; then
   systemctl --user stop yubikey-agent || true
   trap 'systemctl --user start yubikey-agent || true' EXIT
   echo "Once the ISO is up: ssh -p 2222 -t -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost install-host ${host}"
-  qemu-system-x86_64 "${args[@]}" -no-reboot \
+  "${qemu[@]}" "${args[@]}" -no-reboot \
     -drive "if=none,id=iso,media=cdrom,readonly=on,file=$iso" -device ide-cd,drive=iso,bus=ide.5,bootindex=0 \
     -device qemu-xhci -device "usb-host,vendorid=0x1050,productid=0x$yubikey" \
     -nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22
@@ -179,5 +186,5 @@ else
     echo "  systemctl stop restic-backups-offsite.timer offsite-backup-retry.timer"
     echo "  { echo '10.0.2.100 gateway.eu1.storjshare.io'; cat /etc/hosts; } > /run/hosts && mount --bind /run/hosts /etc/hosts && systemctl restart nscd"
   fi
-  qemu-system-x86_64 "${args[@]}" -nic "$net"
+  "${qemu[@]}" "${args[@]}" -nic "$net"
 fi
