@@ -69,6 +69,13 @@ push_hardware_report() {
     jj -R "$repo" git push --remote codeberg --bookmark main
 }
 
+# jj, without the warning that root has no name and email: meant, as the
+# clone becomes rocinante's /etc/nixos, where jj fills in yours on the first
+# commit. Errors still show.
+jj_quiet() {
+  jj --quiet "$@" 2> >(grep -v '^Warning: Name and email not configured' >&2)
+}
+
 main() {
   local new_hardware=false
   if [[ ${1:-} == --new-hardware ]]; then
@@ -98,8 +105,8 @@ main() {
   local repo=/tmp/dots
   rm -rf "$repo"
   log_info "Cloning ${REPO_URL}..."
-  jj git clone --colocate --remote codeberg "$REPO_URL" "$repo"
-  jj -R "$repo" git remote set-url codeberg --push "$REPO_PUSH_URL"
+  jj_quiet git clone --colocate --remote codeberg "$REPO_URL" "$repo"
+  jj_quiet -R "$repo" git remote set-url codeberg --push "$REPO_PUSH_URL"
   local flake="path:${repo}"
   local host_dir="${repo}/modules/hosts/${hostname}"
   local secrets_file="${repo}/secrets/${hostname}.yaml"
