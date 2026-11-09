@@ -65,8 +65,8 @@ ssh -t root@yubinstall.local yubinstall <hostname>
 
 It runs in tmux, so after a dropped connection the same command takes you
 back to it. It runs the installer from Codeberg's `main`, so push first;
-the ISO only needs rebuilding for a change to `iso.nix` or the SSH keys in
-`site.nix`, or a newer NixOS. Any other NixOS live ISO works too, from its
+the ISO only needs rebuilding for a new nixos-yubinstall release, a change
+to the SSH keys in `site.nix`, or a newer NixOS. Any other NixOS live ISO works too, from its
 own console:
 
 ```sh
@@ -84,10 +84,10 @@ shows the disk it will wipe, and any it keeps (dapple's media disk, which
 has no offsite copy), and waits for a `yes`; installs with disko and
 `nixos-install`; pushes a new hardware report to Codeberg's `main` with the
 deploy key in `secrets/installer.yaml`; and clones this repository to
-`/etc/nixos`. Nothing is left to commit. The report's commit isn't
-signed, so the hosts deploy it with your next signed push, which has to
-build on it; the installed host already runs it. It asks before the push:
-a test install, as in a VM, answers no.
+`/etc/nixos`. Unless you decline the push or it fails, nothing is left to
+commit. The report's commit isn't signed, so the hosts deploy it with your
+next signed push, which has to build on it; the installed host already
+runs it. It asks before the push: a test install, as in a VM, answers no.
 
 ### First boot
 
@@ -139,8 +139,13 @@ existing host's, and give the host an age key, in the dev shell:
 1. `age-keygen` prints the public key and the secret one.
 2. In `secrets/.sops.yaml`, add the public key as `&<hostname>_host`, and a
    creation rule for `<hostname>.yaml` like the others.
-3. `sops secrets/<hostname>.yaml` makes its secrets file, with at least
-   `luks_password` and the password hashes.
+3. `sops secrets/<hostname>.yaml` makes its secrets file, with every key
+   its features declare, which `nix eval --json
+   .#nixosConfigurations.<hostname>.config.sops.secrets --apply
+   builtins.attrNames` lists (`luks_password`, the password hashes,
+   `gatus_push_token`, and with the backup the restic and Storj keys).
+   dapple's file takes a copy of the token, as
+   `gatus_push_token_<hostname>`.
 4. `sops secrets/installer.yaml` (with a YubiKey's PIN) takes the secret key
    as `<hostname>_age_key`.
 
@@ -524,7 +529,7 @@ sops secrets/dapple.yaml        # asks for the YubiKey's PIN, then a touch
 ```
 
 Without a YubiKey, point `SOPS_AGE_KEY_FILE` at the passphrase identity,
-saved to a file from Bitwarden, before `nix develop`, `install` or
+saved to a file from Bitwarden, before `nix develop`, `yubinstall` or
 `offsite-prune`; they keep it when it is set. What a secret has to look
 like is on the code that reads it (`lib.mkUser` for the password hashes,
 `ssh-server.nix` for the SSH host key, `bazarr.nix`).
@@ -612,9 +617,8 @@ the data on Storj, and the YubiKeys are separate devices.
      on dapple (`sudo headscale nodes list`, then `sudo headscale nodes
      delete -i <id>`). Restore with `sudo offsite-restore other`, not
      `tailscale`, which would bring back the stolen node's key, and join as
-     a new host. Put its new address in
-     place of `100.64.0.2` in the access policy, `lib.site` and the
-     browser's `policies.nix`.
+     a new host. Put its new address in place of `100.64.0.2` in
+     `lib.site` and the access policy, which the build checks against it.
   2. Rotate its secrets, as in [Revoking a key](#revoking-a-key) from step
      2. Its `gatus_push_token` and `ntfy_token` are also in
      `secrets/dapple.yaml`, as `gatus_push_token_rocinante` and
@@ -652,9 +656,9 @@ modules/
   bundles/                        base (every host) and desktop (a host with a screen)
   hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
   users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser
-  flake/                          checks, formatter, dev shell, wrappers, lib, site, yubinstall
+  flake/                          checks, formatter, dev shell, scripts, wrappers, lib, site, yubinstall
 scripts/                          enroll-tpm, offsite-prune, nix-order
-secrets/                          <host>.yaml, and .sops.yaml with the recipients
+secrets/                          <host>.yaml, installer.yaml, and .sops.yaml with the recipients
 ```
 
 A feature is on when the host imports it, and keeps its settings under
@@ -673,6 +677,6 @@ and the base bundle sets the hosts' `yubinstall` options, which they read.
 
 `nix fmt` orders attributes before nixfmt lays them out (the rules are in
 `scripts/nix-order.py`), and the comment rules are in `checks.nix`.
-`nix flake check` builds every host and the install scripts (with
-shellcheck), runs the formatters and linters, statix's lints, the comment
+`nix flake check` builds every host and `offsite-prune` (with shellcheck;
+the installer's scripts are checked in its own repository), runs the formatters and linters, statix's lints, the comment
 grep, and the hardening scores.
