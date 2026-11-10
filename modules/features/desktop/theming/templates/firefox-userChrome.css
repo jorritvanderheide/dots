@@ -28,11 +28,8 @@
   --sidebar-text-color: var(--text) !important;
   --sidebar-background-color: var(--frame) !important;
 
-  /* --- Hairlines --- */
-  /* Around the address bar, and between the tab bar and the toolbar. */
+  /* --- Hairline around the address bar --- */
   --toolbar-field-border-color: var(--outline) !important;
-  --tabs-navbar-separator-style: solid !important;
-  --tabs-navbar-separator-color: var(--outline) !important;
 }
 
 /* --- Sidebar & Layout --- */
