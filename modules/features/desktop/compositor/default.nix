@@ -15,6 +15,9 @@ in
     }:
     let
       cfg = config.my.compositor;
+
+      # Weinig's colours, as niri has them until the mode's own are included (theming/mode.nix).
+      colors = config.programs.weinig.theme.palette.dark.colors;
     in
     {
       imports = [ niri-flake ];
@@ -113,12 +116,12 @@ in
                   gaps = 36.0;
                   shadow.enable = false;
 
-                  # Weinig's hairline: its `line` and `signal` (shell/theme/Theme.qml).
+                  # Weinig's hairline: its `line` and `signal`.
                   border = {
                     enable = true;
-                    active.color = "#2a2a2a";
-                    inactive.color = "#2a2a2a";
-                    urgent.color = "#d71921";
+                    active.color = colors.outline_variant;
+                    inactive.color = colors.outline_variant;
+                    urgent.color = colors.error;
                     width = 1;
                   };
 
@@ -126,9 +129,9 @@ in
                   # ring. Weinig's `bright` and `signal`, and none on a screen without focus.
                   focus-ring = {
                     enable = true;
-                    active.color = "#ffffff";
+                    active.color = colors.primary;
                     inactive.color = "#00000000";
-                    urgent.color = "#d71921";
+                    urgent.color = colors.error;
                   };
 
                   preset-column-widths = [
