@@ -102,22 +102,6 @@
                 "x-scheme-handler/mailto" = "thunderbird.desktop";
               };
           }
-
-          # Named Browser in the launcher and the window list. Overrides the
-          # package's entry, the way zotero.nix does, rather than adding a
-          # browser.desktop: the shell finds a window's entry by its app id,
-          # firefox, and the default-browser associations name it too.
-          (
-            { config, pkgs, ... }:
-            {
-              xdg.dataFile."applications/firefox.desktop".source =
-                pkgs.runCommand "firefox-browser.desktop" { }
-                  ''
-                    substitute ${config.programs.firefox.finalPackage}/share/applications/firefox.desktop $out \
-                      --replace-fail 'Name=Firefox' 'Name=Browser'
-                  '';
-            }
-          )
         ];
 
         my.preservation.homeDirectories = [
