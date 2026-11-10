@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.nixosModules.boot =
+  flake.nixosModules.core =
     {
       config,
       lib,

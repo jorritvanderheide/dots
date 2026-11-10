@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.nixosModules.secrets =
+  flake.nixosModules.core =
     {
       config,
       pkgs,

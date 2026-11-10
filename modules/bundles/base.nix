@@ -3,10 +3,11 @@
   ...
 }:
 {
-  # What every host runs: the disk, boot and secrets setup, and the system,
-  # shell and backup features every other feature can count on: any of them
-  # may declare my.preservation entries, and my.offsite-backup entries, which
-  # a host that doesn't enable the backup ignores.
+  # What every host runs: the core (features/core: disk, boot, secrets and
+  # the rest, one module as none of it works alone), and the system, shell
+  # and backup features every other feature can count on: any of them may
+  # declare my.preservation entries, and my.offsite-backup entries, which a
+  # host that doesn't enable the backup ignores.
   flake.nixosModules.base =
     {
       config,
@@ -14,17 +15,7 @@
     }:
     {
       imports = with inputs.self.nixosModules; [
-        # Core
-        boot
-        disk
-        facter
-        home-manager
-        inputs.yubinstall.nixosModules.default
-        kernel
-        nix
-        preservation
-        secrets
-        zfs
+        core
 
         # System
         comin

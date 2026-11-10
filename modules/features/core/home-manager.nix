@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.nixosModules.home-manager = {
+  flake.nixosModules.core = {
     home-manager = {
       backupFileExtension = "backup";
       extraSpecialArgs = { inherit inputs; };

@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.nixosModules.facter =
+  flake.nixosModules.core =
     {
       config,
       ...

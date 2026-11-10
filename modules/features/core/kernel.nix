@@ -1,5 +1,5 @@
 _: {
-  flake.nixosModules.kernel =
+  flake.nixosModules.core =
     { pkgs, ... }:
     {
       zramSwap.enable = true;

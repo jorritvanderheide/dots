@@ -647,6 +647,7 @@ file needs no listing, only `jj` to have seen it.
 modules/
   features/<area>/<feature>.nix   one NixOS module each: flake.nixosModules.<feature>
   features/<area>/<feature>/      a feature too big for one file, and the files it reads
+  features/core/                  together one module, flake.nixosModules.core: none of it works alone
   bundles/                        base (every host) and desktop (a host with a screen)
   hosts/<host>/                   flake.nixosConfigurations.<host>, facter.json, hardware.nix
   users/<user>/                   flake.nixosModules.<user>, made with lib.mkUser

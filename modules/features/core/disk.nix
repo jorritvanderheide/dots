@@ -3,14 +3,17 @@
   ...
 }:
 {
-  flake.nixosModules.disk =
+  flake.nixosModules.core =
     {
       config,
       ...
     }:
     {
+      # yubinstall's options, which the core reads: the main disk, here and
+      # in zfs.nix, and the LUKS password's key and file.
       imports = [
         inputs.disko.nixosModules.disko
+        inputs.yubinstall.nixosModules.default
       ];
 
       config = {

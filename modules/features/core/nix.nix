@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.nixosModules.nix = {
+  flake.nixosModules.core = {
     config = {
       nixpkgs.config.allowUnfree = true;
 

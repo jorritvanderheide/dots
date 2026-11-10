@@ -4,7 +4,7 @@
   ...
 }:
 {
-  flake.nixosModules.preservation =
+  flake.nixosModules.core =
     {
       config,
       ...

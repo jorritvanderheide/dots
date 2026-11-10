@@ -1,5 +1,5 @@
 _: {
-  flake.nixosModules.zfs =
+  flake.nixosModules.core =
     {
       config,
       ...
