@@ -44,6 +44,10 @@
         shell
       ];
 
+      # shellcheck on every unit's script, preStart and the like, nixpkgs'
+      # too: the build fails on a warning, as writeShellApplication's does.
+      systemd.enableStrictShellChecks = true;
+
       # This repository's layout and remote, for the installer.
       yubinstall = {
         hardwareReport = "modules/hosts/${config.networking.hostName}/facter.json";

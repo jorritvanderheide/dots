@@ -135,15 +135,21 @@
             busy =
               action:
               let
-                script = pkgs.writeShellScript "claude-busy" ''
-                  dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
-                  id=$(${lib.getExe pkgs.jq} -r .session_id)
-                  mkdir -p "$dir"
-                  case "$1" in
-                    mark) touch "$dir/$id" ;;
-                    clear) rm -f "$dir/$id" ;;
-                  esac
-                '';
+                script = lib.getExe (
+                  pkgs.writeShellApplication {
+                    name = "claude-busy";
+
+                    text = ''
+                      dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                      id=$(${lib.getExe pkgs.jq} -r .session_id)
+                      mkdir -p "$dir"
+                      case "$1" in
+                        mark) touch "$dir/$id" ;;
+                        clear) rm -f "$dir/$id" ;;
+                      esac
+                    '';
+                  }
+                );
               in
               [
                 {

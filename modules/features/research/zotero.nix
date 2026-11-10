@@ -207,14 +207,22 @@
                 pkgs.runCommand "zotero-stop-headless.desktop" { }
                   ''
                     substitute ${config.programs.zotero.package}/share/applications/zotero.desktop $out \
-                      --replace-fail 'Exec=zotero' 'Exec=${pkgs.writeShellScript "zotero" ''
-                        systemctl --user stop zotero-headless.service
-                        ${lib.getExe config.programs.zotero.package} "$@"
-                        status=$?
-                        ${lib.getExe' pkgs.util-linux "flock"} --nonblock --close "$XDG_RUNTIME_DIR/obsidian.lock" true ||
-                          systemctl --user start --no-block zotero-headless.service
-                        exit $status
-                      ''}'
+                      --replace-fail 'Exec=zotero' 'Exec=${
+                        lib.getExe (
+                          pkgs.writeShellApplication {
+                            name = "zotero";
+
+                            text = ''
+                              systemctl --user stop zotero-headless.service || true
+                              status=0
+                              ${lib.getExe config.programs.zotero.package} "$@" || status=$?
+                              ${lib.getExe' pkgs.util-linux "flock"} --nonblock --close "$XDG_RUNTIME_DIR/obsidian.lock" true ||
+                                systemctl --user start --no-block zotero-headless.service
+                              exit $status
+                            '';
+                          }
+                        )
+                      }'
                   '';
             }
           )

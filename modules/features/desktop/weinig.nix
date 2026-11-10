@@ -51,15 +51,23 @@
         idle = {
           suspendResumeCommand = "${pkgs.systemd}/bin/systemctl --user stop idle-suspend";
 
-          suspendCommand = "${pkgs.systemd}/bin/systemd-run --user --collect --unit=idle-suspend ${pkgs.writeShellScript "idle-suspend" ''
-            dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
-            # Markers untouched for an hour are leftovers from an interrupted or crashed
-            # session, not real work.
-            while [ -n "$(${pkgs.findutils}/bin/find "$dir" -type f -mmin -60 2>/dev/null)" ]; do
-              sleep 60
-            done
-            ${pkgs.systemd}/bin/systemctl suspend
-          ''}";
+          suspendCommand = "${pkgs.systemd}/bin/systemd-run --user --collect --unit=idle-suspend ${
+            lib.getExe (
+              pkgs.writeShellApplication {
+                name = "idle-suspend";
+
+                text = ''
+                  dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                  # Markers untouched for an hour are leftovers from an interrupted or crashed
+                  # session, not real work.
+                  while [ -n "$(${pkgs.findutils}/bin/find "$dir" -type f -mmin -60 2>/dev/null)" ]; do
+                    sleep 60
+                  done
+                  ${pkgs.systemd}/bin/systemctl suspend
+                '';
+              }
+            )
+          }";
         };
 
         # This Framework's hardware switches, open or not.

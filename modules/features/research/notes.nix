@@ -23,14 +23,20 @@
 
                 postBuild = ''
                   rm $out/bin/obsidian
-                  ln -s ${writeShellScript "obsidian" ''
-                    lock="$XDG_RUNTIME_DIR/obsidian.lock"
-                    systemctl --user start --no-block zotero-headless.service
-                    ${lib.getExe' util-linux "flock"} --shared --close "$lock" ${lib.getExe obsidian} "$@"
-                    status=$?
-                    ${lib.getExe' util-linux "flock"} --nonblock --close "$lock" systemctl --user stop zotero-headless.service
-                    exit $status
-                  ''} $out/bin/obsidian
+                  ln -s ${
+                    lib.getExe (writeShellApplication {
+                      name = "obsidian";
+
+                      text = ''
+                        lock="$XDG_RUNTIME_DIR/obsidian.lock"
+                        systemctl --user start --no-block zotero-headless.service || true
+                        status=0
+                        ${lib.getExe' util-linux "flock"} --shared --close "$lock" ${lib.getExe obsidian} "$@" || status=$?
+                        ${lib.getExe' util-linux "flock"} --nonblock --close "$lock" systemctl --user stop zotero-headless.service || true
+                        exit $status
+                      '';
+                    })
+                  } $out/bin/obsidian
                 '';
               })
               # Due Credit exports vault notes through it.

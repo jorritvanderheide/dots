@@ -87,7 +87,8 @@
 
             # That only knows the imported pools, and a pool that didn't
             # import stops no boot if its mount is nofail, like zmedia's.
-            for pool in ${lib.escapeShellArgs (lib.attrNames config.disko.devices.zpool)}; do
+            expected=(${lib.escapeShellArgs (lib.attrNames config.disko.devices.zpool)})
+            for pool in "''${expected[@]}"; do
               if ! zpool list "$pool" >/dev/null 2>&1; then
                 problems+=("zpool $pool isn't imported")
               fi

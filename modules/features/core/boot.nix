@@ -148,7 +148,8 @@
           # short-circuit ("already enrolled") and leave a stale token.
           script = ''
             PW="$(<${config.sops.secrets.${luksPassword}.path})"
-            for dev in ${lib.concatStringsSep " " allLuksDevices}; do
+            devices=(${lib.escapeShellArgs allLuksDevices})
+            for dev in "''${devices[@]}"; do
               PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \
                 --wipe-slot=tpm2 "$dev" 2>/dev/null || true
               PASSWORD="$PW" ${lib.getExe' config.systemd.package "systemd-cryptenroll"} \

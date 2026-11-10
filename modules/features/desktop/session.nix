@@ -69,10 +69,16 @@
               initial_session = {
                 user = cfg.autologinuser;
 
-                command = "${pkgs.writeShellScript "autologin-session" ''
-                  ${lib.getExe' pkgs.systemd "systemctl"} is-active --quiet home-manager-${cfg.autologinuser}.service || exit 1
-                  exec ${sessionCommand}
-                ''}";
+                command = lib.getExe (
+                  pkgs.writeShellApplication {
+                    name = "autologin-session";
+
+                    text = ''
+                      ${lib.getExe' pkgs.systemd "systemctl"} is-active --quiet home-manager-${cfg.autologinuser}.service || exit 1
+                      exec ${sessionCommand}
+                    '';
+                  }
+                );
               };
             };
         };

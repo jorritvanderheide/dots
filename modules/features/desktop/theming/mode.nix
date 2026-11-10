@@ -72,16 +72,25 @@
             options,
             ...
           }:
+          let
+            followSaved = pkgs.writeShellApplication {
+              name = "follow-saved-theme";
+              runtimeInputs = [ pkgs.coreutils ];
+
+              text = ''
+                mode=$(cat ${lib.escapeShellArg "${config.xdg.stateHome}/weinig/mode"} 2>/dev/null || echo dark)
+                # At boot there is no session yet, and so no bus for dconf, as for the settings before this.
+                if [[ -v DBUS_SESSION_BUS_ADDRESS ]]; then
+                  exec ${lib.getExe follow} "$mode"
+                fi
+                exec ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon ${lib.getExe follow} "$mode"
+              '';
+            };
+          in
           {
-            home.activation.followTheme = lib.hm.dag.entryAfter [ "dconfSettings" ] ''
-              mode=$(cat ${lib.escapeShellArg "${config.xdg.stateHome}/weinig/mode"} 2>/dev/null || echo dark)
-              # At boot there is no session yet, and so no bus for dconf, as for the settings before this.
-              if [[ -v DBUS_SESSION_BUS_ADDRESS ]]; then
-                run ${lib.getExe follow} "$mode"
-              else
-                run ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon ${lib.getExe follow} "$mode"
-              fi
-            '';
+            home.activation.followTheme = lib.hm.dag.entryAfter [
+              "dconfSettings"
+            ] "run ${lib.getExe followSaved}";
 
             # Optional, as the build checks the config without the state folder.
             programs.niri.config = options.programs.niri.config.default ++ [
