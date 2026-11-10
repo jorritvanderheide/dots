@@ -52,6 +52,12 @@
             SkipTermsOfUse = true;
             TranslateEnabled = false;
 
+            # Bitwarden's managed storage (managed_schema.json in its xpi):
+            # the vault is the Vaultwarden on dapple (vaultwarden.nix), so the
+            # extension starts out on that server.
+            "3rdparty".Extensions."{446900e4-71c2-419f-a6a7-df9c091e268b}".environment.base =
+              "https://passwords.${inputs.self.lib.site.domain}";
+
             AIControls.Default = {
               Locked = true;
               Value = "blocked";
