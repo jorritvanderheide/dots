@@ -95,6 +95,14 @@ toolbarbutton#tabs-newtab-button {
 }
 /* --- URL Bar --- */
 
+/* The focus border as thin as the hairline, not double; with the results
+   open it is an outline on the input container instead. */
+.urlbar {
+  --urlbar-background-border-focused: var(--urlbar-input-container-border-width) solid var(--toolbar-field-border-color-focus) !important;
+  --urlbar-input-container-outline-open-focused: var(--urlbar-input-container-border-width) solid var(--toolbar-field-border-color-focus) !important;
+  --urlbar-input-container-outline-offset-open: calc(-1 * var(--urlbar-input-container-border-width)) !important;
+}
+
 #urlbar-input::selection {
   background-color: var(--primary) !important;
   color: var(--base) !important;
