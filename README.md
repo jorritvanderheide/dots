@@ -314,7 +314,8 @@ all of them.
 Syncthing keeps dapple's copy of rocinante's `~/Documents` and Obsidian
 vault, over the tailnet only, without a web page of its own. The vault's
 git history is on dapple alone, which commits what changed every 15
-minutes and pushes it to Codeberg.
+minutes and pushes it to Codeberg. The phone sends its voice memos to
+dapple the same way.
 
 A Forgejo runner takes CI jobs from Codeberg for my own repositories (it is
 registered with my account), with KVM for NixOS VM tests, also without a
@@ -364,7 +365,7 @@ dapple's tailnet address. Those five answer only at the public address,
 like any visitor's. SSH, Syncthing (22000/tcp) and the home LAN (through
 dapple's subnet route) only from the devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson)
-names: rocinante, and two phones for the LAN. The services' vhosts are
+names: rocinante, my phone for Syncthing, and two phones for the LAN. The services' vhosts are
 bound to that address and refuse any source outside the tailnet; the
 firewall (nftables) opens only 443, 22 and 22000 on it.
 
@@ -404,7 +405,8 @@ Who is kept out of what, beyond the ports in
 
 - **A tailnet device** gets what the policy grants: every device the
   services on dapple; a person's own devices each other; rocinante SSH
-  and Syncthing on dapple; two phones the home LAN, for the camera.
+  and Syncthing on dapple; my phone Syncthing on dapple, for voice memos;
+  two phones the home LAN, for the camera.
   dapple is `tag:server`, so it isn't anyone's own device, and the build
   checks the policy's addresses against `lib.site`. The apps ask for
   their own login, except Gatus's read-only status page and New Leaf's

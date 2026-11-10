@@ -34,6 +34,7 @@
         syncthing
         vault
         vaultwarden
+        voice-memos
 
         # Users
         nixos

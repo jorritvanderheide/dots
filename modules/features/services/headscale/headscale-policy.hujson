@@ -32,6 +32,8 @@
     {"src": ["rocinante"], "dst": ["dapple"], "ip": ["tcp:22"]},
     // The laptop: its documents to dapple's copy, with Syncthing.
     {"src": ["rocinante"], "dst": ["dapple"], "ip": ["tcp:22000"]},
+    // My phone: its voice memos to dapple, with Syncthing (syncthing.nix).
+    {"src": ["phone-1"], "dst": ["dapple"], "ip": ["tcp:22000"]},
     // The home LAN, through dapple: the phones, for the camera. Not the
     // laptop, which doesn't take the route (accepting it would send its LAN
     // traffic through dapple even at home).

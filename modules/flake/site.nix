@@ -41,14 +41,16 @@ _: {
       # Gatus, on dapple (gatus.nix): what every host reports its disks to.
       statusPage = "https://status.bw20.nl";
 
-      # rocinante's documents and dapple's copy (file-sync.nix,
-      # syncthing.nix). A device's ID is the hash of its key, which is in
-      # its persisted state.
+      # rocinante's documents and vault and dapple's copy (file-sync.nix,
+      # syncthing.nix), and the phone's voice memos. A device's ID is the
+      # hash of its key: rocinante's is in sops, dapple's in its persisted
+      # state, the phone's in Syncthing-Fork.
       syncthing = {
         port = 22000;
 
         devices = {
           dapple = "T5ZF3AC-HREZOUC-4MKGOWC-3PEWHOZ-WT75JQF-UTKPCZ6-2TN4TKZ-OWUXZQE";
+          phone = "YN3ZHQN-YJ75CV4-EDE6J53-R2M3FFX-TW6VDTT-YGQFL2N-7EX37VE-6U7WNA5";
           rocinante = "RMKDHFZ-P6LQ5NT-OXRSEGM-5AKMNDZ-LQNUVY2-KKWQZV3-6Q2YBM5-LZALDQQ";
         };
       };
