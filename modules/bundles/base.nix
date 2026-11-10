@@ -50,14 +50,6 @@
         nextSteps = "Type the LUKS password on the boots until secure boot is on: the first one with it on binds the TPM, so later boots unlock by themselves. Then restore its data with sudo offsite-restore (README, \"Restoring data\").";
         secrets.deployKey = "codeberg_deploy_key";
 
-        # The persisted /etc/nixos (preservation.nix), which the nixos group
-        # may write to.
-        checkout = {
-          group = "nixos";
-          jj = true;
-          path = "/persist/system/etc/nixos";
-        };
-
         reportCommit = {
           email = "root@yubinstall";
           name = "dots installer";

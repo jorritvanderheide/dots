@@ -15,6 +15,9 @@
       cfg = config.my.boot;
       allLuksDevices = [ luksDevice ] ++ cfg.extraLuksDevices;
       luksPassword = config.yubinstall.secrets.luksPassword;
+
+      # tpm2-luks-enroll runs while this is missing; enroll-tpm removes it.
+      enrolled = "/var/lib/tpm2-luks-enroll/done";
     in
     {
       imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
@@ -92,6 +95,7 @@
           # is a clone that nothing updates (comin keeps its own).
           (pkgs.writeShellApplication {
             name = "enroll-tpm";
+            runtimeEnv.ENROLLED = enrolled;
             runtimeInputs = [ config.systemd.package ];
             text = builtins.readFile (inputs.self + "/scripts/enroll-tpm.sh");
           })
@@ -152,7 +156,7 @@
                 --tpm2-pcrs=7 \
                 "$dev"
             done
-            ${lib.getExe' pkgs.coreutils "touch"} /var/lib/tpm2-luks-enroll/done
+            ${lib.getExe' pkgs.coreutils "touch"} ${enrolled}
           '';
 
           serviceConfig = {
@@ -161,7 +165,7 @@
           };
 
           unitConfig = {
-            ConditionPathExists = "!/var/lib/tpm2-luks-enroll/done";
+            ConditionPathExists = "!${enrolled}";
             ConditionSecurity = "uefi-secureboot";
           };
         };

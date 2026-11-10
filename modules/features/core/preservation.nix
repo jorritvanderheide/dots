@@ -166,6 +166,15 @@
         # Pinned so the installer (yubinstall) can chown /etc/nixos to this
         # GID from the live ISO, where the name "nixos" doesn't resolve.
         users.groups.nixos.gid = 3000;
+
+        # Where the installer clones this repository: the persisted
+        # /etc/nixos in preserveAt."/persist/system", which the nixos group
+        # may write to.
+        yubinstall.checkout = {
+          group = "nixos";
+          jj = true;
+          path = "/persist/system/etc/nixos";
+        };
       };
     };
 }

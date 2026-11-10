@@ -16,6 +16,7 @@ set -euo pipefail
   exit 1
 }
 
-rm -f /var/lib/tpm2-luks-enroll/done
+# tpm2-luks-enroll's flag (boot.nix), set by writeShellApplication.
+rm -f "$ENROLLED"
 systemctl restart tpm2-luks-enroll
 echo "Re-enrolled. journalctl -u tpm2-luks-enroll if it didn't take."
