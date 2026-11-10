@@ -125,13 +125,12 @@ in
                     width = 1;
                   };
 
-                  # A light on that hairline under the window (niri-active-line.patch), not a
-                  # ring. Weinig's `bright` and `signal`, and none on a screen without focus.
+                  # A light on that hairline under the window, in Weinig's `bright`, not a ring,
+                  # and only for a moment as the focus goes to another monitor
+                  # (niri-active-line.patch).
                   focus-ring = {
                     enable = true;
                     active.color = colors.primary;
-                    inactive.color = "#00000000";
-                    urgent.color = colors.error;
                   };
 
                   preset-column-widths = [
@@ -272,7 +271,8 @@ in
           # other right above where I am. And without a scale in the config it guesses one for a
           # distance of a desk, which on a screen in a meeting room is too small to read: from 50
           # inches, here it aims for a desktop 1080 high. And it can only draw a ring around a
-          # window, and here that is a light on the border under it.
+          # window, and here that is a light on the border under it, briefly, as the focus goes to
+          # another monitor.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
