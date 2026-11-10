@@ -1,6 +1,7 @@
 /*
- * Color variables for firefox-userContent.css, defined once here, and
- * imported ahead of it by theming/firefox.nix.
+ * Color variables for both Firefox templates (firefox-userChrome.css and
+ * firefox-userContent.css), defined once here, and imported ahead of each by
+ * theming/firefox.nix.
  *
  * Scoped to the browser UI and about: pages: the variable names are generic
  * (--primary, --text, ...), and setting them on every element of a website
@@ -9,15 +10,18 @@
  * Adjusted for this setup:
  * - --surface is the content tone (new tab and about: pages), shared with
  *   Zed's editor, Ghostty and Obsidian's notes.
- * - The pages use the accents as text (links, icons), and the raw
+ * - Firefox uses the accents as text (selected tab, links, icons), and the raw
  *   wallpaper accents can lack contrast: they are darkened in light mode, and
  *   secondary/tertiary lifted in dark mode.
  * - --error is the fixed semantic red (the palette's fixed hues).
+ * - --frame is the window around the content, the tone of the gutter between
+ *   Obsidian's cards.
  */
 @-moz-document url-prefix("chrome:"), url-prefix("about:") {
   @media (prefers-color-scheme: dark) {
     * {
       --base:             {{colors.background.dark.hex}};
+      --frame:            {{colors.surface_container_high.dark.hex}};
       --surface:          {{colors.surface_container_low.dark.hex}};
       --overlay:          {{colors.surface_container.dark.hex}};
       --hl_low:           {{colors.surface_container_high.dark.hex}};
@@ -36,6 +40,7 @@
   @media (prefers-color-scheme: light) {
     * {
       --base:             {{colors.background.light.hex}};
+      --frame:            {{colors.surface_container_high.light.hex}};
       --surface:          {{colors.surface_container_lowest.light.hex}};
       --overlay:          {{colors.surface_container.light.hex}};
       --hl_low:           {{colors.surface_container_high.light.hex}};
