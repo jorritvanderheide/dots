@@ -1,6 +1,7 @@
 {
   flake.nixosModules.notes =
     {
+      config,
       lib,
       pkgs,
       ...
@@ -52,8 +53,10 @@
           }
         ];
 
+        # The vault itself, and the list of vaults that points Obsidian at it.
         my.research.statePaths = [
           ".config/obsidian"
+          config.my.research.vaultPath
         ];
       };
     };
