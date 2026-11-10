@@ -110,7 +110,6 @@ in
                   background-color = "transparent";
                   default-column-width.proportion = 1.0;
                   empty-workspace-above-first = true;
-                  focus-ring.enable = false;
                   gaps = 36.0;
                   shadow.enable = false;
 
@@ -121,6 +120,15 @@ in
                     inactive.color = "#2a2a2a";
                     urgent.color = "#d71921";
                     width = 1;
+                  };
+
+                  # A light on that hairline under the window (niri-active-line.patch), not a
+                  # ring. Weinig's `bright` and `signal`, and none on a screen without focus.
+                  focus-ring = {
+                    enable = true;
+                    active.color = "#ffffff";
+                    inactive.color = "#00000000";
+                    urgent.color = "#d71921";
                   };
 
                   preset-column-widths = [
@@ -250,7 +258,7 @@ in
           enable = true;
 
           # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for five patches. niri
+          # (flake.nix). Still a build from source, for six patches. niri
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
@@ -260,7 +268,8 @@ in
           # workspaces at the bottom: here those of a desk come first, focused, and those of any
           # other right above where I am. And without a scale in the config it guesses one for a
           # distance of a desk, which on a screen in a meeting room is too small to read: from 50
-          # inches, here it aims for a desktop 1080 high.
+          # inches, here it aims for a desktop 1080 high. And it can only draw a ring around a
+          # window, and here that is a light on the border under it.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 
@@ -270,6 +279,7 @@ in
               ./niri-whole-pixel-clip.patch
               ./niri-lost-screen.patch
               ./niri-room-scale.patch
+              ./niri-active-line.patch
             ];
 
             # The monitors that patch counts as a desk's: those I trust (weinig.nix).

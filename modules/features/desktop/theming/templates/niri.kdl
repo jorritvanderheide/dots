@@ -1,7 +1,11 @@
-// The border's colors for each mode (theming/mode.nix), included last so that it wins.
+// The colors of the border and its light for each mode (theming/mode.nix), included last so that they win.
 layout {
     border {
         active-color "{{colors.outline_variant.default.hex}}"
         inactive-color "{{colors.outline_variant.default.hex}}"
+    }
+
+    focus-ring {
+        active-color "{{colors.primary.default.hex}}"
     }
 }
