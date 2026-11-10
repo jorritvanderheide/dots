@@ -27,6 +27,12 @@
   --panel-background-color: var(--overlay) !important;
   --sidebar-text-color: var(--text) !important;
   --sidebar-background-color: var(--frame) !important;
+
+  /* --- Hairlines --- */
+  /* Around the address bar, and between the tab bar and the toolbar. */
+  --toolbar-field-border-color: var(--outline) !important;
+  --tabs-navbar-separator-style: solid !important;
+  --tabs-navbar-separator-color: var(--outline) !important;
 }
 
 /* --- Sidebar & Layout --- */
@@ -96,6 +102,19 @@ toolbarbutton#tabs-newtab-button {
 
 .urlbar-background {
   background-color: var(--surface) !important;
+}
+
+/* The search engine switcher in the address bar: no pill of its own, a fill
+   on hover like the toolbar buttons. */
+.searchmode-switcher {
+  --button-background-color-muted: transparent !important;
+  --button-background-color-muted-hover: var(--hl_low) !important;
+  --button-background-color-muted-active: var(--hl_med) !important;
+  --button-background-color-muted-selected: var(--hl_med) !important;
+  --button-border-color-muted: transparent !important;
+  --button-border-color-muted-hover: transparent !important;
+  --button-border-color-muted-active: transparent !important;
+  --button-border-color-muted-selected: transparent !important;
 }
 
 .urlbarView-url {
