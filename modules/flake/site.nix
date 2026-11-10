@@ -58,6 +58,11 @@ _: {
       # The person's username, on every host and in the services that keep
       # an account for them (ntfy, File Browser).
       user = "jorrit";
+
+      # Where rocinante keeps the voice memos dapple archives, relative to
+      # the home directory: the notes dapple writes link there
+      # (voice-memos.nix, file-sync.nix).
+      voiceMemos = "Audio/Voice memos";
     };
 
   };

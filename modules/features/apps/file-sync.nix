@@ -63,6 +63,12 @@
                     path = "${config.home.homeDirectory}/${vaultPath}";
                   };
 
+                  # The voice memos dapple transcribes (voice-memos.nix).
+                  folders.voice-memos = {
+                    devices = [ "dapple" ];
+                    path = "${config.home.homeDirectory}/${site.voiceMemos}";
+                  };
+
                   options = {
                     crashReportingEnabled = false;
                     globalAnnounceEnabled = false;
@@ -78,10 +84,12 @@
           )
         ];
 
-        # The index. The files are in ~/Documents, which preservation keeps
-        # for every user.
+        # The index, and ~/Audio, which holds the voice memos. The documents
+        # are in ~/Documents, which preservation keeps for every user, and
+        # the vault has an entry of its own (notes.nix).
         my.preservation.homeDirectories = [
           ".local/state/syncthing"
+          (builtins.dirOf site.voiceMemos)
         ];
 
         # The identity dapple knows this laptop by (site.syncthing.devices),

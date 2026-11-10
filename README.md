@@ -315,7 +315,9 @@ Syncthing keeps dapple's copy of rocinante's `~/Documents` and Obsidian
 vault, over the tailnet only, without a web page of its own. The vault's
 git history is on dapple alone, which commits what changed every 15
 minutes and pushes it to Codeberg. The phone sends its voice memos to
-dapple the same way.
+dapple the same way. dapple transcribes each with whisper.cpp on its GPU
+into a note in the vault's `Notes/`, and archives the recording, which
+syncs to rocinante's `~/Audio/Voice memos`, where the note links.
 
 A Forgejo runner takes CI jobs from Codeberg for my own repositories (it is
 registered with my account), with KVM for NixOS VM tests, also without a
