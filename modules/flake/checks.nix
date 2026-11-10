@@ -47,6 +47,50 @@
           touch $out
         '';
 
+        # README section 6 lists what the internet reaches, by the name in
+        # front of the domain ("at `cv`", "`kobo` answers too") or "at the
+        # bare domain": every host's my.ingress.public, no more and no less.
+        exposure =
+          let
+            inherit (inputs.self.lib.site) domain;
+            readme = builtins.readFile (inputs.self + "/README.md");
+            section = lib.head (
+              lib.splitString "**From the tailnet**" (
+                lib.elemAt (lib.splitString "## 6 Network exposure" readme) 1
+              )
+            );
+            documented = lib.unique (
+              lib.remove null (
+                lib.concatLists (
+                  lib.filter lib.isList (builtins.split "at `([a-z-]+)`|`([a-z-]+)` answers" section)
+                )
+              )
+              ++ lib.optional (lib.hasInfix "at the bare domain" section) "the bare domain"
+            );
+            nameOf =
+              public:
+              if public.domain == domain then "the bare domain" else lib.removeSuffix ".${domain}" public.domain;
+            public = lib.unique (
+              lib.concatMap (
+                host:
+                lib.optionals (host.config.my ? ingress) (map nameOf (lib.attrValues host.config.my.ingress.public))
+              ) (lib.attrValues hosts)
+            );
+            missing = lib.subtractLists documented public;
+            extra = lib.subtractLists public documented;
+          in
+          pkgs.runCommand "exposure-check" { } (
+            if missing == [ ] && extra == [ ] then
+              "touch $out"
+            else
+              ''
+                echo "README section 6 and my.ingress.public differ (checks.nix)." >&2
+                echo "Public, not in the README: ${lib.concatStringsSep ", " missing}" >&2
+                echo "In the README, not public: ${lib.concatStringsSep ", " extra}" >&2
+                exit 1
+              ''
+          );
+
         # Every service that runs as its own user, on each host's built
         # system, scored by systemd-analyze security (0 is sealed, 10 is
         # root with everything): at most the ceiling, or the one named here
