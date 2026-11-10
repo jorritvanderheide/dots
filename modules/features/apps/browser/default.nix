@@ -69,10 +69,18 @@
                   "browser.cache.memory.enable" = true;
                   "browser.low_commit_space_threshold_percent" = 100;
                   "browser.ml.enable" = false;
+                  "browser.newtabpage.activity-stream.hideLogo" = true;
+                  "browser.newtabpage.activity-stream.showSponsoredCheckboxes" = false;
                   "browser.sessionstore.resume_from_crash" = false;
                   "browser.startup.homepage_override.mstone" = "ignore";
                   "browser.tabs.min_inactive_duration_before_unload" = 3600000;
                   "browser.tabs.unloadOnLowMemory" = true;
+                  "browser.urlbar.suggest.engines" = false;
+                  "browser.urlbar.suggest.quickactions" = false;
+                  "browser.urlbar.suggest.recentsearches" = false;
+                  "browser.urlbar.suggest.topsites" = false;
+                  "browser.urlbar.suggest.trending" = false;
+                  "intl.accept_languages" = "en-US, en, nl";
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
                 };
               };

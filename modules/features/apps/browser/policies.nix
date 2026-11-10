@@ -47,11 +47,15 @@
             OverrideFirstRunPage = "";
             OverridePostUpdatePage = "";
             PasswordManagerEnabled = false;
-            PictureInPicture = false;
             SearchSuggestEnabled = true;
             ShowHomeButton = true;
             SkipTermsOfUse = true;
             TranslateEnabled = false;
+
+            AIControls.Default = {
+              Locked = true;
+              Value = "blocked";
+            };
 
             DNSOverHTTPS = {
               Enabled = false;
@@ -62,6 +66,11 @@
               Category = "strict";
               Locked = true;
               Value = true;
+            };
+
+            EncryptedMediaExtensions = {
+              Enabled = true;
+              Locked = true;
             };
 
             ExtensionSettings = {
@@ -113,8 +122,10 @@
               Search = true;
               Snippets = false;
               SponsoredPocket = false;
+              SponsoredStories = false;
               SponsoredTopSites = false;
               TopSites = false;
+              Widgets.Enabled = false;
             };
 
             FirefoxSuggest = {
@@ -124,14 +135,10 @@
               WebSuggestions = false;
             };
 
-            GenerativeAI = {
-              Enabled = false;
-              Locked = true;
-            };
-
             Homepage = {
               Locked = false;
               StartPage = "homepage";
+              URL = "about:newtab";
             };
 
             HttpAllowlist = [
@@ -141,6 +148,11 @@
               "http://145.137.190.196"
               "http://${inputs.self.lib.site.hosts.rocinante.tailnetIp}"
             ];
+
+            PictureInPicture = {
+              Enabled = false;
+              Locked = true;
+            };
 
             SanitizeOnShutdown = {
               Cache = true;
@@ -224,6 +236,7 @@
                 "Google"
                 "Perplexity"
                 "Qwant"
+                "Startpage"
                 "Wikipedia (en)"
               ];
             };
