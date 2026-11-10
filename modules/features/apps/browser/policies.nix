@@ -1,4 +1,4 @@
-# Zen's enterprise policies: what it may do, its extensions and its search
+# Firefox's enterprise policies: what it may do, its extensions and its search
 # engines. The program and its profile are in default.nix.
 {
   inputs,
@@ -21,7 +21,7 @@
     {
       config.home-manager.sharedModules = [
         {
-          programs.zen-browser.policies = {
+          programs.firefox.policies = {
             AutofillAddressEnabled = false;
             AutofillCreditCardEnabled = false;
             BlockAboutAddons = true;

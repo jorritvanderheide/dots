@@ -293,8 +293,7 @@
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix",
         "weinig-shell": "weinig-shell",
-        "yubinstall": "yubinstall",
-        "zen-browser": "zen-browser"
+        "yubinstall": "yubinstall"
       }
     },
     "rust-overlay": {
@@ -441,30 +440,6 @@
         "ref": "refs/tags/0.1.0",
         "type": "git",
         "url": "https://codeberg.org/BW20/nixos-yubinstall"
-      }
-    },
-    "zen-browser": {
-      "inputs": {
-        "home-manager": [
-          "home-manager"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793752983,
-        "narHash": "sha256-2T4ay/hK055JGIv7eE036v693+Z4p60tBxowfLk0G5Q=",
-        "owner": "0xc000022070",
-        "repo": "zen-browser-flake",
-        "rev": "a643602101835da649bf016714c9121fba7dda53",
-        "type": "github"
-      },
-      "original": {
-        "owner": "0xc000022070",
-        "ref": "beta",
-        "repo": "zen-browser-flake",
-        "type": "github"
       }
     }
   },

@@ -100,10 +100,8 @@
 /* Variables and styles specific to about:preferences */
 @-moz-document url-prefix("about:preferences") {
   :root {
-    --zen-colors-tertiary: var(--surface) !important;
     --in-content-text-color: var(--text) !important;
     --link-color: var(--secondary) !important;
-    --zen-primary-color: var(--primary) !important;
     
     /* Cover dialogs that use default in-content variables */
     --in-content-page-background: var(--surface) !important;
@@ -499,7 +497,7 @@
 	}
 }
 
-/* Pages that have the color variables, see zen-colors.css */
+/* Pages that have the color variables, see firefox-colors.css */
 @-moz-document url-prefix("chrome:"), url-prefix("about:") {
   /* Custom text selection styling */
   ::selection {

@@ -200,8 +200,8 @@
               # and brings it back once Zotero quits if Obsidian still holds
               # its lock (see notes.nix). A launch that only hands a link to
               # an open Zotero returns at once; ExecCondition skips the start
-              # then. Overrides the package's entry the same way
-              # session-restore.nix does for Zen; wrapping the package instead
+              # then. Overrides the package's entry: XDG_DATA_HOME wins over
+              # the profile's share/applications. Wrapping the package instead
               # would rebuild the pinned Zotero from source.
               xdg.dataFile."applications/zotero.desktop".source =
                 pkgs.runCommand "zotero-stop-headless.desktop" { }

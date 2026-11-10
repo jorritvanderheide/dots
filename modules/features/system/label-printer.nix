@@ -6,7 +6,7 @@
   # The Brother QL-700 that prints MeetINN's name labels at the door
   # (meetinn's README, "Name labels"). The check-in screen prints with
   # window.print(), which only Chromium with --kiosk-printing sends to the
-  # default printer without a dialog for one window. Zen's way
+  # default printer without a dialog for one window. Firefox's way
   # (print.always_print_silent) would print everything that way.
   flake.nixosModules.label-printer =
     {
