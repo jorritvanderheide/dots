@@ -19,8 +19,8 @@ order they're written in. Function arguments are alphabetical, with `...`
 last. The fixtures in nix-order-tests/ show each rule; the flake check
 runs them.
 
-Run by `nix fmt` before nixfmt, so the flake's treefmt check fails on a file
-that is out of order. Rewrites the files it is given in place. A set with a
+Run by `nix fmt` between two nixfmt passes, so the flake's treefmt check fails
+on a file that is out of order. Rewrites the files it is given in place. A set with a
 comment that belongs to no attribute is named on stderr and left alone, and
 the exit status is then 1: the check can't vouch for it either.
 
@@ -168,7 +168,7 @@ def key(node, ctx):
 def rewrite_attrset(node, ctx):
     elems = list(elements(node))
     # A set on one line has one attribute after nixfmt, which expands any
-    # other.
+    # other, and `nix fmt` runs nixfmt first (formatter.nix).
     if node.start_point[0] == node.end_point[0] or not any(
         e.type in BINDINGS for e in elems
     ):

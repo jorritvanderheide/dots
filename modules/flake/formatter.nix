@@ -9,6 +9,7 @@
 
   perSystem =
     {
+      config,
       lib,
       pkgs,
       self',
@@ -59,6 +60,13 @@
               "-I"
               "${../../scripts/nix-order.py}"
             ];
+          };
+
+          # nixfmt before nix-order too, so a set written on one line is
+          # expanded and then sorted in the same pass, not on the next.
+          formatter.nixfmt-first = {
+            inherit (config.treefmt.settings.formatter.nixfmt) command includes;
+            priority = -2;
           };
 
           # The templates carry {{ }} placeholders a formatter could break.
