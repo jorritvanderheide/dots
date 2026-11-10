@@ -30,6 +30,7 @@
 
   /* --- Hairline around the address bar --- */
   --toolbar-field-border-color: var(--outline) !important;
+  --toolbar-field-border-color-focus: var(--text) !important;
   /* No line between the tab bar and the toolbar. */
   --tabs-navbar-separator-style: none !important;
 }
