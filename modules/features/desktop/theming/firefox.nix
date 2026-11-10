@@ -16,7 +16,7 @@
 
             userContent = ''
               @import url("file://${colors}");
-              @import url("file://${./templates/firefox-userContent.css}");
+              @import url("file://${osConfig.programs.weinig.theme.render "firefox-userContent.css" ./templates/firefox-userContent.css}");
             '';
           };
         }

@@ -8,6 +8,8 @@
   --toolbar-background-color: var(--frame) !important;
   --toolbar-field-background-color: var(--surface) !important;
   --toolbar-field-background-color-focus: var(--surface) !important;
+  /* Behind a page until it paints. */
+  --tabpanel-background-color: var(--surface) !important;
 
   /* --- Text & Icons --- */
   --toolbarbutton-icon-fill: var(--primary) !important;

@@ -1,4 +1,13 @@
 
+/* A dark page with nothing to show yet (blank, or still only scripts) gets
+   the content tone, --surface in firefox-colors.css, instead of Firefox's
+   built-in #1c1b22, which no pref changes. Only empty pages: on a page with
+   content this would stop the body's background from filling the window.
+   light-dark() leaves light pages alone, and a page's own background wins. */
+:root:not(:has(> body > :not(script, style, template, noscript, link, meta))) {
+  background-color: light-dark(transparent, {{colors.surface_container_low.dark.hex}});
+}
+
 /* Common variables affecting all pages */
 @-moz-document url-prefix("about:") {
   :root {
