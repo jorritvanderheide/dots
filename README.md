@@ -1,13 +1,17 @@
 # <img src="https://raw.githubusercontent.com/NixOS/nixos-artwork/master/logo/nix-snowflake-colours.svg" width="48" align="absmiddle" /> Dots
 
-**Jorrit's NixOS configuration: a laptop to work on, and a server for the home.**
+**NixOS configuration for my personal workstation and home server.**
 
-One flake for two machines. rocinante is a Framework laptop with a niri
-desktop; dapple is the home server, with photos, media, passwords and a
-self-hosted tailnet. Both wipe their root on every boot and keep only what is
-declared, their disks unlock with the TPM under secure boot, and their
-secrets are in this repository, encrypted per host. See
-[Installation](#1-installation).
+This config is a modular approach to managing my personal laptop and home server. It follows, to some degree, the dendritic pattern and aims to provide a flexible system where it is trivial to replace devices or enroll new ones. Some properties and features of this include:
+
+- Secure Boot using Lanzaboote, with LUKS unlock via TPM
+- Ephemeral state using Preservation, root is wiped on boot
+- Secrets in Sops, encrypted per host and edited with a YubiKey
+- Backup and restore with Snapback, stored offsite on Storj
+- Trivial device enrollment and replacement dusing nixos-yubinstall and facter hardware reports
+- My own desktop shell, Weinig
+- Pull-based deploys using Comin for every commit signed with a YubiKey
+- Home server services only answer on a self-hosted Tailnet with Headscale
 
 <br/>
 
@@ -202,7 +206,7 @@ logs that device out.
 | Host | What it is | Runs |
 | --- | --- | --- |
 | **rocinante** | Framework 13 (13th gen Intel) laptop | Niri with the Weinig shell |
-| **dapple** | Home server | Headscale and the services in [section 5](#5-services-on-dapple), backed up to Storj |
+| **dapple** | Geekom A5 home server | Headscale and the services in [section 5](#5-services-on-dapple), backed up to Storj |
 
 Both get the same core: ZFS on LUKS, secure boot, a root that rolls back on
 boot, sops secrets, home-manager, and fish.
