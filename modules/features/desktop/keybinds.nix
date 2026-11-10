@@ -79,11 +79,6 @@
                 repeat = false;
               };
 
-              "Mod+Alt+Ctrl+Up" = {
-                action = move-window-to-workspace-up;
-                repeat = false;
-              };
-
               "Mod+Alt+Ctrl+Shift+Down" = {
                 action = move-window-to-monitor-down;
                 repeat = false;
@@ -101,6 +96,11 @@
 
               "Mod+Alt+Ctrl+Shift+Up" = {
                 action = move-window-to-monitor-up;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Up" = {
+                action = move-window-to-workspace-up;
                 repeat = false;
               };
 

@@ -1,25 +1,30 @@
+/* Firefox's own variable names, as of Firefox 159: browser-colors.css and
+   the rest of chrome/browser/skin in omni.ja. A renamed one fails silently,
+   leaving Firefox's GTK color in place. */
 :root {
   /* --- Backgrounds --- */
-  --toolbar-bgcolor: var(--frame) !important;
-  --toolbox-bgcolor-inactive: var(--frame) !important;
+  --toolbox-background-color: var(--frame) !important;
+  --toolbox-background-color-inactive: var(--frame) !important;
+  --toolbar-background-color: var(--frame) !important;
+  --toolbar-field-background-color: var(--surface) !important;
+  --toolbar-field-background-color-focus: var(--surface) !important;
 
   /* --- Text & Icons --- */
-  --lwt-text-color: var(--text) !important;
   --toolbarbutton-icon-fill: var(--primary) !important;
-  --toolbar-field-color: var(--text) !important;
+  --toolbar-field-text-color: var(--text) !important;
+  --toolbar-field-text-color-focus: var(--text) !important;
   --toolbar-field-focus-color: var(--text) !important;
-  --toolbar-color: var(--text) !important;
-  --toolbox-textcolor: var(--text) !important;
-  --toolbox-textcolor-inactive: var(--text) !important;
-  --tab-selected-textcolor: var(--text) !important;
+  --toolbar-text-color: var(--text) !important;
+  --toolbox-text-color: var(--text) !important;
+  --toolbox-text-color-inactive: var(--text) !important;
+  --tab-text-color-selected: var(--text) !important;
   --newtab-text-primary-color: var(--text) !important;
 
   /* --- Popups, Menus & Sidebars --- */
-  --arrowpanel-color: var(--text) !important;
-  --arrowpanel-background: var(--overlay) !important;
+  --panel-text-color: var(--text) !important;
+  --panel-background-color: var(--overlay) !important;
   --sidebar-text-color: var(--text) !important;
-  --lwt-sidebar-text-color: var(--text) !important;
-  --lwt-sidebar-background-color: var(--frame) !important;
+  --sidebar-background-color: var(--frame) !important;
 }
 
 /* --- Sidebar & Layout --- */
@@ -132,9 +137,8 @@ toolbarbutton#tabs-newtab-button {
 
 #ContentSelectDropdown,
 #ContentSelectDropdown > menupopup {
-  --arrowpanel-background: var(--overlay) !important;
-  --arrowpanel-color: var(--text) !important;
-  --arrowpanel-border-color: transparent !important;
+  --panel-background-color: var(--overlay) !important;
+  --panel-text-color: var(--text) !important;
   --panel-border-color: transparent !important;
   background-color: var(--overlay) !important;
   color: var(--text) !important;
@@ -262,8 +266,8 @@ menuitem:where([_moz-menuactive="true"]:not([disabled="true"])) {
   background-color: var(--primary) !important;
   color: var(--base) !important;
 }
-menu:where([_moz-menuactive="true"]:not([disabled="true"])) :is(.menu-text, .menu-iconic-text, .menu-accel):not(menupopup *), 
-menuitem:where([_moz-menuactive="true"]:not([disabled="true"])) :is(.menu-text, .menu-iconic-text, .menu-accel) {
+menu:where([_moz-menuactive="true"]:not([disabled="true"])) :is(.menu-text, .menu-accel):not(menupopup *), 
+menuitem:where([_moz-menuactive="true"]:not([disabled="true"])) :is(.menu-text, .menu-accel) {
   color: var(--base) !important;
 }
 
@@ -276,8 +280,8 @@ menuitem:where([_moz-menuactive="true"]:not([disabled="true"])) :is(.menu-text, 
 
 /* --- Autocomplete Popup (Login/Password Dropdown) --- */
 #PopupAutoComplete {
-  --panel-background: var(--overlay) !important;
-  --panel-color: var(--text) !important;
+  --panel-background-color: var(--overlay) !important;
+  --panel-text-color: var(--text) !important;
   --panel-border-color: transparent !important;
   --panel-padding: 0 !important;
   border: none !important;
@@ -333,8 +337,6 @@ panel[type="autocomplete-richlistbox"],
 /* --- Identity/Site Data Panel Icons --- */
 /* Bookmark, Send Notifications, Tracking Protection backgrounds */
 .permission-popup-permission-icon::before,
-.permission-popup-boost-icon::before,
-.identity-popup-protections-icon::before,
 #tracking-protection-icon-container::before {
   background-color: var(--primary) !important;
   opacity: 0.2 !important;
@@ -342,8 +344,6 @@ panel[type="autocomplete-richlistbox"],
 
 /* Update the icon fill color to match the primary color for a consistent theme */
 .permission-popup-permission-icon,
-.permission-popup-boost-icon,
-.identity-popup-protections-icon,
 #tracking-protection-icon-container {
   color: var(--primary) !important;
   fill: var(--primary) !important;
@@ -351,8 +351,6 @@ panel[type="autocomplete-richlistbox"],
 
 /* Hover states for Identity/Site Data panel icons */
 .permission-popup-permission-item:hover .permission-popup-permission-icon::before,
-.permission-popup-boost-item:hover .permission-popup-boost-icon::before,
-.identity-popup-protections-icon:hover::before,
 #tracking-protection-icon-container:hover::before,
 #identity-popup-security-button:hover::before {
   background-color: var(--subtle) !important;

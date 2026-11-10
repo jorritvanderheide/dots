@@ -119,6 +119,9 @@
         wallpaper.directory = "${
           config.users.users.${config.my.session.autologinuser}.home
         }/Pictures/Wallpapers";
+
+        # Only by hand, with Mod+W and Mod+Shift+W.
+        wallpaper.interval = null;
       };
     };
 }
