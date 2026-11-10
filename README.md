@@ -657,7 +657,10 @@ secrets/                          <host>.yaml, installer.yaml, and .sops.yaml wi
 ```
 
 A feature is on when the host imports it, and keeps its settings under
-`my.<feature>`. One that needs another asserts it is imported. Desktop and
+`my.<feature>`. One that needs another asserts it is imported. Every host
+has the base bundle, so a feature counts on what it brings without
+asserting it: sops-nix, home-manager, `my.preservation`, and
+`my.offsite-backup`, whose entries a host without the backup ignores. Desktop and
 app features configure the user through `home-manager.sharedModules`. A
 service declares its state in `my.preservation` and `my.offsite-backup`, its
 page in `my.ingress`, and its unit gets `lib.restartAlways` and, where
