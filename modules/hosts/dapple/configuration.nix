@@ -32,6 +32,7 @@
         pubhubs-preview
         servarr
         syncthing
+        vault
         vaultwarden
 
         # Users

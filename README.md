@@ -311,8 +311,10 @@ all of them.
 | Gatus | `status` | Monitoring of all of the above |
 | ntfy | `alerts` | Gatus's alerts, to the phone's ntfy app and rocinante's desktop |
 
-Syncthing keeps dapple's copy of rocinante's `~/Documents`, over the
-tailnet only, without a web page of its own.
+Syncthing keeps dapple's copy of rocinante's `~/Documents` and Obsidian
+vault, over the tailnet only, without a web page of its own. The vault's
+git history is on dapple alone, which commits what changed every 15
+minutes and pushes it to Codeberg.
 
 A Forgejo runner takes CI jobs from Codeberg for my own repositories (it is
 registered with my account), with KVM for NixOS VM tests, also without a
@@ -602,7 +604,8 @@ the data on Storj, and the YubiKeys are separate devices.
 - **rocinante.** Boot the ISO on its replacement and run `yubinstall
   rocinante` on its console, which gathers and pushes its hardware report,
   then follow [First boot](#first-boot). Only what rocinante's backup holds
-  comes back: Zotero, the Obsidian vault, and its place on the tailnet.
+  comes back: Zotero and its place on the tailnet. `~/Documents` and the
+  Obsidian vault sync back from dapple.
 - **A stolen rocinante.** Its disk unlocks with the TPM for whoever boots
   it, into a locked session, so count its secrets, tailnet node and Storj
   credentials as known. Install its replacement as above, but:

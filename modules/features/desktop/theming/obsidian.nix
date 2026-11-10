@@ -19,8 +19,9 @@
             ...
           }:
           let
-            # A real file, as the vault is a git repository of its own. The name it
-            # was switched on under, in Settings > Appearance > CSS snippets.
+            # A real file, as the vault is synced (file-sync.nix), which
+            # leaves this one out. The name it was switched on under, in
+            # Settings > Appearance > CSS snippets.
             snippet = pkgs.writeShellApplication {
               name = "obsidian-snippet";
               runtimeInputs = [ pkgs.coreutils ];

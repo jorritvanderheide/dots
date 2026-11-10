@@ -96,8 +96,8 @@
             my.offsite-backup = {
               enable = true;
 
+              # The Obsidian vault is backed up on dapple (vault.nix).
               paths = [
-                "/persist/home/jorrit/${config.my.research.vaultPath}"
                 "/persist/home/jorrit/Zotero"
               ];
             };
