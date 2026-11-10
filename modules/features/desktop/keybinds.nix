@@ -65,27 +65,47 @@
               };
 
               "Mod+Alt+Ctrl+Down" = {
-                action = move-window-to-monitor-down;
+                action = move-window-to-workspace-down;
                 repeat = false;
               };
 
               "Mod+Alt+Ctrl+J" = {
-                action = move-window-to-monitor-down;
+                action = move-window-to-workspace-down;
                 repeat = false;
               };
 
               "Mod+Alt+Ctrl+K" = {
-                action = move-window-to-monitor-up;
+                action = move-window-to-workspace-up;
                 repeat = false;
               };
 
               "Mod+Alt+Ctrl+Up" = {
+                action = move-window-to-workspace-up;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Shift+Down" = {
+                action = move-window-to-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Shift+J" = {
+                action = move-window-to-monitor-down;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Shift+K" = {
+                action = move-window-to-monitor-up;
+                repeat = false;
+              };
+
+              "Mod+Alt+Ctrl+Shift+Up" = {
                 action = move-window-to-monitor-up;
                 repeat = false;
               };
 
               "Mod+Alt+Down" = {
-                action = move-window-down-or-to-workspace-down;
+                action = focus-workspace-down;
                 repeat = false;
               };
 
@@ -100,12 +120,12 @@
               };
 
               "Mod+Alt+J" = {
-                action = move-window-down-or-to-workspace-down;
+                action = focus-workspace-down;
                 repeat = false;
               };
 
               "Mod+Alt+K" = {
-                action = move-window-up-or-to-workspace-up;
+                action = focus-workspace-up;
                 repeat = false;
               };
 
@@ -125,7 +145,7 @@
               };
 
               "Mod+Alt+Up" = {
-                action = move-window-up-or-to-workspace-up;
+                action = focus-workspace-up;
                 repeat = false;
               };
 
@@ -135,34 +155,14 @@
                 repeat = false;
               };
 
-              "Mod+Ctrl+Down" = {
-                action = focus-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+Ctrl+J" = {
-                action = focus-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+Ctrl+K" = {
-                action = focus-monitor-up;
-                repeat = false;
-              };
-
               "Mod+Ctrl+N" = {
                 action = spawn "weinig" "msg" "notifications" "toggle";
                 hotkey-overlay.title = "Open the notification centre";
                 repeat = false;
               };
 
-              "Mod+Ctrl+Up" = {
-                action = focus-monitor-up;
-                repeat = false;
-              };
-
               "Mod+Down" = {
-                action = focus-window-or-workspace-down;
+                action = focus-monitor-down;
                 repeat = false;
               };
 
@@ -185,12 +185,12 @@
               };
 
               "Mod+J" = {
-                action = focus-window-or-workspace-down;
+                action = focus-monitor-down;
                 repeat = false;
               };
 
               "Mod+K" = {
-                action = focus-window-or-workspace-up;
+                action = focus-monitor-up;
                 repeat = false;
               };
 
@@ -279,7 +279,7 @@
               };
 
               "Mod+Up" = {
-                action = focus-window-or-workspace-up;
+                action = focus-monitor-up;
                 repeat = false;
               };
 
