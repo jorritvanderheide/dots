@@ -8,8 +8,8 @@
   # recording, whisper.cpp transcribes it on the GPU, a note with the
   # transcript goes into the vault's Notes/, where Loose Ends marks it
   # inbox, and the recording is copied to the archive, which syncs to
-  # rocinante's ~/Audio/Voice memos (site.voiceMemos) and which the note
-  # links to. Only a folder for memos, never the recorder's default one:
+  # rocinante's ~/Audio/Voice memos (site.voiceMemos), from where the note
+  # plays it. Only a folder for memos, never the recorder's default one:
   # research recordings and transcripts don't go into the vault (its
   # CLAUDE.md).
   #
@@ -132,7 +132,9 @@
                   note="${notes}/$title $n.md"
                   n=$((n + 1))
                 done
-                printf '\n# %s\n\n[Recording](%s/%s)\n\n%s\n' "$title" "${recordings}" "''${name// /%20}" "$text" >"$note"
+                # Obsidian makes an audio player of an embed only for a
+                # file in the vault, so an <audio> tag for one outside it.
+                printf '\n# %s\n\n<audio controls src="%s/%s"></audio>\n\n%s\n' "$title" "${recordings}" "''${name// /%20}" "$text" >"$note"
               else
                 echo "No speech in $name, so no note" >&2
               fi
