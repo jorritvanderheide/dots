@@ -3,6 +3,7 @@
     {
       config,
       lib,
+      pkgs,
       ...
     }:
     let
@@ -82,6 +83,10 @@
                   "browser.urlbar.suggest.trending" = false;
                   "intl.accept_languages" = "en-US, en, nl";
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
+                  # Firefox bundles only en-US. The Hunspell dictionaries in
+                  # this directory join its spellchecker languages.
+                  "spellchecker.dictionary_path" = "${pkgs.hunspellDicts.nl_NL}/share/hunspell";
                 };
               };
             };
