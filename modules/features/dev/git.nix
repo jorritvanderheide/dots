@@ -168,8 +168,6 @@
           enable = true;
 
           settings = {
-            ui.merge-editor = ":builtin";
-
             # In this flake, a signed commit on main is a deploy
             # (comin.nix), so it's signed with a YubiKey, and only
             # as it's pushed: a push takes the key in and a touch,
@@ -230,6 +228,13 @@
               # A path, not the key inline: jj only signs through
               # Bitwarden's agent given the .pub file.
               key = "~/.ssh/signing-key.pub";
+            };
+
+            ui = {
+              merge-editor = ":builtin";
+
+              # jj's default already, but unset it adds a hint each time.
+              default-command = "log";
             };
 
             user = {
