@@ -64,12 +64,14 @@
           };
         };
 
-        fonts.packages = map (family: fonts.${family}.package) [
-          "emoji"
-          "monospace"
-          "sansSerif"
-          "serif"
-        ];
+        fonts.packages =
+          map (family: fonts.${family}.package) [
+            "emoji"
+            "monospace"
+            "sansSerif"
+            "serif"
+          ]
+          ++ [ pkgs.open-sans ];
 
         home-manager.sharedModules = [
           (_: {
