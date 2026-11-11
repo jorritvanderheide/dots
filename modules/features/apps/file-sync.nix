@@ -31,7 +31,7 @@
                 .git
                 /.claude
                 /.claudian/sessions
-                /.obsidian/snippets/noctalia.css
+                /.obsidian/snippets/weinig-shell.css
                 /.obsidian/workspace*.json
                 /.trash
               '';
