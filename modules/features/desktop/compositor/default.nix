@@ -126,8 +126,8 @@ in
                   };
 
                   # A light on that hairline under the window, in Weinig's `bright`, not a ring,
-                  # and only for a moment as the focus goes to another monitor
-                  # (niri-active-line.patch).
+                  # and only for a moment as the focus goes to another monitor, or stays for want
+                  # of one above or below (niri-active-line.patch).
                   focus-ring = {
                     enable = true;
                     active.color = colors.primary;
@@ -272,7 +272,7 @@ in
           # distance of a desk, which on a screen in a meeting room is too small to read: from 50
           # inches, here it aims for a desktop 1080 high. And it can only draw a ring around a
           # window, and here that is a light on the border under it, briefly, as the focus goes to
-          # another monitor.
+          # another monitor or has none above or below to go to.
           package = pkgs.niri.overrideAttrs (old: {
             doCheck = false;
 

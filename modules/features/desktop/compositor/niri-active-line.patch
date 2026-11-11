@@ -1,3 +1,29 @@
+--- a/src/input/mod.rs
++++ b/src/input/mod.rs
+@@ -1686,6 +1686,11 @@
+                         self.move_cursor_to_output(&output);
+                     }
+                     self.niri.layer_shell_on_demand_focus = None;
++                } else {
++                    // No monitor that way: light up the window with focus, to show where it
++                    // stayed (niri-active-line.patch).
++                    self.niri.layout.light_up_focus();
++                    self.niri.queue_redraw_all();
+                 }
+             }
+             Action::FocusMonitorUp => {
+@@ -1695,6 +1700,11 @@
+                         self.move_cursor_to_output(&output);
+                     }
+                     self.niri.layer_shell_on_demand_focus = None;
++                } else {
++                    // No monitor that way: light up the window with focus, to show where it
++                    // stayed (niri-active-line.patch).
++                    self.niri.layout.light_up_focus();
++                    self.niri.queue_redraw_all();
+                 }
+             }
+             Action::FocusMonitorPrevious => {
 --- a/src/layout/floating.rs
 +++ b/src/layout/floating.rs
 @@ -395,6 +395,11 @@
@@ -153,6 +179,32 @@
          for (idx, mon) in monitors.iter_mut().enumerate() {
              if output.is_none_or(|output| mon.output == *output) {
                  let is_active = self.is_active
+@@ -3354,6 +3371,25 @@
+         }
+     }
+ 
++    /// Lights up the window with focus (niri-active-line.patch).
++    pub fn light_up_focus(&mut self) {
++        let MonitorSet::Normal {
++            monitors,
++            active_monitor_idx,
++            ..
++        } = &mut self.monitor_set
++        else {
++            return;
++        };
++
++        if let Some(tile) = monitors[*active_monitor_idx]
++            .active_workspace()
++            .active_tile_mut()
++        {
++            tile.light_up();
++        }
++    }
++
+     pub fn move_to_output(
+         &mut self,
+         window: Option<&W::Id>,
 --- a/src/layout/tile.rs
 +++ b/src/layout/tile.rs
 @@ -15,7 +15,7 @@
@@ -168,8 +220,8 @@
      /// The animation of the tile's opacity.
      pub(super) alpha_animation: Option<AlphaAnimation>,
  
-+    /// The light under the window as its monitor gets the focus, from 0 to 1 as it goes
-+    /// (niri-active-line.patch).
++    /// The light under the window as it gets the focus from another monitor, or keeps it with none
++    /// above or below to go to, from 0 to 1 as it goes (niri-active-line.patch).
 +    light: Option<Animation>,
 +
      /// Offset during the initial interactive move rubberband.
@@ -183,7 +235,7 @@
              interactive_move_offset: Point::from((0., 0.)),
              unmap_snapshot: None,
              rounded_corner_damage: Default::default(),
-@@ -439,10 +444,22 @@
+@@ -439,10 +444,21 @@
                  self.alpha_animation = None;
              }
          }
@@ -193,8 +245,7 @@
 +        }
 +    }
 +
-+    /// Lights the line under the window, which holds for a moment and then fades out, as its
-+    /// monitor gets the focus.
++    /// Lights the line under the window, which holds for a moment and then fades out.
 +    pub fn light_up(&mut self) {
 +        self.light = Some(Animation::ease(self.clock.clone(), 0., 1., 0., 800, Curve::Linear));
      }
@@ -207,7 +258,7 @@
      }
  
      pub fn are_transitions_ongoing(&self) -> bool {
-@@ -519,21 +536,18 @@
+@@ -519,21 +535,18 @@
              1. - expanded_progress as f32,
          );
  
@@ -240,7 +291,7 @@
          );
  
          self.fullscreen_backdrop.resize(animated_tile_size);
-@@ -1084,6 +1098,17 @@
+@@ -1084,6 +1097,17 @@
              &mut |elem| push(elem.into()),
          );
  
@@ -258,7 +309,7 @@
          // If we're resizing, try to render a shader, or a fallback.
          let mut pushed_resize = false;
          if let Some(resize) = &self.resize_animation {
-@@ -1295,15 +1320,6 @@
+@@ -1295,15 +1319,6 @@
              );
          }
  
