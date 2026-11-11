@@ -224,7 +224,7 @@
               };
 
               "Mod+P" = {
-                action = spawn "niri" "msg" "action" "screenshot";
+                action = spawn "weinig" "msg" "screenshot" "take";
                 hotkey-overlay.title = "Take a screenshot";
                 repeat = false;
               };
