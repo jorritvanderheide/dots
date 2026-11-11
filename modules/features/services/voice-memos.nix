@@ -132,7 +132,7 @@
                   note="${notes}/$title $n.md"
                   n=$((n + 1))
                 done
-                printf '\n# %s\n\n%s\n\n[Recording](%s/%s)\n' "$title" "$text" "${recordings}" "''${name// /%20}" >"$note"
+                printf '\n# %s\n\n[Recording](%s/%s)\n\n%s\n' "$title" "${recordings}" "''${name// /%20}" "$text" >"$note"
               else
                 echo "No speech in $name, so no note" >&2
               fi
