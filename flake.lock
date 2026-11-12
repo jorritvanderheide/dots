@@ -179,33 +179,6 @@
         "url": "https://codeberg.org/BW20/new-leaf"
       }
     },
-    "niri-flake": {
-      "inputs": {
-        "niri-stable": [],
-        "niri-unstable": [],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "nixpkgs-stable": [
-          "nixpkgs"
-        ],
-        "xwayland-satellite-stable": [],
-        "xwayland-satellite-unstable": []
-      },
-      "locked": {
-        "lastModified": 1785857305,
-        "narHash": "sha256-25q05zpF1sqOCxPPUG9DPPGd+EDW7SiAOWCzBWRS7r0=",
-        "owner": "sodiboo",
-        "repo": "niri-flake",
-        "rev": "9ee3e13b60643448228353097880521658b2fe0e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sodiboo",
-        "repo": "niri-flake",
-        "type": "github"
-      }
-    },
     "nix-wrapper-modules": {
       "inputs": {
         "nixpkgs": [
@@ -283,7 +256,6 @@
         "lanzaboote": "lanzaboote",
         "meetinn": "meetinn",
         "new-leaf": "new-leaf",
-        "niri-flake": "niri-flake",
         "nix-wrapper-modules": "nix-wrapper-modules",
         "nixpkgs": "nixpkgs",
         "nixpkgs-zotero": "nixpkgs-zotero",
@@ -405,11 +377,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794411992,
-        "narHash": "sha256-Yj7NoOkjtiGSDhzQWjccHlbGu37r25hXeqoNeWBlsH8=",
+        "lastModified": 1794426884,
+        "narHash": "sha256-s1paUOALI9oG6eLP9uTahGxXIE2NibAddWqXimbXPhY=",
         "ref": "refs/heads/main",
-        "rev": "138bdd1c02d4e0ce42a03b5c1748915f8f33e482",
-        "revCount": 274,
+        "rev": "14fef866daf6d7c6a1b231bb66dc7ea92c5f29f9",
+        "revCount": 276,
         "type": "git",
         "url": "https://codeberg.org/BW20/weinig-shell"
       },

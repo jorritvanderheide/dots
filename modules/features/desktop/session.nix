@@ -23,19 +23,6 @@
       config = {
         systemd.services.greetd.after = [ "home-manager-${cfg.autologinuser}.service" ];
 
-        home-manager.sharedModules = [
-          {
-            programs.niri.settings.spawn-at-startup = [
-              {
-                command = [
-                  "uwsm"
-                  "finalize"
-                ];
-              }
-            ];
-          }
-        ];
-
         programs.uwsm = {
           enable = true;
 
@@ -45,6 +32,13 @@
             prettyName = "Niri";
           };
         };
+
+        programs.weinig.niri.settings.spawn-at-startup = [
+          [
+            "uwsm"
+            "finalize"
+          ]
+        ];
 
         services.greetd = {
           enable = true;
@@ -63,22 +57,12 @@
               # starts the same session for whoever logs in.
               default_session.command = "${lib.getExe' config.services.greetd.package "agreety"} --cmd ${lib.escapeShellArg sessionCommand}";
 
-              # Only once home-manager has written niri's config, as that is what
-              # locks the session: without it, niri would start with its default
-              # config and an open desktop. Ending here leads to the console login.
+              # niri's config, which locks the session first, is Weinig's, in
+              # the system rather than written by home-manager, so it is there
+              # whenever niri starts.
               initial_session = {
+                command = sessionCommand;
                 user = cfg.autologinuser;
-
-                command = lib.getExe (
-                  pkgs.writeShellApplication {
-                    name = "autologin-session";
-
-                    text = ''
-                      ${lib.getExe' pkgs.systemd "systemctl"} is-active --quiet home-manager-${cfg.autologinuser}.service || exit 1
-                      exec ${sessionCommand}
-                    '';
-                  }
-                );
               };
             };
         };

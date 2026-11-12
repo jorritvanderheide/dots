@@ -34,6 +34,8 @@ _: {
     in
     {
       config = {
+        programs.weinig.niri.settings.spawn-at-startup = [ [ (lib.getExe start) ] ];
+
         environment.systemPackages = [
           pkgs.bitwarden-desktop
         ];
@@ -45,12 +47,6 @@ _: {
             home.sessionVariables = {
               SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
             };
-
-            programs.niri.settings.spawn-at-startup = [
-              {
-                command = [ (lib.getExe start) ];
-              }
-            ];
 
             # So ssh finds the agent even where SSH_AUTH_SOCK isn't set.
             programs.ssh.extraConfig = ''

@@ -1,11 +1,12 @@
 {
-  flake.nixosModules.keybinds = {
-    config = {
+  flake.nixosModules.keybinds =
+    { lib, ... }:
+    {
       home-manager.sharedModules = [
         (
           {
-            config,
             lib,
+            osConfig,
             pkgs,
             ...
           }:
@@ -16,7 +17,7 @@
               name = "niri-place-outputs";
 
               runtimeInputs = [
-                config.programs.niri.package
+                osConfig.programs.niri.package
                 pkgs.jq
               ];
 
@@ -58,300 +59,6 @@
             };
           in
           {
-            programs.niri.settings.binds = with config.lib.niri.actions; {
-              "Alt+Tab" = {
-                action = spawn "true";
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Down" = {
-                action = move-window-to-workspace-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+J" = {
-                action = move-window-to-workspace-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+K" = {
-                action = move-window-to-workspace-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Shift+Down" = {
-                action = move-window-to-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Shift+J" = {
-                action = move-window-to-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Shift+K" = {
-                action = move-window-to-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Shift+Up" = {
-                action = move-window-to-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+Ctrl+Up" = {
-                action = move-window-to-workspace-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+Down" = {
-                action = focus-workspace-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+F" = {
-                action = toggle-windowed-fullscreen;
-                repeat = false;
-              };
-
-              "Mod+Alt+H" = {
-                action = move-column-left;
-                repeat = false;
-              };
-
-              "Mod+Alt+J" = {
-                action = focus-workspace-down;
-                repeat = false;
-              };
-
-              "Mod+Alt+K" = {
-                action = focus-workspace-up;
-                repeat = false;
-              };
-
-              "Mod+Alt+L" = {
-                action = move-column-right;
-                repeat = false;
-              };
-
-              "Mod+Alt+Left" = {
-                action = move-column-left;
-                repeat = false;
-              };
-
-              "Mod+Alt+Right" = {
-                action = move-column-right;
-                repeat = false;
-              };
-
-              "Mod+Alt+Up" = {
-                action = focus-workspace-up;
-                repeat = false;
-              };
-
-              "Mod+Backspace" = {
-                action = spawn "weinig" "lock-session";
-                hotkey-overlay.title = "Lock the screen";
-                repeat = false;
-              };
-
-              "Mod+Ctrl+N" = {
-                action = spawn "weinig" "msg" "notifications" "toggle";
-                hotkey-overlay.title = "Open the notification centre";
-                repeat = false;
-              };
-
-              "Mod+Down" = {
-                action = focus-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+F" = {
-                action = fullscreen-window;
-                repeat = false;
-              };
-
-              "Mod+H" = {
-                action = focus-column-left;
-                repeat = false;
-              };
-
-              # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
-              # Mod and Alt mask T, which is on the same hand.
-              "Mod+ISO_Level3_Shift+T" = {
-                action = spawn "weinig" "msg" "theme" "toggle";
-                hotkey-overlay.title = "Switch between dark and light";
-                repeat = false;
-              };
-
-              "Mod+J" = {
-                action = focus-monitor-down;
-                repeat = false;
-              };
-
-              "Mod+K" = {
-                action = focus-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+L" = {
-                action = focus-column-right;
-                repeat = false;
-              };
-
-              "Mod+Left" = {
-                action = focus-column-left;
-                repeat = false;
-              };
-
-              "Mod+M" = {
-                action = spawn "weinig" "msg" "volume" "mute";
-                allow-when-locked = true;
-                hotkey-overlay.title = "Mute the sound";
-                repeat = false;
-              };
-
-              "Mod+N" = {
-                action = spawn "weinig" "msg" "notifications" "toggleMute";
-                hotkey-overlay.title = "Mute notifications";
-                repeat = false;
-              };
-
-              "Mod+O" = {
-                action = spawn "weinig" "msg" "colour" "pick";
-                hotkey-overlay.title = "Pick a colour";
-                repeat = false;
-              };
-
-              "Mod+P" = {
-                action = spawn "weinig" "msg" "screenshot" "take";
-                hotkey-overlay.title = "Take a screenshot";
-                repeat = false;
-              };
-
-              "Mod+Q" = {
-                action = close-window;
-                repeat = false;
-              };
-
-              "Mod+R" = {
-                action = switch-preset-column-width;
-                repeat = false;
-              };
-
-              "Mod+Return" = {
-                action = spawn "app2unit" "-s" "a" "--" "ghostty";
-                hotkey-overlay.title = "Open a terminal";
-                repeat = false;
-              };
-
-              "Mod+Right" = {
-                action = focus-column-right;
-                repeat = false;
-              };
-
-              "Mod+Shift+N" = {
-                action = spawn "weinig" "msg" "notifications" "toggle";
-                repeat = false;
-              };
-
-              "Mod+Shift+Slash" = {
-                action = spawn "weinig" "msg" "keys" "toggle";
-                hotkey-overlay.title = "Show the keys";
-                repeat = false;
-              };
-
-              "Mod+Shift+W" = {
-                action = spawn "weinig" "msg" "wallpaper" "previous";
-                hotkey-overlay.title = "Previous wallpaper";
-                repeat = false;
-              };
-
-              "Mod+Space" = {
-                action = spawn "weinig" "msg" "launcher" "toggle";
-                hotkey-overlay.title = "Open the launcher";
-                repeat = false;
-              };
-
-              "Mod+Tab" = {
-                action = spawn "false";
-                repeat = false;
-              };
-
-              "Mod+Up" = {
-                action = focus-monitor-up;
-                repeat = false;
-              };
-
-              "Mod+V" = {
-                action = spawn "weinig" "msg" "clipboard" "toggle";
-                hotkey-overlay.title = "Open the clipboard history";
-                repeat = false;
-              };
-
-              "Mod+W" = {
-                action = spawn "weinig" "msg" "wallpaper" "next";
-                hotkey-overlay.title = "Next wallpaper";
-                repeat = false;
-              };
-
-              "XF86AudioLowerVolume" = {
-                action = spawn "weinig" "msg" "volume" "down";
-                allow-when-locked = true;
-              };
-
-              "XF86AudioMedia" = {
-                action = spawn "app2unit" "-s" "a" "--" "zeditor" "--new" "/etc/nixos";
-                hotkey-overlay.title = "Open this config in Zed";
-                repeat = false;
-              };
-
-              "XF86AudioMute" = {
-                action = spawn "weinig" "msg" "volume" "mute";
-                allow-when-locked = true;
-                repeat = false;
-              };
-
-              "XF86AudioNext" = {
-                action = spawn "playerctl" "next";
-                allow-when-locked = true;
-                repeat = false;
-              };
-
-              "XF86AudioPause" = {
-                action = spawn "playerctl" "play-pause";
-                allow-when-locked = true;
-                repeat = false;
-              };
-
-              "XF86AudioPlay" = {
-                action = spawn "playerctl" "play-pause";
-                allow-when-locked = true;
-                repeat = false;
-              };
-
-              "XF86AudioPrev" = {
-                action = spawn "playerctl" "previous";
-                allow-when-locked = true;
-                repeat = false;
-              };
-
-              "XF86AudioRaiseVolume" = {
-                action = spawn "weinig" "msg" "volume" "up";
-                allow-when-locked = true;
-              };
-
-              "XF86MonBrightnessDown" = {
-                action = spawn "weinig" "msg" "brightness" "down";
-                allow-when-locked = true;
-              };
-
-              "XF86MonBrightnessUp" = {
-                action = spawn "weinig" "msg" "brightness" "up";
-                allow-when-locked = true;
-              };
-            };
-
             systemd.user.services.niri-place-outputs = {
               Install.WantedBy = [ "graphical-session.target" ];
 
@@ -372,6 +79,186 @@
           }
         )
       ];
+
+      # All of niri's keys, in place of Weinig's and niri's own.
+      programs.weinig.niri.binds =
+        let
+          # Once per press, as every key here but the volume and brightness.
+          act = name: {
+            action.${name} = true;
+            repeat = false;
+          };
+          weinig = args: {
+            command = [
+              "weinig"
+              "msg"
+            ]
+            ++ args;
+          };
+          titled = title: bind: bind // { inherit title; };
+          locked = bind: bind // { allowWhenLocked = true; };
+          held = bind: locked bind // { repeat = true; };
+          playerctl = args: locked { command = [ "playerctl" ] ++ args; };
+        in
+        lib.mkForce {
+          "Alt+Tab".command = [ "true" ];
+          "Mod+Alt+Ctrl+Down" = act "move-window-to-workspace-down";
+          "Mod+Alt+Ctrl+J" = act "move-window-to-workspace-down";
+          "Mod+Alt+Ctrl+K" = act "move-window-to-workspace-up";
+          "Mod+Alt+Ctrl+Shift+Down" = act "move-window-to-monitor-down";
+          "Mod+Alt+Ctrl+Shift+J" = act "move-window-to-monitor-down";
+          "Mod+Alt+Ctrl+Shift+K" = act "move-window-to-monitor-up";
+          "Mod+Alt+Ctrl+Shift+Up" = act "move-window-to-monitor-up";
+          "Mod+Alt+Ctrl+Up" = act "move-window-to-workspace-up";
+          "Mod+Alt+Down" = act "focus-workspace-down";
+          "Mod+Alt+F" = act "toggle-windowed-fullscreen";
+          "Mod+Alt+H" = act "move-column-left";
+          "Mod+Alt+J" = act "focus-workspace-down";
+          "Mod+Alt+K" = act "focus-workspace-up";
+          "Mod+Alt+L" = act "move-column-right";
+          "Mod+Alt+Left" = act "move-column-left";
+          "Mod+Alt+Right" = act "move-column-right";
+          "Mod+Alt+Up" = act "focus-workspace-up";
+          "Mod+Down" = act "focus-monitor-down";
+          "Mod+F" = act "fullscreen-window";
+          "Mod+H" = act "focus-column-left";
+          "Mod+J" = act "focus-monitor-down";
+          "Mod+K" = act "focus-monitor-up";
+          "Mod+L" = act "focus-column-right";
+          "Mod+Left" = act "focus-column-left";
+          "Mod+Q" = act "close-window";
+          "Mod+R" = act "switch-preset-column-width";
+          "Mod+Right" = act "focus-column-right";
+          "Mod+Tab".command = [ "false" ];
+          "Mod+Up" = act "focus-monitor-up";
+          "XF86AudioNext" = playerctl [ "next" ];
+          "XF86AudioPause" = playerctl [ "play-pause" ];
+          "XF86AudioPlay" = playerctl [ "play-pause" ];
+          "XF86AudioPrev" = playerctl [ "previous" ];
+
+          "Mod+Backspace" = {
+            title = "Lock the screen";
+
+            command = [
+              "weinig"
+              "lock-session"
+            ];
+          };
+
+          "Mod+Ctrl+N" = titled "Open the notification centre" (weinig [
+            "notifications"
+            "toggle"
+          ]);
+
+          # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
+          # Mod and Alt mask T, which is on the same hand.
+          "Mod+ISO_Level3_Shift+T" = titled "Switch between dark and light" (weinig [
+            "theme"
+            "toggle"
+          ]);
+
+          "Mod+M" = titled "Mute the sound" (
+            locked (weinig [
+              "volume"
+              "mute"
+            ])
+          );
+
+          "Mod+N" = titled "Mute notifications" (weinig [
+            "notifications"
+            "toggleMute"
+          ]);
+
+          "Mod+O" = titled "Pick a colour" (weinig [
+            "colour"
+            "pick"
+          ]);
+
+          "Mod+P" = titled "Take a screenshot" (weinig [
+            "screenshot"
+            "take"
+          ]);
+
+          "Mod+Return" = {
+            title = "Open a terminal";
+
+            command = [
+              "app2unit"
+              "-s"
+              "a"
+              "--"
+              "ghostty"
+            ];
+          };
+
+          "Mod+Shift+N" = weinig [
+            "notifications"
+            "toggle"
+          ];
+
+          "Mod+Shift+Slash" = titled "Show the keys" (weinig [
+            "keys"
+            "toggle"
+          ]);
+
+          "Mod+Shift+W" = titled "Previous wallpaper" (weinig [
+            "wallpaper"
+            "previous"
+          ]);
+
+          "Mod+Space" = titled "Open the launcher" (weinig [
+            "launcher"
+            "toggle"
+          ]);
+
+          "Mod+V" = titled "Open the clipboard history" (weinig [
+            "clipboard"
+            "toggle"
+          ]);
+
+          "Mod+W" = titled "Next wallpaper" (weinig [
+            "wallpaper"
+            "next"
+          ]);
+
+          "XF86AudioLowerVolume" = held (weinig [
+            "volume"
+            "down"
+          ]);
+
+          "XF86AudioMedia" = {
+            title = "Open this config in Zed";
+
+            command = [
+              "app2unit"
+              "-s"
+              "a"
+              "--"
+              "zeditor"
+              "--new"
+              "/etc/nixos"
+            ];
+          };
+
+          "XF86AudioMute" = locked (weinig [
+            "volume"
+            "mute"
+          ]);
+
+          "XF86AudioRaiseVolume" = held (weinig [
+            "volume"
+            "up"
+          ]);
+
+          "XF86MonBrightnessDown" = held (weinig [
+            "brightness"
+            "down"
+          ]);
+
+          "XF86MonBrightnessUp" = held (weinig [
+            "brightness"
+            "up"
+          ]);
+        };
     };
-  };
 }

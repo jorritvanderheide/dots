@@ -2,7 +2,7 @@
 # by itself, and what reads a file gets it through a link to this mode's files, in the state folder.
 # Runs with the mode when that changes and when the shell starts, and after a rebuild, as Home
 # Manager's dconf settings would otherwise have the last word and the link would point at old files.
-{ inputs, lib, ... }:
+{ lib, ... }:
 {
   flake.nixosModules.theming =
     { config, pkgs, ... }:
@@ -69,7 +69,6 @@
           {
             config,
             lib,
-            options,
             ...
           }:
           let
@@ -91,16 +90,16 @@
             home.activation.followTheme = lib.hm.dag.entryAfter [
               "dconfSettings"
             ] "run ${lib.getExe followSaved}";
-
-            # Optional, as the build checks the config without the state folder.
-            programs.niri.config = options.programs.niri.config.default ++ [
-              (inputs.niri-flake.lib.kdl.leaf "include" [
-                { optional = true; }
-                "${config.xdg.stateHome}/weinig/theme/niri.kdl"
-              ])
-            ];
           }
         )
       ];
+
+      # The mode's colours for niri, last, so they win. Optional, as the build checks the config
+      # without the state folder.
+      programs.weinig.niri.extraConfig = ''
+        include optional=true "${
+          config.home-manager.users.${config.my.session.autologinuser}.xdg.stateHome
+        }/weinig/theme/niri.kdl"
+      '';
     };
 }

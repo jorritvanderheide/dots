@@ -56,22 +56,6 @@
       url = "git+https://codeberg.org/BW20/new-leaf";
     };
 
-    # niri-flake's own nixpkgs, and its niri and xwayland-satellite
-    # sources, only build their packages and checks, which we don't use:
-    # niri comes from nixpkgs (compositor/default.nix).
-    niri-flake = {
-      url = "github:sodiboo/niri-flake";
-
-      inputs = {
-        niri-stable.follows = "";
-        niri-unstable.follows = "";
-        nixpkgs-stable.follows = "nixpkgs";
-        nixpkgs.follows = "nixpkgs";
-        xwayland-satellite-stable.follows = "";
-        xwayland-satellite-unstable.follows = "";
-      };
-    };
-
     # Programs built with their config, instead of a file in $HOME through
     # home-manager (terminal.nix).
     nix-wrapper-modules = {

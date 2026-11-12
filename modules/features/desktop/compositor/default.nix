@@ -1,11 +1,4 @@
 {
-  inputs,
-  ...
-}:
-let
-  niri-flake = inputs.niri-flake.nixosModules.niri;
-in
-{
   flake.nixosModules.compositor =
     {
       config,
@@ -18,14 +11,15 @@ in
 
       # Weinig's colours, as niri has them until the mode's own are included (theming/mode.nix).
       colors = config.programs.weinig.theme.palette.dark.colors;
+
+      # The cursor apps have (home-manager), for niri as well.
+      cursor = config.home-manager.users.${config.my.session.autologinuser}.home.pointerCursor;
     in
     {
-      imports = [ niri-flake ];
-
       options.my.compositor = {
         outputs = lib.mkOption {
           default = { };
-          description = "Per-output compositor configuration (passed to programs.niri.settings.outputs)";
+          description = "Per-output compositor configuration, by name, as programs.weinig.niri.settings has it";
           type = lib.types.attrs;
         };
       };
@@ -41,6 +35,8 @@ in
             imv
             playerctl
             udiskie
+            # xdg-open, for apps that open links and files with it.
+            xdg-utils
             xwayland-satellite
           ];
         };
@@ -62,124 +58,11 @@ in
           }
           (
             {
-              config,
               lib,
+              osConfig,
               ...
             }:
             {
-              programs.niri.settings = {
-                inherit (cfg) outputs;
-                clipboard.disable-primary = true;
-                gestures.hot-corners.enable = false;
-                prefer-no-csd = true;
-                xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
-
-                cursor = {
-                  hide-after-inactive-ms = 1000;
-                  hide-when-typing = true;
-                  size = config.home.pointerCursor.size;
-                  theme = config.home.pointerCursor.name;
-                };
-
-                # Allows notification actions and window activation from the shell.
-                debug.honor-xdg-activation-with-invalid-serial = [ ];
-
-                hotkey-overlay = {
-                  hide-not-bound = true;
-                  skip-at-startup = true;
-                };
-
-                input = {
-                  keyboard.xkb.layout = "nl(us)";
-                  warp-mouse-to-focus.enable = true;
-
-                  focus-follows-mouse = {
-                    enable = true;
-                    max-scroll-amount = "100%";
-                  };
-
-                  touchpad = {
-                    accel-profile = "adaptive";
-                    accel-speed = 0.3;
-                    click-method = "clickfinger";
-                    dwt = true;
-                    scroll-method = "two-finger";
-                    tap-button-map = "left-right-middle";
-                  };
-                };
-
-                layout = {
-                  always-center-single-column = true;
-                  background-color = "transparent";
-                  default-column-width.proportion = 1.0;
-                  empty-workspace-above-first = true;
-                  gaps = 36.0;
-                  shadow.enable = false;
-
-                  # Weinig's hairline: its `line` and `signal`.
-                  border = {
-                    enable = true;
-                    active.color = colors.outline_variant;
-                    inactive.color = colors.outline_variant;
-                    urgent.color = colors.error;
-                    width = 1;
-                  };
-
-                  # A light on that hairline under the window, in Weinig's `bright`, not a ring,
-                  # and only for a moment as the focus goes to another monitor, or stays for want
-                  # of one above or below (niri-active-line.patch).
-                  focus-ring = {
-                    enable = true;
-                    active.color = colors.primary;
-                  };
-
-                  preset-column-widths = [
-                    { proportion = 1.0 / 2.0; }
-                    { proportion = 1.0 / 3.0; }
-                    { proportion = 2.0 / 3.0; }
-                    { proportion = 1.0; }
-                  ];
-
-                  struts = {
-                    bottom = 16.0;
-                    left = 16.0;
-                    right = 16.0;
-                    top = 16.0;
-                  };
-                };
-
-                overview = {
-                  backdrop-color = "transparent";
-                  workspace-shadow.enable = false;
-                  zoom = 0.66;
-                };
-
-                spawn-at-startup = [
-                  {
-                    command = [
-                      "app2unit"
-                      "-s"
-                      "b"
-                      "--"
-                      "udiskie"
-                    ];
-                  }
-                ];
-
-                window-rules = lib.singleton {
-                  clip-to-geometry = true;
-                  draw-border-with-background = false;
-                  opacity = 1.00;
-
-                  geometry-corner-radius = rec {
-                    bottom-left = 8.0;
-                    bottom-right = bottom-left;
-                    top-left = bottom-left;
-                    top-right = bottom-left;
-                  };
-                };
-              };
-
               # Tells system76-scheduler (power.nix) which process has the
               # focused window, so it gets the foreground's priority. Through
               # niri's CLI, not niri-ipc's Rust types: a new niri adds events,
@@ -196,7 +79,7 @@ in
                       name = "system76-scheduler-niri";
 
                       runtimeInputs = [
-                        config.programs.niri.package
+                        osConfig.programs.niri.package
                         pkgs.jq
                         pkgs.systemd
                       ];
@@ -252,15 +135,10 @@ in
           ".local/share/keyrings"
         ];
 
-        # niri is built here, with patches. A trusted key may sign any path
-        # (nix.nix), so no cache that nothing is fetched from.
-        niri-flake.cache.enable = false;
-
         programs.niri = {
           enable = true;
 
-          # From nixpkgs, not niri-flake, whose niri is built against our nixpkgs
-          # (flake.nix). Still a build from source, for six patches. niri
+          # From nixpkgs, but a build from source, for six patches. niri
           # hardcodes four-finger swipes as opening the overview, and here up and down push the
           # focused window to the monitor that way. And it has no such thing as a desk: here
           # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
@@ -291,6 +169,60 @@ in
                 '${lib.concatMapStringsSep ", " builtins.toJSON config.programs.weinig.trustedOutputs}'
             '';
           });
+        };
+
+        # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview and
+        # column widths of this desktop.
+        programs.weinig.niri.settings = {
+          clipboard.disable-primary = true;
+          gestures.hot-corners.off = true;
+          hotkey-overlay.hide-not-bound = true;
+          output = lib.mapAttrsToList (name: output: { _args = [ name ]; } // output) cfg.outputs;
+          window-rule = [ { opacity = 1.0; } ];
+          xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
+
+          cursor = {
+            hide-after-inactive-ms = 1000;
+            hide-when-typing = true;
+            xcursor-size = cursor.size;
+            xcursor-theme = cursor.name;
+          };
+
+          # Allows notification actions and window activation from the shell.
+          debug.honor-xdg-activation-with-invalid-serial = true;
+
+          input = {
+            focus-follows-mouse._props.max-scroll-amount = "100%";
+            keyboard.xkb.layout = "nl(us)";
+            warp-mouse-to-focus = true;
+
+            touchpad = {
+              accel-profile = "adaptive";
+              accel-speed = 0.3;
+              click-method = "clickfinger";
+              dwt = true;
+              scroll-method = "two-finger";
+              tap-button-map = "left-right-middle";
+            };
+          };
+
+          # A light on Weinig's hairline under the window, in its `bright`, not a ring, and only for
+          # a moment as the focus goes to another monitor, or stays for want of one above or below
+          # (niri-active-line.patch).
+          layout.focus-ring = {
+            active-color = colors.primary;
+            off = null;
+          };
+
+          spawn-at-startup = [
+            [
+              "app2unit"
+              "-s"
+              "b"
+              "--"
+              "udiskie"
+            ]
+          ];
         };
 
         # The prompt gnome-keyring shows when an app first stores a secret,

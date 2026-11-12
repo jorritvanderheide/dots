@@ -67,7 +67,7 @@
                 "eDP-1" = {
                   scale = 1.175;
 
-                  position = {
+                  position._props = {
                     x = 0;
                     y = 0;
                   };

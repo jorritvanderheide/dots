@@ -4,40 +4,11 @@
   ...
 }:
 {
-  # Weinig is the desktop's shell, from the frame to the lock screen.
+  # Weinig is the desktop: niri's config, and the shell, from the frame to the lock screen.
   flake.nixosModules.weinig =
     { config, pkgs, ... }:
     {
       imports = [ inputs.weinig-shell.nixosModules.default ];
-
-      home-manager.sharedModules = [
-        {
-          programs.niri.settings = {
-            # One wallpaper behind the workspaces in the overview, which let it through
-            # (compositor/default.nix).
-            layer-rules = [
-              {
-                place-within-backdrop = true;
-
-                matches = [
-                  { namespace = "^weinig-wallpaper$"; }
-                ];
-              }
-            ];
-
-            # The session logs in by itself, so this is what asks for the password. First, and
-            # if it can't lock, the session ends and the console asks instead.
-            spawn-at-startup = lib.mkBefore [
-              {
-                command = [
-                  (lib.getExe config.programs.weinig.package)
-                  "lock-start"
-                ];
-              }
-            ];
-          };
-        }
-      ];
 
       programs.weinig = {
         enable = true;
@@ -73,21 +44,6 @@
         # This Framework's hardware switches, open or not.
         inUse.switches = true;
 
-        # Weinig's list of keys, from the keys of this config with a title (keybinds.nix), by
-        # title, as its own are off.
-        keys.list = lib.sort (a: b: a.title < b.title) (
-          lib.mapAttrsToList
-            (key: bind: {
-              inherit key;
-              inherit (bind.hotkey-overlay) title;
-            })
-            (
-              lib.filterAttrs (
-                _: bind: bind.hotkey-overlay ? title
-              ) config.home-manager.users.${config.my.session.autologinuser}.programs.niri.settings.binds
-            )
-        );
-
         launcher = {
           launchCommand = [
             "app2unit"
@@ -103,8 +59,14 @@
           ];
         };
 
-        # This config has its own keys and rules.
-        niri.enable = false;
+        # The session logs in by itself, so this is what asks for the password. First, and if it
+        # can't lock, the session ends and the console asks instead.
+        niri.settings.spawn-at-startup = lib.mkBefore [
+          [
+            (lib.getExe config.programs.weinig.package)
+            "lock-start"
+          ]
+        ];
 
         # Open Sans for text and the clock, as Radboud uses it (Notes/Visual style in the
         # vault). Installed in theming/default.nix. Labels and figures keep Geist Mono.
