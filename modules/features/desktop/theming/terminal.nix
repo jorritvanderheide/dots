@@ -19,7 +19,7 @@
         }
       ];
 
-      # This mode's file (mode.nix), in place of the wrapper's own, empty
+      # This mode's file (mode.nix, through Weinig), in place of the wrapper's own, empty
       # theme (cli-tools.nix). Expanded as eza starts.
       wrappers.eza.env.EZA_CONFIG_DIR = lib.mkForce {
         data = "\${XDG_STATE_HOME:-$HOME/.local/state}/weinig/theme/eza";

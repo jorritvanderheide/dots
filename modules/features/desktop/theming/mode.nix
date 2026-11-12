@@ -1,105 +1,13 @@
-# Weinig's dark and light mode, for the rest of the desktop. What reads the color scheme follows it
-# by itself, and what reads a file gets it through a link to this mode's files, in the state folder.
-# Runs with the mode when that changes and when the shell starts, and after a rebuild, as Home
-# Manager's dconf settings would otherwise have the last word and the link would point at old files.
-{ lib, ... }:
+# eza's colours for each mode, among Weinig's files for the modes (theme.apps.files), which
+# ~/.local/state/weinig/theme points at as the mode changes, where terminal.nix has eza read them.
+# Weinig has the rest of the desktop follow the mode.
 {
   flake.nixosModules.theming =
-    { config, pkgs, ... }:
-    let
-      inherit (config.programs.weinig.theme) renderIn;
-
-      css =
-        mode: version:
-        pkgs.concatText "gtk${version}-${mode}.css" [
-          (renderIn mode "gtk${version}-base.css" ./templates/gtk${version}-base.css)
-          (renderIn mode "gtk${version}-overrides.css" ./templates/gtk${version}-overrides.css)
-        ];
-
-      files =
-        mode:
-        pkgs.linkFarm "weinig-theme-${mode}" {
-          "eza/theme.yml" = renderIn mode "eza-theme.yml" ./templates/eza-theme.yml;
-          "gtk3.css" = css mode "3";
-          "gtk4.css" = css mode "4";
-          "niri.kdl" = renderIn mode "niri.kdl" ./templates/niri.kdl;
-          "qtct.conf" = renderIn mode "qtct.conf" ./templates/qtct.conf;
-        };
-
-      follow = pkgs.writeShellApplication {
-        name = "follow-theme";
-
-        runtimeInputs = [
-          pkgs.coreutils
-          pkgs.dconf
-        ];
-
-        text = ''
-          case "$1" in
-            light)
-              files=${files "light"}
-              scheme=prefer-light
-              gtk=adw-gtk3
-              ;;
-            *)
-              files=${files "dark"}
-              scheme=prefer-dark
-              gtk=adw-gtk3-dark
-              ;;
-          esac
-
-          state=''${XDG_STATE_HOME:-$HOME/.local/state}/weinig
-          mkdir -p "$state"
-          ln -sfn "$files" "$state/theme"
-
-          dconf write /org/gnome/desktop/interface/color-scheme "'$scheme'"
-          dconf write /org/gnome/desktop/interface/gtk-theme "'$gtk'"
-
-          # Files in the store all look alike to niri. It isn't reachable during a rebuild.
-          ${lib.getExe config.programs.niri.package} msg action load-config-file || true
-        '';
-      };
-    in
+    { config, ... }:
     {
       my.preservation.homeDirectories = [ ".local/state/weinig" ];
-      programs.weinig.theme.onChange = lib.getExe follow;
 
-      home-manager.sharedModules = [
-        (
-          {
-            config,
-            lib,
-            ...
-          }:
-          let
-            followSaved = pkgs.writeShellApplication {
-              name = "follow-saved-theme";
-              runtimeInputs = [ pkgs.coreutils ];
-
-              text = ''
-                mode=$(cat ${lib.escapeShellArg "${config.xdg.stateHome}/weinig/mode"} 2>/dev/null || echo dark)
-                # At boot there is no session yet, and so no bus for dconf, as for the settings before this.
-                if [[ -v DBUS_SESSION_BUS_ADDRESS ]]; then
-                  exec ${lib.getExe follow} "$mode"
-                fi
-                exec ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon ${lib.getExe follow} "$mode"
-              '';
-            };
-          in
-          {
-            home.activation.followTheme = lib.hm.dag.entryAfter [
-              "dconfSettings"
-            ] "run ${lib.getExe followSaved}";
-          }
-        )
-      ];
-
-      # The mode's colours for niri, last, so they win. Optional, as the build checks the config
-      # without the state folder.
-      programs.weinig.niri.extraConfig = ''
-        include optional=true "${
-          config.home-manager.users.${config.my.session.autologinuser}.xdg.stateHome
-        }/weinig/theme/niri.kdl"
-      '';
+      programs.weinig.theme.apps.files."eza/theme.yml" =
+        mode: config.programs.weinig.theme.renderIn mode "eza-theme.yml" ./templates/eza-theme.yml;
     };
 }

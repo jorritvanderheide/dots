@@ -44,53 +44,28 @@
         description = "The fonts every target uses (name and package for each family) and their size in points.";
       };
 
+      # Weinig's look for apps (theme.apps), with these fonts and this cursor. Open Sans is the
+      # shell's (compositor/default.nix).
       config = {
-        fonts.fontconfig = {
-          enable = true;
-          antialias = true;
+        fonts.packages = [ pkgs.open-sans ];
 
-          defaultFonts = lib.genAttrs [ "emoji" "monospace" "sansSerif" "serif" ] (family: [
-            fonts.${family}.name
-          ]);
-
-          hinting = {
-            enable = true;
-            style = "none";
+        programs.weinig.theme.apps = {
+          cursor = {
+            name = "Capitaine Cursors (Nord)";
+            package = pkgs.capitaine-cursors-themed;
+            size = 32;
           };
 
-          subpixel = {
-            lcdfilter = "none";
-            rgba = "rgb";
+          fonts = {
+            inherit (fonts)
+              emoji
+              monospace
+              sansSerif
+              serif
+              size
+              ;
           };
         };
-
-        fonts.packages =
-          map (family: fonts.${family}.package) [
-            "emoji"
-            "monospace"
-            "sansSerif"
-            "serif"
-          ]
-          ++ [ pkgs.open-sans ];
-
-        home-manager.sharedModules = [
-          (_: {
-
-            # The interface font is gtk.font (gtk.nix).
-            dconf.settings."org/gnome/desktop/interface" = {
-              document-font-name = "${fonts.serif.name} ${toString (fonts.size - 1)}";
-              monospace-font-name = "${fonts.monospace.name} ${toString fonts.size}";
-            };
-
-            home.pointerCursor = {
-              enable = true;
-              gtk.enable = true;
-              name = "Capitaine Cursors (Nord)";
-              package = pkgs.capitaine-cursors-themed;
-              size = 32;
-            };
-          })
-        ];
       };
     };
 }

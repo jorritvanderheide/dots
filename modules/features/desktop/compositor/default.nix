@@ -14,9 +14,6 @@
     }:
     let
       cfg = config.my.compositor;
-
-      # The cursor apps have (home-manager), for niri as well.
-      cursor = config.home-manager.users.${config.my.session.autologinuser}.home.pointerCursor;
     in
     {
       imports = [ inputs.weinig-shell.nixosModules.default ];
@@ -171,16 +168,11 @@
           ];
 
           # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview,
-          # column widths, hot corner, cursor hiding, touchpad clicks and X11 apps of this desktop.
+          # column widths, hot corner, cursor, touchpad clicks and X11 apps of this desktop.
           niri.settings = {
             clipboard.disable-primary = true;
             output = lib.mapAttrsToList (name: output: { _args = [ name ]; } // output) cfg.outputs;
             window-rule = [ { opacity = 1.0; } ];
-
-            cursor = {
-              xcursor-size = cursor.size;
-              xcursor-theme = cursor.name;
-            };
 
             input = {
               focus-follows-mouse._props.max-scroll-amount = "100%";
