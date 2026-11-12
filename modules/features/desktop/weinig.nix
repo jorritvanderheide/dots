@@ -44,28 +44,10 @@
         # This Framework's hardware switches, open or not.
         inUse.switches = true;
 
-        launcher = {
-          launchCommand = [
-            "app2unit"
-            "-s"
-            "a"
-            "--"
-            "$CMD"
-          ];
-
-          terminal = [
-            "ghostty"
-            "-e"
-          ];
-        };
-
-        # The session logs in by itself, so this is what asks for the password. First, and if it
-        # can't lock, the session ends and the console asks instead.
-        niri.settings.spawn-at-startup = lib.mkBefore [
-          [
-            (lib.getExe config.programs.weinig.package)
-            "lock-start"
-          ]
+        # Ghostty for apps that need a terminal. Apps launch with app2unit, Weinig's default.
+        launcher.terminal = [
+          "ghostty"
+          "-e"
         ];
 
         # Open Sans for text and the clock, as Radboud uses it (Notes/Visual style in the

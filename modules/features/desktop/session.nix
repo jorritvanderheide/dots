@@ -3,12 +3,10 @@
   ...
 }:
 {
+  # Weinig logs in: greetd starts niri with niri-session, for this user by itself and with the lock
+  # screen first, and on the console once that session ends.
   flake.nixosModules.session =
-    {
-      config,
-      pkgs,
-      ...
-    }:
+    { config, ... }:
     let
       cfg = config.my.session;
     in
@@ -21,51 +19,10 @@
       };
 
       config = {
+        programs.weinig.autoLogin.user = cfg.autologinuser;
+
+        # Once home-manager has set up the home, which the session's apps read.
         systemd.services.greetd.after = [ "home-manager-${cfg.autologinuser}.service" ];
-
-        programs.uwsm = {
-          enable = true;
-
-          waylandCompositors.niri = {
-            binPath = "/run/current-system/sw/bin/niri";
-            comment = "niri compositor managed by UWSM";
-            prettyName = "Niri";
-          };
-        };
-
-        programs.weinig.niri.settings.spawn-at-startup = [
-          [
-            "uwsm"
-            "finalize"
-          ]
-        ];
-
-        services.greetd = {
-          enable = true;
-
-          settings =
-            let
-              # uwsm's own status/log lines would otherwise print straight to
-              # the console (visible for a moment before niri takes over the
-              # display) since greetd runs this with the console as its
-              # controlling tty. Route them into the journal instead.
-              sessionCommand = "${lib.getExe' pkgs.systemd "systemd-cat"} --identifier=niri-session -- ${lib.getExe pkgs.uwsm} start -F -- niri --session";
-            in
-            {
-              # What greetd runs once the autologin session ends, by logout
-              # or a crash: a console login (as the greeter user) that
-              # starts the same session for whoever logs in.
-              default_session.command = "${lib.getExe' config.services.greetd.package "agreety"} --cmd ${lib.escapeShellArg sessionCommand}";
-
-              # niri's config, which locks the session first, is Weinig's, in
-              # the system rather than written by home-manager, so it is there
-              # whenever niri starts.
-              initial_session = {
-                command = sessionCommand;
-                user = cfg.autologinuser;
-              };
-            };
-        };
       };
     };
 }
