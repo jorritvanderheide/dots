@@ -67,6 +67,7 @@
                 # 1920x1280 the previous one had at 1.175.
                 "eDP-1" = {
                   scale = 1.5;
+                  variable-refresh-rate = true;
 
                   position._props = {
                     x = 0;
