@@ -63,9 +63,10 @@
 
             my.compositor = {
               outputs = {
-                # Laptop screen
+                # Laptop screen: the Laptop 13 Pro's panel, 2880x1920, which 1.5 gives the
+                # 1920x1280 the previous one had at 1.175.
                 "eDP-1" = {
-                  scale = 1.175;
+                  scale = 1.5;
 
                   position._props = {
                     x = 0;
