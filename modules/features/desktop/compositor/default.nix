@@ -1,4 +1,10 @@
 {
+  inputs,
+  ...
+}:
+{
+  # The desktop is Weinig: niri's config, and the shell, from the frame to the lock screen. What
+  # this machine adds to it, and the niri it runs.
   flake.nixosModules.compositor =
     {
       config,
@@ -16,6 +22,8 @@
       cursor = config.home-manager.users.${config.my.session.autologinuser}.home.pointerCursor;
     in
     {
+      imports = [ inputs.weinig-shell.nixosModules.default ];
+
       options.my.compositor = {
         outputs = lib.mkOption {
           default = { };
@@ -25,21 +33,11 @@
       };
 
       config = {
-        hardware.graphics.enable = true;
-
-        environment = {
-          sessionVariables.NIXOS_OZONE_WL = "1";
-
-          systemPackages = with pkgs; [
-            brightnessctl
-            imv
-            playerctl
-            udiskie
-            # xdg-open, for apps that open links and files with it.
-            xdg-utils
-            xwayland-satellite
-          ];
-        };
+        environment.systemPackages = with pkgs; [
+          imv
+          playerctl
+          udiskie
+        ];
 
         home-manager.sharedModules = [
           {
@@ -163,7 +161,7 @@
               ./niri-active-line.patch
             ];
 
-            # The monitors that patch counts as a desk's: those I trust (weinig.nix).
+            # The monitors that patch counts as a desk's: those I trust (trustedOutputs, below).
             postPatch = (old.postPatch or "") + ''
               substituteInPlace src/layout/mod.rs --replace-fail '@deskSerials@' \
                 '${lib.concatMapStringsSep ", " builtins.toJSON config.programs.weinig.trustedOutputs}'
@@ -171,58 +169,110 @@
           });
         };
 
-        # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview and
-        # column widths of this desktop.
-        programs.weinig.niri.settings = {
-          clipboard.disable-primary = true;
-          gestures.hot-corners.off = true;
-          hotkey-overlay.hide-not-bound = true;
-          output = lib.mapAttrsToList (name: output: { _args = [ name ]; } // output) cfg.outputs;
-          window-rule = [ { opacity = 1.0; } ];
-          xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite;
+        programs.weinig = {
+          enable = true;
 
-          cursor = {
-            hide-after-inactive-ms = 1000;
-            hide-when-typing = true;
-            xcursor-size = cursor.size;
-            xcursor-theme = cursor.name;
+          # Ghostty, through launcher.terminal.
+          desktop.terminal = false;
+
+          # Suspend, but not while a Claude Code turn is in progress (busy markers written by
+          # the hooks in coding-agent.nix). As a transient unit, so that returning can cancel
+          # the wait.
+          idle = {
+            suspendResumeCommand = "${pkgs.systemd}/bin/systemctl --user stop idle-suspend";
+
+            suspendCommand = "${pkgs.systemd}/bin/systemd-run --user --collect --unit=idle-suspend ${
+              lib.getExe (
+                pkgs.writeShellApplication {
+                  name = "idle-suspend";
+
+                  text = ''
+                    dir="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/claude-busy"
+                    # Markers untouched for an hour are leftovers from an interrupted or crashed
+                    # session, not real work.
+                    while [ -n "$(${pkgs.findutils}/bin/find "$dir" -type f -mmin -60 2>/dev/null)" ]; do
+                      sleep 60
+                    done
+                    ${pkgs.systemd}/bin/systemctl suspend
+                  '';
+                }
+              )
+            }";
           };
 
-          # Allows notification actions and window activation from the shell.
-          debug.honor-xdg-activation-with-invalid-serial = true;
+          # This Framework's hardware switches, open or not.
+          inUse.switches = true;
 
-          input = {
-            focus-follows-mouse._props.max-scroll-amount = "100%";
-            keyboard.xkb.layout = "nl(us)";
-            warp-mouse-to-focus = true;
-
-            touchpad = {
-              accel-profile = "adaptive";
-              accel-speed = 0.3;
-              click-method = "clickfinger";
-              dwt = true;
-              scroll-method = "two-finger";
-              tap-button-map = "left-right-middle";
-            };
-          };
-
-          # A light on Weinig's hairline under the window, in its `bright`, not a ring, and only for
-          # a moment as the focus goes to another monitor, or stays for want of one above or below
-          # (niri-active-line.patch).
-          layout.focus-ring = {
-            active-color = colors.primary;
-            off = null;
-          };
-
-          spawn-at-startup = [
-            [
-              "app2unit"
-              "-s"
-              "b"
-              "--"
-              "udiskie"
-            ]
+          # Ghostty for apps that need a terminal. Apps launch with app2unit, Weinig's default.
+          launcher.terminal = [
+            "ghostty"
+            "-e"
           ];
+
+          # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview,
+          # column widths, hot corner, cursor hiding, touchpad clicks and X11 apps of this desktop.
+          niri.settings = {
+            clipboard.disable-primary = true;
+            output = lib.mapAttrsToList (name: output: { _args = [ name ]; } // output) cfg.outputs;
+            window-rule = [ { opacity = 1.0; } ];
+
+            cursor = {
+              xcursor-size = cursor.size;
+              xcursor-theme = cursor.name;
+            };
+
+            input = {
+              focus-follows-mouse._props.max-scroll-amount = "100%";
+              keyboard.xkb.layout = "nl(us)";
+              warp-mouse-to-focus = true;
+
+              touchpad = {
+                accel-profile = "adaptive";
+                accel-speed = 0.3;
+                scroll-method = "two-finger";
+                tap-button-map = "left-right-middle";
+              };
+            };
+
+            # A light on Weinig's hairline under the window, in its `bright`, not a ring, and only
+            # for a moment as the focus goes to another monitor, or stays for want of one above or
+            # below (niri-active-line.patch).
+            layout.focus-ring = {
+              active-color = colors.primary;
+              off = null;
+            };
+
+            spawn-at-startup = [
+              [
+                "app2unit"
+                "-s"
+                "b"
+                "--"
+                "udiskie"
+              ]
+            ];
+          };
+
+          # Open Sans for text and the clock, as Radboud uses it (Notes/Visual style in the
+          # vault). Installed in theming/default.nix. Labels and figures keep Geist Mono.
+          theme.fonts.sans = "Open Sans";
+
+          # The monitors at my desks, by serial, as a meeting room can have the same model. The one
+          # that is there is the primary one, and any other is one I present on.
+          trustedOutputs = [
+            "0x0004C67F" # Home
+            "0x00078084" # PhD office
+            "210MAZVRJG93" # Office
+          ];
+
+          # The folder itself rather than a copy in the store, so that images added to
+          # it show up without a rebuild.
+          wallpaper.directory = "${
+            config.users.users.${config.my.session.autologinuser}.home
+          }/Pictures/Wallpapers";
+
+          # Only by hand, with Mod+W and Mod+Shift+W.
+          wallpaper.interval = null;
         };
 
         # The prompt gnome-keyring shows when an app first stores a secret,

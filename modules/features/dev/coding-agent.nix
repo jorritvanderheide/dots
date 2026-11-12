@@ -126,7 +126,7 @@
         }
 
         # Keep a marker in $XDG_RUNTIME_DIR/claude-busy for every session
-        # that's mid-turn, so the idle suspend in weinig.nix holds off
+        # that's mid-turn, so the idle suspend in compositor/default.nix holds off
         # while Claude is working. PostToolUse refreshes the marker's mtime
         # during long turns.
         (

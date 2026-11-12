@@ -16,7 +16,6 @@
       notifications
       session
       theming
-      weinig
 
       # Research
       research
