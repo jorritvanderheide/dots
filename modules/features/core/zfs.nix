@@ -175,7 +175,7 @@ _: {
       };
 
       # The pool's disks (ID_FS_TYPE zfs_member, labelled with the pool's
-      # name) would show in Nautilus as a volume it can't mount; ZFS mounts
+      # name) would show in the file manager as a volume it can't mount; ZFS mounts
       # them itself.
       services.udev.extraRules = ''
         SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="zfs_member", ENV{UDISKS_IGNORE}="1"
