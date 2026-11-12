@@ -3,8 +3,8 @@
   ...
 }:
 {
-  # The desktop is Weinig: niri's config, and the shell, from the frame to the lock screen. What
-  # this machine adds to it, and the niri it runs.
+  # The desktop is Weinig: niri, its config, and the shell, from the frame to the lock screen. What
+  # this machine adds to it.
   flake.nixosModules.compositor =
     {
       config,
@@ -14,9 +14,6 @@
     }:
     let
       cfg = config.my.compositor;
-
-      # Weinig's colours, as niri has them until the mode's own are included (theming/mode.nix).
-      colors = config.programs.weinig.theme.palette.dark.colors;
 
       # The cursor apps have (home-manager), for niri as well.
       cursor = config.home-manager.users.${config.my.session.autologinuser}.home.pointerCursor;
@@ -133,42 +130,6 @@
           ".local/share/keyrings"
         ];
 
-        programs.niri = {
-          enable = true;
-
-          # From nixpkgs, but a build from source, for six patches. niri
-          # hardcodes four-finger swipes as opening the overview, and here up and down push the
-          # focused window to the monitor that way. And it has no such thing as a desk: here
-          # plugging in that monitor moves all workspaces to it, which leaves the laptop's screen
-          # empty. And at a fractional scale it shows the last row and column of a window that
-          # only half fills them, which are black in some apps (niri-wm/niri#4646 was closed as
-          # the apps' doing, so niri won't change it). And it puts a lost screen's
-          # workspaces at the bottom: here those of a desk come first, focused, and those of any
-          # other right above where I am. And without a scale in the config it guesses one for a
-          # distance of a desk, which on a screen in a meeting room is too small to read: from 50
-          # inches, here it aims for a desktop 1080 high. And it can only draw a ring around a
-          # window, and here that is a light on the border under it, briefly, as the focus goes to
-          # another monitor or has none above or below to go to.
-          package = pkgs.niri.overrideAttrs (old: {
-            doCheck = false;
-
-            patches = (old.patches or [ ]) ++ [
-              ./niri-swipe-window.patch
-              ./niri-desk-monitor.patch
-              ./niri-whole-pixel-clip.patch
-              ./niri-lost-screen.patch
-              ./niri-room-scale.patch
-              ./niri-active-line.patch
-            ];
-
-            # The monitors that patch counts as a desk's: those I trust (trustedOutputs, below).
-            postPatch = (old.postPatch or "") + ''
-              substituteInPlace src/layout/mod.rs --replace-fail '@deskSerials@' \
-                '${lib.concatMapStringsSep ", " builtins.toJSON config.programs.weinig.trustedOutputs}'
-            '';
-          });
-        };
-
         programs.weinig = {
           enable = true;
 
@@ -232,14 +193,6 @@
                 scroll-method = "two-finger";
                 tap-button-map = "left-right-middle";
               };
-            };
-
-            # A light on Weinig's hairline under the window, in its `bright`, not a ring, and only
-            # for a moment as the focus goes to another monitor, or stays for want of one above or
-            # below (niri-active-line.patch).
-            layout.focus-ring = {
-              active-color = colors.primary;
-              off = null;
             };
 
             spawn-at-startup = [
