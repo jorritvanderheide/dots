@@ -211,6 +211,39 @@
             "toggle"
           ]);
 
+          # The bar's panels on the right hand, for the left pinky's mod key, in the bar's order:
+          # the top row for network, Bluetooth and sound, the home row past L for the battery and
+          # the calendar. The bar shows them while the mod key is held.
+          "Mod+Y" = titled "Open Wi-Fi" (weinig [
+            "panel"
+            "toggle"
+            "wifi"
+          ]);
+
+          "Mod+U" = titled "Open Bluetooth" (weinig [
+            "panel"
+            "toggle"
+            "bluetooth"
+          ]);
+
+          "Mod+I" = titled "Open the sound" (weinig [
+            "panel"
+            "toggle"
+            "sound"
+          ]);
+
+          "Mod+Semicolon" = titled "Open the battery" (weinig [
+            "panel"
+            "toggle"
+            "battery"
+          ]);
+
+          "Mod+Apostrophe" = titled "Open the calendar" (weinig [
+            "panel"
+            "toggle"
+            "time"
+          ]);
+
           "Mod+V" = titled "Open the clipboard history" (weinig [
             "clipboard"
             "toggle"
