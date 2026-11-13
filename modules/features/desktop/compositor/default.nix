@@ -131,7 +131,7 @@
           enable = true;
 
           # Ghostty, through launcher.terminal.
-          desktop.terminal = false;
+          system.terminal.enable = false;
 
           # Suspend, but not while a Claude Code turn is in progress (busy markers written by
           # the hooks in coding-agent.nix). As a transient unit, so that returning can cancel
