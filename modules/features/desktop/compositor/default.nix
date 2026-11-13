@@ -218,6 +218,9 @@
 
           # Only by hand, with Mod+W and Mod+Shift+W.
           wallpaper.interval = null;
+
+          # The greeter offers me first, with what my desktop showed last behind it.
+          login.user = config.my.session.autologinuser;
         };
 
         # The prompt gnome-keyring shows when an app first stores a secret,
