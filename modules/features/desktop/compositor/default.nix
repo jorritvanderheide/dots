@@ -223,6 +223,16 @@
           login.user = config.my.session.autologinuser;
         };
 
+        # Where my desktop keeps that wallpaper for the greeter, which the rollback at boot would
+        # otherwise empty before the greeter shows it.
+        my.preservation.systemDirectories = [
+          {
+            directory = "/var/lib/weinig";
+            mode = "0755";
+            user = config.my.session.autologinuser;
+          }
+        ];
+
         # The prompt gnome-keyring shows when an app first stores a secret,
         # which is where the keyring gets its (empty) password.
         services.dbus.packages = [ pkgs.gcr_3 ];
