@@ -34,20 +34,6 @@
         ];
 
         home-manager.sharedModules = [
-          {
-            # Without the ssh component, which conflicts with the Bitwarden SSH
-            # agent. The keyring has an empty password: the session logs in
-            # automatically, so there is no password to unlock it with, and
-            # LUKS protects it on disk.
-            services.gnome-keyring = {
-              enable = true;
-
-              components = [
-                "pkcs11"
-                "secrets"
-              ];
-            };
-          }
           (
             {
               lib,
@@ -127,11 +113,18 @@
           ".local/share/keyrings"
         ];
 
+        # Where my desktop keeps that wallpaper for the greeter, which the rollback at boot would
+        # otherwise empty before the greeter shows it.
+        my.preservation.systemDirectories = [
+          {
+            directory = "/var/lib/weinig";
+            mode = "0755";
+            user = config.my.session.autologinuser;
+          }
+        ];
+
         programs.weinig = {
           enable = true;
-
-          # Ghostty, through launcher.terminal.
-          system.terminal.enable = false;
 
           # Suspend, but not while a Claude Code turn is in progress (busy markers written by
           # the hooks in coding-agent.nix). As a transient unit, so that returning can cancel
@@ -167,6 +160,9 @@
             "-e"
           ];
 
+          # The greeter offers me first, with what my desktop showed last behind it.
+          login.user = config.my.session.autologinuser;
+
           # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview,
           # column widths, hot corner, cursor, touchpad clicks and X11 apps of this desktop.
           niri.settings = {
@@ -198,6 +194,9 @@
             ];
           };
 
+          # Ghostty, through launcher.terminal.
+          system.terminal.enable = false;
+
           # Open Sans for text and the clock, as Radboud uses it (Notes/Visual style in the
           # vault). Installed in theming/default.nix. Labels and figures keep Geist Mono.
           theme.fonts.sans = "Open Sans";
@@ -218,30 +217,7 @@
 
           # Only by hand, with Mod+W and Mod+Shift+W.
           wallpaper.interval = null;
-
-          # The greeter offers me first, with what my desktop showed last behind it.
-          login.user = config.my.session.autologinuser;
         };
-
-        # Where my desktop keeps that wallpaper for the greeter, which the rollback at boot would
-        # otherwise empty before the greeter shows it.
-        my.preservation.systemDirectories = [
-          {
-            directory = "/var/lib/weinig";
-            mode = "0755";
-            user = config.my.session.autologinuser;
-          }
-        ];
-
-        # The prompt gnome-keyring shows when an app first stores a secret,
-        # which is where the keyring gets its (empty) password.
-        services.dbus.packages = [ pkgs.gcr_3 ];
-
-        # Niri auto-enables gnome-keyring at system level, which also pulls in
-        # gcr-ssh-agent that overrides SSH_AUTH_SOCK, breaking Bitwarden SSH agent.
-        # We disable the system-level service and run gnome-keyring-daemon via
-        # home-manager with only secrets+pkcs11 components instead.
-        services.gnome.gnome-keyring.enable = lib.mkForce false;
       };
     };
 }

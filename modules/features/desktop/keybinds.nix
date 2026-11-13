@@ -136,6 +136,12 @@
           "XF86AudioPlay" = playerctl [ "play-pause" ];
           "XF86AudioPrev" = playerctl [ "previous" ];
 
+          "Mod+Apostrophe" = titled "Open the calendar" (weinig [
+            "panel"
+            "toggle"
+            "time"
+          ]);
+
           "Mod+Backspace" = {
             title = "Lock the screen";
 
@@ -148,6 +154,12 @@
           "Mod+Ctrl+N" = titled "Open the notification centre" (weinig [
             "notifications"
             "toggle"
+          ]);
+
+          "Mod+I" = titled "Open the sound" (weinig [
+            "panel"
+            "toggle"
+            "sound"
           ]);
 
           # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
@@ -191,6 +203,12 @@
             ];
           };
 
+          "Mod+Semicolon" = titled "Open the battery" (weinig [
+            "panel"
+            "toggle"
+            "battery"
+          ]);
+
           "Mod+Shift+N" = weinig [
             "notifications"
             "toggle"
@@ -211,37 +229,10 @@
             "toggle"
           ]);
 
-          # The bar's panels on the right hand, for the left pinky's mod key, in the bar's order:
-          # the top row for network, Bluetooth and sound, the home row past L for the battery and
-          # the calendar. The bar shows them while the mod key is held.
-          "Mod+Y" = titled "Open Wi-Fi" (weinig [
-            "panel"
-            "toggle"
-            "wifi"
-          ]);
-
           "Mod+U" = titled "Open Bluetooth" (weinig [
             "panel"
             "toggle"
             "bluetooth"
-          ]);
-
-          "Mod+I" = titled "Open the sound" (weinig [
-            "panel"
-            "toggle"
-            "sound"
-          ]);
-
-          "Mod+Semicolon" = titled "Open the battery" (weinig [
-            "panel"
-            "toggle"
-            "battery"
-          ]);
-
-          "Mod+Apostrophe" = titled "Open the calendar" (weinig [
-            "panel"
-            "toggle"
-            "time"
           ]);
 
           "Mod+V" = titled "Open the clipboard history" (weinig [
@@ -252,6 +243,15 @@
           "Mod+W" = titled "Next wallpaper" (weinig [
             "wallpaper"
             "next"
+          ]);
+
+          # The bar's panels on the right hand, for the left pinky's mod key, in the bar's order:
+          # the top row for network, Bluetooth and sound, the home row past L for the battery and
+          # the calendar. The bar shows them while the mod key is held.
+          "Mod+Y" = titled "Open Wi-Fi" (weinig [
+            "panel"
+            "toggle"
+            "wifi"
           ]);
 
           "XF86AudioLowerVolume" = held (weinig [
