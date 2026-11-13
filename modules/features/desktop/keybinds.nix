@@ -136,10 +136,15 @@
           "XF86AudioPlay" = playerctl [ "play-pause" ];
           "XF86AudioPrev" = playerctl [ "previous" ];
 
-          "Mod+Apostrophe" = titled "Open the calendar" (weinig [
+          "Mod+Alt+N" = titled "Open the notification centre" (weinig [
+            "notifications"
+            "toggle"
+          ]);
+
+          "Mod+B" = titled "Open Bluetooth" (weinig [
             "panel"
             "toggle"
-            "time"
+            "bluetooth"
           ]);
 
           "Mod+Backspace" = {
@@ -151,15 +156,15 @@
             ];
           };
 
-          "Mod+Ctrl+N" = titled "Open the notification centre" (weinig [
-            "notifications"
-            "toggle"
-          ]);
-
-          "Mod+I" = titled "Open the sound" (weinig [
+          "Mod+C" = titled "Open the calendar" (weinig [
             "panel"
             "toggle"
-            "sound"
+            "time"
+          ]);
+
+          "Mod+Ctrl+W" = titled "Previous wallpaper" (weinig [
+            "wallpaper"
+            "previous"
           ]);
 
           # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
@@ -186,9 +191,10 @@
             "pick"
           ]);
 
-          "Mod+P" = titled "Take a screenshot" (weinig [
-            "screenshot"
-            "take"
+          "Mod+P" = titled "Open power" (weinig [
+            "panel"
+            "toggle"
+            "battery"
           ]);
 
           "Mod+Return" = {
@@ -203,10 +209,10 @@
             ];
           };
 
-          "Mod+Semicolon" = titled "Open the battery" (weinig [
+          "Mod+S" = titled "Open the sound" (weinig [
             "panel"
             "toggle"
-            "battery"
+            "sound"
           ]);
 
           "Mod+Shift+N" = weinig [
@@ -214,14 +220,19 @@
             "toggle"
           ];
 
-          "Mod+Shift+Slash" = titled "Show the keys" (weinig [
-            "keys"
-            "toggle"
+          "Mod+Shift+P" = titled "Take a screenshot" (weinig [
+            "screenshot"
+            "take"
           ]);
 
-          "Mod+Shift+W" = titled "Previous wallpaper" (weinig [
+          "Mod+Shift+W" = titled "Next wallpaper" (weinig [
             "wallpaper"
-            "previous"
+            "next"
+          ]);
+
+          "Mod+Slash" = titled "Show the keys" (weinig [
+            "keys"
+            "toggle"
           ]);
 
           "Mod+Space" = titled "Open the launcher" (weinig [
@@ -229,30 +240,24 @@
             "toggle"
           ]);
 
-          "Mod+U" = titled "Open Bluetooth" (weinig [
-            "panel"
-            "toggle"
-            "bluetooth"
-          ]);
-
           "Mod+V" = titled "Open the clipboard history" (weinig [
             "clipboard"
             "toggle"
           ]);
 
-          "Mod+W" = titled "Next wallpaper" (weinig [
-            "wallpaper"
-            "next"
-          ]);
-
-          # The bar's panels on the right hand, for the left pinky's mod key, in the bar's order:
-          # the top row for network, Bluetooth and sound, the home row past L for the battery and
-          # the calendar. The bar shows them while the mod key is held.
-          "Mod+Y" = titled "Open Wi-Fi" (weinig [
+          # The bar's panels by their first letter, with the right pinky's mod key for those on the
+          # left hand, which the left one's masks (keyboard-remap), the calendar on C. The bar
+          # shows them while the mod key is held.
+          "Mod+W" = titled "Open Wi-Fi" (weinig [
             "panel"
             "toggle"
             "wifi"
           ]);
+
+          "Print" = weinig [
+            "screenshot"
+            "take"
+          ];
 
           "XF86AudioLowerVolume" = held (weinig [
             "volume"
