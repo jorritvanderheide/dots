@@ -31,8 +31,8 @@
           };
 
           sansSerif = {
-            name = "Rubik";
-            package = pkgs.rubik;
+            name = "Inter";
+            package = pkgs.inter;
           };
 
           serif = {
@@ -44,11 +44,8 @@
         description = "The fonts every target uses (name and package for each family) and their size in points.";
       };
 
-      # Weinig's look for apps (theme.apps), with these fonts and this cursor. Open Sans is the
-      # shell's (compositor/default.nix).
+      # Weinig's look for apps (theme.apps), with these fonts and this cursor.
       config = {
-        fonts.packages = [ pkgs.open-sans ];
-
         programs.weinig.theme.apps = {
           cursor = {
             name = "Capitaine Cursors (Nord)";

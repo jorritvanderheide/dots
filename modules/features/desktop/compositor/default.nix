@@ -197,10 +197,6 @@
           # Ghostty, through launcher.terminal.
           system.terminal.enable = false;
 
-          # Open Sans for text and the clock, as Radboud uses it (Notes/Visual style in the
-          # vault). Installed in theming/default.nix. Labels and figures keep Geist Mono.
-          theme.fonts.sans = "Open Sans";
-
           # The monitors at my desks, by serial, as a meeting room can have the same model. The one
           # that is there is the primary one, and any other is one I present on.
           trustedOutputs = [
