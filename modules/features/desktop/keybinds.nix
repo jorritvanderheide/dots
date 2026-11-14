@@ -80,7 +80,9 @@
         )
       ];
 
-      # All of niri's keys, in place of Weinig's and niri's own.
+      # On top of Weinig's keys and niri's own, which come by default: only what differs for home
+      # row mods, and `null` for a default whose action is on another key here, which would
+      # otherwise be the one the bar's hints show.
       programs.weinig.niri.binds =
         let
           # Once per press, as every key here but the volume and brightness.
@@ -100,7 +102,7 @@
           held = bind: locked bind // { repeat = true; };
           playerctl = args: locked { command = [ "playerctl" ] ++ args; };
         in
-        lib.mkForce {
+        {
           "Alt+Tab".command = [ "true" ];
           "Mod+Alt+Ctrl+Down" = act "move-window-to-workspace-down";
           "Mod+Alt+Ctrl+J" = act "move-window-to-workspace-down";
@@ -126,7 +128,6 @@
           "Mod+K" = act "focus-monitor-up";
           "Mod+L" = act "focus-column-right";
           "Mod+Left" = act "focus-column-left";
-          "Mod+Q" = act "close-window";
           "Mod+R" = act "switch-preset-column-width";
           "Mod+Right" = act "focus-column-right";
           "Mod+Tab".command = [ "false" ];
@@ -135,11 +136,6 @@
           "XF86AudioPause" = playerctl [ "play-pause" ];
           "XF86AudioPlay" = playerctl [ "play-pause" ];
           "XF86AudioPrev" = playerctl [ "previous" ];
-
-          "Mod+Alt+N" = titled "Open the notification centre" (weinig [
-            "notifications"
-            "toggle"
-          ]);
 
           "Mod+B" = titled "Open Bluetooth" (weinig [
             "panel"
@@ -167,15 +163,15 @@
             "previous"
           ]);
 
-          "Mod+D" = titled "Dictate" (weinig [
-            "dictation"
-            "toggle"
-          ]);
-
           # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
           # Mod and Alt mask T, which is on the same hand.
           "Mod+ISO_Level3_Shift+T" = titled "Switch between dark and light" (weinig [
             "theme"
+            "toggle"
+          ]);
+
+          "Mod+ISO_Level3_Shift+A" = titled "Keep awake" (weinig [
+            "keepAwake"
             "toggle"
           ]);
 
@@ -185,11 +181,6 @@
               "mute"
             ])
           );
-
-          "Mod+N" = titled "Mute notifications" (weinig [
-            "notifications"
-            "toggleMute"
-          ]);
 
           "Mod+O" = titled "Pick a colour" (weinig [
             "colour"
@@ -235,16 +226,6 @@
             "next"
           ]);
 
-          "Mod+Slash" = titled "Show the keys" (weinig [
-            "keys"
-            "toggle"
-          ]);
-
-          "Mod+Space" = titled "Open the launcher" (weinig [
-            "launcher"
-            "toggle"
-          ]);
-
           "Mod+V" = titled "Open the clipboard history" (weinig [
             "clipboard"
             "toggle"
@@ -264,11 +245,6 @@
             "take"
           ];
 
-          "XF86AudioLowerVolume" = held (weinig [
-            "volume"
-            "down"
-          ]);
-
           "XF86AudioMedia" = {
             title = "Open this config in Zed";
 
@@ -283,25 +259,16 @@
             ];
           };
 
-          "XF86AudioMute" = locked (weinig [
-            "volume"
-            "mute"
-          ]);
-
-          "XF86AudioRaiseVolume" = held (weinig [
-            "volume"
-            "up"
-          ]);
-
-          "XF86MonBrightnessDown" = held (weinig [
-            "brightness"
-            "down"
-          ]);
-
-          "XF86MonBrightnessUp" = held (weinig [
-            "brightness"
-            "up"
-          ]);
+          # Where these are here instead.
+          "Mod+Alt+A" = null;
+          "Mod+Alt+M" = null;
+          "Mod+Alt+O" = null;
+          "Mod+Alt+Shift+W" = null;
+          "Mod+Alt+T" = null;
+          "Mod+Alt+V" = null;
+          "Mod+Alt+W" = null;
+          "Mod+T" = null;
+          "Super+Alt+L" = null;
         };
     };
 }
