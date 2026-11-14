@@ -126,6 +126,19 @@
         programs.weinig = {
           enable = true;
 
+          # Speaking instead of typing, with Mod+D, in English, knowing the words I use, as in a chat.
+          dictation = {
+            enable = true;
+            casual = true;
+
+            vocabulary = [
+              "Weinig"
+              "niri"
+              "NixOS"
+              "Radboud"
+            ];
+          };
+
           # Suspend, but not while a Claude Code turn is in progress (busy markers written by
           # the hooks in coding-agent.nix). As a transient unit, so that returning can cancel
           # the wait.
@@ -150,9 +163,6 @@
               )
             }";
           };
-
-          # This Framework's hardware switches, open or not.
-          inUse.switches = true;
 
           # Ghostty for apps that need a terminal. Apps launch with app2unit, Weinig's default.
           launcher.terminal = [

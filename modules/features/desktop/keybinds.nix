@@ -167,6 +167,11 @@
             "previous"
           ]);
 
+          "Mod+D" = titled "Dictate" (weinig [
+            "dictation"
+            "toggle"
+          ]);
+
           # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
           # Mod and Alt mask T, which is on the same hand.
           "Mod+ISO_Level3_Shift+T" = titled "Switch between dark and light" (weinig [
