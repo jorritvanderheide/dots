@@ -113,14 +113,28 @@
           "Mod+Alt+Ctrl+Shift+Up" = act "move-window-to-monitor-up";
           "Mod+Alt+Ctrl+Up" = act "move-window-to-workspace-up";
           "Mod+Alt+Down" = act "focus-workspace-down";
-          "Mod+Alt+F" = act "toggle-windowed-fullscreen";
+          "Mod+Alt+E" = act "quit";
+          "Mod+Alt+Equal".action.set-window-height = "+10%";
           "Mod+Alt+H" = act "move-column-left";
           "Mod+Alt+J" = act "focus-workspace-down";
           "Mod+Alt+K" = act "focus-workspace-up";
           "Mod+Alt+L" = act "move-column-right";
           "Mod+Alt+Left" = act "move-column-left";
+          "Mod+Alt+Minus".action.set-window-height = "-10%";
+          "Mod+Alt+Page_Down" = act "move-workspace-down";
+          "Mod+Alt+Page_Up" = act "move-workspace-up";
+          "Mod+Alt+R" = act "switch-preset-column-width-back";
           "Mod+Alt+Right" = act "move-column-right";
           "Mod+Alt+Up" = act "focus-workspace-up";
+          "Mod+Alt+V" = act "switch-focus-between-floating-and-tiling";
+          "Mod+Alt+WheelScrollDown" = {
+            action.focus-column-right = true;
+            cooldownMs = 150;
+          };
+          "Mod+Alt+WheelScrollUp" = {
+            action.focus-column-left = true;
+            cooldownMs = 150;
+          };
           "Mod+Down" = act "focus-monitor-down";
           "Mod+F" = act "fullscreen-window";
           "Mod+H" = act "focus-column-left";
@@ -211,17 +225,12 @@
             "sound"
           ]);
 
-          "Mod+Shift+N" = weinig [
-            "notifications"
-            "toggle"
-          ];
-
-          "Mod+Shift+P" = titled "Take a screenshot" (weinig [
+          "Mod+Alt+P" = titled "Take a screenshot" (weinig [
             "screenshot"
             "take"
           ]);
 
-          "Mod+Shift+W" = titled "Next wallpaper" (weinig [
+          "Mod+Alt+W" = titled "Next wallpaper" (weinig [
             "wallpaper"
             "next"
           ]);
@@ -265,10 +274,42 @@
           "Mod+Alt+O" = null;
           "Mod+Alt+Shift+W" = null;
           "Mod+Alt+T" = null;
-          "Mod+Alt+V" = null;
-          "Mod+Alt+W" = null;
           "Mod+T" = null;
           "Super+Alt+L" = null;
+
+          # Mod+Shift is awkward with home row mods: what was there is on Mod+Alt above, or gone
+          # where Mod+Alt has something else or it is elsewhere already. The monitors are stacked,
+          # so only up and down, on Mod with Up and Down, J and K, and with Alt, Ctrl and Shift.
+          "Mod+Shift+Ctrl+Down" = null;
+          "Mod+Shift+Ctrl+H" = null;
+          "Mod+Shift+Ctrl+J" = null;
+          "Mod+Shift+Ctrl+K" = null;
+          "Mod+Shift+Ctrl+L" = null;
+          "Mod+Shift+Ctrl+Left" = null;
+          "Mod+Shift+Ctrl+Right" = null;
+          "Mod+Shift+Ctrl+Up" = null;
+          "Mod+Shift+Down" = null;
+          "Mod+Shift+E" = null;
+          "Mod+Shift+Equal" = null;
+          "Mod+Shift+F" = null;
+          "Mod+Shift+H" = null;
+          "Mod+Shift+J" = null;
+          "Mod+Shift+K" = null;
+          "Mod+Shift+L" = null;
+          "Mod+Shift+Left" = null;
+          "Mod+Shift+Minus" = null;
+          "Mod+Shift+N" = null;
+          "Mod+Shift+P" = null;
+          "Mod+Shift+Page_Down" = null;
+          "Mod+Shift+Page_Up" = null;
+          "Mod+Shift+R" = null;
+          "Mod+Shift+Right" = null;
+          "Mod+Shift+Slash" = null;
+          "Mod+Shift+Up" = null;
+          "Mod+Shift+V" = null;
+          "Mod+Shift+W" = null;
+          "Mod+Shift+WheelScrollDown" = null;
+          "Mod+Shift+WheelScrollUp" = null;
         };
     };
 }
