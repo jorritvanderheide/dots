@@ -126,6 +126,9 @@
         programs.weinig = {
           enable = true;
 
+          # Without the NixOS mark at the start of the bar: the launcher is on Mod+Space.
+          bar.mark = false;
+
           # Speaking instead of typing, with Mod+D, in English, knowing the words I use, as in a chat.
           dictation = {
             enable = true;
