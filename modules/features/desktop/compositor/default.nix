@@ -123,6 +123,15 @@
           }
         ];
 
+        # Weinig's niri from dapple's cache (nix-cache.nix), which builds it as Weinig's CI does,
+        # for the VM test, rather than compiling it here. Only on the tailnet: elsewhere Nix gives
+        # up on it after a few seconds and builds or uses cache.nixos.org.
+        nix.settings = {
+          connect-timeout = lib.mkDefault 5;
+          extra-substituters = [ "https://cache.bw20.nl" ];
+          extra-trusted-public-keys = [ "cache.bw20.nl-1:kiW0e/GZf1s0tm3UaPIIcQjrLHU2tDWaVmnPCykTp9U=" ];
+        };
+
         programs.weinig = {
           enable = true;
 
