@@ -100,7 +100,6 @@
           titled = title: bind: bind // { inherit title; };
           locked = bind: bind // { allowWhenLocked = true; };
           held = bind: locked bind // { repeat = true; };
-          playerctl = args: locked { command = [ "playerctl" ] ++ args; };
         in
         {
           "Alt+Tab".command = [ "true" ];
@@ -146,10 +145,6 @@
           "Mod+Right" = titled "Go to the window on the right" (act "focus-column-right");
           "Mod+Tab".command = [ "false" ];
           "Mod+Up" = titled "Go to the screen above" (act "focus-monitor-up");
-          "XF86AudioNext" = titled "Next track" (playerctl [ "next" ]);
-          "XF86AudioPause" = titled "Play or pause" (playerctl [ "play-pause" ]);
-          "XF86AudioPlay" = titled "Play or pause" (playerctl [ "play-pause" ]);
-          "XF86AudioPrev" = titled "Previous track" (playerctl [ "previous" ]);
 
           "Mod+B" = titled "Open Bluetooth" (weinig [
             "panel"
