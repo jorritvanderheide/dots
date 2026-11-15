@@ -30,7 +30,6 @@
         environment.systemPackages = with pkgs; [
           imv
           playerctl
-          udiskie
         ];
 
         home-manager.sharedModules = [
@@ -204,16 +203,6 @@
                 tap-button-map = "left-right-middle";
               };
             };
-
-            spawn-at-startup = [
-              [
-                "app2unit"
-                "-s"
-                "b"
-                "--"
-                "udiskie"
-              ]
-            ];
           };
 
           # Ghostty, through launcher.terminal.
