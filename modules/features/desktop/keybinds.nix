@@ -104,29 +104,29 @@
         in
         {
           "Alt+Tab".command = [ "true" ];
-          "Mod+Alt+Ctrl+Down" = act "move-window-to-workspace-down";
-          "Mod+Alt+Ctrl+J" = act "move-window-to-workspace-down";
-          "Mod+Alt+Ctrl+K" = act "move-window-to-workspace-up";
-          "Mod+Alt+Ctrl+Shift+Down" = act "move-window-to-monitor-down";
-          "Mod+Alt+Ctrl+Shift+J" = act "move-window-to-monitor-down";
-          "Mod+Alt+Ctrl+Shift+K" = act "move-window-to-monitor-up";
-          "Mod+Alt+Ctrl+Shift+Up" = act "move-window-to-monitor-up";
-          "Mod+Alt+Ctrl+Up" = act "move-window-to-workspace-up";
-          "Mod+Alt+Down" = act "focus-workspace-down";
-          "Mod+Alt+E" = act "quit";
-          "Mod+Alt+Equal".action.set-window-height = "+10%";
-          "Mod+Alt+H" = act "move-column-left";
-          "Mod+Alt+J" = act "focus-workspace-down";
-          "Mod+Alt+K" = act "focus-workspace-up";
-          "Mod+Alt+L" = act "move-column-right";
-          "Mod+Alt+Left" = act "move-column-left";
-          "Mod+Alt+Minus".action.set-window-height = "-10%";
+          "Mod+Alt+Ctrl+Down" = titled "Move the window to the workspace below" (act "move-window-to-workspace-down");
+          "Mod+Alt+Ctrl+J" = titled "Move the window to the workspace below" (act "move-window-to-workspace-down");
+          "Mod+Alt+Ctrl+K" = titled "Move the window to the workspace above" (act "move-window-to-workspace-up");
+          "Mod+Alt+Ctrl+Shift+Down" = titled "Move the window to the screen below" (act "move-window-to-monitor-down");
+          "Mod+Alt+Ctrl+Shift+J" = titled "Move the window to the screen below" (act "move-window-to-monitor-down");
+          "Mod+Alt+Ctrl+Shift+K" = titled "Move the window to the screen above" (act "move-window-to-monitor-up");
+          "Mod+Alt+Ctrl+Shift+Up" = titled "Move the window to the screen above" (act "move-window-to-monitor-up");
+          "Mod+Alt+Ctrl+Up" = titled "Move the window to the workspace above" (act "move-window-to-workspace-up");
+          "Mod+Alt+Down" = titled "Go to the workspace below" (act "focus-workspace-down");
+          "Mod+Alt+E" = titled "Log out" (act "quit");
+          "Mod+Alt+Equal" = titled "Make the window taller" { action.set-window-height = "+10%"; };
+          "Mod+Alt+H" = titled "Move the window left" (act "move-column-left");
+          "Mod+Alt+J" = titled "Go to the workspace below" (act "focus-workspace-down");
+          "Mod+Alt+K" = titled "Go to the workspace above" (act "focus-workspace-up");
+          "Mod+Alt+L" = titled "Move the window right" (act "move-column-right");
+          "Mod+Alt+Left" = titled "Move the window left" (act "move-column-left");
+          "Mod+Alt+Minus" = titled "Make the window shorter" { action.set-window-height = "-10%"; };
           "Mod+Alt+Page_Down" = act "move-workspace-down";
           "Mod+Alt+Page_Up" = act "move-workspace-up";
-          "Mod+Alt+R" = act "switch-preset-column-width-back";
-          "Mod+Alt+Right" = act "move-column-right";
-          "Mod+Alt+Up" = act "focus-workspace-up";
-          "Mod+Alt+V" = act "switch-focus-between-floating-and-tiling";
+          "Mod+Alt+R" = titled "Previous window width" (act "switch-preset-column-width-back");
+          "Mod+Alt+Right" = titled "Move the window right" (act "move-column-right");
+          "Mod+Alt+Up" = titled "Go to the workspace above" (act "focus-workspace-up");
+          "Mod+Alt+V" = titled "Switch between floating and tiled windows" (act "switch-focus-between-floating-and-tiling");
           "Mod+Alt+WheelScrollDown" = {
             action.focus-column-right = true;
             cooldownMs = 150;
@@ -135,21 +135,21 @@
             action.focus-column-left = true;
             cooldownMs = 150;
           };
-          "Mod+Down" = act "focus-monitor-down";
-          "Mod+F" = act "fullscreen-window";
-          "Mod+H" = act "focus-column-left";
-          "Mod+J" = act "focus-monitor-down";
-          "Mod+K" = act "focus-monitor-up";
-          "Mod+L" = act "focus-column-right";
-          "Mod+Left" = act "focus-column-left";
-          "Mod+R" = act "switch-preset-column-width";
-          "Mod+Right" = act "focus-column-right";
+          "Mod+Down" = titled "Go to the screen below" (act "focus-monitor-down");
+          "Mod+F" = titled "Make the window fullscreen" (act "fullscreen-window");
+          "Mod+H" = titled "Go to the window on the left" (act "focus-column-left");
+          "Mod+J" = titled "Go to the screen below" (act "focus-monitor-down");
+          "Mod+K" = titled "Go to the screen above" (act "focus-monitor-up");
+          "Mod+L" = titled "Go to the window on the right" (act "focus-column-right");
+          "Mod+Left" = titled "Go to the window on the left" (act "focus-column-left");
+          "Mod+R" = titled "Next window width" (act "switch-preset-column-width");
+          "Mod+Right" = titled "Go to the window on the right" (act "focus-column-right");
           "Mod+Tab".command = [ "false" ];
-          "Mod+Up" = act "focus-monitor-up";
-          "XF86AudioNext" = playerctl [ "next" ];
-          "XF86AudioPause" = playerctl [ "play-pause" ];
-          "XF86AudioPlay" = playerctl [ "play-pause" ];
-          "XF86AudioPrev" = playerctl [ "previous" ];
+          "Mod+Up" = titled "Go to the screen above" (act "focus-monitor-up");
+          "XF86AudioNext" = titled "Next track" (playerctl [ "next" ]);
+          "XF86AudioPause" = titled "Play or pause" (playerctl [ "play-pause" ]);
+          "XF86AudioPlay" = titled "Play or pause" (playerctl [ "play-pause" ]);
+          "XF86AudioPrev" = titled "Previous track" (playerctl [ "previous" ]);
 
           "Mod+B" = titled "Open Bluetooth" (weinig [
             "panel"
@@ -310,6 +310,15 @@
           "Mod+Shift+W" = null;
           "Mod+Shift+WheelScrollDown" = null;
           "Mod+Shift+WheelScrollUp" = null;
+
+          # Moving a column, which with each window full width is moving the window: on Mod+Alt
+          # above, and to another workspace with Ctrl as well.
+          "Mod+Ctrl+H" = null;
+          "Mod+Ctrl+L" = null;
+          "Mod+Ctrl+Left" = null;
+          "Mod+Ctrl+Page_Down" = null;
+          "Mod+Ctrl+Page_Up" = null;
+          "Mod+Ctrl+Right" = null;
         };
     };
 }
