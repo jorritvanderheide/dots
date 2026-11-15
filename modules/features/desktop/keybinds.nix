@@ -172,7 +172,7 @@
             "time"
           ]);
 
-          "Mod+Ctrl+W" = titled "Previous wallpaper" (weinig [
+          "Mod+ISO_Level3_Shift+Ctrl+W" = titled "Previous wallpaper" (weinig [
             "wallpaper"
             "previous"
           ]);
@@ -230,7 +230,7 @@
             "take"
           ]);
 
-          "Mod+Alt+W" = titled "Next wallpaper" (weinig [
+          "Mod+ISO_Level3_Shift+W" = titled "Next wallpaper" (weinig [
             "wallpaper"
             "next"
           ]);
@@ -273,6 +273,7 @@
           "Mod+Alt+M" = null;
           "Mod+Alt+O" = null;
           "Mod+Alt+Shift+W" = null;
+          "Mod+Alt+W" = null;
           "Mod+Alt+T" = null;
           "Mod+T" = null;
           "Super+Alt+L" = null;
