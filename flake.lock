@@ -377,11 +377,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794814267,
-        "narHash": "sha256-1SYdH9JVnlSLqQTugrLagkATSTgoI+Wv9yQxzlI6kvA=",
+        "lastModified": 1794854336,
+        "narHash": "sha256-7/eOjYZhFKnvjI4CxikHQeMH+U67KImVGxUxJIVa7CE=",
         "ref": "refs/heads/main",
-        "rev": "d51900d28b18ea442687431bd70fbcfef3e40a3d",
-        "revCount": 452,
+        "rev": "8e4baccfa41b76682cbe0bac1348299e7c857d32",
+        "revCount": 461,
         "type": "git",
         "url": "https://codeberg.org/BW20/weinig-shell"
       },
