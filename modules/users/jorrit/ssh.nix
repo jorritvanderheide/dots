@@ -16,6 +16,8 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
         ".ssh/kobo.pub".text =
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPVHAMFVZ/24DCKYsaKwP0svlTFHp4UFJd7YaqnFl4fh kobo";
+        ".ssh/jorrit@rootnet.nl.pub".text =
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILstgbYXPbaEviS+6CaeU7FhT6qaTYZ9/edYKXtFyJAJ jorrit@rootnet.nl";
       };
 
       programs.ssh.settings = {
@@ -83,6 +85,16 @@
           identityFile = "~/.ssh/git@gitlab.science.ru.nl.pub";
           proxyJump = "lilo";
           user = "jvanderheide";
+        };
+
+        # Rootnet whitelists only the home IP, so go out through dapple
+        # (reachable over the tailnet from anywhere).
+        "rootnet" = {
+          hostname = "185.173.20.56";
+          identitiesOnly = true;
+          identityFile = "~/.ssh/jorrit@rootnet.nl.pub";
+          proxyJump = "dapple";
+          user = "innbw20nl_19";
         };
       };
     };
