@@ -146,7 +146,10 @@
           "Mod+Tab".command = [ "false" ];
           "Mod+Up" = titled "Go to the screen above" (act "focus-monitor-up");
 
-          "Mod+B" = titled "Open Bluetooth" (weinig [
+          # The bar's panels by their first letter, the calendar on C, with AltGr for those on the
+          # left hand, which the left hand's Mod and Alt mask, and Alt for power on P. The bar shows
+          # them while those are held.
+          "Mod+ISO_Level3_Shift+B" = titled "Open Bluetooth" (weinig [
             "panel"
             "toggle"
             "bluetooth"
@@ -161,13 +164,13 @@
             ];
           };
 
-          "Mod+C" = titled "Open the calendar" (weinig [
+          "Mod+ISO_Level3_Shift+C" = titled "Open the calendar" (weinig [
             "panel"
             "toggle"
             "time"
           ]);
 
-          "Mod+ISO_Level3_Shift+Ctrl+W" = titled "Previous wallpaper" (weinig [
+          "Mod+BracketLeft" = titled "Previous wallpaper" (weinig [
             "wallpaper"
             "previous"
           ]);
@@ -196,7 +199,7 @@
             "pick"
           ]);
 
-          "Mod+P" = titled "Open power" (weinig [
+          "Mod+Alt+P" = titled "Open power" (weinig [
             "panel"
             "toggle"
             "battery"
@@ -214,18 +217,13 @@
             ];
           };
 
-          "Mod+S" = titled "Open the sound" (weinig [
+          "Mod+ISO_Level3_Shift+S" = titled "Open the sound" (weinig [
             "panel"
             "toggle"
             "sound"
           ]);
 
-          "Mod+Alt+P" = titled "Take a screenshot" (weinig [
-            "screenshot"
-            "take"
-          ]);
-
-          "Mod+ISO_Level3_Shift+W" = titled "Next wallpaper" (weinig [
+          "Mod+BracketRight" = titled "Next wallpaper" (weinig [
             "wallpaper"
             "next"
           ]);
@@ -235,10 +233,7 @@
             "toggle"
           ]);
 
-          # The bar's panels by their first letter, with the right pinky's mod key for those on the
-          # left hand, which the left one's masks (keyboard-remap), the calendar on C. The bar
-          # shows them while the mod key is held.
-          "Mod+W" = titled "Open Wi-Fi" (weinig [
+          "Mod+ISO_Level3_Shift+W" = titled "Open Wi-Fi" (weinig [
             "panel"
             "toggle"
             "wifi"
@@ -272,6 +267,11 @@
           "Mod+Alt+T" = null;
           "Mod+T" = null;
           "Super+Alt+L" = null;
+
+          # Where the panels were, left empty rather than to the defaults.
+          "Mod+B" = null;
+          "Mod+C" = null;
+          "Mod+W" = null;
 
           # Mod+Shift is awkward with home row mods: what was there is on Mod+Alt above, or gone
           # where Mod+Alt has something else or it is elsewhere already. The monitors are stacked,
