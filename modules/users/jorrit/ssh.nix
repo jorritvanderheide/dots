@@ -2,6 +2,13 @@
 # is in configuration.nix.
 {
   flake.nixosModules.jorrit = {
+    # Rootnet's, from the first connection (2026-11-18): it gave no
+    # fingerprint. meetinn's deploy workflow pins the same key.
+    programs.ssh.knownHosts.rootnet = {
+      hostNames = [ "185.173.20.56" ];
+      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIV79HxjjWEj6tND6VwG+rukhBUhp+fwnU/clOvMNLrd";
+    };
+
     home-manager.users.jorrit = {
       # Public halves only: the private keys live in the Bitwarden SSH
       # agent (password-manager.nix), and IdentitiesOnly + IdentityFile
