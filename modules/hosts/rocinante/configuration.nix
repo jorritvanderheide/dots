@@ -67,12 +67,15 @@
                 # 1920x1280 the previous one had at 1.175.
                 "eDP-1" = {
                   scale = 1.5;
-                  variable-refresh-rate = true;
 
                   position._props = {
                     x = 0;
                     y = 0;
                   };
+
+                  # On demand only: always-on VRR makes the panel flicker with
+                  # video, as its refresh follows mpv's frame rate down.
+                  variable-refresh-rate._props.on-demand = true;
                 };
 
                 # Home monitor
