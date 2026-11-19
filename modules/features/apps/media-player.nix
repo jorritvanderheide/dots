@@ -32,7 +32,6 @@
           in
           {
             home.packages = with pkgs; [
-              vlc
               (mpv.override {
                 scripts = [ mpvScripts.webtorrent-mpv-hook ];
               })
@@ -44,28 +43,24 @@
 
             xdg = {
               configFile = {
-                "mpv/script-opts/webtorrent.conf".text = ''
-                  path=${torrentDir}/
+                # A torrent's episodes play from a stable address
+                # (localhost:8888/webtorrent/<hash>/<file>), so the position
+                # saved on quit is found again when the magnet is reopened.
+                "mpv/mpv.conf".text = ''
+                  save-position-on-quit=yes
+                  slang=en,eng
+                  sub-auto=fuzzy
+                  volume-max=100
                 '';
 
-                "vlc/vlcrc".text = ''
-                  [qt]
-                  qt-max-volume=100
-                  qt-minimal-view=1
-                  qt-pause-minimized=1
-                  qt-privacy-ask=0
-                  qt-video-autoresize=0
-
-                  [core]
-                  sub-autodetect-file=1
-                  sub-language=en,eng,English
+                "mpv/script-opts/webtorrent.conf".text = ''
+                  path=${torrentDir}/
                 '';
               };
 
               desktopEntries = {
-                # mpv is fully hidden from the launcher and Open With menus;
-                # it only runs via the magnet-link handler (mpv-magnet) or the
-                # terminal. NoDisplay entries still work as MIME defaults.
+                # mpv's own entry is hidden; it shows as "Videos" below.
+                # NoDisplay entries still work as MIME defaults.
                 mpv = {
                   name = "mpv Media Player";
                   noDisplay = true;
@@ -86,10 +81,10 @@
                 };
 
                 videos = {
-                  comment = "VLC media player";
-                  exec = "vlc %U";
+                  comment = "mpv media player";
+                  exec = "mpv --player-operation-mode=pseudo-gui -- %U";
                   genericName = "Video player";
-                  icon = "vlc";
+                  icon = "mpv";
                   mimeType = mediaTypes;
                   name = "Videos";
                   type = "Application";
@@ -98,13 +93,6 @@
                     "AudioVideo"
                     "Video"
                   ];
-                };
-
-                # VLC is the visible player, presented as a generic "Videos"
-                # entry; its own entry is hidden.
-                vlc = {
-                  name = "VLC media player";
-                  noDisplay = true;
                 };
               };
 
