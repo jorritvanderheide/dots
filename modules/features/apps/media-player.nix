@@ -33,7 +33,10 @@
           {
             home.packages = with pkgs; [
               (mpv.override {
-                scripts = [ mpvScripts.webtorrent-mpv-hook ];
+                scripts = with mpvScripts; [
+                  mpris
+                  webtorrent-mpv-hook
+                ];
               })
             ];
 
