@@ -93,6 +93,89 @@
                 run rm -f ${lib.escapeShellArg "${config.home.homeDirectory}/${config.programs.zotero.profilesPath}/${config.programs.zotero.profiles.default.path}/addonStartup.json.lz4"}
               '';
 
+              # zotero-cli, from the Zotero MCP server's package, for me and
+              # for Claude Code through the skill below. It reads
+              # zotero.sqlite directly, so it works without Zotero running.
+              # Read-only: writing needs a key from a one-time
+              # `zotero-mcp authorize-local`.
+              home.packages = [ inputs.zotero-mcp.packages.${pkgs.stdenv.hostPlatform.system}.zotero-mcp ];
+
+              programs.claude-code = {
+                # The commands that only read. edit, delete, add and the
+                # other writes still ask.
+                settings.permissions.allow = map (command: "Bash(zotero-cli ${command}:*)") [
+                  "annotations list"
+                  "collections search"
+                  "config"
+                  "coverage"
+                  "get"
+                  "notes list"
+                  "path"
+                  "read"
+                  "related"
+                  "search"
+                ];
+
+                skills.zotero = ''
+                  ---
+                  name: zotero
+                  description: Look up, search and read papers in the user's Zotero library with zotero-cli. Use when a task involves their references, a citekey, a paper's text or annotations, or a literature note in ~/Obsidian/Literature.
+                  ---
+
+                  # Zotero
+
+                  `zotero-cli` reads the local Zotero library directly; Zotero
+                  doesn't have to be running. Run `zotero-cli <command> --help`
+                  for the options. Add `--json` when the output goes into
+                  `jq` or a script.
+
+                  ## Finding an item
+
+                  - `zotero-cli search "Shove practice"` matches title, creator
+                    and year. It doesn't search inside PDFs; `read --find`
+                    below does, one item at a time.
+                  - `zotero-cli search --mode citekey <citekey>` resolves a
+                    Better BibTeX citekey to the item key.
+                  - `zotero-cli get recent --limit 10`, `get collections`,
+                    `get collection-items <key>`.
+
+                  Literature notes in `~/Obsidian/Literature/` are named by
+                  citekey and carry the item key as `zotero-key` in their
+                  frontmatter. The vault's own CLAUDE.md says what may be read
+                  and edited there.
+
+                  ## Reading a paper
+
+                  Papers are long. Don't print a whole paper into the
+                  conversation.
+
+                  - `zotero-cli read <key> --find "<phrase>"` ranks the pages
+                    that mention a phrase, with snippets. Start here.
+                  - `zotero-cli read <key> --start-page 3 --end-page 5` reads
+                    those pages. `--format image` renders them as PNGs, for
+                    tables, figures and formulas.
+                  - For the whole text, write it to a file and search that:
+                    `zotero-cli get fulltext <key> > /tmp/<key>.md`.
+                  - `zotero-cli annotations list --item-key <key>` gives the
+                    user's own highlights and comments.
+
+                  ## Citing
+
+                  Better BibTeX keeps every item, under its citekey, in
+                  `~/Obsidian/Literature/library.bib`; take BibTeX from there.
+                  `zotero-cli get bibtex` makes up its own keys, and
+                  `zotero-cli export` doesn't work here. In the vault, cite
+                  with `[[citekey]]`.
+
+                  ## Writing
+
+                  Writes (add, edit, notes create, annotations create, delete)
+                  aren't set up: they need a key from `zotero-mcp
+                  authorize-local`. Ask before any write, and say so if one
+                  fails for that reason.
+                '';
+              };
+
               programs.zotero = {
                 enable = true;
 

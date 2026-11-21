@@ -231,6 +231,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1792502884,
+        "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "02c087f3fe673c9e317f206a627cb6b910336dbe",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "preservation": {
       "locked": {
         "lastModified": 1792953443,
@@ -265,7 +281,8 @@
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix",
         "weinig-shell": "weinig-shell",
-        "yubinstall": "yubinstall"
+        "yubinstall": "yubinstall",
+        "zotero-mcp": "zotero-mcp"
       }
     },
     "rust-overlay": {
@@ -412,6 +429,24 @@
         "ref": "refs/tags/0.1.0",
         "type": "git",
         "url": "https://codeberg.org/BW20/nixos-yubinstall"
+      }
+    },
+    "zotero-mcp": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1795102390,
+        "narHash": "sha256-y9hoDPattL1761ct3elWyVY4pkfb5sqH+ZmVAYnVaNI=",
+        "owner": "54yyyu",
+        "repo": "zotero-mcp",
+        "rev": "a33c76a28d20fa4b9615ed8d5e49998c3f59f73f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "54yyyu",
+        "repo": "zotero-mcp",
+        "type": "github"
       }
     }
   },

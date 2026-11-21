@@ -113,5 +113,9 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
+
+    # Zotero's MCP server for Claude Code (zotero.nix). On its own nixpkgs:
+    # ours marks fastmcp broken against mcp 2.
+    zotero-mcp.url = "github:54yyyu/zotero-mcp";
   };
 }
