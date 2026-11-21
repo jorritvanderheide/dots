@@ -176,10 +176,9 @@
             "--scope" = [
               {
                 "--when".repositories = [ "/etc/nixos" ];
+                revsets.git-sign-on-push = "~signed() & mine()";
 
                 git = {
-                  sign-on-push = true;
-
                   # comin's go-git leaves the change-id header out
                   # when it checks a signature, so a commit with
                   # one never verifies, and never deploys.
