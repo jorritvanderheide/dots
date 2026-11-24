@@ -68,8 +68,13 @@
 
       config = {
         # The Nix daemon lets in only wheel (nix.nix); the runner's jobs run
-        # `nix flake check` as this dynamic user, which stays unprivileged.
-        nix.settings.allowed-users = [ unit ];
+        # `nix flake check` as its dynamic user, which stays unprivileged. By
+        # a static group, as the primary group of that user: the daemon looks
+        # up each client by its uid, which for the dynamic user failed from
+        # one deploy (2026-11-21) until the daemon restarted, and /etc/group
+        # always answers.
+        nix.settings.allowed-users = [ "@forgejo-runner" ];
+        users.groups.forgejo-runner = { };
 
         services.forgejo-runner.instances.${instance} = {
           enable = true;
@@ -128,6 +133,7 @@
             // inputs.self.lib.restartAlways
             // internetOnly
             // {
+              Group = "forgejo-runner"; # static, for allowed-users above
               ProtectSystem = "strict";
               UMask = "0077";
             };
