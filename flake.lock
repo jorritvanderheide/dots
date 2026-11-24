@@ -139,26 +139,6 @@
         "type": "github"
       }
     },
-    "meetinn": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793137190,
-        "narHash": "sha256-UydvQAs9SG5wjqPES7TdYqTZA5S7gRdJQIaD9PrvKic=",
-        "ref": "refs/heads/main",
-        "rev": "cc724ab66ead26e2eec755b155314989abd6ed84",
-        "revCount": 284,
-        "type": "git",
-        "url": "https://codeberg.org/ict-netwerk-nijmegen/meetinn"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://codeberg.org/ict-netwerk-nijmegen/meetinn"
-      }
-    },
     "new-leaf": {
       "inputs": {
         "nixpkgs": [
@@ -270,7 +250,6 @@
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "lanzaboote": "lanzaboote",
-        "meetinn": "meetinn",
         "new-leaf": "new-leaf",
         "nix-wrapper-modules": "nix-wrapper-modules",
         "nixpkgs": "nixpkgs",

@@ -46,11 +46,6 @@
       };
     };
 
-    meetinn = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "git+https://codeberg.org/ict-netwerk-nijmegen/meetinn";
-    };
-
     new-leaf = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "git+https://codeberg.org/BW20/new-leaf";

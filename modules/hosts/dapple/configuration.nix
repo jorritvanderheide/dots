@@ -27,7 +27,6 @@
         ingress
         jellyfin
         nix-cache
-        meetinn
         new-leaf
         ntfy
         pubhubs-preview

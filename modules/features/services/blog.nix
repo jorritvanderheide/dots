@@ -3,7 +3,7 @@
   ...
 }:
 {
-  # The blog, at the bare domain, public like meetinn: the site bw20 on
+  # The blog, at the bare domain, public like the share links: the site bw20 on
   # small-press, whose module serves every site on it. dapple builds it
   # itself, from every push to its repository (small-press's architecture,
   # Deployment): the module only serves, and runs, what that builds.

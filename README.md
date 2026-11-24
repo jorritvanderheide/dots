@@ -304,7 +304,6 @@ all of them.
 | File Browser | `files` | rocinante's synced `~/Documents`, in the browser |
 | Home Assistant | `home` | IoT in the home |
 | New Leaf | `cv` | CV editor, with public share links |
-| meetinn | `inn` | ICT Netwerk Nijmegen's site, public; a demo until it has its own server |
 | Blog | bare domain | My blog, public; dapple builds it from every push to its repository |
 | Jeltje's blog | `jeltje` | Jeltje's blog, public, built the same way from its own repository |
 | PubHubs preview | `pubhubs` | The new PubHubs website, public; temporary, and copied over by hand |
@@ -349,8 +348,6 @@ address (DNS at deSEC, no proxy, so TLS ends on dapple):
   uses a local socket.
 - **New Leaf's share links** at `cv`: static pages and PDFs at random
   addresses. The editor is not reachable from the internet.
-- **meetinn** at `inn`: ICT Netwerk Nijmegen's events, registration and
-  Yivi tickets, the admin included (its login is a Yivi email disclosure).
 - **The blog** at the bare domain: static pages, with a 403 for the AI
   crawlers its robots.txt names, and `/micropub`, where posts come in, with
   a token and a rate limit.
@@ -362,8 +359,8 @@ LAN subnet only, and a 404 on anything else. A name no vhost claims gets no
 certificate and no answer.
 
 **From the tailnet**, every service in [section 5](#5-services-on-dapple)
-but Headscale, meetinn, the blogs and the PubHubs preview, over HTTPS on
-dapple's tailnet address. Those five answer only at the public address,
+but Headscale, the blogs and the PubHubs preview, over HTTPS on
+dapple's tailnet address. Those four answer only at the public address,
 like any visitor's. SSH, Syncthing (22000/tcp) and the home LAN (through
 dapple's subnet route) only from the devices the
 [access policy](modules/features/services/headscale/headscale-policy.hujson)
@@ -388,8 +385,7 @@ mDNS, to find the installer ISO.
 **Outgoing**: restic to Storj, ACME certificates through deSEC's DNS, and
 the status page's checks of the public sites, at the public address
 through the router's hairpin NAT, the blogs' polling of Codeberg and their
-receivers' pushes to it, and meetinn's hourly update of its Yivi schemes
-and its mail, through Proton's SMTP. The Forgejo runner polls Codeberg for
+receivers' pushes to it. The Forgejo runner polls Codeberg for
 jobs, which fetch what they build from the internet (and nothing on the
 LAN or the tailnet). Besides those, the apps fetch what they're for, from
 the home address: qBittorrent's torrents and slskd's Soulseek downloads (no
@@ -470,7 +466,7 @@ router, the DNS or an app's own settings:
   send spam or fill the disk with Nix builds; not enough to reach the
   services, the LAN or the tailnet, or to become root. Through the router's
   hairpin NAT it does reach the home's public address, so it sees what the
-  internet sees (Headscale, the share links, meetinn, the blogs), as any
+  internet sees (Headscale, the share links, the blogs), as any
   stranger does, and not the tailnet's vhosts, as its source isn't a
   tailnet one.
 - **A signed push is a deploy, as root, on every host, and a touch covers
