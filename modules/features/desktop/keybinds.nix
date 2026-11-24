@@ -175,9 +175,8 @@
             "previous"
           ]);
 
-          # On the right hand's home row, as Right Alt is AltGr in this layout: the left hand's
-          # Mod and Alt mask T, which is on the same hand.
-          "Mod+ISO_Level3_Shift+T" = titled "Switch between dark and light" (weinig [
+          # Where Weinig has the terminal, which is on Mod+Return here.
+          "Mod+T" = titled "Switch between dark and light" (weinig [
             "theme"
             "toggle"
           ]);
@@ -265,7 +264,6 @@
           "Mod+Alt+Shift+W" = null;
           "Mod+Alt+W" = null;
           "Mod+Alt+T" = null;
-          "Mod+T" = null;
           "Super+Alt+L" = null;
 
           # Where the panels were, left empty rather than to the defaults.
