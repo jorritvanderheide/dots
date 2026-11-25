@@ -1,7 +1,4 @@
-{
-  inputs,
-  ...
-}:
+{ ... }:
 {
   # The Brother QL-700 that prints MeetINN's name labels at the door
   # (meetinn's README, "Name labels"). The check-in screen prints with
@@ -15,11 +12,11 @@
       ...
     }:
     let
-      inherit (inputs.self.lib) site;
+      domain = "ictnetwerknijmegen.nl";
       printer = "QL-700";
 
       # Opens a meetinn-labels: link's address (the door page's link to the
-      # check-in screen), or the admin without one. Only the demo's pages or
+      # check-in screen), or the admin without one. Only the site's pages or
       # a dev server's on this machine: any site can link to
       # meetinn-labels:, and a page in this Chromium prints without asking.
       labels = pkgs.writeShellApplication {
@@ -28,8 +25,8 @@
         text = ''
           url=''${1:-}
           url=''${url#meetinn-labels:}
-          url=''${url:-https://inn.${site.domain}/admin}
-          pattern='^(https://${lib.escapeRegex "inn.${site.domain}"}|http://localhost:[0-9]+)/'
+          url=''${url:-https://${domain}/admin}
+          pattern='^(https://${lib.escapeRegex domain}|http://localhost:[0-9]+)/'
           if ! [[ $url =~ $pattern ]]; then
             echo "meetinn-labels: not a MeetINN page: $url" >&2
             exit 1
