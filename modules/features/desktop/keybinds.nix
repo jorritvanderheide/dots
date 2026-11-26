@@ -143,7 +143,6 @@
           "Mod+Left" = titled "Go to the window on the left" (act "focus-column-left");
           "Mod+R" = titled "Next window width" (act "switch-preset-column-width");
           "Mod+Right" = titled "Go to the window on the right" (act "focus-column-right");
-          "Mod+Tab".command = [ "false" ];
           "Mod+Up" = titled "Go to the screen above" (act "focus-monitor-up");
 
           # The bar's panels by their first letter, the calendar on C, with AltGr for those on the

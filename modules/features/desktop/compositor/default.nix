@@ -137,6 +137,10 @@
           # Without the NixOS mark at the start of the bar: the launcher is on Mod+Space.
           bar.mark = false;
 
+          # Weinig's patched niri, from dapple's cache above: the desk's monitor, the four-finger
+          # gestures, the keycaps and the rest that nixpkgs' niri goes without.
+          niri.patches = true;
+
           # Speaking instead of typing, with Mod+D, in English, knowing the words I use, as in a chat.
           dictation = {
             enable = true;
