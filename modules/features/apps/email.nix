@@ -1,18 +1,28 @@
 {
-  flake.nixosModules.email = {
-    config = {
-      home-manager.sharedModules = [
-        {
-          programs.thunderbird = {
-            enable = true;
-            profiles.default.isDefault = true;
-          };
-        }
-      ];
+  flake.nixosModules.email =
+    {
+      pkgs,
+      ...
+    }:
+    {
+      config = {
+        home-manager.sharedModules = [
+          {
+            home.packages = with pkgs; [
+              protonmail-desktop
+            ];
 
-      my.preservation.homeDirectories = [
-        ".thunderbird"
-      ];
+            programs.thunderbird = {
+              enable = true;
+              profiles.default.isDefault = true;
+            };
+          }
+        ];
+
+        my.preservation.homeDirectories = [
+          ".thunderbird"
+          ".config/Proton Mail"
+        ];
+      };
     };
-  };
 }
