@@ -137,10 +137,6 @@
           # Without the NixOS mark at the start of the bar: the launcher is on Mod+Space.
           bar.mark = false;
 
-          # Weinig's patched niri, from dapple's cache above: the desk's monitor, the four-finger
-          # gestures, the keycaps and the rest that nixpkgs' niri goes without.
-          niri.patches = true;
-
           # Speaking instead of typing, with Mod+D, in English, knowing the words I use, as in a chat.
           dictation = {
             enable = true;
@@ -187,6 +183,10 @@
 
           # The greeter offers me first, with what my desktop showed last behind it.
           login.user = config.my.session.autologinuser;
+
+          # Weinig's patched niri, from dapple's cache above: the desk's monitor, the four-finger
+          # gestures, the keycaps and the rest that nixpkgs' niri goes without.
+          niri.patches = true;
 
           # niri's config beyond Weinig's, which has the gaps, struts, border, corners, overview,
           # column widths, hot corner, cursor, touchpad clicks and X11 apps of this desktop.

@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   # The Brother QL-700 that prints MeetINN's name labels at the door
   # (meetinn's README, "Name labels"). The check-in screen prints with

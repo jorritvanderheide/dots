@@ -35,7 +35,6 @@
 
         # Apps
         browser
-        cad
         editor
         email
         file-sync

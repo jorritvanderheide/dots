@@ -55,15 +55,6 @@
             my.offsite-backup.enable = true;
             my.ssh-server.allowedUsers = [ "nixos" ];
             my.ssh-server.lanAccess.enable = true;
-
-            # The jump host to Rootnet, which only lets the home IP in
-            # (rootnet in jorrit's ssh.nix). After ssh-server.nix's global
-            # AllowTcpForwarding no, as a Match block runs to the end.
-            services.openssh.extraConfig = lib.mkAfter ''
-              Match User nixos
-                AllowTcpForwarding yes
-                PermitOpen 185.173.20.56:22
-            '';
             my.tailscale.advertiseRoutes = [ config.my.lan.subnet ];
             networking.hostName = "dapple";
             system.stateVersion = "26.05";
@@ -104,6 +95,15 @@
             # be decoration. In nftables, a drop in NixOS's table holds
             # whatever tailscaled's table accepts.
             networking.nftables.enable = true;
+
+            # The jump host to Rootnet, which only lets the home IP in
+            # (rootnet in jorrit's ssh.nix). After ssh-server.nix's global
+            # AllowTcpForwarding no, as a Match block runs to the end.
+            services.openssh.extraConfig = lib.mkAfter ''
+              Match User nixos
+                AllowTcpForwarding yes
+                PermitOpen 185.173.20.56:22
+            '';
 
             # preservation.nix pins this to 3000 for the installer's benefit
             # on a fresh install (chowning /etc/nixos before the name resolves

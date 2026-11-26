@@ -2,13 +2,6 @@
 # is in configuration.nix.
 {
   flake.nixosModules.jorrit = {
-    # Rootnet's, from the first connection (2026-11-18): it gave no
-    # fingerprint. meetinn's deploy workflow pins the same key.
-    programs.ssh.knownHosts.rootnet = {
-      hostNames = [ "185.173.20.56" ];
-      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIV79HxjjWEj6tND6VwG+rukhBUhp+fwnU/clOvMNLrd";
-    };
-
     home-manager.users.jorrit = {
       # Public halves only: the private keys live in the Bitwarden SSH
       # agent (password-manager.nix), and IdentitiesOnly + IdentityFile
@@ -21,10 +14,10 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINW60Nybd6kk9zSurQJmpUODQDw0p41Pc/G/kt/CQ/Qy git@github.com";
         ".ssh/git@gitlab.science.ru.nl.pub".text =
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINK7PikkKt9lBCZDYpCZm8fFPx+oZ1EQWPhlzREkboFA git@gitlab.science.ru.nl";
-        ".ssh/kobo.pub".text =
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPVHAMFVZ/24DCKYsaKwP0svlTFHp4UFJd7YaqnFl4fh kobo";
         ".ssh/jorrit@rootnet.nl.pub".text =
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILstgbYXPbaEviS+6CaeU7FhT6qaTYZ9/edYKXtFyJAJ jorrit@rootnet.nl";
+        ".ssh/kobo.pub".text =
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPVHAMFVZ/24DCKYsaKwP0svlTFHp4UFJd7YaqnFl4fh kobo";
       };
 
       programs.ssh.settings = {
@@ -104,6 +97,13 @@
           user = "innbw20nl_19";
         };
       };
+    };
+
+    # Rootnet's, from the first connection (2026-11-18): it gave no
+    # fingerprint. meetinn's deploy workflow pins the same key.
+    programs.ssh.knownHosts.rootnet = {
+      hostNames = [ "185.173.20.56" ];
+      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIV79HxjjWEj6tND6VwG+rukhBUhp+fwnU/clOvMNLrd";
     };
   };
 }
